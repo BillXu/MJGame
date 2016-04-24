@@ -1,0 +1,9 @@
+ShopItemID	ShopItemName	ItemID	Count	ShopItemIcon	ShopItemType	AppStroeIdentifer	Flag	PrizeType	OrigPrize	CurPrize	CanBuyTimes	BeginTime	EndTime
+ 
+1	1«ß≥Ô¬Î	0	1000	icon_buychips1.png	1	TaxasPoker_1	0	0	0	1	0	0	0	   
+2	6«ß8≥Ô¬Î	0	6800	icon_buychips2.png	1	TaxasPoker_2	0	0	0	6	0	0	0	   
+3	8ÕÚ≥Ô¬Î	0	80000	icon_buychips3.png	1	TaxasPoker_3	0	0	0	68	0	0	0	   
+4	25ÕÚ≥Ô¬Î	0	250000	icon_buychips4.png	1	TaxasPoker_4	0	0	0	198	0	0	0	   
+5	85ÕÚ≥Ô¬Î	0	850000	icon_buychips5.png	1	TaxasPoker_5	0	0	0	648	0	0	0	   
+6	÷‹ø®	0	1	weekcard.png	1	paiyouquan_zhouka	0	0	0	30	0	0	0	 
+

@@ -1,0 +1,70 @@
+﻿生成启动时间为 2016/4/24 10:03:24。
+     1>项目“C:\Users\7z-Play-04\Documents\GitHub\MJGame\Server\DBServer\DBServer.vcxproj”在节点 2 上(Build 个目标)。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(346,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I../NetworkUtility/src /I./src/include /I./src/include/atomic /I./src/include/mysys /I../ServerCommon/pthreadLib /I../../Common /I../ServerCommon /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /D SERVER /D DB_SERVER /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Common\ConfigReader.cpp ..\..\Common\IConfigFile.cpp ..\..\Common\LogManager.cpp ..\..\Common\Utility.cpp ..\ServerCommon\ISeverApp.cpp ..\ServerCommon\mutex.cpp ..\ServerCommon\Sem.cpp ..\ServerCommon\ServerConfig.cpp ..\ServerCommon\ThreadMod.cpp ..\ServerCommon\Timer.cpp src\DataBaseThread.cpp src\DBApp.cpp src\DBManager.cpp src\DBRequest.cpp src\main.cpp src\MySqlData.cpp
+         MySqlData.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\mysqldata.cpp(15): warning C4244: “return”: 从“double”转换到“float”，可能丢失数据
+         main.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\main.cpp(78): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(290) : 参见“scanf”的声明
+         DBRequest.cpp
+         DBManager.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\include\my_global.h(825): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\string.h(200) : 参见“strtok”的声明
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\dbmanager.cpp(117): warning C4244: “=”: 从“uint64_t”转换到“unsigned int”，可能丢失数据
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\dbmanager.cpp(945): warning C4244: “=”: 从“unsigned __int64”转换到“uint32_t”，可能丢失数据
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\dbmanager.cpp(946): warning C4244: “=”: 从“unsigned __int64”转换到“uint32_t”，可能丢失数据
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\dbmanager.cpp(959): warning C4244: “=”: 从“time_t”转换到“uint32_t”，可能丢失数据
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\dbmanager.cpp(1806): warning C4244: “=”: 从“time_t”转换到“uint32_t”，可能丢失数据
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\dbmanager.cpp(1854): warning C4244: “=”: 从“unsigned __int64”转换到“uint32_t”，可能丢失数据
+         DBApp.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\include\my_global.h(825): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\string.h(200) : 参见“strtok”的声明
+         DataBaseThread.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\server\dbserver\src\include\my_global.h(825): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\string.h(200) : 参见“strtok”的声明
+         Timer.cpp
+         ThreadMod.cpp
+         ServerConfig.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         Sem.cpp
+         mutex.cpp
+         ISeverApp.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         Utility.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\utility.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         LogManager.cpp
+         IConfigFile.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         ConfigReader.cpp
+     1>c:\users\7z-play-04\documents\github\mjgame\common\configreader.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         正在生成代码...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"../Bin/ServerBin\DBServer.exe" /INCREMENTAL /NOLOGO /LIBPATH:../Bin/Lib libmysql.lib pthreadVC2.lib NetworkUtilityD.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\DBServer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"../Bin/ServerBin\DBServer.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"../Bin/ServerBin\DBServer.lib" /MACHINE:X86 Debug\ConfigReader.obj
+         Debug\IConfigFile.obj
+         Debug\LogManager.obj
+         Debug\Utility.obj
+         Debug\ISeverApp.obj
+         Debug\mutex.obj
+         Debug\Sem.obj
+         Debug\ServerConfig.obj
+         Debug\ThreadMod.obj
+         Debug\Timer.obj
+         Debug\DataBaseThread.obj
+         Debug\DBApp.obj
+         Debug\DBManager.obj
+         Debug\DBRequest.obj
+         Debug\main.obj
+         Debug\MySqlData.obj
+         DBServer.vcxproj -> C:\Users\7z-Play-04\Documents\GitHub\MJGame\Server\DBServer\../Bin/ServerBin\DBServer.exe
+       Manifest:
+         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\mt.exe /nologo /verbose /out:"C:\Users\7z-Play-04\Documents\GitHub\MJGame\Server\DBServer\../Bin/ServerBin\DBServer.exe.manifest" /manifest Debug\DBServer.exe.intermediate.manifest
+     1>已完成生成项目“C:\Users\7z-Play-04\Documents\GitHub\MJGame\Server\DBServer\DBServer.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:31.28
