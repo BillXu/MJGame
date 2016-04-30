@@ -1,6 +1,6 @@
 #pragma once
 #include "NativeTypes.h"
-#include "MessageIdentifer.h"
+#include "ServerMessageIdentifer.h"
 struct stBaseRoomConfig;
 struct stEnterRoomData ;
 class IRoomManager ;

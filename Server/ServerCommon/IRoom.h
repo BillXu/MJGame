@@ -89,7 +89,6 @@ public:
 	void setInitState(IRoomState* pDefaultState );
 	IRoomState* getCurRoomState();
 	IRoomState* getRoomStateByID(uint16_t nStateID );
-	CPoker* getPoker(){ return &m_tPoker ; }
 
 	// room attribute
 	uint32_t getTotalProfit(){ return m_nTotalProfit ;}
@@ -116,8 +115,6 @@ private:
 	MAP_UID_STAND_PLAYER m_vInRoomPlayers ;
 	IRoomState* m_pCurRoomState ;
 	MAP_ID_ROOM_STATE m_vRoomStates ;
-
-	CPoker m_tPoker ;
 
 	uint32_t m_nTotalProfit ;
 	uint32_t m_nChatRoomID ;
