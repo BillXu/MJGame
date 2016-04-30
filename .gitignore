@@ -71,4 +71,8 @@ Server/DBServer/Debug/
 Server/DBServer/Debug/
 *.exe
 *.exe
-Server/DBServer/Debug/CL.read.1.tlog
+Server/DBServer/Debug/
+Server/Bin/Lib/NetworkUtilityD.lib
+Server/Bin/Lib/NetworkUtility.lib
+Server/DBServer/Debug/
+*.sdf
