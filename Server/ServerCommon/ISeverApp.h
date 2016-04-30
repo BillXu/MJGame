@@ -4,7 +4,8 @@
 
 #include "Timer.h"
 #include "ServerConfig.h"
-#include "MessageIdentifer.h"
+#include "ServerMessageIdentifer.h"
+#include "json/json.h"
 struct stMsg ;
 class IGlobalModule ;
 class IServerApp
@@ -21,8 +22,10 @@ public:
 	void shutDown();
 	bool sendMsg( const char* pBuffer , int nLen );
 	bool sendMsg( uint32_t nSessionID , const char* pBuffer , uint16_t nLen, bool bBroadcast = false );
+	bool sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID = 0 ,bool bBroadcast = false );
 	void stop();
 	virtual bool onLogicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID );
+	virtual bool onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID );
 	virtual void update(float fDeta );
 	virtual uint16_t getLocalSvrMsgPortType() = 0 ; // et : ID_MSG_PORT_DATA , ID_MSG_PORT_TAXAS
 	virtual uint16_t getTargetSvrPortType();

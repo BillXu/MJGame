@@ -5,7 +5,7 @@
 #include <Dbghelp.h>
 #include "LogManager.h"
 #pragma comment( lib, "DbgHelp" )
-#pragma comment(lib,"JsonDll.lib")
+//#pragma comment(lib,"JsonDll.lib")
 
 DWORD WINAPI ThreadProc(LPVOID lpParam)
 {

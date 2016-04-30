@@ -40,6 +40,9 @@
 
 #define CIRCLE_TOPIC_CNT_PER_PAGE 7
 #define MAX_CIRCLE_CONTENT_LEN 700
+
+#define JS_KEY_MSG_TYPE "msgID"
+
 enum ePayChannel
 {
 	ePay_AppStore,

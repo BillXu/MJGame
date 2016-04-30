@@ -543,8 +543,8 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
  			SendMsg(&msgUpdate,sizeof(msgUpdate));
 		}
 		break;
-	case MSG_GET_CONTINUE_LOGIN_REWARD:
-		{
+	//case MSG_GET_CONTINUE_LOGIN_REWARD:
+	//	{
 // 			stMsgGetContinueLoginReward* pGetR = (stMsgGetContinueLoginReward*)pMsg ;
 // 			stMsgGetContinueLoginRewardRet msgBack ;
 // 			msgBack.nRet = 0 ; //  // 0 success , 1 already getted , 2 you are not vip  ;
@@ -605,8 +605,8 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 // 				SendMsgToClient((char*)&msgBack,sizeof(msgBack)) ;
 // 				break;
 // 			}
-		}
-		break;
+	//	}
+	//	break;
 	case MSG_PLAYER_REQUEST_CHARITY_STATE:
 		{
  			stMsgPlayerRequestCharityStateRet msgBack ;
@@ -847,12 +847,14 @@ void CPlayerBaseData::SendBaseDatToClient()
 {
 	if ( nReadingDataFromDB == 2 )
 	{
-		stMsgPlayerBaseData msg ;
-		memcpy(&msg.stBaseData,&m_stBaseData,sizeof(msg.stBaseData));
-		msg.nSessionID = GetPlayer()->GetSessionID() ;
-		SendMsg(&msg,sizeof(msg)) ;
+		Json::Value jValue ;
+		jValue["name"] = m_stBaseData.cName ;
+		jValue["coin"] = m_stBaseData.nCoin ;
+		jValue["sex"] = m_stBaseData.nSex ;
+		jValue["diamond"] = m_stBaseData.nDiamoned ;
+		SendMsg(jValue,MSG_PLAYER_BASE_DATA);
 		CLogMgr::SharedLogMgr()->PrintLog("send base data to session id = %d ",GetPlayer()->GetSessionID() );
-		CLogMgr::SharedLogMgr()->SystemLog("send data uid = %d , final coin = %d, sex = %d",GetPlayer()->GetUserUID(),GetAllCoin(),msg.stBaseData.nSex);
+		CLogMgr::SharedLogMgr()->SystemLog("send data uid = %d , final coin = %d, sex = %d",GetPlayer()->GetUserUID(),GetAllCoin(),m_stBaseData.nSex);
 	}
 	else
 	{
@@ -1045,7 +1047,7 @@ bool CPlayerBaseData::onPlayerRequestMoney(uint64_t& nCoinOffset,uint64_t nAtLea
 	return true ;
 }
 
-bool CPlayerBaseData::AddMoney(int64_t nOffset,bool bDiamond  )
+bool CPlayerBaseData::AddMoney(int32_t nOffset,bool bDiamond  )
 {
 	if ( bDiamond )
 	{

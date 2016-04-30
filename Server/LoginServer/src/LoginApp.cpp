@@ -7,17 +7,10 @@
 CLoginApp::CLoginApp()
 {
 	m_pDBThread = NULL ;
-	m_pDBMgr = NULL ;
 }
 
 CLoginApp::~CLoginApp()
 {
-	if ( m_pDBMgr )
-	{
-		delete m_pDBMgr ;
-		m_pDBMgr = NULL ;
-	}
-
 	if ( m_pDBThread )
 	{
 		m_pDBThread->StopWork();
@@ -58,8 +51,8 @@ bool CLoginApp::init()
 		return false;
 	}
 
-	m_pDBMgr = new CDBManager;
-	m_pDBMgr->Init(this);
+	auto pDBMgr = new CDBManager;
+	registerModule(pDBMgr);
 
 	// connected to center ;
 	pSvrConfigItem = m_stSvrConfigMgr.GetServerConfig(eSvrType_Center );
@@ -79,10 +72,11 @@ void CLoginApp::update(float fdeta )
 	CDBRequestQueue::VEC_DBRESULT vResultOut ;
 	CDBRequestQueue::SharedDBRequestQueue()->GetAllResult(vResultOut) ;
 	CDBRequestQueue::VEC_DBRESULT::iterator iter = vResultOut.begin() ;
+	auto pM = (CDBManager*)getModuleByType(CDBManager::eModule_Type) ;
 	for ( ; iter != vResultOut.end(); ++iter )
 	{
 		stDBResult* pRet = *iter ;
-		m_pDBMgr->OnDBResult(pRet) ;
+		pM->OnDBResult(pRet) ;
 		delete pRet ;
 	}
 	vResultOut.clear();
@@ -94,18 +88,4 @@ void CLoginApp::onExit()
 	{
 		m_pDBThread->StopWork();
 	}
-}
-
-bool CLoginApp::onLogicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID )
-{
-	if ( IServerApp::onLogicMsg(prealMsg,eSenderPort,nSessionID) )
-	{
-		return true;
-	}
-
-	if ( m_pDBMgr )
-	{
-		m_pDBMgr->OnMessage(prealMsg,eSenderPort,nSessionID ) ;
-	}
-	return true ;
 }

@@ -30,7 +30,7 @@ public:
 	uint32_t getCoin(){ return m_stBaseData.nCoin ; }
 	uint32_t GetAllDiamoned(){ return m_stBaseData.nDiamoned;}
 	void setCoin(int64_t nCoin );
-	bool AddMoney(int64_t nOffset,bool bDiamond = false );
+	bool AddMoney(int32_t nOffset,bool bDiamond = false );
 	void addInvitePrize(uint32_t nCoinPrize );
 	bool decressMoney(int64_t nOffset,bool bDiamond = false );
 	bool OnPlayerEvent(stPlayerEvetArg* pArg);

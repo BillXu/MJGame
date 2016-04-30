@@ -140,7 +140,7 @@ bool CPlayerFriend::OnMessage(stMsg* pMsg, eMsgPort eSenderPort )
 			}
 		}
 		break;
-	case MSG_PLAYER_DELETE_FRIEND:
+	/*case MSG_PLAYER_DELETE_FRIEND:
 		{
 			stMsgPlayerDelteFriendRet msgBack ;
 			msgBack.nRet = 0 ;
@@ -168,7 +168,7 @@ bool CPlayerFriend::OnMessage(stMsg* pMsg, eMsgPort eSenderPort )
 				CLogMgr::SharedLogMgr()->ErrorLog("no online tell mail to delete friend");
 			}
 		}
-		break;
+		break;*/
 	default:
 		return false ;
 	}

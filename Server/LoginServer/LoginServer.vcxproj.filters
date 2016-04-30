@@ -87,6 +87,9 @@
     <ClInclude Include="..\ServerCommon\ISeverApp.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\IGlobalModule.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\Utility.cpp">

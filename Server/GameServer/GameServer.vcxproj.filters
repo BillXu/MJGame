@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{4f410397-7423-480e-aa60-16fb3d675dfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\App">
+      <UniqueIdentifier>{cf27c37a-8c66-497b-bb54-dce03e04adc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Player">
+      <UniqueIdentifier>{6c806493-f39d-4048-a829-4052863fede2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SvrCommon">
+      <UniqueIdentifier>{c88ff6d4-530f-4d24-b788-b975c4e6d75b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Config">
+      <UniqueIdentifier>{fe25b9b0-e2bb-46e9-949b-66585a75b186}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Uitility">
+      <UniqueIdentifier>{8293aa62-12e6-4d91-bbf8-0f36ebd090f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Common\CommonDefine.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\MessageDefine.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\MessageIdentifer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\ServerConfig.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\Timer.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\BoxConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ConfigManager.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ConfigReader.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ContinueLoginConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\IConfigFile.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ItemConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\RoomConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ShopConfg.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\MissionConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\LogManager.h">
+      <Filter>Common\Uitility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\Utility.h">
+      <Filter>Common\Uitility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\CommonData.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\TitleLevelConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\ServerMessageDefine.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\main.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\GameServerApp.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\EventCenter.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\Events.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlayerManager.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\Player.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\IPlayerComponent.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlayerBaseData.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlayerMail.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\ISeverApp.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\ServerCommon.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlayerFriend.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\AutoBuffer.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PokerCircle.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlayerGameData.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\RewardConfig.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\ExchangeConfig.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\ExchangeCenter.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\SeverUtility.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\ServerStringTable.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\IGlobalModule.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\RobotCenter.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\ServerMessageIdentifer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ServerCommon\ServerConfig.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\Timer.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\BoxConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ConfigManager.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ConfigReader.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ContinueLoginConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\IConfigFile.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ItemConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\RoomConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ShopConfg.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\MissionConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\LogManager.cpp">
+      <Filter>Common\Uitility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\Utility.cpp">
+      <Filter>Common\Uitility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\TitleLevelConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\main.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\GameServerApp.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\EventCenter.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlayerManager.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\Player.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\IPlayerComponent.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlayerBaseData.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlayerMail.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlayerFriend.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PokerCircle.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlayerGameData.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\RewardConfig.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\ExchangeConfig.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\ExchangeCenter.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\SeverUtility.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\ServerStringTable.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\RobotCenter.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
+</Project>

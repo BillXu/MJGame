@@ -23,6 +23,7 @@ public:
 	IPlayerComponent(CPlayer* pPlayer );
 	virtual ~IPlayerComponent();
 	void SendMsg(stMsg* pbuffer , unsigned short nLen , bool bBrocast = false );
+	void SendMsg(Json::Value& jsContent , unsigned short nMsgType , bool bBrocast = false );
 	ePlayerComponentType GetComponentType(){ return m_eType ;}
 	CPlayer* GetPlayer(){ return m_pPlayer ;}
 	virtual bool OnMessage( stMsg* pMessage , eMsgPort eSenderPort);

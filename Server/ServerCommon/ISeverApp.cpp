@@ -7,8 +7,10 @@
 #include <assert.h>
 #include <synchapi.h>
 #include "IGlobalModule.h"
+#include "AutoBuffer.h"
 
 #define TIME_WAIT_FOR_RECONNECT 5
+#pragma comment(lib,"JsonDll.lib")
 bool IServerApp::init()
 {
 	m_bRunning = true;
@@ -77,10 +79,27 @@ bool IServerApp::OnMessage( Packet* pMsg )
 	stMsgTransferData* pData = (stMsgTransferData*)pRet ;
 	stMsg* preal = (stMsg*)( pMsg->_orgdata + sizeof(stMsgTransferData));
 
+	if ( preal->usMsgType == MSG_JSON_CONTENT  )
+	{
+		stMsgJsonContent* pRet = (stMsgJsonContent*)preal ;
+		char* pBuffer = (char*)preal ;
+		pBuffer += sizeof(stMsgJsonContent);
+		Json::Reader reader ;
+		Json::Value rootValue ;
+		reader.parse(pBuffer,pBuffer + pRet->nJsLen,rootValue,false) ;
+		uint16_t nMsgType = rootValue[JS_KEY_MSG_TYPE].asUInt() ;
+		if ( onLogicMsg(rootValue,nMsgType,(eMsgPort)pData->nSenderPort,pData->nSessionID) )
+		{
+			return true ;
+		}
+		return false ;
+	}
+
 	if ( onLogicMsg(preal,(eMsgPort)pData->nSenderPort,pData->nSessionID) )
 	{
 		return true ;
 	}
+
 
 	CLogMgr::SharedLogMgr()->ErrorLog("unprocessed msg = %d , from port = %d , session id = %d",preal->usMsgType,pData->nSenderPort,pData->nSessionID) ;
 	return false ;
@@ -193,6 +212,37 @@ bool IServerApp::sendMsg(  uint32_t nSessionID , const char* pBuffer , uint16_t 
 	return true ;
 }
 
+bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID, bool bBroadcast )
+{
+	if ( recvValue.isNull() )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("why send a null js value") ;
+		return false ;
+	}
+
+	if ( nMsgID )
+	{
+		if ( !recvValue[JS_KEY_MSG_TYPE] )
+		{
+
+		}
+		else
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("msg id = %u ,already have this tag ",nMsgID ) ;
+		}
+		recvValue[JS_KEY_MSG_TYPE] = nMsgID ;
+	}
+
+	Json::StyledWriter writerJs ;
+	std::string strContent = writerJs.write(recvValue);
+	stMsgJsonContent msg ;
+	msg.nJsLen = strContent.size() ;
+	CAutoBuffer bufferTemp(sizeof(msg) + msg.nJsLen);
+	bufferTemp.addContent(&msg,sizeof(msg)) ;
+	bufferTemp.addContent(strContent.c_str(),msg.nJsLen) ;
+	return sendMsg(nSessionID,bufferTemp.getBufferPtr(),bufferTemp.getContentSize(),bBroadcast) ; 
+}
+
 void IServerApp::stop()
 {
 	m_bRunning = false ;
@@ -203,6 +253,18 @@ bool IServerApp::onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nS
 	for ( auto pp : m_vAllModule )
 	{
 		if ( pp.second->onMsg(prealMsg,eSenderPort,nSessionID) )
+		{
+			return true ;
+		}
+	}
+	return false ;
+}
+
+bool IServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )
+{
+	for ( auto pp : m_vAllModule )
+	{
+		if ( pp.second->onMsg(recvValue,nmsgType,eSenderPort,nSessionID) )
 		{
 			return true ;
 		}

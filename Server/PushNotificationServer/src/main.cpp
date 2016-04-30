@@ -1,5 +1,5 @@
 #include "PushNotificationServer.h"
-#pragma comment(lib,"JsonDll.lib")
+//#pragma comment(lib,"JsonDll.lib")
 int main()
 {
 	//CMD5 t;

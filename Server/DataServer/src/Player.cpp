@@ -5,7 +5,7 @@
 #include "PlayerBaseData.h"
 #include "PlayerMail.h"
 #include "PlayerItem.h"
-#include "PlayerMission.h"
+//#include "PlayerMission.h"
 #include "Timer.h"
 #include "PlayerShop.h"
 #include "ServerMessageDefine.h"
@@ -289,6 +289,16 @@ void CPlayer::SendMsgToClient(const char* pBuffer, unsigned short nLen,bool bBro
 	if ( IsState(ePlayerState_Online) || pmsg->cSysIdentifer != ID_MSG_PORT_CLIENT  )
 	{
 		CGameServerApp::SharedGameServerApp()->sendMsg(GetSessionID(),pBuffer,nLen,bBrocat) ;
+		return ;
+	}
+	CLogMgr::SharedLogMgr()->PrintLog("player uid = %d not online so , can not send msg" ,GetUserUID() ) ;
+}
+
+void CPlayer::SendMsgToClient(Json::Value& jsContent , unsigned short nMsgType , bool bBrocast )
+{
+	if ( IsState(ePlayerState_Online))
+	{
+		CGameServerApp::SharedGameServerApp()->sendMsg(GetSessionID(),jsContent,nMsgType,bBrocast) ;
 		return ;
 	}
 	CLogMgr::SharedLogMgr()->PrintLog("player uid = %d not online so , can not send msg" ,GetUserUID() ) ;

@@ -24,6 +24,7 @@ public:
 	bool OnMessage( stMsg* pMessage , eMsgPort eSenderPort );
 	void OnPlayerDisconnect();
 	void SendMsgToClient(const char* pBuffer, unsigned short nLen,bool bBrocat = false );
+	void SendMsgToClient(Json::Value& jsContent , unsigned short nMsgType , bool bBrocast );
 	unsigned int GetUserUID(){ return m_nUserUID ;}
 	unsigned int GetSessionID(){ return m_nSessionID ;}
 	IPlayerComponent* GetComponent(ePlayerComponentType eType ){ return m_vAllComponents[eType];}

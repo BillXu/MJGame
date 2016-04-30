@@ -11,12 +11,10 @@ public:
 	CLoginApp();
 	~CLoginApp();
 	bool init();
-	void update(float fdeta );
-	bool onLogicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID );
+	void update(float fdeta );	
 	void onExit();
 	uint16_t getLocalSvrMsgPortType(){ return ID_MSG_PORT_LOGIN ;}
 protected:
 	CDataBaseThread* m_pDBThread;
-	CDBManager* m_pDBMgr ;
 	CSeverConfigMgr m_stSvrConfigMgr ;
 };

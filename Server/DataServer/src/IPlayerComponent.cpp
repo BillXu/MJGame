@@ -31,3 +31,8 @@ void IPlayerComponent::SendMsg(stMsg* pbuffer , unsigned short nLen , bool bBroc
 	m_pPlayer->SendMsgToClient((char*)pbuffer,nLen,bBrocast);
 }
 
+void IPlayerComponent::SendMsg(Json::Value& jsContent , unsigned short nMsgType , bool bBrocast )
+{
+	m_pPlayer->SendMsgToClient(jsContent,nMsgType,bBrocast) ;
+}
+

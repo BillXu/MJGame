@@ -369,7 +369,7 @@ bool CPlayerManager::ProcessPublicMessage( stMsg* prealMsg , eMsgPort eSenderPor
 			}
 		}
 		break;
-	case MSG_REQUEST_PLAYER_DATA:
+	case MSG_REQUEST_PLAYER_INFO:
 		{
 			stMsgRequestPlayerData* pRet = (stMsgRequestPlayerData*)prealMsg ;
 			stMsgRequestPlayerDataRet msgBack ;
