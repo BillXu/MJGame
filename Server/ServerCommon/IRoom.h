@@ -77,6 +77,10 @@ public:
 
 	void sendRoomMsg( stMsg* pmsg , uint16_t nLen );
 	void sendMsgToPlayer( stMsg* pmsg , uint16_t nLen , uint32_t nSessionID ) ;
+
+	void sendRoomMsg( Json::Value& jsContent , unsigned short nMsgType );
+	void sendMsgToPlayer( Json::Value& jsContent , unsigned short nMsgType , uint32_t nSessionID ) ;
+
 	bool onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )override;
 	virtual void roomInfoVisitor(Json::Value& vOutJsValue) = 0 ;
 	virtual void sendRoomPlayersInfo(uint32_t nSessionID) = 0 ;

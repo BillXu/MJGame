@@ -38,6 +38,7 @@ enum eMJActType
 	eMJAct_BuGang,
 	eMJAct_Hu,
 	eMJAct_Chi,
+	eMJAct_Chu,
 	eMJAct_Max,
 };
 

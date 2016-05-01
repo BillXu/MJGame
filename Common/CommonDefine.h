@@ -56,6 +56,7 @@ enum eRoomType
 {
 	eRoom_None,
 	eRoom_TexasPoker = eRoom_None,
+	eRoom_MJ,
 	eRoom_NiuNiu,
 	eRoom_Golden,
 	eRoom_Max ,
@@ -82,45 +83,23 @@ enum eRoomState
 	eRoomState_None,
 	eRoomState_Opening,
 	eRoomState_Dead,
-	eRoomState_WillDead,
-	eRoomState_TP_Dead = eRoomState_Dead,
-	eRoomState_WaitJoin,
-	eRoomState_NN_WaitJoin = eRoomState_WaitJoin ,
-	eRoomState_TP_WaitJoin = eRoomState_WaitJoin,
 	eRoomState_WillClose,
 	eRoomState_Close,
-	eRoomState_DidGameOver,
+	eRoomSate_WaitReady,
 	eRoomState_StartGame,
-	eRoomState_NN_Disribute4Card = eRoomState_StartGame,
-	// state for texas poker
-	eRoomState_TP_BetBlind = eRoomState_StartGame,
-	eRoomState_TP_PrivateCard = eRoomState_StartGame,
-	eRoomState_TP_Beting,
-	eRoomState_TP_OneRoundBetEndResult,
-	eRoomState_TP_PublicCard,
-	eRoomState_TP_GameResult,
-	eRoomState_TP_MAX,
 
-	// state for Baccarat ;
-	eRoomState_BC_Shuffle,
-	eRoomState_BC_WaitBet,
-	eRoomState_BC_Distribute,
-	eRoomState_BC_AddIdleCard,
-	eRoomState_BC_AddBankerCard,
-	eRoomState_BC_Caculate,
+	eRoomState_WaitExchangeCards,
+	eRoomState_DoExchangeCards ,
+	eRoomState_WaitDecideQue,
+	eRoomState_DoDecideQue,
+	eRoomState_DoFetchCard,
+	eRoomState_WaitPlayerAct,
+	eRoomState_DoPlayerAct,
+	eRoomState_WaitOtherPlayerAct,
+	eRoomState_DoOtherPlayerAct,
+	eRoomState_WaitPlayerRecharge,
+	eRoomState_GameEnd,
 
-	// state for NiuNiu
-	eRoomState_NN_TryBanker,
-	eRoomState_NN_RandBanker,
-	eRoomState_NN_StartBet,
-	eRoomState_NN_FinalCard,
-	eRoomState_NN_CaculateCard,
-	eRoomState_NN_GameResult,
-
-	// state for golden
-	eRoomState_Golden_Bet,
-	eRoomState_Golden_PK,
-	eRoomState_Golden_GameResult,
 	eRoomState_Max,
 };
 
@@ -317,50 +296,6 @@ enum eRoomLevel
 #define MAX_PEERS_IN_TAXAS_ROOM 9
 #define TIME_LOW_LIMIT_FOR_NORMAL_ROOM 10
 
-// time for niuniu 
-#define TIME_NIUNIU_DISTRIBUTE_4_CARD_PER_PLAYER 1.0f 
-#define TIME_NIUNIU_TRY_BANKER 6.0f
-#define TIME_NIUNIU_RAND_BANKER_PER_WILL_BANKER 0.7f
-#define TIME_NIUNIU_PLAYER_BET 8.0f
-#define TIME_NIUNIU_DISTRIBUTE_FINAL_CARD_PER_PLAYER 0.3f
-#define TIME_NIUNIU_PLAYER_CACULATE_CARD 8.0f
-#define TIME_NIUNIU_GAME_RESULT_PER_PLAYER 0.8f
-#define TIME_NIUNIU_GAME_RESULT_EXT 2.2f
 
-// time for golden
-#define TIME_GOLDEN_DISTRIBUTE_CARD_PER_PLAYER 1.0f 
 
-// baccarat define 
-enum eBaccaratBetPort
-{
-	eBC_BetPort_One,
-	eBC_BetPort_BankerWin = eBC_BetPort_One,
-	eBC_BetPort_IdleWin,
-	eBC_BetPort_TheSame,
-	eBC_BetPort_BankerPair,
-	eBC_BetPort_IdlePair,
-	eBC_BetPort_Max,
-};
-
-#define SETTING_MUSIC_ON "MusicOn"
-#define SETTING_SOUND_ON "SoundOn"
-
-#define LOCAL_ACCOUNT "account"
-#define LOCAL_PASSWORD "password"
-#define IS_AUTO_REGISTER "IsAutoLogin"
-#define IS_CREATE_ROLE "IsCreateRole"
-
-#define TEMP_NAME "tempName"
-#define TEMP_ACCOUNT "tempAccount"
-#define TEMP_PASSWORD "tempPassword"
-
-#define MUSIC_NAME "mp3/bgm2.mp3"
-#define SOUND_BET "mp3/bet.mp3"
-#define SOUND_PASS "mp3/check.mp3"
-#define SOUND_CLOCK "mp3/clock.mp3"
-#define SOUND_SHOW_PUBLIC "mp3/flop.mp3"
-#define SOUND_GIVE_UP "mp3/fold.mp3"
-#define SOUND_WIN_CHIP "mp3/movechips.mp3"
-#define SOUND_MY_TURN "mp3/myturn.mp3"
-#define SOUND_SHOW_SHOP "mp3/shopBell.mp3"
 

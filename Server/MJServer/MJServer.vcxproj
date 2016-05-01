@@ -117,21 +117,26 @@
     <ClInclude Include="..\ServerCommon\ServerConfig.h" />
     <ClInclude Include="..\ServerCommon\ServerDefine.h" />
     <ClInclude Include="..\ServerCommon\ServerMessageDefine.h" />
+    <ClInclude Include="..\ServerCommon\ServerMessageIdentifer.h" />
     <ClInclude Include="..\ServerCommon\ServerStringTable.h" />
     <ClInclude Include="..\ServerCommon\SeverUtility.h" />
     <ClInclude Include="..\ServerCommon\Singleton.h" />
     <ClInclude Include="..\ServerCommon\ISitableRoom.h" />
     <ClInclude Include="..\ServerCommon\SystemRoom.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
+    <ClInclude Include="src\MJWaitDecideQueState.h" />
     <ClInclude Include="src\MJBloodFanxing.h" />
     <ClInclude Include="src\MJCard.h" />
     <ClInclude Include="src\MJCardFanXing.h" />
     <ClInclude Include="src\MJDefine.h" />
+    <ClInclude Include="src\MJExchangeCardState.h" />
+    <ClInclude Include="src\MJGameStartState.h" />
     <ClInclude Include="src\MJPeerCard.h" />
     <ClInclude Include="src\MJRoom.h" />
     <ClInclude Include="src\MJServerRoomManger.h" />
     <ClInclude Include="src\MJRoomPlayer.h" />
     <ClInclude Include="src\MJServer.h" />
+    <ClInclude Include="src\MJWaitPlayerActState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\ConfigReader.cpp" />
@@ -159,11 +164,15 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MJBloodFanxing.cpp" />
     <ClCompile Include="src\MJCard.cpp" />
+    <ClCompile Include="src\MJExchangeCardState.cpp" />
+    <ClCompile Include="src\MJGameStartState.cpp" />
     <ClCompile Include="src\MJPeerCard.cpp" />
     <ClCompile Include="src\MJRoom.cpp" />
     <ClCompile Include="src\MJServerRoomManger.cpp" />
     <ClCompile Include="src\MJRoomPlayer.cpp" />
     <ClCompile Include="src\MJServer.cpp" />
+    <ClCompile Include="src\MJWaitDecideQueState.cpp" />
+    <ClCompile Include="src\MJWaitPlayerActState.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

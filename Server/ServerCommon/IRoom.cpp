@@ -64,7 +64,7 @@ IRoom::~IRoom()
 
 void IRoom::forcePlayersLeaveRoom()
 {
-	if ( getCurRoomState()->getStateID() != eRoomState_Close && eRoomState_WaitJoin != getCurRoomState()->getStateID() )
+	if ( getCurRoomState()->getStateID() != eRoomState_Close  )
 	{
 		CLogMgr::SharedLogMgr()->ErrorLog("when player is palying do not force them out room id = %u",getRoomID()) ;
 	}
@@ -100,14 +100,14 @@ bool IRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, u
 void IRoom::prepareState()
 {
 	// create room state ;
-	IRoomState* vState[] = {
-		new IRoomStateWaitPlayerJoin(),new IRoomStateClosed(),new IRoomStateDidGameOver()
-	};
-	for ( uint8_t nIdx = 0 ; nIdx < sizeof(vState) / sizeof(IRoomState*); ++nIdx )
-	{
-		addRoomState(vState[nIdx]) ;
-	}
-	setInitState(vState[0]);
+	//IRoomState* vState[] = {
+	//	new IRoomStateWaitPlayerJoin(),new IRoomStateClosed(),new IRoomStateDidGameOver()
+	//};
+	//for ( uint8_t nIdx = 0 ; nIdx < sizeof(vState) / sizeof(IRoomState*); ++nIdx )
+	//{
+	//	addRoomState(vState[nIdx]) ;
+	//}
+	//setInitState(vState[0]);
 }
 
 void IRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig ,uint32_t nRoomID , Json::Value& vJsValue )

@@ -1,6 +1,7 @@
 #pragma once
 #include "ISitableRoom.h"
 #include <json/json.h>
+#include "MJDefine.h"
 class CMJRoom
 	:public ISitableRoom
 {
@@ -15,29 +16,27 @@ public:
 	void sendRoomPlayersInfo(uint32_t nSessionID)override ;
 	void setBankerIdx(uint8_t nIdx ){ m_nBankerIdx = nIdx ;}
 	uint8_t getBankerIdx(){ return m_nBankerIdx ;}
-	void setBetBottomTimes(uint8_t nTimes ){ m_nBetBottomTimes = nTimes ;}
-	uint8_t getBetBottomTimes(){ return m_nBetBottomTimes ;}
-	uint8_t getMaxRate();
-	uint8_t getDistributeCardCnt();
 	uint32_t getBaseBet(); // ji chu di zhu ;
-	uint64_t& getBankCoinLimitForBet();
-	void setBankCoinLimitForBet( uint64_t nCoin );
-	uint8_t getReateByNiNiuType(uint8_t nType , uint8_t nPoint );
-	uint64_t getLeastCoinNeedForBeBanker( uint8_t nBankerTimes );
+	
 	void onGameWillBegin()override ;
 	void onGameDidEnd()override ;
 	void onPlayerWillStandUp( ISitableRoomPlayer* pPlayer )override ;
 	uint32_t getLeastCoinNeedForCurrentGameRound(ISitableRoomPlayer* pp)override ;
-	uint8_t getRoomType()override{ return eRoom_NiuNiu ;}
+	uint8_t getRoomType()override{ return eRoom_MJ ;}
 	void prepareCards()override;
 	uint32_t coinNeededToSitDown()override;
 	void caculateGameResult();
+	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber , uint8_t nInvokerIdx , eMJActType eCardFrom );
+	void onPlayerGangPai( uint8_t nActIdx , bool isBuGang );
+	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t> nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
+	void onPlayerGiveCardToTable( uint8_t nIdx ,eMJActType etype, uint8_t nCardNumber ,eMJActType eCardFrom );  // normal chu pai , or bu gang ;
+	uint8_t getLeftCardCnt();
+	uint8_t getNextActPlayerIdx();
+	void onPlayerMoPai( uint8_t nIdx );
 protected:
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;
 protected:
 	uint8_t m_nBankerIdx ;
-	uint8_t m_nBetBottomTimes ;
-	uint64_t m_nBankerCoinLimitForBet ; // 
 	uint32_t m_nBaseBet ;
 
 	Json::Value m_arrPlayers ;

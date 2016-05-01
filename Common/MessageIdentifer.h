@@ -1,4 +1,19 @@
 #pragma once 
+
+enum eTime
+{
+	eTime_ExeGameStart = 5,
+	eTime_WaitChoseExchangeCard = 5,
+	eTime_DoExchangeCard = 3,
+	eTime_WaitDecideQue = 5,
+	eTime_DoDecideQue = 2,
+	eTime_WaitPlayerAct = 8,
+	eTime_DoPlayerMoPai = 1 ,
+	eTime_DoPlayerActChuPai = 2,
+	eTime_DoPlayerAct_Gang = 2,
+	eTime_DoPlayerAct_Hu = 3,
+};
+
 enum eMsgType 
 {
 	MSG_CLIENT = 10000,
@@ -41,5 +56,65 @@ enum eMsgType
 	MSG_RESET_PASSWORD,
 	MSG_REQUEST_PLAYER_INFO,
 	
+	// mj room msg 
+	MSG_REQ_ENTER_ROOM,
+	// client : { roomType: "blood" , configID : "12" }
+	// svr : { ret : 0  }
+	// ret : 0 ,success , 1 argument error , 2 already in room , 3 coin not enough ;
 
+	MSG_ROOM_INFO,
+	// svr : { configID : 23 , players : [ {idx : 0 , uid : 233, coin : 2345 }, {idx : 0 , uid : 233, coin : 2345 },{idx : 0 , uid : 233, coin : 2345 } , ... ] }
+
+	MSG_ROOM_PLAYER_ENTER,
+	// svr : {idx : 0 , uid : 233, coin : 2345 }
+
+	MSG_PLAYER_SET_READY,
+	// client : null ;
+
+	MSG_ROOM_PLAYER_READY,
+	// svr : { idx : 2 }
+
+	MSG_ROOM_START_GAME,
+	// svr : { banker: 2 , peerCards : [ 1,2,3,4,5,6,7,8,9,10,11,12,13] }
+
+	MSG_ROOM_WAIT_CHOSE_EXCHANG,
+	// svr : null 
+
+	MSG_PLAYER_CHOSED_EXCHANGE,
+	// client : { cards: [ 3, 1,2] }
+
+	MSG_ROOM_FINISH_EXCHANGE,
+	// svr : { mode : 0 , result : [ { idx = 0 , cards : [ 2, 4 ,5]}, { idx = 1 , cards : [ 2, 4 ,5]},{ idx = 2 , cards : [ 2, 4 ,5]},{ idx = 3 , cards : [ 2, 4 ,5]}  ] }
+	// mode : 0 shun shi zhen , 1 ni shi zhen, 2 dui 
+
+	MSG_ROOM_WAIT_DECIDE_QUE,
+	// svr : null ;
+
+	MSG_PLAYER_DECIDE_QUE,
+	// client : { type : 2 }
+	// type: 0 wan , 1 tiao , 2 tong 
+
+	MSG_ROOM_FINISH_DECIDE_QUE,
+	// svr : { ret : [{type0, type 1 , type 2, type3 ] }
+
+	MSG_ROOM_PLAYER_FETCH_CARD,
+	// svr : { card : 23} 
+
+	MSG_ROOM_WAIT_PLAYER_ACT,
+	// svr : null 
+
+	MSG_PLAYER_ACT,
+	// client : { act : 2, card : 23 }
+	// act: 1 peng , 2 ming Gang ,3 an gang ,4 bu Gang , 5 hu , 7 chu pai 
+	// svr : { ret : 0 }
+	// ret : 0 success , 1 not your turn , 2 not allow , 3 argument error , 4 state error ;
+
+	MSG_ROOM_ACT,
+	// svr : { acters : [ {idx : 0 , type : 2, paiXing : 23, fanShu : 34, genCount : 1, invoker : 23} ,{idx : 0 , type : 2, paiXing : 23, fanShu : 34, genCount : 1, invoker : 23} ]  }
+
+	MSG_ROOM_WAIT_RECHARGE,
+	// svr: { players: [0,1,3]} 
+	
+	MSG_ROOM_GAME_OVER,
+	// svr : { isNormal : 1 , finalCards: [ { idx: 0 ,coin : 234, cards : [1,2,3,4] }, { idx: 1 ,coin : 234 , cards : [1,2,3,4] },{ idx: 2 ,coin : 234, cards : [1,2,3,4] },{ idx: 3 ,coin : 234, cards : [1,2,3,4] } ]  } 
 };

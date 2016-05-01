@@ -156,6 +156,21 @@
     <ClInclude Include="src\MJPeerCard.h">
       <Filter>src\Card</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\ServerMessageIdentifer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJGameStartState.h">
+      <Filter>src\Room\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJExchangeCardState.h">
+      <Filter>src\Room\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJWaitDecideQueState.h">
+      <Filter>src\Room\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJWaitPlayerActState.h">
+      <Filter>src\Room\state</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -247,6 +262,18 @@
     </ClCompile>
     <ClCompile Include="src\MJPeerCard.cpp">
       <Filter>src\Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJGameStartState.cpp">
+      <Filter>src\Room\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJExchangeCardState.cpp">
+      <Filter>src\Room\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJWaitPlayerActState.cpp">
+      <Filter>src\Room\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJWaitDecideQueState.cpp">
+      <Filter>src\Room\state</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
