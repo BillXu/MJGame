@@ -26,13 +26,16 @@ public:
 	void prepareCards()override;
 	uint32_t coinNeededToSitDown()override;
 	void caculateGameResult();
-	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber , uint8_t nInvokerIdx , eMJActType eCardFrom );
-	void onPlayerGangPai( uint8_t nActIdx , bool isBuGang );
+	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, bool isFromGang );
+	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvokerIdx ,bool isGangPai, bool isFromGang );
+	void onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGang );
 	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t> nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
-	void onPlayerGiveCardToTable( uint8_t nIdx ,eMJActType etype, uint8_t nCardNumber ,eMJActType eCardFrom );  // normal chu pai , or bu gang ;
+	void onPlayerBuGangPre(uint8_t nPlayerIdx , uint8_t nCardNumber );
+	void onPlayerChuPai(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	uint8_t getLeftCardCnt();
-	uint8_t getNextActPlayerIdx();
+	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
 	void onPlayerMoPai( uint8_t nIdx );
+	void onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber );
 protected:
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;
 protected:
