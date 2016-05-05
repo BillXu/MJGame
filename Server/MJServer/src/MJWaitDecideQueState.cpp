@@ -1,6 +1,14 @@
 #include "MJWaitDecideQueState.h"
 #include "LogManager.h"
 // wait 
+
+void CMJWaitDecideQueState::enterState(IRoom* pRoom)
+{
+	IWaitingState::enterState(pRoom) ;
+	Json::Value msg ;
+	pRoom->sendRoomMsg(msg,MSG_ROOM_WAIT_DECIDE_QUE);
+}
+
 void CMJWaitDecideQueState::onWaitEnd( bool bTimeOut )
 {
 	auto pSitRoom =  (ISitableRoom*)m_pRoom ;

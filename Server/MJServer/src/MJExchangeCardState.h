@@ -13,6 +13,7 @@ class CMJWaitExchangeCardState
 	:public IWaitingState
 {
 public:
+	void enterState(IRoom* pRoom);
 	void onWaitEnd( bool bTimeOut )override ;
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID);
 	uint16_t getStateID(){ return eRoomState_WaitExchangeCards ; }

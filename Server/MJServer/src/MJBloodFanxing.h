@@ -1,5 +1,6 @@
 #pragma once
 #include "MJCardFanXing.h"
+#include "Singleton.h"
 #include <vector>
 class CBloodFanxingPingHu
 	:public IMJCardFanXing
@@ -164,4 +165,15 @@ class CBloodFanxingQingDaiYaoJiu
 public:
 	uint8_t getFanRate()override{ return 16 ; } ;
 	eFanxingType getType()override{ return eFanxing_QingDaiYaoJiu ;}
+};
+
+class CBloodFanxing
+	:public CSingleton<CBloodFanxing>
+{
+public:
+	bool checkHuPai(CMJPeerCard& peerCard , eFanxingType & eHuType , uint8_t& nFanshu );
+	bool checkFanXingWantedCards(CMJPeerCard& peerCard, LIST_WANTED_CARD& vWaited) ;
+protected:
+	CBloodFanxingPingHu m_tPingHu ;
+	CBloodFanxingQiDui m_tQiDui ;
 };

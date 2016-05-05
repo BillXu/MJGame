@@ -1,4 +1,5 @@
 #pragma once
+#include "MessageIdentifer.h"
 enum eMJGameType
 {
 	eMJ_None,
@@ -28,23 +29,6 @@ enum  ePosType
 	ePos_Any,
 	ePos_Other,
 };
-
-enum eMJActType
-{
-	eMJAct_Mo,
-	eMJAct_Peng,
-	eMJAct_MingGang,
-	eMJAct_AnGang,
-	eMJAct_BuGang,
-	eMJAct_BuGang_Pre,
-	eMJAct_BuGang_Done,
-	eMJAct_Hu,
-	eMJAct_Chi,
-	eMJAct_Chu,
-	eMJAct_Pass,
-	eMJAct_Max,
-};
-
 
 enum eFanxingType 
 {

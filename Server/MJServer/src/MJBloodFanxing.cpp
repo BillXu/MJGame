@@ -670,3 +670,35 @@ bool CBloodFanxingDaiYaoJiu::checkType(CMJPeerCard& peerCard)
 
 	return true ;
 }
+
+// blood fan xin 
+
+bool CBloodFanxing::checkHuPai(CMJPeerCard& peerCard , eFanxingType & eHuType , uint8_t& nFanshu )
+{
+	if ( m_tPingHu.checkFinalType(peerCard,eHuType,nFanshu) )
+	{
+		return true ;
+	}
+
+	if ( m_tQiDui.checkFinalType(peerCard,eHuType,nFanshu) )
+	{
+		return true ;
+	}
+
+	return false ;
+}
+
+bool CBloodFanxing::checkFanXingWantedCards(CMJPeerCard& peerCard, LIST_WANTED_CARD& vWaited) 
+{
+	if ( m_tPingHu.checkFanXingWantedCards(peerCard,vWaited) )
+	{
+		return true ;
+	}
+
+	if ( m_tQiDui.checkFanXingWantedCards(peerCard,vWaited) )
+	{
+		return true ;
+	}
+
+	return false ;
+}

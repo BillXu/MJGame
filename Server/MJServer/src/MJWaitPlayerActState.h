@@ -7,7 +7,6 @@ struct stPlayerActTypeActionItem
 	:public stActionItem
 {
 	uint8_t nCardNumber ;
-	eMJActType eCardFrom ;
 };
 
 class CMJWaitPlayerActState
@@ -17,6 +16,7 @@ public:
 	void onWaitEnd( bool bTimeOut )override ;
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID);
 	uint16_t getStateID(){ return eRoomState_WaitPlayerAct ; }
+	float getExecuteTime();
 };
 
 class CMJDoPlayerActState
@@ -30,7 +30,6 @@ protected:
 	eMJActType m_edoAct ;
 	uint8_t m_nCurIdx ;
 	uint8_t m_nCardNumber ;
-	eMJActType m_eCardFrom ;
 	std::vector<uint8_t> m_vecCardPlayerIdxs ;
 };
 
@@ -40,13 +39,13 @@ struct stWaitCardInfo
 	uint8_t nCardNumber ;
 	uint8_t nCardProvideIdx ;
 	bool isBuGang ;
-	bool isCardFromGang ;
 };
 
 class CMJWaitOtherActState
 	:public IWaitingState
 {
 public:
+	void enterState(IRoom* pRoom)override;
 	void onWaitEnd( bool bTimeOut )override ;
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID);
 	uint16_t getStateID(){ return eRoomState_WaitOtherPlayerAct ; }

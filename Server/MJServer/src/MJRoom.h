@@ -2,6 +2,8 @@
 #include "ISitableRoom.h"
 #include <json/json.h>
 #include "MJDefine.h"
+#include "MJCard.h"
+class CMJRoomPlayer ;
 class CMJRoom
 	:public ISitableRoom
 {
@@ -26,21 +28,28 @@ public:
 	void prepareCards()override;
 	uint32_t coinNeededToSitDown()override;
 	void caculateGameResult();
-	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, bool isFromGang );
-	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvokerIdx ,bool isGangPai, bool isFromGang );
-	void onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGang );
-	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t> nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
+	void onPlayerHuPai(uint8_t nActIdx);
+	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvokerIdx ,bool isGangPai );
+	void onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGang , uint8_t nInvokeIdx );
+	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
 	void onPlayerBuGangPre(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	void onPlayerChuPai(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	uint8_t getLeftCardCnt();
 	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
 	void onPlayerMoPai( uint8_t nIdx );
 	void onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber );
+	bool canPlayerGangWithCard(uint8_t nPlayerIdx , uint8_t nCardNumber, bool bCardFromSelf );
+	bool canPlayerHuPai( uint8_t nPlayerIdx , uint8_t nCardNumber );
+	bool canPlayerPengPai(uint8_t nPlayerIdx , uint8_t nCardNumber);
+	uint8_t getPlayerAutoChuCardWhenTimeOut(uint8_t nPlayerIdx);
+	void onPlayerRallBackWindRain(CMJRoomPlayer* pPlayer );
 protected:
+	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;
 protected:
 	uint8_t m_nBankerIdx ;
 	uint32_t m_nBaseBet ;
 
+	CMJCard m_tPoker ;
 	Json::Value m_arrPlayers ;
 };

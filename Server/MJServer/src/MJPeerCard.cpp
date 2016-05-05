@@ -1,6 +1,7 @@
 #include "MJPeerCard.h"
 #include <cassert>
 #include "MJCard.h"
+#include "MJBloodFanxing.h"
 bool CPeerCardSubCollect::removeCardNumber( uint8_t nNumber )
 {
 	auto iter = m_vAnCards.begin() ;
@@ -20,6 +21,45 @@ bool CPeerCardSubCollect::removeCardNumber( uint8_t nNumber )
 uint8_t CPeerCardSubCollect::getCardCount()
 {
 	return m_vAnCards.size() + m_vMingCards.size() ;
+}
+
+uint8_t CPeerCardSubCollect::getGenCount()
+{
+	std::vector<uint8_t> vAllCard ;
+	for ( auto ref : m_vAnCards )
+	{
+		vAllCard.push_back(ref.nCardNumber) ;
+	}
+
+	for ( auto ref : m_vMingCards )
+	{
+		auto iter = vAllCard.begin();
+		for ( ; iter != vAllCard.end() ; ++iter )
+		{
+			if ( (*iter) > ref.nCardNumber )
+			{
+				vAllCard.insert(iter,ref.nCardNumber) ;
+				break;
+			}
+			vAllCard.push_back(ref.nCardNumber) ;
+		}
+	}
+
+	uint8_t nCnt = 0 ;
+	for ( uint8_t nIdx = 0; uint8_t(nIdx + 3) < vAllCard.size() ; )
+	{
+		if ( vAllCard[nIdx] == vAllCard[nIdx + 3] )
+		{
+			++nCnt ;
+			nIdx += 4 ;
+		}
+		else
+		{
+			++nIdx ;
+		}
+	}
+
+	return nCnt ;
 }
 
 void CPeerCardSubCollect::doAction(eMJActType eType, uint8_t nNumber )
@@ -322,6 +362,12 @@ void CMJPeerCard::updateWantedCard(LIST_WANTED_CARD& vWantList)
 		}
 		ref.second.getWantedCardList(vWantList,true);
 	}
+
+	LIST_WANTED_CARD vList ;
+	if ( CBloodFanxing::getInstance()->checkFanXingWantedCards(*this,vList) )
+	{
+		vWantList.insert(vWantList.begin(),vList.begin(),vList.end()) ;
+	}
 }
 
 bool CMJPeerCard::isContainMustQue()
@@ -334,4 +380,131 @@ void CMJPeerCard::reset()
 {
 	m_vSubCollectionCards.clear() ;
 	m_eMustQueType = eCT_Max ;
+}
+
+void CMJPeerCard::addCard( uint8_t nCardNuber )
+{
+	doAction(eMJAct_Mo,nCardNuber);
+}
+
+uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ) // nCardNumber = 0 , means self mo ; return value not include gen ;
+{
+	if ( nCardNumber != 0 )
+	{
+		addCard(nCardNumber) ;
+	}
+
+	eFanxingType eFtype ;
+	uint8_t nFanShu = 0 ;
+	if ( CBloodFanxing::getInstance()->checkHuPai(*this,eFtype,nFanShu) )
+	{
+		nGenShu = getGenShu() ;
+		if ( eFtype == eFanxing_LongQiDui )
+		{
+			nGenShu -= 1 ;
+		}
+		return nFanShu ;
+	}
+	else
+	{
+		assert(0 && "why ? can not  hu ? " );
+		if ( nCardNumber != 0 )
+		{
+			removeCardNumber(nCardNumber) ;
+		}
+	}
+	nGenShu = 0 ;
+	return 0 ;
+}
+
+uint8_t CMJPeerCard::getMaxHuPaiFanShu( uint8_t& nGenShu )
+{
+	LIST_WANTED_CARD vList ;
+	if ( ! CBloodFanxing::getInstance()->checkFanXingWantedCards(*this,vList) )
+	{
+		 return 0 ;
+	}
+
+	assert(vList.empty() == false && "can hu , but is null why ? already hu ?" );
+
+	uint8_t nMaxFan = 0 ;
+	eFanxingType eMaxFtype ;
+	
+	for ( auto ref : vList )
+	{
+		addCard(ref.nNumber) ;
+
+		eFanxingType eFtype ;
+		uint8_t nFanShu = 0 ;
+		if ( CBloodFanxing::getInstance()->checkHuPai(*this,eFtype,nFanShu) )
+		{
+			if ( nFanShu > nMaxFan )
+			{
+				nMaxFan = nFanShu ;
+				eMaxFtype = eFtype ;
+				nGenShu = getGenShu();
+			}
+		}
+		else
+		{
+			assert(0 && "why ? can not  hu ? , you say can hu" );
+		}
+
+		removeCardNumber(ref.nNumber) ;
+	}
+	
+	if ( eMaxFtype == eFanxing_LongQiDui )
+	{
+		nGenShu -= 1 ;
+	}
+	return nMaxFan ;
+}
+
+uint8_t CMJPeerCard::getGenShu()
+{
+	uint8_t nGen = 0 ;
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		nGen += ref.second.getGenCount() ;
+	}
+
+	return nGen ;
+}
+
+uint8_t CMJPeerCard::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
+{
+	uint8_t nLestCnt = 1 ;
+	if ( isForExchange )
+	{
+		nLestCnt = 3 ;
+	}
+
+	eMJCardType type = eMJCardType::eCT_Max ;
+	uint8_t nCnt = 0 ;
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		if ( ref.second.getAnPaiCount() >= nLestCnt )
+		{
+			if ( nCnt == 0 || ref.second.getAnPaiCount() < nCnt)
+			{
+				type = ref.first ;
+				nCnt = ref.second.getAnPaiCount();
+			}
+		}
+	}
+
+	auto iter = m_vSubCollectionCards.find(type) ;
+	assert(iter != m_vSubCollectionCards.end() && "why have no card?" );
+	
+	for ( auto ref : iter->second.m_vAnCards )
+	{
+		if ( nCardIdx == 0 )
+		{
+			return ref.nCardNumber ;
+		}
+
+		--nCardIdx ;
+	}
+	assert(0&& "why can not find proper card ?" );
+	return 0 ;
 }

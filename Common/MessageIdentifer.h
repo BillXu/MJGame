@@ -1,5 +1,21 @@
 #pragma once 
 
+enum eMJActType
+{
+	eMJAct_Mo,
+	eMJAct_Peng,
+	eMJAct_MingGang,
+	eMJAct_AnGang,
+	eMJAct_BuGang,
+	eMJAct_BuGang_Pre,
+	eMJAct_BuGang_Done,
+	eMJAct_Hu,
+	eMJAct_Chi,
+	eMJAct_Chu,
+	eMJAct_Pass,
+	eMJAct_Max,
+};
+
 enum eTime
 {
 	eTime_ExeGameStart = 5,
@@ -75,13 +91,15 @@ enum eMsgType
 	// svr : { idx : 2 }
 
 	MSG_ROOM_START_GAME,
-	// svr : { banker: 2 , peerCards : [ 1,2,3,4,5,6,7,8,9,10,11,12,13] }
+	// svr : { banker: 2 , dice : 3 , peerCards : [ { cards : [1,3,4,5,64,23,64] },{ cards : [1,3,4,5,64,23,64] },{cards : [1,3,4,5,64,23,64] },{ cards : [1,3,4,5,64,23,64] } ] }
 
 	MSG_ROOM_WAIT_CHOSE_EXCHANG,
 	// svr : null 
 
 	MSG_PLAYER_CHOSED_EXCHANGE,
 	// client : { cards: [ 3, 1,2] }
+	// svr : { ret : 0 }
+	// ret : 0 success , 1 you do not have card , 2 chose card count not equal 3 . 3 you are not sit join this game , 4 do not chose twice;
 
 	MSG_ROOM_FINISH_EXCHANGE,
 	// svr : { mode : 0 , result : [ { idx = 0 , cards : [ 2, 4 ,5]}, { idx = 1 , cards : [ 2, 4 ,5]},{ idx = 2 , cards : [ 2, 4 ,5]},{ idx = 3 , cards : [ 2, 4 ,5]}  ] }
@@ -100,21 +118,21 @@ enum eMsgType
 	MSG_ROOM_PLAYER_FETCH_CARD,
 	// svr : { card : 23} 
 
-	MSG_ROOM_WAIT_PLAYER_ACT,
-	// svr : null 
+	MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,  // you can shou , hu , peng , or gang 
+	// svr : null ;
 
 	MSG_PLAYER_ACT,
-	// client : { act : 2, card : 23 }
-	// act: 1 peng , 2 ming Gang ,3 an gang ,4 bu Gang , 5 hu , 7 chu pai 
+	// client : { actType : 0 , card : 23}
+	// actType : eMJActType
 	// svr : { ret : 0 }
 	// ret : 0 success , 1 not your turn , 2 not allow , 3 argument error , 4 state error ;
 
 	MSG_ROOM_ACT,
-	// svr : { acters : [ {idx : 0 , type : 2, paiXing : 23, fanShu : 34, genCount : 1, invoker : 23} ,{idx : 0 , type : 2, paiXing : 23, fanShu : 34, genCount : 1, invoker : 23} ]  }
+	// svr : { idx : 0 , actType : 234, card : 23 }
 
 	MSG_ROOM_WAIT_RECHARGE,
 	// svr: { players: [0,1,3]} 
 	
 	MSG_ROOM_GAME_OVER,
-	// svr : { isNormal : 1 , finalCards: [ { idx: 0 ,coin : 234, cards : [1,2,3,4] }, { idx: 1 ,coin : 234 , cards : [1,2,3,4] },{ idx: 2 ,coin : 234, cards : [1,2,3,4] },{ idx: 3 ,coin : 234, cards : [1,2,3,4] } ]  } 
+	// svr : { players : [ {idx : 0 , coin : 2345 } ,{idx : 1 , coin : 2345 } ,{idx : 2 , coin : 2345 },{idx : 3 , coin : 2345 } ]  } 
 };

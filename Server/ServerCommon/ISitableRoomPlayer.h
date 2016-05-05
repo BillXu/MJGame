@@ -10,7 +10,7 @@ public:
 	virtual void doSitdown(uint8_t nIdx ){ m_nIdx = nIdx ;}
 	virtual void willStandUp(){}
 	virtual void onGameEnd() ;
-	virtual void onGameBegin(){ ++nPlayTimes ;}
+	virtual void onGameBegin(){ ++nPlayTimes ; setState(eRoomPeer_CanAct) ;}
 	bool isHaveState( uint32_t nStateFlag )
 	{
 		return ( m_nState & nStateFlag ) == nStateFlag ;

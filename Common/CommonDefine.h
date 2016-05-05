@@ -156,11 +156,8 @@ enum eRoomPeerState
 	eRoomPeer_GiveUp = ((1 << 4)|eRoomPeer_StayThisRound),
 	eRoomPeer_CanAct = ((1 << 5)|eRoomPeer_WaitCaculate),
 	eRoomPeer_WaitNextGame = ((1 << 6)|eRoomPeer_SitDown ),
-	eRoomPeer_WithdrawingCoin = (1 << 8),  // when invoke drawing coin , must be sitdown , but when staup up , maybe in drawingCoin state 
-	eRoomPeer_LackOfCoin = (1<<9)|eRoomPeer_SitDown,
-	eRoomPeer_WillLeave = (1<<10)|eRoomPeer_StandUp ,
-	eRoomPeer_Looked =  (1<<13)|eRoomPeer_CanAct ,
-	eRoomPeer_PK_Failed = (1<<14)|eRoomPeer_StayThisRound ,
+	eRoomPeer_AlreadyHu = ((1 << 8)|eRoomPeer_CanAct ),
+	eRoomPeer_DecideLose = eRoomPeer_GiveUp ,
 	eRoomPeer_Max,
 };
 

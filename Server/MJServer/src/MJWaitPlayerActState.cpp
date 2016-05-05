@@ -9,38 +9,43 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		return false ;
 	}
 
-	uint8_t nActType = prealMsg["act"].asUInt();
-	uint8_t nCard = prealMsg["card"].asUInt() ;
+	uint8_t nActType = prealMsg["actType"].asUInt();
 	Json::Value msgBack ;
 
-	auto pPlayer = (CMJRoomPlayer*)m_pRoom->getSitdownPlayerBySessionID(nSessionID);
+	auto pPlayer = m_pRoom->getSitdownPlayerBySessionID(nSessionID);
 	if ( pPlayer == nullptr )
 	{
 		msgBack["ret"] = 4 ;
-		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
 	}
 
 	if ( isIdxInWaitList(pPlayer->getIdx()) == false )
 	{
 		msgBack["ret"] = 1 ;
-		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
 	}
+
+	stPlayerActTypeActionItem* pActTypeItem = new stPlayerActTypeActionItem ;
+	pActTypeItem->nActType = nActType ;
+	pActTypeItem->nActIdx = pPlayer->getIdx() ;
+	pActTypeItem->nCardNumber = 0 ;
 
 	switch ( nActType )
 	{
 	case eMJAct_Pass:
 		{
-			return ;
+			return true;
 		}
 		break;
 	case eMJAct_Hu:
 		{
-			if ( ! pPlayer->canHuPai(nCard) )
+			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
+			if ( !pRoom->canPlayerHuPai(pActTypeItem->nActIdx,0) )
 			{
 				msgBack["ret"] = 2 ;
-				m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+				m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 				return true ;
 			}
 		}
@@ -53,8 +58,9 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	case eMJAct_BuGang:
 	case eMJAct_AnGang:
 		{
+			uint8_t nCard = prealMsg["card"].asUInt() ;
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-			if ( pRoom->getLeftCardCnt() < 1 || !pPlayer->canGangWithCard(nCard) )
+			if ( pRoom->canPlayerGangWithCard(pActTypeItem->nActIdx,nCard,true) == false )
 			{
 				msgBack["ret"] = 2 ;
 				m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
@@ -68,16 +74,12 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		}
 		break ;
 	default:
+		delete pActTypeItem ;
+		pActTypeItem = nullptr ;
 		msgBack["ret"] = 2 ;
 		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
 		return true ;
 	}
-
-	stPlayerActTypeActionItem* pActTypeItem = new stPlayerActTypeActionItem ;
-	pActTypeItem->nActType = nActType ;
-	pActTypeItem->nActIdx = pPlayer->getIdx() ;
-	pActTypeItem->nCardNumber = nCard ;
-	pActTypeItem->eCardFrom = pPlayer->getNewFetchedFrom();
 	responeWaitAct(pActTypeItem->nActIdx,pActTypeItem);
 	return true ;
 }
@@ -87,27 +89,27 @@ void CMJWaitPlayerActState::onWaitEnd( bool bTimeOut )
 	if ( bTimeOut )
 	{
 		uint8_t nIdx = m_vWaitIdxs.front().nIdx ;
-		auto pPlayer = (CMJRoomPlayer*)m_pRoom->getPlayerByIdx(nIdx);
+		auto pPlayer = m_pRoom->getPlayerByIdx(nIdx);
 		assert(pPlayer && "player must not null" );
 		stPlayerActTypeActionItem* pActTypeItem = new stPlayerActTypeActionItem ;
 		pActTypeItem->nActType = eMJAct_Chu ;
 		pActTypeItem->nActIdx = pPlayer->getIdx() ;
-		pActTypeItem->nCardNumber = pPlayer->getNewFetchCard() ;
-		pActTypeItem->eCardFrom = pPlayer->getNewFetchedFrom();
-		if ( pActTypeItem->nCardNumber == 0 )
-		{
-			pActTypeItem->nCardNumber = pPlayer->getCardByIdx(0,false) ;
-			CLogMgr::SharedLogMgr()->ErrorLog("why new fetch card is null ? not fectch why wait you act ?") ;
-		}
+		CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
+		pActTypeItem->nCardNumber = pRoom->getPlayerAutoChuCardWhenTimeOut(pActTypeItem->nActIdx) ;
 		responeWaitAct(pActTypeItem->nActIdx,pActTypeItem);
 	}
 	else
 	{
 		auto pTargeState = (IExecuingState*)m_pRoom->getRoomStateByID(eRoomState_DoPlayerAct) ;
-		pTargeState->setExecuteTime(eTime_DoPlayerActChuPai) ;
+		pTargeState->setExecuteTime(getExecuteTime()) ;
 		pTargeState->setExecuteActs(m_vActList) ;
 		m_pRoom->goToState(pTargeState) ;
 	}
+}
+
+float CMJWaitPlayerActState::getExecuteTime()
+{
+	return eTime_DoPlayerActChuPai ;
 }
 
 // do player act 
@@ -117,7 +119,6 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 	m_edoAct = (eMJActType)pdoAct->nActType ;
 
 	m_nCardNumber = pdoAct->nCardNumber ;
-	m_eCardFrom = pdoAct->eCardFrom ;
 	m_nCurIdx = pdoAct->nActIdx ;
 
 	CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
@@ -131,7 +132,7 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 		break;
 	case eMJAct_Hu:
 		{
-			pRoom->onPlayerHuPai(pdoAct->nActIdx,pdoAct->nCardNumber,( m_eCardFrom == eMJAct_MingGang || eMJAct_BuGang == m_eCardFrom || eMJAct_AnGang == m_eCardFrom) );
+			pRoom->onPlayerHuPai(pdoAct->nActIdx);
 		}
 		break ;
 	case eMJAct_Chu:
@@ -149,18 +150,18 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 			else
 			{
 				m_edoAct = eMJAct_BuGang_Done ;
-				pRoom->onPlayerGangPai(pdoAct->nActIdx,m_nCardNumber,true) ;
+				pRoom->onPlayerGangPai(pdoAct->nActIdx,m_nCardNumber,true,pdoAct->nActIdx) ;
 			}
 		}
 		break ;
 	case eMJAct_BuGang_Done:
 		{
-			pRoom->onPlayerGangPai(pdoAct->nActIdx,m_nCardNumber,true) ;
+			pRoom->onPlayerGangPai(pdoAct->nActIdx,m_nCardNumber,true,pdoAct->nActIdx) ;
 		}
 		break;
 	case eMJAct_AnGang:
 		{
-			pRoom->onPlayerGangPai(pdoAct->nActIdx,m_nCardNumber,false) ;
+			pRoom->onPlayerGangPai(pdoAct->nActIdx,m_nCardNumber,false,pdoAct->nActIdx) ;
 		}
 		break ;
 	default:
@@ -219,7 +220,6 @@ void CMJDoPlayerActState::onExecuteOver()
 
 				stWaitCardInfo info ;
 				info.isBuGang = false ;
-				info.isCardFromGang = ( m_eCardFrom == eMJAct_MingGang || eMJAct_BuGang == m_eCardFrom || eMJAct_AnGang == m_eCardFrom ) ;
 				info.nCardNumber = m_nCardNumber ;
 				info.nCardProvideIdx = m_nCurIdx ;
 				pTargeState->setWaitCardInfo(&info) ;
@@ -263,7 +263,6 @@ void CMJDoPlayerActState::onExecuteOver()
 
 			stWaitCardInfo info ;
 			info.isBuGang = true ;
-			info.isCardFromGang = ( m_eCardFrom == eMJAct_MingGang || eMJAct_BuGang == m_eCardFrom || eMJAct_AnGang == m_eCardFrom ) ;
 			info.nCardNumber = m_nCardNumber ;
 			info.nCardProvideIdx = m_nCurIdx ;
 			pTargeState->setWaitCardInfo(&info) ;
@@ -277,6 +276,18 @@ void CMJDoPlayerActState::onExecuteOver()
 }
 
 // wait other player act 
+void CMJWaitOtherActState::enterState(IRoom* pRoom)
+{
+	IWaitingState::enterState(pRoom) ;
+
+	Json::Value msg ;
+	for ( auto ret : m_vWaitIdxs )
+	{
+		auto pp = m_pRoom->getPlayerByIdx(ret.nIdx) ;
+		m_pRoom->sendMsgToPlayer(msg,MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,pp->getSessionID()) ;
+	}
+}
+
 bool CMJWaitOtherActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
 {
 	if ( nMsgType != MSG_PLAYER_ACT )
@@ -284,46 +295,57 @@ bool CMJWaitOtherActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgP
 		return false ;
 	}
 
-	uint8_t nActType = prealMsg["act"].asUInt();
-	uint8_t nCard = prealMsg["card"].asUInt() ;
+	uint8_t nActType = prealMsg["actType"].asUInt();
 	Json::Value msgBack ;
 
-	auto pPlayer = (CMJRoomPlayer*)m_pRoom->getSitdownPlayerBySessionID(nSessionID);
+	auto pPlayer = m_pRoom->getSitdownPlayerBySessionID(nSessionID);
 	if ( pPlayer == nullptr )
 	{
 		msgBack["ret"] = 4 ;
-		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
 	}
 
 	if ( isIdxInWaitList(pPlayer->getIdx()) == false )
 	{
 		msgBack["ret"] = 1 ;
-		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
 	}
 
+	stPlayerActTypeActionItem* pActTypeItem = new stPlayerActTypeActionItem ;
+	pActTypeItem->nActType = nActType ;
+	pActTypeItem->nActIdx = pPlayer->getIdx() ;
+	pActTypeItem->nCardNumber = m_tInfo.nCardNumber;
+	pActTypeItem->nExePrio = nActType ;
+
+	CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
 	switch ( nActType )
 	{
 	case eMJAct_Hu:
 		{
-			if ( ! pPlayer->canHuPai(nCard) )
+			if ( !pRoom->canPlayerHuPai(pActTypeItem->nActIdx,m_tInfo.nCardNumber) )
 			{
 				msgBack["ret"] = 2 ;
-				m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+				m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 				return true ;
 			}
 		}
 		break ;
 	case eMJAct_Peng:
 		{
-
+			if ( !pRoom->canPlayerPengPai(pActTypeItem->nActIdx,m_tInfo.nCardNumber) )
+			{
+				msgBack["ret"] = 2 ;
+				m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
+				return true ;
+			}
 		}
 		break;
 	case eMJAct_MingGang:
 		{
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-			if ( pRoom->getLeftCardCnt() < 1 || !pPlayer->canGangWithCard(nCard) )
+			if ( pRoom->getLeftCardCnt() < 1 || ! pRoom->canPlayerGangWithCard(pActTypeItem->nActIdx,m_tInfo.nCardNumber,false) )
 			{
 				msgBack["ret"] = 2 ;
 				m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
@@ -332,16 +354,12 @@ bool CMJWaitOtherActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgP
 		}
 		break ;
 	default:
+		delete pActTypeItem ;
+		pActTypeItem = nullptr ;
 		msgBack["ret"] = 2 ;
 		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
 		return true ;
 	}
-
-	stPlayerActTypeActionItem* pActTypeItem = new stPlayerActTypeActionItem ;
-	pActTypeItem->nActType = nActType ;
-	pActTypeItem->nActIdx = pPlayer->getIdx() ;
-	pActTypeItem->nCardNumber = nCard ;
-	pActTypeItem->nExePrio = nActType ;
 	responeWaitAct(pActTypeItem->nActIdx,pActTypeItem);
 	return true ;
 }
@@ -417,17 +435,17 @@ void CMJDoOtherPlayerActState::doExecuteAct( stActionItem* pAct)
 	{
 	case eMJAct_Hu:
 		{
-			pRoom->onPlayerHuPai(pdoAct->nActIdx,m_tInfo.nCardNumber,m_tInfo.nCardProvideIdx,m_tInfo.isBuGang,m_tInfo.isCardFromGang);
+			pRoom->onPlayerHuPai(pdoAct->nActIdx,m_tInfo.nCardNumber,m_tInfo.nCardProvideIdx,m_tInfo.isBuGang);
 		}
 		break ;
 	case eMJAct_MingGang:
 		{
-			pRoom->onPlayerGangPai(pdoAct->nActIdx,m_tInfo.nCardNumber,false ) ;
+			pRoom->onPlayerGangPai(pdoAct->nActIdx,m_tInfo.nCardNumber,false,m_tInfo.nCardProvideIdx ) ;
 		}
 		break ;
 	case eMJAct_Peng:
 		{
-			pRoom->onPlayerPeng(pdoAct->nActIdx,pdoAct->nCardNumber);
+			pRoom->onPlayerPeng(pdoAct->nActIdx,m_tInfo.nCardNumber);
 		}
 		break;
 	default:

@@ -3,6 +3,13 @@
 #include "LogManager.h"
 #include <cassert>
 // wait state 
+void CMJWaitExchangeCardState::enterState(IRoom* pRoom)
+{
+	IWaitingState::enterState(pRoom) ;
+	Json::Value msg ;
+	pRoom->sendRoomMsg(msg,MSG_ROOM_WAIT_CHOSE_EXCHANG);
+}
+
 void CMJWaitExchangeCardState::onWaitEnd( bool bTimeOut )
 {
 	auto pSitRoom =  (ISitableRoom*)m_pRoom ;
@@ -21,7 +28,6 @@ void CMJWaitExchangeCardState::onWaitEnd( bool bTimeOut )
 			for ( uint8_t nIdx = 0 ; nIdx < 3 ; ++nIdx )
 			{
 				p->vExchangeCard[nIdx] = pp->getCardByIdx(nIdx) ;
-				pp->removeCard( p->vExchangeCard[nIdx] ) ;
 			}
 			responeWaitAct(p->nActIdx,p) ;
 		}
@@ -42,10 +48,13 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 		return false ;
 	}
 
+	Json::Value msgBack ;
 	Json::Value vCards = prealMsg["cards"] ;
 	if ( vCards.size() != 3 )
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("please chose 3 cards to exchange") ;
+		msgBack["ret"] = 2 ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
 	}
 
@@ -54,12 +63,16 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 	if ( pp == nullptr )
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("%u sessionid , not sit in this room ",nSessionID) ;
+		msgBack["ret"] = 3 ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ; 
 	}
 
 	if ( isIdxInWaitList(pp->getIdx()) == false )
 	{
 		CLogMgr::SharedLogMgr()->ErrorLog("session id = %u not in the wait act list" ,nSessionID ) ;
+		msgBack["ret"] = 4 ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
 	}
 
@@ -71,11 +84,15 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 	for ( uint8_t nIdx = 0 ; nIdx < 3 ; ++nIdx )
 	{
 		p->vExchangeCard[nIdx] = vCards[nIdx].asUInt();
-		if ( ! pp->removeCard( p->vExchangeCard[nIdx] ) )
+		if ( ! pp->isHaveAnCard( p->vExchangeCard[nIdx] ) )
 		{
 			CLogMgr::SharedLogMgr()->ErrorLog("you do not have this card = %u , cannot used it to exchange",p->vExchangeCard[nIdx]) ;
 			delete p ;
 			p = nullptr ;
+
+			msgBack["ret"] = 1 ;
+			m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
+
 			return true ;
 		}
 	}
@@ -149,7 +166,8 @@ void CMJDoExchangeCardState::enterState(IRoom* pRoom)
 		for ( uint8_t cardidx = 0 ; cardidx < 3 ; ++cardidx )
 		{
 			vCards[(uint32_t)cardidx] = (uint8_t)vNewCard[nidx][cardidx];
-			pP->addCard((uint8_t)vNewCard[nidx][cardidx]);
+			pP->addDistributeCard((uint8_t)vNewCard[nidx][cardidx]);
+			pP->removeCard(vExchangeCard[nidx][cardidx]) ;
 		}
 		pPlayer["idx"] = nidx;
 		pPlayer["cards"] = vCards;

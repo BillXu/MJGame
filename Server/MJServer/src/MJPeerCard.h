@@ -44,6 +44,8 @@ public:
 	void getWantedCardList(LIST_WANTED_CARD& vList,bool bOmitChi );
 	void clear();
 	uint8_t getCardCount();
+	uint8_t getAnPaiCount() { return m_vAnCards.size() ; }
+	uint8_t getGenCount();
 public:
 	LIST_PEER_CARDS m_vAnCards ;
 	LIST_PEER_CARDS m_vMingCards ;
@@ -61,6 +63,12 @@ public:
 	eMJCardType getMustQueType(){ return m_eMustQueType ;}
 	void updateWantedCard( LIST_WANTED_CARD& vWantList );
 	bool isContainMustQue();
+	void addCard( uint8_t nCardNuber );
+	uint8_t doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ); // nCardNumber = 0 , means self mo ; return value not include gen ;
+	uint8_t getMaxHuPaiFanShu( uint8_t& nGenShu );
+	uint8_t getCardByIdx(uint8_t nCardIdx, bool isForExchange = true );
+protected:
+	uint8_t getGenShu();
 protected:
 	//friend class CBloodQingYiSe ;
 	//friend class CBloodFanxingPingHu ;
