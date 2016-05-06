@@ -35,5 +35,4 @@ public:
 	stArgData* GetReserverArgData();
 protected:
 	LIST_ARG_DATA m_vReserverArgData ;
-	CLoginApp* m_pTheApp ;
 };

@@ -80,6 +80,25 @@ void ISitableRoom::roomItemDetailVisitor(Json::Value& vOutJsValue)
 	vOutJsValue["playerCnt"] = getSitDownPlayerCount();
 }
 
+uint8_t ISitableRoom::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )  // return 0 means ok ;
+{
+	uint8_t nRet = IRoom::canPlayerEnterRoom(pEnterRoomPlayer) ;
+	if ( nRet )
+	{
+		return nRet ;
+	}
+
+	for ( uint8_t nidx = 0 ; nidx < 4 ; ++nidx )
+	{
+		if ( isSeatIdxEmpty(nidx) )
+		{
+			return 0 ;
+		}
+	}
+
+	return 6 ;
+}
+
 bool ISitableRoom::canStartGame()
 {
 	if ( IRoom::canStartGame() == false )
@@ -405,6 +424,22 @@ bool ISitableRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t 
 				msgBack.nRet = 1 ;
 				sendMsgToPlayer(&msgBack,sizeof(msgBack),nPlayerSessionID) ;
 				break; 
+			}
+
+			//if ( isSeatIdxEmpty(pRet->nIdx) == false )
+			//{
+			//	msgBack.nRet = 2 ;
+			//	sendMsgToPlayer(&msgBack,sizeof(msgBack),nPlayerSessionID) ;
+			//	break; 
+			//}
+
+			for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+			{
+				if ( isSeatIdxEmpty(nIdx) )
+				{
+					pRet->nIdx = nIdx ;
+					break; 
+				}
 			}
 
 			if ( isSeatIdxEmpty(pRet->nIdx) == false )

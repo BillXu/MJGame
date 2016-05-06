@@ -84,6 +84,12 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		stMsgJsonContent* pRet = (stMsgJsonContent*)preal ;
 		char* pBuffer = (char*)preal ;
 		pBuffer += sizeof(stMsgJsonContent);
+//#ifdef __DEBUG
+		char pLog[1024] = { 0 };
+		memcpy(pLog,pBuffer,pRet->nJsLen);
+		printf("rec : %s\n",pLog);
+//#endif // __DEBUG
+
 		Json::Reader reader ;
 		Json::Value rootValue ;
 		reader.parse(pBuffer,pBuffer + pRet->nJsLen,rootValue,false) ;
@@ -212,7 +218,7 @@ bool IServerApp::sendMsg(  uint32_t nSessionID , const char* pBuffer , uint16_t 
 	return true ;
 }
 
-bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID, bool bBroadcast )
+bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID,uint8_t nTargetPort, bool bBroadcast )
 {
 	if ( recvValue.isNull() )
 	{
@@ -235,7 +241,9 @@ bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t
 
 	Json::StyledWriter writerJs ;
 	std::string strContent = writerJs.write(recvValue);
+	CLogMgr::SharedLogMgr()->PrintLog("send : %s",strContent.c_str());
 	stMsgJsonContent msg ;
+	msg.cSysIdentifer = nTargetPort ;
 	msg.nJsLen = strContent.size() ;
 	CAutoBuffer bufferTemp(sizeof(msg) + msg.nJsLen);
 	bufferTemp.addContent(&msg,sizeof(msg)) ;

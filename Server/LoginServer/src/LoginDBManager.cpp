@@ -201,7 +201,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			if ( pResult->nAffectRow <= 0 )
 			{
 				jValue["ret"] = 1 ;
-				m_pTheApp->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+				getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 				CLogMgr::SharedLogMgr()->ErrorLog("why register affect row = 0 ") ;
 				return ;
 			}
@@ -210,7 +210,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			 jValue["ret"] = pRow["nOutRet"]->IntValue();
 			 if ( pRow["nOutRet"]->IntValue() != 0 )
 			 {
-				 m_pTheApp->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+				 getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 				 CLogMgr::SharedLogMgr()->PrintLog("register failed duplicate account = %s",pRow["strAccount"]->CStringValue() );
 				 return ;
 			 }
@@ -223,16 +223,33 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			stMsgRequestDBCreatePlayerData msgCreateData ;
 			msgCreateData.nUserUID = pRow["nOutUserUID"]->IntValue() ;
 			msgCreateData.isRegister = pdata->nExtenArg1 != 0 ;
-			m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msgCreateData,sizeof(msgCreateData)) ;
+			getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msgCreateData,sizeof(msgCreateData)) ;
 
 			// tell client the success register result ;
-			m_pTheApp->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+			Json::Value testValue ;
+			Json::Value arrtObj ;
+			Json::Value arrValue ;
+			testValue["uid"] = "1235";
+			testValue["name"] = "hello" ;
+			for ( uint8_t nIdx = 0 ; nIdx < 3 ; ++nIdx )
+			{
+				Json::Value vObj ;
+				vObj["hell"] = "vle" ;
+				vObj["heha"] = "djfh" ;
+				arrValue[nIdx] = 364 + nIdx;
+				arrtObj[nIdx] = vObj ;
+			}
+
+			testValue["value"] = arrValue ;
+			testValue["obj"] = arrtObj ;
+			getSvrApp()->sendMsg(pdata->nSessionID,testValue,pResult->nRequestUID);
+			//getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 			CLogMgr::SharedLogMgr()->PrintLog("register success account = %s",pRow["strAccount"]->CStringValue() );
 
 			stMsgLoginSvrInformGateSaveLog msglog ;
 			msglog.nlogType = eLog_Register ;
 			msglog.nUserUID = msgCreateData.nUserUID ;
-			m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
+			getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
 		}
 		break;
 	case MSG_PLAYER_LOGIN:
@@ -257,18 +274,18 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			Json::Value jValue ;
 			jValue["regType"] = nRegType ;
 			jValue["ret"] = nRet ;
-			m_pTheApp->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 			// tell data svr login success 
 			if ( nRet == 0 )
 			{
 				stMsgOnPlayerLogin msgData ;
 				msgData.nUserUID =  nUserUID;
-				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msgData,sizeof(msgData) ) ;
+				getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msgData,sizeof(msgData) ) ;
 
 				stMsgLoginSvrInformGateSaveLog msglog ;
 				msglog.nlogType = eLog_Login ;
 				msglog.nUserUID = nUserUID ;
-				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
+				getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
 			}
 		}
 		break;
@@ -288,18 +305,18 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 
 			Json::Value jValue ;
 			jValue["ret"] = nRet ;
-			m_pTheApp->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 			CLogMgr::SharedLogMgr()->PrintLog("rebind account ret = %d , userUID = %d",nRet,pdata->nExtenArg1 ) ;
 
 			if ( nRet == 0 )
 			{
 				stMsgOnPlayerBindAccount msgInfom ;
-				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msgInfom,sizeof(msgInfom)); 
+				getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msgInfom,sizeof(msgInfom)); 
 
 				stMsgLoginSvrInformGateSaveLog msglog ;
 				msglog.nlogType = eLog_BindAccount ;
 				msglog.nUserUID = pdata->nExtenArg1 ;
-				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
+				getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
 			}
 		}
 		break;
@@ -319,14 +336,14 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			CLogMgr::SharedLogMgr()->PrintLog("uid = %d modify password ret = %d",pdata->nExtenArg1,nRet ) ;
 			Json::Value jValue ;
 			jValue["ret"] = nRet ;
-			m_pTheApp->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 
 			if ( nRet == 0 )
 			{
 				stMsgLoginSvrInformGateSaveLog msglog ;
 				msglog.nlogType = eLog_ModifyPwd ;
 				msglog.nUserUID = pdata->nExtenArg1 ;
-				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
+				getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msglog,sizeof(msglog)) ;
 			}
 		}
 		break;

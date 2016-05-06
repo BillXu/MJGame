@@ -18,6 +18,7 @@ public:
 	void roomItemDetailVisitor(Json::Value& vOutJsValue)override;
 	bool canStartGame()override ;
 	void update(float fDelta)override;
+	uint8_t canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer ) ;
 	// event function 
 	virtual void onPlayerSitDown( ISitableRoomPlayer* pPlayer ){}
 	virtual void onPlayerWillStandUp(ISitableRoomPlayer* pPlayer );

@@ -223,6 +223,12 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			if ( msgBack.nRet == 0 )
 			{
 				pRoom->onPlayerEnterRoom(&pRet->tPlayerData,pRet->nSubIdx);
+
+				stMsgPlayerSitDown msgSitDown ;
+				msgSitDown.nIdx = 0 ;
+				msgSitDown.nSubRoomIdx = 0 ;
+				msgSitDown.nTakeInCoin = 0 ;
+				pRoom->onMessage(&msgSitDown,eSenderPort,nSessionID) ;
 			}
 			msgBack.nSubIdx = (uint8_t)pRet->nSubIdx ;
 			sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;

@@ -22,7 +22,7 @@ public:
 	void shutDown();
 	bool sendMsg( const char* pBuffer , int nLen );
 	bool sendMsg( uint32_t nSessionID , const char* pBuffer , uint16_t nLen, bool bBroadcast = false );
-	bool sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID = 0 ,bool bBroadcast = false );
+	bool sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID = 0 ,uint8_t nTargetPort = ID_MSG_PORT_CLIENT,bool bBroadcast = false );
 	void stop();
 	virtual bool onLogicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID );
 	virtual bool onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID );

@@ -340,17 +340,17 @@ struct stMsgReadTaxasRoomPlayers
 	uint32_t nRoomID ;
 };
 
-struct stMsgReadTaxasRoomPlayersRet
-	:public stMsgToRoom
-{
-	stMsgReadTaxasRoomPlayersRet(){ cSysIdentifer = ID_MSG_PORT_TAXAS; usMsgType = MSG_READ_TAXAS_ROOM_PLAYERS ; }
-	uint32_t nPlayerUID ;
-	uint32_t m_nReadedInformSerial; 
-	uint64_t nTotalBuyInThisRoom ; 
-	uint64_t nFinalLeftInThisRoom ;  
-	uint32_t nWinTimesInThisRoom ;
-	uint32_t nPlayeTimesInThisRoom ;
-};
+//struct stMsgReadTaxasRoomPlayersRet
+//	:public stMsgToRoom
+//{
+//	stMsgReadTaxasRoomPlayersRet(){ cSysIdentifer = ID_MSG_PORT_TAXAS; usMsgType = MSG_READ_TAXAS_ROOM_PLAYERS ; }
+//	uint32_t nPlayerUID ;
+//	uint32_t m_nReadedInformSerial; 
+//	uint64_t nTotalBuyInThisRoom ; 
+//	uint64_t nFinalLeftInThisRoom ;  
+//	uint32_t nWinTimesInThisRoom ;
+//	uint32_t nPlayeTimesInThisRoom ;
+//};
 
 
 struct stMsgSavePlayerCommonLoginData
@@ -404,20 +404,20 @@ struct stMsgRequestTaxasPlayerData
 	stMsgRequestTaxasPlayerData(){ cSysIdentifer = ID_MSG_PORT_DATA; usMsgType = MSG_TP_REQUEST_PLAYER_DATA ; }
 };
 
-struct stMsgRequestTaxasPlayerDataRet
-	:public stMsg
-{
-	stMsgRequestTaxasPlayerDataRet(){ cSysIdentifer = ID_MSG_PORT_TAXAS ; usMsgType = MSG_TP_REQUEST_PLAYER_DATA ; }
-	uint8_t nRet ; // 0 succes , 1 not find player data , 2 already in another taxas room ;
-	stTaxasInRoomPeerData tData ;
-};
-
-struct stMsgReadMyOwnTaxasRooms
-	:public stMsg
-{
-	stMsgReadMyOwnTaxasRooms(){ cSysIdentifer = ID_MSG_PORT_TAXAS ; usMsgType = MSG_TP_READ_MY_OWN_ROOMS ; }
-	uint32_t nUserUID ;
-};
+//struct stMsgRequestTaxasPlayerDataRet
+//	:public stMsg
+//{
+//	stMsgRequestTaxasPlayerDataRet(){ cSysIdentifer = ID_MSG_PORT_TAXAS ; usMsgType = MSG_TP_REQUEST_PLAYER_DATA ; }
+//	uint8_t nRet ; // 0 succes , 1 not find player data , 2 already in another taxas room ;
+//	stTaxasInRoomPeerData tData ;
+//};
+//
+//struct stMsgReadMyOwnTaxasRooms
+//	:public stMsg
+//{
+//	stMsgReadMyOwnTaxasRooms(){ cSysIdentifer = ID_MSG_PORT_TAXAS ; usMsgType = MSG_TP_READ_MY_OWN_ROOMS ; }
+//	uint32_t nUserUID ;
+//};
 
 struct stMsgReadMyOwnRooms
 	:public stMsg

@@ -48,6 +48,13 @@ int main()
 
 	//zsummer::log4z::ILog4zManager::GetInstance()->Config("server.cfg");
 	//zsummer::log4z::ILog4zManager::GetInstance()->Start();
+	//Json::Value vt ;
+	//vt["msgID"] = 23 ;
+	//vt["account"] = "13846555666" ;
+	//vt["password"] = "65895";
+	//Json::StyledWriter t ;
+	//std::string str = t.write(vt);
+	//printf("js : %s\n",str.c_str());
 
 	CLoginApp theApp ;
 	bool bok = theApp.init();
