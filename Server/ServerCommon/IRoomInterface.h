@@ -27,6 +27,7 @@ public:
 	virtual void update(float fDelta) = 0;
 	virtual void onTimeSave() = 0;
 	virtual bool onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID ) = 0;
+	virtual bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID) = 0 ;
 	virtual bool isDeleteRoom() = 0;
 	virtual void deleteRoom() = 0 ;
 	virtual uint32_t getOwnerUID() = 0 ;

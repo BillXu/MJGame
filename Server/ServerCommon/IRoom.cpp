@@ -89,7 +89,7 @@ bool IRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, u
 	m_pRoomMgr = pRoomMgr ;
 	m_nRoomID = nRoomID ;
 	m_nDeskFree = pConfig->nDeskFee ;
-	m_fDividFeeRate = pConfig->fDividFeeRate ;
+	m_fDividFeeRate = 0 ;
 
 	m_nChatRoomID = 0;
 	m_nTotalProfit = 0 ;
@@ -118,7 +118,7 @@ void IRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig
 	m_nChatRoomID = vJsValue["chatId"].asUInt() ;
 
 	m_nDeskFree = pConfig->nDeskFee;
-	m_fDividFeeRate = pConfig->fDividFeeRate ;
+	m_fDividFeeRate = 0 ;
 	prepareState();
 }
 
@@ -173,23 +173,17 @@ void IRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer ,int8_t& nSubIdx
 	stStandPlayer * pStandPlayer = nullptr ;
 	if ( pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d , already in this room, can not enter twice, data svr crashed ?",pEnterRoomPlayer->nUserUID) ;
+		CLogMgr::SharedLogMgr()->PrintLog("player uid = %d , already in this room, can not enter twice, data svr crashed ?",pEnterRoomPlayer->nUserUID) ;
 		pStandPlayer = pp ;
+		memcpy(pStandPlayer,pEnterRoomPlayer,sizeof(stEnterRoomData));
 	}
 	else
 	{
 		pStandPlayer = new stStandPlayer ;
 		memset(pStandPlayer,0,sizeof(stStandPlayer));
+		memcpy(pStandPlayer,pEnterRoomPlayer,sizeof(stEnterRoomData));
+		addRoomPlayer(pStandPlayer) ;
 	}
-
-	memcpy(pStandPlayer,pEnterRoomPlayer,sizeof(stEnterRoomData));
-	if ( getDelegate() && getDelegate()->isOmitNewPlayerHalo(this)  )
-	{
-		pStandPlayer->nNewPlayerHaloWeight = 0 ;
-		CLogMgr::SharedLogMgr()->PrintLog("room id = %d omit new player halo so halo weith = 0  for uid = %d", getRoomID(),pStandPlayer->nUserUID) ;
-	}
-
-	addRoomPlayer(pStandPlayer) ;
 }
 
 void IRoom::onPlayerWillLeaveRoom(stStandPlayer* pPlayer )
@@ -271,8 +265,7 @@ bool IRoom::onPlayerApplyLeaveRoom(uint32_t nUserUID )
 	auto pp = getPlayerByUserUID(nUserUID) ;
 	if ( pp )
 	{
-		onPlayerWillLeaveRoom(pp) ;
-		playerDoLeaveRoom(pp);
+		pp->isWillLeave = true ;
 		return true ;
 	}
 	return false ;
@@ -403,22 +396,51 @@ bool IRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayer
 			}
 		}
 		break;
+	default:
+		return false ;
+	}
+
+	return true ;
+}
+
+bool IRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
+{
+	if ( m_pCurRoomState && m_pCurRoomState->onMsg(prealMsg,nMsgType,eSenderPort,nSessionID) )
+	{
+		return true ;
+	}
+
+	switch ( nMsgType )
+	{
+	//case MSG_MODIFY_ROOM_RANK:
+	//	{
+	//		stMsgRobotModifyRoomRank* pRet = (stMsgRobotModifyRoomRank*)prealMsg ;
+	//		if ( getDelegate() && getPlayerByUserUID(pRet->nTargetUID) )
+	//		{
+	//			getDelegate()->onUpdatePlayerGameResult(this,pRet->nTargetUID,pRet->nOffset);
+	//			CLogMgr::SharedLogMgr()->SystemLog("modify uid = %u offset = %d",pRet->nTargetUID,pRet->nOffset) ;
+	//		}
+	//		else
+	//		{
+	//			CLogMgr::SharedLogMgr()->ErrorLog("modify room rank uid = %u not in room ", pRet->nTargetUID);
+	//		}
+	//	}
+	//	break;
 	case MSG_PLAYER_LEAVE_ROOM:
 		{
-			stMsgPlayerLeaveRoomRet msg ;
-			stStandPlayer* pp = getPlayerBySessionID(nPlayerSessionID) ;
+			Json::Value jsMsg ;
+			stStandPlayer* pp = getPlayerBySessionID(nSessionID) ;
 			if ( pp )
 			{
-				onPlayerWillLeaveRoom(pp) ;
-				playerDoLeaveRoom(pp);
-				msg.nRet = 0 ;
+				pp->isWillLeave = true ;
+				jsMsg["ret"] = 0 ;
 			}
 			else
 			{
-				msg.nRet = 1 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("session id not in this room how to leave session id = %d",nPlayerSessionID) ;
+				jsMsg["ret"] = 1 ;
+				CLogMgr::SharedLogMgr()->ErrorLog("session id not in this room how to leave session id = %d",nSessionID) ;
 			}
-			sendMsgToPlayer(&msg,sizeof(msg),nPlayerSessionID) ;
+			sendMsgToPlayer(jsMsg,nMsgType,nSessionID);
 		}
 		break;
 	default:
@@ -428,6 +450,24 @@ bool IRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayer
 	return true ;
 }
 
+
+void IRoom::onGameDidEnd()
+{
+	STAND_PLAYER_ITER iter = m_vInRoomPlayers.begin();
+	for ( ; iter != m_vInRoomPlayers.end();  )
+	{
+		if ( iter->second->isWillLeave )
+		{
+			onPlayerWillLeaveRoom(iter->second) ;
+			playerDoLeaveRoom(iter->second) ;
+			iter == m_vInRoomPlayers.begin() ;
+		}
+		else
+		{
+			++iter ;
+		}
+	}
+}
 
 void IRoom::onTimeSave( )
 {

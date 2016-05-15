@@ -220,23 +220,16 @@ bool IServerApp::sendMsg(  uint32_t nSessionID , const char* pBuffer , uint16_t 
 
 bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t nMsgID,uint8_t nTargetPort, bool bBroadcast )
 {
-	if ( recvValue.isNull() )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why send a null js value") ;
-		return false ;
-	}
-
 	if ( nMsgID )
 	{
 		if ( !recvValue[JS_KEY_MSG_TYPE] )
 		{
-
+			recvValue[JS_KEY_MSG_TYPE] = nMsgID ;
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("msg id = %u ,already have this tag ",nMsgID ) ;
+			CLogMgr::SharedLogMgr()->ErrorLog("msg id = %u ,already have this tag uid = %u",nMsgID,recvValue[JS_KEY_MSG_TYPE].asUInt() ) ;
 		}
-		recvValue[JS_KEY_MSG_TYPE] = nMsgID ;
 	}
 
 	Json::StyledWriter writerJs ;

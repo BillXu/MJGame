@@ -23,7 +23,7 @@ void IRoomState::update(float fDeta)
 void IWaitingState::enterState(IRoom* pRoom)
 {
 	IRoomState::enterState(pRoom) ;
-	assert(getStateDuring() < 0.00001 && "must set wait time before enter state" );
+	assert(getStateDuring() > 0.00001 && "must set wait time before enter state" );
 	assert( m_vWaitIdxs.empty() == false && "must set execute wait list before enter state" ) ;
 }
 
@@ -107,7 +107,7 @@ bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 
 void IWaitingState::onStateDuringTimeUp()
 {
-	onWaitEnd(false) ;
+	onWaitEnd(true) ;
 }
 
 void IWaitingState::setWaitTime( float fSeconds )
@@ -147,7 +147,7 @@ void IExecuingState::enterState(IRoom* pRoom)
 void IRoomStateWaitPlayerReady::update(float)
 {
 	auto pSitRoom = (ISitableRoom*)(m_pRoom);
-	if ( pSitRoom->getPlayerCntWithState(eRoomPeer_Ready) == 4 )
+	if ( pSitRoom->getPlayerCntWithState(eRoomPeer_Ready) == m_pRoom->getSeatCount() )
 	{
 		// go to start game 
 		pSitRoom->goToState(eRoomState_StartGame) ;

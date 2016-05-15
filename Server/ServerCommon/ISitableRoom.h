@@ -1,7 +1,6 @@
 #pragma once
 #include "IRoom.h"
 #include <vector>
-struct stSitableRoomConfig ;
 class ISitableRoomPlayer ;
 class CRobotDispatchStrategy ;
 class ISitableRoom
@@ -57,7 +56,7 @@ private:
 	time_t m_tTimeCheckRank ;
 	uint16_t m_nSeatCnt ;
 	ISitableRoomPlayer** m_vSitdownPlayers ;
-	CRobotDispatchStrategy* m_pRobotDispatchStrage ;
+	//CRobotDispatchStrategy* m_pRobotDispatchStrage ;
 private:
 	LIST_SITDOWN_PLAYERS m_vReserveSitDownObject ;
 	VEC_SITDOWN_PLAYERS m_vSortByPeerCardsAsc ;

@@ -27,6 +27,7 @@ public:
 		uint32_t nPlayerTimes ;
 		uint32_t nSingleWinMost ;
 		int32_t nGameOffset ;
+		bool isWillLeave ;
 	};
 
 public:
@@ -46,7 +47,7 @@ public:
 	void update(float fDelta)override;
 	void setDelegate(IRoomDelegate* pDelegate ){ m_pDelegate = pDelegate ; }
 	IRoomDelegate* getDelegate(){ return m_pDelegate ;}
-	bool onPlayerApplyLeaveRoom(uint32_t nUserUID )override ;
+	bool onPlayerApplyLeaveRoom(uint32_t nUserUID )final ;
 	void deleteRoom()final{}
 	uint32_t getOwnerUID()final{ return 0 ; }
 
@@ -82,10 +83,11 @@ public:
 	void sendMsgToPlayer( Json::Value& jsContent , unsigned short nMsgType , uint32_t nSessionID, eMsgPort ePort = ID_MSG_PORT_CLIENT ) ;
 
 	bool onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )override;
+	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	virtual void roomInfoVisitor(Json::Value& vOutJsValue) = 0 ;
-	virtual void sendRoomPlayersInfo(uint32_t nSessionID) = 0 ;
+	virtual void sendRoomPlayersCardInfo(uint32_t nSessionID) = 0 ;
 	virtual void onGameWillBegin(){}
-	virtual void onGameDidEnd(){}
+	virtual void onGameDidEnd();
 
 	void onTimeSave()override;;
 	void goToState(IRoomState* pTargetState );

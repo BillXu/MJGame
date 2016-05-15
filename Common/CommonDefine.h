@@ -57,7 +57,9 @@ enum eRoomType
 {
 	eRoom_None,
 	eRoom_MJ = eRoom_None,
+	eRoom_MJ_Blood_River = eRoom_MJ,
 	eRoom_NiuNiu = eRoom_MJ,
+	eRoom_MJ_Blood_End,
 	eRoom_TexasPoker,
 	eRoom_Golden,
 	eRoom_Max ,

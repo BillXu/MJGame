@@ -20,7 +20,7 @@ CMJRoom::CMJRoom()
 bool CMJRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue )
 {
 	ISitableRoom::onFirstBeCreated(pRoomMgr,pConfig,nRoomID,vJsValue) ;
-	m_nBaseBet = ((stNiuNiuRoomConfig*)pConfig)->nBaseBet;
+	m_nBaseBet = ((stMJRoomConfig*)pConfig)->nBaseBet;
 	m_tPoker.initAllCard(eMJ_BloodRiver);
 	m_nBankerIdx = 0 ;
 	return true ;
@@ -45,7 +45,7 @@ void CMJRoom::prepareState()
 void CMJRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig,uint32_t nRoomID , Json::Value& vJsValue )
 {
 	ISitableRoom::serializationFromDB(pRoomMgr,pConfig,nRoomID,vJsValue);
-	m_nBaseBet = ((stNiuNiuRoomConfig*)pConfig)->nBaseBet;
+	m_nBaseBet = ((stMJRoomConfig*)pConfig)->nBaseBet;
 	m_tPoker.initAllCard(eMJ_BloodRiver);
 	m_nBankerIdx = 0 ;
 }
@@ -68,7 +68,8 @@ ISitableRoomPlayer* CMJRoom::doCreateSitableRoomPlayer()
 
 void CMJRoom::onPlayerWillStandUp( ISitableRoomPlayer* pPlayer )
 {
-	if ( pPlayer->isHaveState(eRoomPeer_CanAct) )
+	// always can stand up now ;
+	if ( 0 && pPlayer->isHaveState(eRoomPeer_CanAct) )
 	{
 		 ISitableRoom::onPlayerWillStandUp(pPlayer) ;
 	}
@@ -90,7 +91,7 @@ void CMJRoom::roomInfoVisitor(Json::Value& vOutJsValue)
 	vOutJsValue["baseBet"] = getBaseBet();
 }
 
-void CMJRoom::sendRoomPlayersInfo(uint32_t nSessionID)
+void CMJRoom::sendRoomPlayersCardInfo(uint32_t nSessionID)
 {
 	CLogMgr::SharedLogMgr()->PrintLog("send room info to session id = %d, not used msg ", nSessionID ) ;
 }
@@ -121,23 +122,20 @@ void CMJRoom::onGameDidEnd()
 void CMJRoom::prepareCards()
 {
 	Json::Value msg ;
-	std::vector<Json::Value> peerCards;
-	for ( uint8_t nCnt = 0 ; nCnt < getSeatCount() ; ++nCnt )
-	{
-		Json::Value v ;
-		peerCards.push_back(v);
-	}
+	Json::Value peerCards[4];
 
 	uint8_t nDice = rand() % getSeatCount() ;
 	for ( uint8_t nIdx = nDice; nIdx < getSeatCount() * 2 ; ++nIdx )
 	{
 		uint8_t nRealIdx = nIdx % getSeatCount() ;
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nRealIdx);
+		CLogMgr::SharedLogMgr()->PrintLog("card player idx = %d",nIdx);
 		for (uint8_t nCardIdx = 0 ; nCardIdx < 13 ; ++nCardIdx )
 		{
 			uint8_t nCard = m_tPoker.getCard();
 			pPlayer->addDistributeCard(nCard) ;
 			peerCards[nRealIdx][(uint32_t)nCardIdx] = nCard ;
+			CLogMgr::SharedLogMgr()->PrintLog("card number = %u",nCard);
 		}
 	}
 

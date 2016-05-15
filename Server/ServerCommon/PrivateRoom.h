@@ -29,6 +29,7 @@ public:
 	void update(float fDelta) override;
 	void onTimeSave() override;
 	bool onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )override;
+	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	bool isDeleteRoom()override;
 	void deleteRoom()override ;
 	uint32_t getOwnerUID()override;
@@ -230,10 +231,34 @@ void CPrivateRoom<T>::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t
 	nSubIdx = 0 ;
 	if ( m_pRoom )
 	{
-		m_pRoom->onPlayerEnterRoom(pEnterRoomPlayer,nSubIdx) ;
+		IRoom::stStandPlayer* pInPlayer = m_pRoom->getPlayerByUserUID(pEnterRoomPlayer->nUserUID) ;
+		if ( pInPlayer )
+		{
+			pInPlayer->nUserSessionID = pEnterRoomPlayer->nUserSessionID ;
+			pInPlayer->isWillLeave = false ;
+		}
+		else
+		{
+			m_pRoom->onPlayerEnterRoom(pEnterRoomPlayer,nSubIdx) ;
+		}
+		
 		sendRoomInfo(pEnterRoomPlayer->nUserSessionID);
-		m_pRoom->sendRoomPlayersInfo(pEnterRoomPlayer->nUserSessionID);
+		m_pRoom->sendRoomPlayersCardInfo(pEnterRoomPlayer->nUserSessionID);
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u , enter room id = %u , subIdx = %u",pEnterRoomPlayer->nUserUID, getRoomID(),0) ;
+
+		auto pSitPlayer = m_pRoom->getSitdownPlayerByUID(pEnterRoomPlayer->nUserUID) ;
+		if ( pSitPlayer )
+		{
+			pSitPlayer->setSessionID(pEnterRoomPlayer->nUserSessionID) ;
+		}
+		else
+		{
+			stMsgPlayerSitDown msgSitDown ;
+			msgSitDown.nIdx = 0 ;
+			msgSitDown.nSubRoomIdx = 0 ;
+			msgSitDown.nTakeInCoin = 0 ;
+			m_pRoom->onMessage(&msgSitDown,ID_MSG_PORT_CLIENT,pEnterRoomPlayer->nUserSessionID) ;
+		}
 	}
 }
 
@@ -500,6 +525,16 @@ bool CPrivateRoom<T>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 }
 
 template<class T >
+bool CPrivateRoom<T>::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
+{
+	if ( m_pRoom )
+	{
+		return m_pRoom->onMsg(prealMsg,nMsgType,eSenderPort,nSessionID) ;
+	}
+	return false ;
+}
+
+template<class T >
 bool CPrivateRoom<T>::isDeleteRoom()
 {
 	return m_eState == eRoomState_Dead ;
@@ -559,6 +594,7 @@ void CPrivateRoom<T>::sendRoomInfo(uint32_t nSessionID )
 	}
 
 	Json::Value jsMsg ;
+	jsMsg["roomID"] = getRoomID();
 	jsMsg["configID"] = m_pConfig->nConfigID ;
 	jsMsg["roomState"] = m_pRoom->getCurRoomState()->getStateID();
 	Json::Value arrPlayers ;

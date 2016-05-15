@@ -15,7 +15,7 @@ public:
 	void roomItemDetailVisitor(Json::Value& vOutJsValue)override;
 	void prepareState()override ;
 	void roomInfoVisitor(Json::Value& vOutJsValue)override ;
-	void sendRoomPlayersInfo(uint32_t nSessionID)override ;
+	void sendRoomPlayersCardInfo(uint32_t nSessionID)override ;
 	void setBankerIdx(uint8_t nIdx ){ m_nBankerIdx = nIdx ;}
 	uint8_t getBankerIdx(){ return m_nBankerIdx ;}
 	uint32_t getBaseBet(); // ji chu di zhu ;

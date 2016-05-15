@@ -109,8 +109,6 @@ bool IRoomManager::onMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSes
 	////	return false ;
 	////}
 
-
-
 	// msg give to room process 
 	stMsgToRoom* pRoomMsg = (stMsgToRoom*)prealMsg;
 	IRoomInterface* pRoom = GetRoomByID(pRoomMsg->nRoomID) ;
@@ -121,6 +119,36 @@ bool IRoomManager::onMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSes
 	}
 
 	return pRoom->onMessage(prealMsg,eSenderPort,nSessionID) ;
+}
+
+bool IRoomManager::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
+{
+	if ( IGlobalModule::onMsg(prealMsg,nMsgType,eSenderPort,nSessionID) )
+	{
+		return true ;
+	}
+
+	// msg give to room process 
+	if ( prealMsg["dstRoomID"].isNull() )
+	{
+		if ( nMsgType == MSG_PLAYER_LEAVE_ROOM )
+		{
+			Json::Value jsMsg ;
+			jsMsg["ret"] = 1 ;
+			sendMsg(jsMsg,nMsgType,nSessionID);
+			return true ;
+		}
+		return false ;
+	}
+
+	IRoomInterface* pRoom = GetRoomByID(prealMsg["dstRoomID"].asUInt()) ;
+	if ( pRoom == NULL )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("can not find room to process id = %d ,from = %d, room id = %d",nMsgType,eSenderPort,prealMsg["dstRoomID"].asUInt() ) ;
+		return  false ;
+	}
+
+	return pRoom->onMsg(prealMsg,nMsgType,eSenderPort,nSessionID) ;
 }
 
 bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)
@@ -215,12 +243,6 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			if ( msgBack.nRet == 0 )
 			{
 				pRoom->onPlayerEnterRoom(&pRet->tPlayerData,pRet->nSubIdx);
-
-				stMsgPlayerSitDown msgSitDown ;
-				msgSitDown.nIdx = 0 ;
-				msgSitDown.nSubRoomIdx = 0 ;
-				msgSitDown.nTakeInCoin = 0 ;
-				pRoom->onMessage(&msgSitDown,eSenderPort,nSessionID) ;
 			}
 			msgBack.nSubIdx = (uint8_t)pRet->nSubIdx ;
 			sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;

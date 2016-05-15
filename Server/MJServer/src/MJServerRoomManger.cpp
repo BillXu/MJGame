@@ -8,7 +8,7 @@
 #include "MJRoom.h"
 IRoomInterface* CMJRoomManager::doCreateInitedRoomObject(uint32_t nRoomID,bool isPrivateRoom , uint16_t nRoomConfigID ,eRoomType reqSubRoomType, Json::Value& vJsValue ) 
 {
-	stSitableRoomConfig* pConfig = (stSitableRoomConfig*)CMJServerApp::getInstance()->getRoomConfigMgr()->GetConfigByConfigID(nRoomConfigID) ;
+	auto pConfig = CMJServerApp::getInstance()->getRoomConfigMgr()->GetConfigByConfigID(nRoomConfigID) ;
 	if ( pConfig == nullptr )
 	{
 		return nullptr ;

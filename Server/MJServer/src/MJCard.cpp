@@ -50,27 +50,32 @@ void CMJCard::initAllCard( eMJGameType eType )
 
 	assert(eType < eMJ_Max && eType >= eMJ_None && "invalid card type" );
 	m_eMJGameType = eType ;
-	// add base 
-	uint8_t vType[3] = { eCT_Wan,eCT_Tiao,eCT_Tong } ;
-	for ( uint8_t nType : vType )
-	{
-		for ( uint8_t nValue = 1 ; nValue <= 9 ; ++nValue )
-		{
-			m_vAllCards.push_back(makeCardNumber((eMJCardType)nType,nValue)) ;
-		}
-	}
 
-	if ( eMJ_COMMON == m_eMJGameType )
+	// every card are 4 count 
+	for ( uint8_t nCnt = 0 ; nCnt < 4 ; ++nCnt )
 	{
-		// add feng , add ke
-		for ( uint8_t nValue = 1 ; nValue <= 4 ; ++nValue )
+		// add base 
+		uint8_t vType[3] = { eCT_Wan,eCT_Tiao,eCT_Tong } ;
+		for ( uint8_t nType : vType )
 		{
-			m_vAllCards.push_back(makeCardNumber(eCT_Feng,nValue)) ;
+			for ( uint8_t nValue = 1 ; nValue <= 9 ; ++nValue )
+			{
+				m_vAllCards.push_back(makeCardNumber((eMJCardType)nType,nValue)) ;
+			}
 		}
 
-		for ( uint8_t nValue = 1 ; nValue <= 3 ; ++nValue )
+		if ( eMJ_COMMON == m_eMJGameType )
 		{
-			m_vAllCards.push_back(makeCardNumber(eCT_ZFB,nValue)) ;
+			// add feng , add ke
+			for ( uint8_t nValue = 1 ; nValue <= 4 ; ++nValue )
+			{
+				m_vAllCards.push_back(makeCardNumber(eCT_Feng,nValue)) ;
+			}
+
+			for ( uint8_t nValue = 1 ; nValue <= 3 ; ++nValue )
+			{
+				m_vAllCards.push_back(makeCardNumber(eCT_ZFB,nValue)) ;
+			}
 		}
 	}
 }
