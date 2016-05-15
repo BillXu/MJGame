@@ -1,4 +1,5 @@
 #pragma once
+#include "MessageIdentifer.h"
 #include "NativeTypes.h"
 #define MAX_LEN_ACCOUNT 40   // can not big then unsigned char max = 255
 #define  MAX_LEN_PASSWORD 25 // can not big then unsigned char max = 255
@@ -55,9 +56,9 @@ enum ePayChannel
 enum eRoomType
 {
 	eRoom_None,
-	eRoom_TexasPoker = eRoom_None,
-	eRoom_MJ,
-	eRoom_NiuNiu,
+	eRoom_MJ = eRoom_None,
+	eRoom_NiuNiu = eRoom_MJ,
+	eRoom_TexasPoker,
 	eRoom_Golden,
 	eRoom_Max ,
 };
@@ -78,30 +79,7 @@ enum ePlayerType
 	ePlayer_Max,
 };
 
-enum eRoomState
-{
-	eRoomState_None,
-	eRoomState_Opening,
-	eRoomState_Dead,
-	eRoomState_WillClose,
-	eRoomState_Close,
-	eRoomSate_WaitReady,
-	eRoomState_StartGame,
 
-	eRoomState_WaitExchangeCards,
-	eRoomState_DoExchangeCards ,
-	eRoomState_WaitDecideQue,
-	eRoomState_DoDecideQue,
-	eRoomState_DoFetchCard,
-	eRoomState_WaitPlayerAct,
-	eRoomState_DoPlayerAct,
-	eRoomState_WaitOtherPlayerAct,
-	eRoomState_DoOtherPlayerAct,
-	eRoomState_WaitPlayerRecharge,
-	eRoomState_GameEnd,
-
-	eRoomState_Max,
-};
 
 
 // ROOM TIME BY SECOND 
@@ -141,24 +119,6 @@ enum eRoomSeat
 	eSeatCount_5,
 	eSeatCount_9,
 	eSeatCount_Max,
-};
-// player State 
-enum eRoomPeerState
-{
-	eRoomPeer_None,
-	// peer state for taxas poker peer
-	eRoomPeer_SitDown = 1,
-	eRoomPeer_StandUp = 1 << 1,
-	eRoomPeer_Ready =  (1<<12)|eRoomPeer_SitDown ,
-	eRoomPeer_StayThisRound = ((1 << 2)|eRoomPeer_SitDown)| eRoomPeer_Ready ,
-	eRoomPeer_WaitCaculate = ((1 << 7)|eRoomPeer_StayThisRound ),
-	eRoomPeer_AllIn = ((1 << 3)|eRoomPeer_WaitCaculate) ,
-	eRoomPeer_GiveUp = ((1 << 4)|eRoomPeer_StayThisRound),
-	eRoomPeer_CanAct = ((1 << 5)|eRoomPeer_WaitCaculate),
-	eRoomPeer_WaitNextGame = ((1 << 6)|eRoomPeer_SitDown ),
-	eRoomPeer_AlreadyHu = ((1 << 8)|eRoomPeer_CanAct ),
-	eRoomPeer_DecideLose = eRoomPeer_GiveUp ,
-	eRoomPeer_Max,
 };
 
 

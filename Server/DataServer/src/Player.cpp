@@ -236,6 +236,25 @@ bool CPlayer::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 
 }
 
+bool CPlayer::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort  )
+{
+	for ( int i = ePlayerComponent_None; i < ePlayerComponent_Max ; ++i )
+	{
+		IPlayerComponent* p = m_vAllComponents[i] ;
+		if ( p )
+		{
+			if ( p->OnMessage(recvValue,nmsgType,eSenderPort) )
+			{
+				return true;
+			}
+		}
+	}
+
+	CLogMgr::SharedLogMgr()->ErrorLog("Unprocessed msg id = %d, from = %d  uid = %d",nmsgType,eSenderPort,GetUserUID() ) ;
+
+	return false ;
+}
+
 void CPlayer::OnPlayerDisconnect()
 {
 	m_nDisconnectTime = time(NULL) ;
@@ -298,7 +317,7 @@ void CPlayer::SendMsgToClient(Json::Value& jsContent , unsigned short nMsgType ,
 {
 	if ( IsState(ePlayerState_Online))
 	{
-		CGameServerApp::SharedGameServerApp()->sendMsg(GetSessionID(),jsContent,nMsgType,bBrocast) ;
+		CGameServerApp::SharedGameServerApp()->sendMsg(GetSessionID(),jsContent,nMsgType,ID_MSG_PORT_CLIENT,bBrocast) ;
 		return ;
 	}
 	CLogMgr::SharedLogMgr()->PrintLog("player uid = %d not online so , can not send msg" ,GetUserUID() ) ;
@@ -649,8 +668,8 @@ uint8_t CPlayer::getMsgPortByRoomType(uint8_t nType )
 {
 	switch ( nType )
 	{
-	case eRoom_NiuNiu:
-		return ID_MSG_PORT_NIU_NIU ;
+	case eRoom_MJ:
+		return ID_MSG_PORT_MJ ;
 	case eRoom_TexasPoker:
 		return ID_MSG_PORT_TAXAS ;
 	case eRoom_Golden:

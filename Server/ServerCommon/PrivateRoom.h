@@ -1,6 +1,7 @@
 #pragma once
 #include "IRoomInterface.h"
 #include "ISitableRoom.h"
+#include "ISitableRoomPlayer.h"
 #include "IRoomDelegate.h"
 template<class T >
 class CPrivateRoom
@@ -105,7 +106,7 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	time_t tNow = time(nullptr) ;
 	m_pConfig = pConfig ;
 	m_nRoomID = nRoomID ;
-	m_nDuringSeconds = 2 * 60;
+	m_nDuringSeconds = 300 * 60;
 	m_tCreateTime = tNow ;
 	m_eState = eRoomState_Opening ;
 	m_pRoomMgr = pRoomMgr ;
@@ -212,6 +213,7 @@ uint8_t CPrivateRoom<T>::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )
 {
 	if ( getRoomState() != eRoomState_Opening )
 	{
+		CLogMgr::SharedLogMgr()->PrintLog("room not open");
 		return 7 ;  // room not open 
 	}
 
@@ -320,21 +322,21 @@ void CPrivateRoom<T>::update(float fDelta)
 			}
 		}
 		break;
-	case eRoomState_WillDead:
-		{
-			if ( isRoomClosed() )
-			{
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do dead",getRoomID() );
-				m_eState = eRoomState_Dead ;
-				m_bRoomInfoDiry = true ;
-				if ( m_pRoom )
-				{
-					m_pRoom->forcePlayersLeaveRoom();
-					m_pRoomMgr->deleteRoomChatID(m_pRoom->getChatRoomID()) ;
-				}
-			}
-		}
-		break;
+	//case eRoomState_WillDead:
+	//	{
+	//		if ( isRoomClosed() )
+	//		{
+	//			CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do dead",getRoomID() );
+	//			m_eState = eRoomState_Dead ;
+	//			m_bRoomInfoDiry = true ;
+	//			if ( m_pRoom )
+	//			{
+	//				m_pRoom->forcePlayersLeaveRoom();
+	//				m_pRoomMgr->deleteRoomChatID(m_pRoom->getChatRoomID()) ;
+	//			}
+	//		}
+	//	}
+	//	break;
 	case eRoomState_Dead:
 	case eRoomState_None:
 		{
@@ -556,25 +558,48 @@ void CPrivateRoom<T>::sendRoomInfo(uint32_t nSessionID )
 		return ;
 	}
 
-	stMsgRoomInfo msgInfo ;
-	msgInfo.eCurRoomState = pRoom->getCurRoomState()->getStateID() ;
-	msgInfo.fChouShuiRate = m_pConfig->fDividFeeRate ;
-	msgInfo.nChatRoomID = pRoom->getChatRoomID() ;
-	msgInfo.nCloseTime = (uint32_t)getCloseTime() ;
-	msgInfo.nDeskFee =  m_pConfig->nDeskFee ;
-	msgInfo.nMaxSeat = (uint8_t)pRoom->getSeatCount();
-	msgInfo.nRoomID = getRoomID() ;
-	msgInfo.nRoomType = getRoomType() ;
-	msgInfo.nSubIdx = pRoom->getRoomID() ;
+	Json::Value jsMsg ;
+	jsMsg["configID"] = m_pConfig->nConfigID ;
+	jsMsg["roomState"] = m_pRoom->getCurRoomState()->getStateID();
+	Json::Value arrPlayers ;
+	for ( uint8_t nIdx = 0; nIdx < m_pRoom->getSeatCount() ; ++nIdx )
+	{
+		ISitableRoomPlayer* pPlayer = m_pRoom->getPlayerByIdx(nIdx);
+		if ( pPlayer == nullptr )
+		{
+			continue;
+		}
+		Json::Value jsPlayer ; 
+		jsPlayer["idx"] =  nIdx ;
+		jsPlayer["uid"] =  pPlayer->getUserUID() ;
+		jsPlayer["coin"] = pPlayer->getCoin() ;
+		jsPlayer["state"] = pPlayer->getState() ;
+		arrPlayers[nIdx] = jsPlayer ;
+	}
 
-	Json::StyledWriter wr ;
-	Json::Value vOut ;
-	pRoom->roomInfoVisitor(vOut);
-	std::string str = wr.write(vOut) ;
-	msgInfo.nJsonLen = str.size() ;
-	CAutoBuffer sBuf(sizeof(msgInfo) + msgInfo.nJsonLen );
-	sBuf.addContent(&msgInfo,sizeof(msgInfo)) ;
-	sBuf.addContent(str.c_str(),msgInfo.nJsonLen) ;
-	m_pRoomMgr->sendMsg((stMsg*)sBuf.getBufferPtr(),sBuf.getContentSize(),nSessionID) ;
-	CLogMgr::SharedLogMgr()->PrintLog("send room info to session id = %u js:%s",nSessionID, str.c_str()) ;
+	jsMsg["players"] = arrPlayers ;
+	
+	m_pRoomMgr->sendMsg(jsMsg,MSG_ROOM_INFO,nSessionID) ;
+
+	//stMsgRoomInfo msgInfo ;
+	//msgInfo.eCurRoomState = pRoom->getCurRoomState()->getStateID() ;
+	//msgInfo.fChouShuiRate = m_pConfig->fDividFeeRate ;
+	//msgInfo.nChatRoomID = pRoom->getChatRoomID() ;
+	//msgInfo.nCloseTime = (uint32_t)getCloseTime() ;
+	//msgInfo.nDeskFee =  m_pConfig->nDeskFee ;
+	//msgInfo.nMaxSeat = (uint8_t)pRoom->getSeatCount();
+	//msgInfo.nRoomID = getRoomID() ;
+	//msgInfo.nRoomType = getRoomType() ;
+	//msgInfo.nSubIdx = pRoom->getRoomID() ;
+
+	//Json::StyledWriter wr ;
+	//Json::Value vOut ;
+	//pRoom->roomInfoVisitor(vOut);
+	//std::string str = wr.write(vOut) ;
+	//msgInfo.nJsonLen = str.size() ;
+	//CAutoBuffer sBuf(sizeof(msgInfo) + msgInfo.nJsonLen );
+	//sBuf.addContent(&msgInfo,sizeof(msgInfo)) ;
+	//sBuf.addContent(str.c_str(),msgInfo.nJsonLen) ;
+	//m_pRoomMgr->sendMsg((stMsg*)sBuf.getBufferPtr(),sBuf.getContentSize(),nSessionID) ;
+	//CLogMgr::SharedLogMgr()->PrintLog("send room info to session id = %u js:%s",nSessionID, str.c_str()) ;
 }

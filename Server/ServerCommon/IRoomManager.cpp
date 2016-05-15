@@ -29,11 +29,21 @@ void IRoomManager::init(IServerApp* svrApp)
 	m_vCreatorAndRooms.clear();
 	m_pGoTyeAPI.init("https://qplusapi.gotye.com.cn:8443/api/");
 	m_pGoTyeAPI.setDelegate(this);
+
+	// tem create room ;
+	Json::Value vDefault ;
+	IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,true,1,eRoom_MJ,vDefault);
+	m_vRooms[pRoom->getRoomID()] = pRoom ;
 }
 
 void IRoomManager::sendMsg(stMsg* pmsg, uint32_t nLen , uint32_t nSessionID )
 {
 	getSvrApp()->sendMsg(nSessionID,(char*)pmsg,nLen);
+}
+
+void IRoomManager::sendMsg( Json::Value& jsContent , unsigned short nMsgType , uint32_t nSessionID, eMsgPort ePort )
+{
+	getSvrApp()->sendMsg(nSessionID,jsContent,nMsgType,ePort,false);
 }
 
 bool IRoomManager::onMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID )
@@ -177,24 +187,6 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			addRoomToCreator(pRoom->getOwnerUID(),pRoom);
 		}
 		break;
-	//case MSG_REQUEST_MY_OWN_ROOM_DETAIL:
-	//	{
-	//		stMsgToRoom* pRet = (stMsgToRoom*)prealMsg ;
-	//		stMsgRequestMyOwnRoomDetailRet msgRet ;
-	//		msgRet.nRet = 0 ;
-	//		IRoomInterface* pRoom = GetRoomByID(pRet->nRoomID);
-	//		if ( pRoom == nullptr )
-	//		{
-	//			msgRet.nRet = 1 ;
-	//			sendMsg(&msgRet,sizeof(msgRet),nSessionID) ;
-	//			return true ;
-	//		}
-
-	//		msgRet.nRoomType = pRoom->getRoomType() ;
-	//		msgRet.nRoomID = pRoom->getRoomID() ;
-	//		sendMsg(&msgRet,sizeof(msgRet),nSessionID) ;
-	//	}
-	//	break;
 	case MSG_SVR_ENTER_ROOM:
 		{
 			stMsgSvrEnterRoomRet msgBack ;

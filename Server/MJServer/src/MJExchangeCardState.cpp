@@ -112,15 +112,15 @@ void CMJDoExchangeCardState::enterState(IRoom* pRoom)
 		memcpy(vExchangeCard[tt->nActIdx],((stExchangeCardActionItem*)tt)->vExchangeCard,sizeof(uint8_t)*3) ;
 	}
 
-	uint8_t nMode = rand() % 4 ;  // 0 shun , 1 ni , 2 dui 
+	uint8_t nMode = rand() % 3 ;  // 0 shun , 1 ni , 2 dui 
 	switch ( nMode )
 	{
 	case 0 :
 		{
-			for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+			for ( uint8_t nIdx = 0 ; nIdx < m_pRoom->getSeatCount() ; ++nIdx )
 			{
 				uint8_t nTargetIdx = nIdx + 1 ;
-				nTargetIdx = nTargetIdx % 4 ;
+				nTargetIdx = nTargetIdx % m_pRoom->getSeatCount() ;
 				memcpy(vNewCard[nIdx],vExchangeCard[nTargetIdx],sizeof(uint8_t)*3) ;
 			}
 			
@@ -128,21 +128,21 @@ void CMJDoExchangeCardState::enterState(IRoom* pRoom)
 		break;
 	case 1:
 		{
-			for ( uint8_t nIdx = 4 ; nIdx > 0 ; --nIdx )
+			for ( uint8_t nIdx = m_pRoom->getSeatCount() ; nIdx > 0 ; --nIdx )
 			{
 				uint8_t nTargetIdx = nIdx - 1 ;
-				nTargetIdx = nTargetIdx % 4 ;
-				uint8_t nOri = nIdx % 4 ;
+				nTargetIdx = nTargetIdx % m_pRoom->getSeatCount() ;
+				uint8_t nOri = nIdx % m_pRoom->getSeatCount() ;
 				memcpy(vNewCard[nOri],vExchangeCard[nTargetIdx],sizeof(uint8_t)*3) ;
 			}
 		}
 		break;
 	case 2:
 		{
-			for ( uint8_t nIdx = 0 ; nIdx < 4 ; nIdx += 2 )
+			for ( uint8_t nIdx = 0 ; nIdx < m_pRoom->getSeatCount() ; nIdx += 2 )
 			{
 				uint8_t nTargetIdx = nIdx + 1 ;
-				nTargetIdx = nTargetIdx % 4 ;
+				nTargetIdx = nTargetIdx % m_pRoom->getSeatCount() ;
 				memcpy(vNewCard[nIdx],vExchangeCard[nTargetIdx],sizeof(uint8_t)*3) ;
 			}
 		}
@@ -156,7 +156,7 @@ void CMJDoExchangeCardState::enterState(IRoom* pRoom)
 	msg["mode"] = nMode ;
 
 	Json::Value arrayCards ;
-	for ( uint8_t nidx = 0 ; nidx < 4 ; ++nidx )
+	for ( uint8_t nidx = 0 ; nidx < m_pRoom->getSeatCount() ; ++nidx )
 	{
 		auto pP = (CMJRoomPlayer*)((ISitableRoom*)pRoom)->getPlayerByIdx(nidx) ;
 		assert(pP && "why pp is null ?");
@@ -184,7 +184,7 @@ void CMJDoExchangeCardState::enterState(IRoom* pRoom)
 void CMJDoExchangeCardState::onExecuteOver()
 {
 	auto ppState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitDecideQue) ;
-	for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+	for ( uint8_t nIdx = 0 ; nIdx < m_pRoom->getSeatCount() ; ++nIdx )
 	{
 		ppState->addWaitingTarget(nIdx) ;
 	}

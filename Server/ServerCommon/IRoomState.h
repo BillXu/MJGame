@@ -74,7 +74,7 @@ public:
 	void setExecuteActs(VEC_ACTITEM& vActList );
 	void setExecuteTime(float fseconds );
 	void enterState(IRoom* pRoom)override;
-	virtual void onExecuteOver();
+	virtual void onExecuteOver() = 0;
 	virtual void doExecuteAct( stActionItem* pAct) = 0 ;
 	void onStateDuringTimeUp()override final 
 	{
@@ -92,8 +92,20 @@ class IRoomStateWaitPlayerReady
 public:
 	void update(float)override ;
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID);
-protected:
-	IRoom* m_pRoom ;
+	uint16_t getStateID(){ return eRoomSate_WaitReady ; }
+};
+
+// game end 
+class IRoomStateGameEnd
+	: public IRoomState
+{
+public:
+	void enterState(IRoom* pRoom)override
+	{
+		IRoomState::enterState(pRoom) ;
+		pRoom->onGameDidEnd();
+	}
+	uint16_t getStateID(){ return eRoomState_GameEnd ; }
 };
 
 //// close state 

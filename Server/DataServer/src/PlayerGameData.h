@@ -18,6 +18,7 @@ public:
 	void Reset()override;
 	void Init()override;
 	bool OnMessage( stMsg* pMessage , eMsgPort eSenderPort)override ;
+	bool OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort) override;
 	bool onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsgPort eSenderPort,Json::Value* vJsValue = nullptr)override;
 	bool onCrossServerRequestRet(stMsgCrossServerRequestRet* pResult,Json::Value* vJsValue = nullptr )override;
 	void OnPlayerDisconnect()override;

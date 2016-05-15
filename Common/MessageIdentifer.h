@@ -1,5 +1,8 @@
 #pragma once 
-
+//#define  C_SHARP 
+#if (C_SHARP)  
+public
+#endif
 enum eMJActType
 {
 	eMJAct_Mo,
@@ -16,6 +19,9 @@ enum eMJActType
 	eMJAct_Max,
 };
 
+#if (C_SHARP)  
+public
+#endif
 enum eTime
 {
 	eTime_ExeGameStart = 5,
@@ -30,6 +36,9 @@ enum eTime
 	eTime_DoPlayerAct_Hu = 3,
 };
 
+#if (C_SHARP)  
+public
+#endif
 enum eMsgPort
 {
 	ID_MSG_PORT_NONE , // client to game server 
@@ -50,7 +59,61 @@ enum eMsgPort
 	ID_MSG_PORT_GOLDEN,
 };
 
+// room state 
+#if (C_SHARP)  
+public
+#endif
+enum eRoomState
+{
+	eRoomState_None,
+	eRoomState_Opening,
+	eRoomState_WillDead,
+	eRoomState_Dead,
+	eRoomState_WillClose,
+	eRoomState_Close,
+	eRoomSate_WaitReady,
+	eRoomState_StartGame,
 
+	eRoomState_WaitExchangeCards,
+	eRoomState_DoExchangeCards ,
+	eRoomState_WaitDecideQue,
+	eRoomState_DoDecideQue,
+	eRoomState_DoFetchCard,
+	eRoomState_WaitPlayerAct,
+	eRoomState_DoPlayerAct,
+	eRoomState_WaitOtherPlayerAct,
+	eRoomState_DoOtherPlayerAct,
+	eRoomState_WaitPlayerRecharge,
+	eRoomState_GameEnd,
+
+	eRoomState_Max,
+};
+
+// player State 
+#if (C_SHARP)  
+public
+#endif
+enum eRoomPeerState
+{
+	eRoomPeer_None,
+	// peer state for taxas poker peer
+	eRoomPeer_SitDown = 1,
+	eRoomPeer_StandUp = 1 << 1,
+	eRoomPeer_Ready =  (1<<12)|eRoomPeer_SitDown ,
+	eRoomPeer_StayThisRound = ((1 << 2)|eRoomPeer_SitDown)| eRoomPeer_Ready ,
+	eRoomPeer_WaitCaculate = ((1 << 7)|eRoomPeer_StayThisRound ),
+	eRoomPeer_AllIn = ((1 << 3)|eRoomPeer_WaitCaculate) ,
+	eRoomPeer_GiveUp = ((1 << 4)|eRoomPeer_StayThisRound),
+	eRoomPeer_CanAct = ((1 << 5)|eRoomPeer_WaitCaculate),
+	eRoomPeer_WaitNextGame = ((1 << 6)|eRoomPeer_SitDown ),
+	eRoomPeer_AlreadyHu = ((1 << 8)|eRoomPeer_CanAct ),
+	eRoomPeer_DecideLose = eRoomPeer_GiveUp ,
+	eRoomPeer_Max,
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eMsgType 
 {
 	MSG_CLIENT = 10000,
@@ -100,7 +163,7 @@ enum eMsgType
 	// ret : 0 ,success , 1 argument error , 2 already in room , 3 coin not enough ;
 
 	MSG_ROOM_INFO,
-	// svr : { configID : 23 , players : [ {idx : 0 , uid : 233, coin : 2345 }, {idx : 0 , uid : 233, coin : 2345 },{idx : 0 , uid : 233, coin : 2345 } , ... ] }
+	// svr : { configID : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }
 
 	MSG_ROOM_PLAYER_ENTER,
 	// svr : {idx : 0 , uid : 233, coin : 2345 }

@@ -88,7 +88,23 @@ bool CGameServerApp::onLogicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 		return true ;
 	}
 	CLogMgr::SharedLogMgr()->ErrorLog("unprocess msg = %d , from port = %d , nsssionid = %d",prealMsg->usMsgType,eSenderPort,nSessionID ) ;
-	return true ;
+	return false ;
+}
+
+bool CGameServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )
+{
+	if ( IServerApp::onLogicMsg(recvValue,nmsgType,eSenderPort,nSessionID) )
+	{
+		return true ;
+	}
+
+	
+	if ( m_pPlayerManager->OnMessage(recvValue,nmsgType,eSenderPort,nSessionID) )
+	{
+		return true ;
+	}
+	CLogMgr::SharedLogMgr()->ErrorLog("unprocess msg = %d , from port = %d , nsssionid = %d",nmsgType,eSenderPort,nSessionID ) ;
+	return false ;
 }
 
 bool CGameServerApp::ProcessPublicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID )

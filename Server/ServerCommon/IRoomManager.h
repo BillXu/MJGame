@@ -30,6 +30,7 @@ public:
 	virtual bool onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID);
 	IRoomInterface* GetRoomByID(uint32_t nRoomID );
 	void sendMsg(stMsg* pmsg, uint32_t nLen , uint32_t nSessionID ) ;
+	void sendMsg( Json::Value& jsContent , unsigned short nMsgType , uint32_t nSessionID, eMsgPort ePort = ID_MSG_PORT_CLIENT ) ;
 	void onHttpCallBack(char* pResultData, size_t nDatalen , void* pUserData , size_t nUserTypeArg);
 	void update(float fDeta )override;
 	void onTimeSave()override;

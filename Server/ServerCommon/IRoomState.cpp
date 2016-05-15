@@ -5,6 +5,7 @@
 #include <cassert>
 #include "ISitableRoom.h"
 #include "ISitableRoomPlayer.h"
+#include "json/json.h"
 void IRoomState::update(float fDeta)
 { 
 	if ( m_fStateDuring >= 0.0f )
@@ -160,6 +161,10 @@ bool IRoomStateWaitPlayerReady::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, 
 		auto pSitRoom = (ISitableRoom*)(m_pRoom); 
 		auto pp = pSitRoom->getSitdownPlayerBySessionID(nSessionID) ;
 		pp->setState(eRoomPeer_Ready) ;
+
+		Json::Value jsMsg ;
+		jsMsg["idx"] = pp->getIdx() ;
+		pSitRoom->sendRoomMsg(jsMsg,MSG_ROOM_PLAYER_READY) ;
 		return true ;
 	}
 	return false ;

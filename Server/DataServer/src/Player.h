@@ -22,6 +22,7 @@ public:
 	void Init( unsigned int nUserUID,unsigned int nSessionID );
 	void Reset(unsigned int nUserUID,unsigned int nSessionID ) ; // for reuse the object ;
 	bool OnMessage( stMsg* pMessage , eMsgPort eSenderPort );
+	bool OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort  );
 	void OnPlayerDisconnect();
 	void SendMsgToClient(const char* pBuffer, unsigned short nLen,bool bBrocat = false );
 	void SendMsgToClient(Json::Value& jsContent , unsigned short nMsgType , bool bBrocast );

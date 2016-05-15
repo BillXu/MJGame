@@ -468,21 +468,21 @@ void CSystemRoom<TR>::update(float fDelta)
 			}
 		}
 		break;
-	case eRoomState_WillDead:
-		{
-			if ( isSubRoomClosed() )
-			{
-				m_bRoomInfoDiry = true ;
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do dead",getRoomID() );
-				m_eState = eRoomState_Dead ;
-				for ( auto uu : m_vRooms )
-				{
-					uu->forcePlayersLeaveRoom();
-					m_pRoomMgr->deleteRoomChatID(uu->getChatRoomID()) ;
-				}
-			}
-		}
-		break;
+	//case eRoomState_WillDead:
+	//	{
+	//		if ( isSubRoomClosed() )
+	//		{
+	//			m_bRoomInfoDiry = true ;
+	//			CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do dead",getRoomID() );
+	//			m_eState = eRoomState_Dead ;
+	//			for ( auto uu : m_vRooms )
+	//			{
+	//				uu->forcePlayersLeaveRoom();
+	//				m_pRoomMgr->deleteRoomChatID(uu->getChatRoomID()) ;
+	//			}
+	//		}
+	//	}
+	//	break;
 	case eRoomState_Dead:
 	case eRoomState_None:
 		{

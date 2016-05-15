@@ -98,6 +98,7 @@
     <ClInclude Include="..\..\Common\MessageIdentifer.h" />
     <ClInclude Include="..\..\Common\NativeTypes.h" />
     <ClInclude Include="..\..\Common\RoomConfig.h" />
+    <ClInclude Include="..\..\Common\StringHash.h" />
     <ClInclude Include="..\..\Common\Utility.h" />
     <ClInclude Include="..\ServerCommon\AutoBuffer.h" />
     <ClInclude Include="..\ServerCommon\httpRequest.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="..\..\Common\IConfigFile.cpp" />
     <ClCompile Include="..\..\Common\LogManager.cpp" />
     <ClCompile Include="..\..\Common\RoomConfig.cpp" />
+    <ClCompile Include="..\..\Common\StringHash.cpp" />
     <ClCompile Include="..\..\Common\Utility.cpp" />
     <ClCompile Include="..\ServerCommon\httpRequest.cpp" />
     <ClCompile Include="..\ServerCommon\IRoom.cpp" />

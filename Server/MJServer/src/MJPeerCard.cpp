@@ -508,3 +508,19 @@ uint8_t CMJPeerCard::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
 	assert(0&& "why can not find proper card ?" );
 	return 0 ;
 }
+
+bool CMJPeerCard::isHaveAnCard(uint8_t nCardNumber)
+{
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		for ( auto refValue : ref.second.m_vAnCards )
+		{
+			if ( refValue.nCardNumber == nCardNumber )
+			{
+				return true ;
+			}
+		}
+	}
+
+	return false ;
+}

@@ -226,7 +226,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msgCreateData,sizeof(msgCreateData)) ;
 
 			// tell client the success register result ;
-			Json::Value testValue ;
+			/*Json::Value testValue ;
 			Json::Value arrtObj ;
 			Json::Value arrValue ;
 			testValue["uid"] = "1235";
@@ -242,8 +242,8 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 
 			testValue["value"] = arrValue ;
 			testValue["obj"] = arrtObj ;
-			getSvrApp()->sendMsg(pdata->nSessionID,testValue,pResult->nRequestUID);
-			//getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
+			getSvrApp()->sendMsg(pdata->nSessionID,testValue,pResult->nRequestUID);*/
+			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 			CLogMgr::SharedLogMgr()->PrintLog("register success account = %s",pRow["strAccount"]->CStringValue() );
 
 			stMsgLoginSvrInformGateSaveLog msglog ;

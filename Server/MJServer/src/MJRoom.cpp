@@ -8,6 +8,10 @@
 #include "ServerStringTable.h"
 #include <algorithm>
 #include <json/json.h>
+#include "MJWaitPlayerActState.h"
+#include "MJWaitDecideQueState.h"
+#include "MJExchangeCardState.h"
+#include "MJGameStartState.h"
 CMJRoom::CMJRoom()
 {
 	
@@ -26,7 +30,16 @@ void CMJRoom::prepareState()
 {
 	ISitableRoom::prepareState();
 	// create room state ;
-
+	IRoomState* vState[] = {
+		new IRoomStateWaitPlayerReady(),new CMJGameStartState(),new CMJWaitExchangeCardState(),new CMJDoExchangeCardState()
+		,new CMJWaitDecideQueState(),new CMJDoDecideQueState(),new CMJWaitPlayerActState(),new CMJDoPlayerActState()
+		,new CMJWaitOtherActState(),new CMJDoOtherPlayerActState(), new IRoomStateGameEnd()
+	};
+	for ( uint8_t nIdx = 0 ; nIdx < sizeof(vState) / sizeof(IRoomState*); ++nIdx )
+	{
+		addRoomState(vState[nIdx]) ;
+	}
+	setInitState(vState[0]);
 }
 
 void CMJRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig,uint32_t nRoomID , Json::Value& vJsValue )
@@ -92,7 +105,7 @@ void CMJRoom::onGameWillBegin()
 {
 	ISitableRoom::onGameWillBegin();
 	++m_nBankerIdx ;
-	m_nBankerIdx = m_nBankerIdx % 4 ;
+	m_nBankerIdx = m_nBankerIdx % getSeatCount() ;
 	CLogMgr::SharedLogMgr()->PrintLog("room game begin");
 	m_tPoker.shuffle();
 	prepareCards();
@@ -100,7 +113,7 @@ void CMJRoom::onGameWillBegin()
 
 void CMJRoom::onGameDidEnd()
 {
-
+	caculateGameResult();
 	ISitableRoom::onGameDidEnd();
 	CLogMgr::SharedLogMgr()->PrintLog("room game End");
 }
@@ -108,11 +121,17 @@ void CMJRoom::onGameDidEnd()
 void CMJRoom::prepareCards()
 {
 	Json::Value msg ;
-	Json::Value peerCards[4] ;
-	uint8_t nDice = rand() % 4 ;
-	for ( uint8_t nIdx = nDice; nIdx < 8 ; ++nIdx )
+	std::vector<Json::Value> peerCards;
+	for ( uint8_t nCnt = 0 ; nCnt < getSeatCount() ; ++nCnt )
 	{
-		uint8_t nRealIdx = nIdx % 4 ;
+		Json::Value v ;
+		peerCards.push_back(v);
+	}
+
+	uint8_t nDice = rand() % getSeatCount() ;
+	for ( uint8_t nIdx = nDice; nIdx < getSeatCount() * 2 ; ++nIdx )
+	{
+		uint8_t nRealIdx = nIdx % getSeatCount() ;
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nRealIdx);
 		for (uint8_t nCardIdx = 0 ; nCardIdx < 13 ; ++nCardIdx )
 		{
@@ -130,7 +149,7 @@ void CMJRoom::prepareCards()
 	msg["dice"] = nDice ;
 	msg["banker"] = m_nBankerIdx ;
 	Json::Value arrPeerCards ;
-	for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
 		Json::Value peer ;
 		peer["cards"] = peerCards[nIdx] ;
@@ -142,7 +161,7 @@ void CMJRoom::prepareCards()
 
 uint32_t CMJRoom::coinNeededToSitDown()
 {
-	return getBaseBet()* 100 ;
+	return getBaseBet()* 1 ;
 }
 
 void CMJRoom::caculateGameResult()
@@ -151,7 +170,7 @@ void CMJRoom::caculateGameResult()
 	std::vector<CMJRoomPlayer*> vecNotHuaZhu ;
 	std::vector<CMJRoomPlayer*> vecNotTingPai ;
 	std::vector<CMJRoomPlayer*> vecTingPai ;
-	for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nIdx) ;
 		if ( pPlayer->isHuaZhu() )
@@ -223,7 +242,7 @@ void CMJRoom::caculateGameResult()
 	// send msg 
 	Json::Value msg ;
 	Json::Value msgArray ;
-	for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
 		auto pPlayer = getPlayerByIdx(nIdx) ;
 		Json::Value info ;
@@ -258,7 +277,7 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 	
 	uint32_t ntotalWin = 0 ;
 	// kou qian ;
-	for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
 		if ( nIdx == nActIdx )
 		{
@@ -358,7 +377,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	pBill->eType = stBillWin::eBill_GangWin ;
 	if ( nInvokeIdx == nActIdx )
 	{
-		for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+		for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 		{
 			if ( nIdx == nActIdx )
 			{
@@ -444,7 +463,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 
 bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
 {
-	for ( uint8_t nIdx = 0 ; nIdx < 4 ; ++nIdx )
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
 		if ( nIdx == nExptPlayerIdx )
 		{
@@ -493,7 +512,7 @@ uint8_t CMJRoom::getLeftCardCnt()
 uint8_t CMJRoom::getNextActPlayerIdx( uint8_t nCurActIdx )
 {
 	++nCurActIdx ;
-	nCurActIdx %= 4 ;
+	nCurActIdx %= getSeatCount() ;
 	return nCurActIdx ;
 }
 
@@ -590,3 +609,4 @@ uint32_t CMJRoom::getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu )
 {
 	return getBaseBet() * nFanshu + nGenShu * getBaseBet() ;
 }
+

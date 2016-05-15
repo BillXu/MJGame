@@ -15,6 +15,7 @@ public:
 	CPlayerManager* GetPlayerMgr(){ return m_pPlayerManager ; }
 	CConfigManager* GetConfigMgr(){ return m_pConfigManager ; }
 	bool onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID);
+	bool onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )override;
 	void update(float fdeta );
 	uint16_t getLocalSvrMsgPortType(){ return ID_MSG_PORT_DATA ; } ; // et : ID_MSG_PORT_DATA , ID_MSG_PORT_TAXAS
 	void onConnectedToSvr()override;

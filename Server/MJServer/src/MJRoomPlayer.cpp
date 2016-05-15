@@ -48,6 +48,11 @@ bool CMJRoomPlayer::removeCard(uint8_t nCardNumber)
 	return true ;
 }
 
+bool CMJRoomPlayer::isHaveAnCard(uint8_t nCardNumber)
+{
+	return m_tPeerCard.isHaveAnCard(nCardNumber) ;
+}
+
 uint8_t CMJRoomPlayer::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
 {
 	return m_tPeerCard.getCardByIdx(nCardIdx,isForExchange);

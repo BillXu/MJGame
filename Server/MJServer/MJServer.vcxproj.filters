@@ -171,6 +171,9 @@
     <ClInclude Include="src\MJWaitPlayerActState.h">
       <Filter>src\Room\state</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common\StringHash.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -274,6 +277,9 @@
     </ClCompile>
     <ClCompile Include="src\MJWaitDecideQueState.cpp">
       <Filter>src\Room\state</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\StringHash.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

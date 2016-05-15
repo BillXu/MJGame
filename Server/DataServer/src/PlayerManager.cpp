@@ -294,6 +294,31 @@ bool CPlayerManager::OnMessage( stMsg* pMessage , eMsgPort eSenderPort , uint32_
 	return false ;
 }
 
+bool CPlayerManager::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )
+{
+	CPlayer* pTargetPlayer = GetPlayerBySessionID(nSessionID,true );
+	if ( pTargetPlayer && pTargetPlayer->OnMessage(recvValue,nmsgType,eSenderPort ) )
+	{
+		if (pTargetPlayer->IsState(CPlayer::ePlayerState_Offline) )
+		{
+			pTargetPlayer->OnTimerSave(0,0);
+		}
+		return true  ;
+	}
+	else
+	{
+		if (pTargetPlayer == NULL )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("can not find session id = %d to process msg id = %d ,from = %d",nSessionID,nmsgType,eSenderPort) ;
+		}
+		else
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog( "unprocess msg for player uid = %d , msg = %d ,from %d ",pTargetPlayer->GetUserUID(),nmsgType,eSenderPort ) ;
+		}
+	}
+	return false ;
+}
+
 bool CPlayerManager::ProcessPublicMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID  )
 {
 	switch ( prealMsg->usMsgType )

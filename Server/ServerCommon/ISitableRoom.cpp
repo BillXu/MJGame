@@ -459,11 +459,17 @@ bool ISitableRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t 
 			m_vSitdownPlayers[pRet->nIdx] = sitDownPlayer ;
 
 			// tell others ;
-			stMsgRoomSitDown msgSitDown ;
-			msgSitDown.nIdx = sitDownPlayer->getIdx() ;
-			msgSitDown.nSitDownPlayerUserUID = sitDownPlayer->getUserUID() ;
-			msgSitDown.nTakeInCoin = sitDownPlayer->getCoin() ;
-			sendRoomMsg(&msgSitDown,sizeof(msgSitDown));
+			//stMsgRoomSitDown msgSitDown ;
+			//msgSitDown.nIdx = sitDownPlayer->getIdx() ;
+			//msgSitDown.nSitDownPlayerUserUID = sitDownPlayer->getUserUID() ;
+			//msgSitDown.nTakeInCoin = sitDownPlayer->getCoin() ;
+			//sendRoomMsg(&msgSitDown,sizeof(msgSitDown));
+
+			Json::Value jsMsg ;
+			jsMsg["idx"] = sitDownPlayer->getIdx() ;
+			jsMsg["uid"] = sitDownPlayer->getUserUID() ;
+			jsMsg["coin"] = sitDownPlayer->getCoin() ;
+			sendRoomMsg(jsMsg,MSG_ROOM_PLAYER_ENTER);
 
 			onPlayerSitDown(sitDownPlayer) ;
 

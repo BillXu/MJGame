@@ -366,6 +366,20 @@ void IRoom::sendMsgToPlayer( stMsg* pmsg , uint16_t nLen , uint32_t nSessionID )
 	m_pRoomMgr->sendMsg(pmsg,nLen,nSessionID);
 }
 
+void IRoom::sendRoomMsg( Json::Value& jsContent , unsigned short nMsgType , eMsgPort ePort)
+{
+	STAND_PLAYER_ITER iter = m_vInRoomPlayers.begin() ;
+	for ( ; iter != m_vInRoomPlayers.end() ; ++iter )
+	{
+		sendMsgToPlayer(jsContent,nMsgType,iter->second->nUserSessionID,ePort) ;
+	}
+}
+
+void IRoom::sendMsgToPlayer( Json::Value& jsContent , unsigned short nMsgType , uint32_t nSessionID, eMsgPort ePort )
+{
+	m_pRoomMgr->sendMsg(jsContent,nMsgType,nSessionID,ePort);
+}
+
 bool IRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )
 {
 	if ( m_pCurRoomState && m_pCurRoomState->onMessage(prealMsg,eSenderPort,nPlayerSessionID) )

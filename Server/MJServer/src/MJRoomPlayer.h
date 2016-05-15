@@ -47,7 +47,7 @@ public:
 	void onGameEnd()override ;
 	void onGameBegin()override ;
 	void doSitdown(uint8_t nIdx ) override;
-	void willStandUp() override;
+	//void willStandUp() override;
 	void onGetCard( uint8_t nIdx , uint8_t nCard );
 	int32_t getGameOffset()override { return m_nGameOffset ; } ;
 	IPeerCard* getPeerCard()override{ return nullptr ;};
