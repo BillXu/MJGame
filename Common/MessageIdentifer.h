@@ -162,7 +162,7 @@ enum eMsgType
 	MSG_REQ_ENTER_ROOM,
 	// client : { roomType: "blood" , configID : "12" }
 	// svr : { ret : 0  }
-	// ret : 0 ,success , 1 argument error , 2 already in room , 3 coin not enough ;
+	// ret :  0 success , 1 已经在房间里 , 2 房间要求游客不能进入 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 
 
 	MSG_ROOM_INFO,  // 房间的基本信息
 	// svr : { roomID ： 23 , configID : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }
@@ -206,7 +206,8 @@ enum eMsgType
 	// 数组对应玩家 定的缺门类型。
 
 	MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,  // 有人出了一张牌，等待需要这张牌的玩家 操作，可以 碰，杠，胡
-	// svr : null ;
+	// svr : { players : [ {idx : 1 , acts : [type0, type 1 , ..] },{idx : 0 , acts : [type0, type 1 , ..] }, ... ] } ;
+	// 可操作的玩家是一个数组，因为同一张牌，可能有多个玩家需要。 玩家可执行的操作，也是一个数组，同一张牌，玩家可以执行多种操作，type 类型参照 eMJActType
 
 	MSG_PLAYER_ACT, // 玩家操作
 	// client : { dstRoomID : 2345 ,actType : 0 , card : 23}
