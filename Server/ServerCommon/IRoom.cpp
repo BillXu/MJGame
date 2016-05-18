@@ -153,17 +153,17 @@ void IRoom::willSerializtionToDB(Json::Value& vOutJsValue)
 
 uint8_t IRoom::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )  // return 0 means ok ;
 {
-	stStandPlayer* pp = getPlayerByUserUID(pEnterRoomPlayer->nUserUID);
-	if ( pp )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d , already in this room, can not enter twice",pEnterRoomPlayer->nUserUID) ;
-		return 1;
-	}
+	//stStandPlayer* pp = getPlayerByUserUID(pEnterRoomPlayer->nUserUID);
+	//if ( pp )
+	//{
+	//	CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d , already in this room, can not enter twice",pEnterRoomPlayer->nUserUID) ;
+	//	return 1;
+	//}
 
-	if ( getDelegate() )
-	{
-		return getDelegate()->canPlayerEnterRoom(this,pEnterRoomPlayer) ;
-	}
+	//if ( getDelegate() )
+	//{
+	//	return getDelegate()->canPlayerEnterRoom(this,pEnterRoomPlayer) ;
+	//}
 	return 0 ;
 }
 

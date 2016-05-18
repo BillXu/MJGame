@@ -107,7 +107,7 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	time_t tNow = time(nullptr) ;
 	m_pConfig = pConfig ;
 	m_nRoomID = nRoomID ;
-	m_nDuringSeconds = 300 * 60;
+	m_nDuringSeconds = 3000000 * 60;
 	m_tCreateTime = tNow ;
 	m_eState = eRoomState_Opening ;
 	m_pRoomMgr = pRoomMgr ;
@@ -302,7 +302,7 @@ bool CPrivateRoom<T>::isRoomClosed()
 {
 	if ( m_pRoom )
 	{
-		return eRoomState_Close == m_pRoom->getCurRoomState()->getStateID();
+		//return eRoomState_Close == m_pRoom->getCurRoomState()->getStateID();
 	}
 	return false ;
 }
@@ -319,13 +319,13 @@ void CPrivateRoom<T>::update(float fDelta)
 	{
 	case eRoomState_Opening:
 		{
-			time_t tNow = time(nullptr);
-			if ( tNow >= getCloseTime() )
-			{
-				m_eState = eRoomState_WillClose ;
-				m_bRoomInfoDiry = true ;
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do will close",getRoomID() );
-			}
+			//time_t tNow = time(nullptr);
+			//if ( tNow >= getCloseTime() )
+			//{
+			//	m_eState = eRoomState_WillClose ;
+			//	m_bRoomInfoDiry = true ;
+			//	CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do will close",getRoomID() );
+			//}
 		}
 		break;
 	case eRoomState_WillClose:
