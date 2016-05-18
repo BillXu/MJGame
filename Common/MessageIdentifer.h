@@ -162,7 +162,7 @@ enum eMsgType
 	MSG_REQ_ENTER_ROOM,
 	// client : { roomType: "blood" , configID : "12" }
 	// svr : { ret : 0  }
-	// ret : 0 ,success , 1 argument error , 2 already in room , 3 coin not enough ;
+	// ret :  0 success , 1 已经在房间里 , 2 房间要求游客不能进入 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 
 
 	MSG_ROOM_INFO,  // 房间的基本信息
 	// svr : { roomID ： 23 , configID : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }

@@ -281,8 +281,11 @@ void CMJWaitOtherActState::enterState(IRoom* pRoom)
 	IWaitingState::enterState(pRoom) ;
 
 	Json::Value msg ;
+	Json::Value arrayPlayer ;
 	for ( auto ret : m_vWaitIdxs )
 	{
+		Json::Value jsPlayer ;
+		Json::Value jsActArray ;
 		auto pp = m_pRoom->getPlayerByIdx(ret.nIdx) ;
 		m_pRoom->sendMsgToPlayer(msg,MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,pp->getSessionID()) ;
 	}

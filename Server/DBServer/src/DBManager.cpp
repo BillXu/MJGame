@@ -1238,32 +1238,32 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			}
 		}
 		break;
-	case MSG_READ_TAXAS_ROOM_PLAYERS:
-		{
-			stArgData* pdata = (stArgData*)pResult->pUserData ;
-			if ( pResult->nAffectRow == 0 )
-			{
-				CLogMgr::SharedLogMgr()->PrintLog("room id = %d have no history players",pdata->nExtenArg1) ;
-			}
-			else
-			{
-				for ( uint16_t nIdx = 0 ; nIdx < pResult->nAffectRow ; ++nIdx )
-				{
-					CMysqlRow& pRow = *pResult->vResultRows[nIdx] ;
-					stMsgReadTaxasRoomPlayersRet msgRet ;
-					msgRet.nRoomID = pRow["roomID"]->IntValue();
-					msgRet.nPlayerUID = pRow["playerUID"]->IntValue();
-					msgRet.m_nReadedInformSerial = pRow["readInformSerial"]->IntValue();
-					msgRet.nTotalBuyInThisRoom = pRow["totalBuyin"]->IntValue64();
-					msgRet.nFinalLeftInThisRoom = pRow["finalLeft"]->IntValue64();
-					msgRet.nWinTimesInThisRoom = pRow["playTimes"]->IntValue();
-					msgRet.nPlayeTimesInThisRoom = pRow["winTimes"]->IntValue();
-					m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msgRet,sizeof(msgRet)) ;
-					CLogMgr::SharedLogMgr()->PrintLog("read taxas room players room id = %d",msgRet.nRoomID);
-				}
-			}
-		}
-		break;
+	//case MSG_READ_TAXAS_ROOM_PLAYERS:
+	//	{
+	//		stArgData* pdata = (stArgData*)pResult->pUserData ;
+	//		if ( pResult->nAffectRow == 0 )
+	//		{
+	//			CLogMgr::SharedLogMgr()->PrintLog("room id = %d have no history players",pdata->nExtenArg1) ;
+	//		}
+	//		else
+	//		{
+	//			for ( uint16_t nIdx = 0 ; nIdx < pResult->nAffectRow ; ++nIdx )
+	//			{
+	//				CMysqlRow& pRow = *pResult->vResultRows[nIdx] ;
+	//				stMsgReadTaxasRoomPlayersRet msgRet ;
+	//				msgRet.nRoomID = pRow["roomID"]->IntValue();
+	//				msgRet.nPlayerUID = pRow["playerUID"]->IntValue();
+	//				msgRet.m_nReadedInformSerial = pRow["readInformSerial"]->IntValue();
+	//				msgRet.nTotalBuyInThisRoom = pRow["totalBuyin"]->IntValue64();
+	//				msgRet.nFinalLeftInThisRoom = pRow["finalLeft"]->IntValue64();
+	//				msgRet.nWinTimesInThisRoom = pRow["playTimes"]->IntValue();
+	//				msgRet.nPlayeTimesInThisRoom = pRow["winTimes"]->IntValue();
+	//				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msgRet,sizeof(msgRet)) ;
+	//				CLogMgr::SharedLogMgr()->PrintLog("read taxas room players room id = %d",msgRet.nRoomID);
+	//			}
+	//		}
+	//	}
+	//	break;
 	case MSG_READ_ROOM_PLAYER:
 		{
 			stArgData* pdata = (stArgData*)pResult->pUserData ;
