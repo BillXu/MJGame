@@ -76,7 +76,7 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 	{
 	case MSG_REQ_ENTER_ROOM:
 		{
-			if ( isNotInAnyRoom() )
+			//if ( isNotInAnyRoom() )
 			{
 				stMsgSvrEnterRoom msgEnter ;
 				msgEnter.cSysIdentifer = GetPlayer()->getMsgPortByRoomType(eRoom_MJ) ;
@@ -88,6 +88,15 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 					CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d enter game , can not find game port type = %d ",GetPlayer()->GetUserUID(), eRoom_MJ ) ;
 					break;
 				}
+
+				//if ( isNotInAnyRoom() == false )
+				//{
+				//	pRet->nRoomGameType = m_nStateInRoomType;
+				//	pRet->nRoomID = m_nStateInRoomID ;
+				//	pRet->nSubIdx = m_nSubRoomIdx ;
+
+				//	CLogMgr::SharedLogMgr()->PrintLog("player reEnter room ") ;
+				//}//}
 
 				msgEnter.nGameType = eRoom_MJ ;
 				msgEnter.nRoomID = 2 ;
@@ -104,19 +113,19 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				m_nStateInRoomType = eRoom_MJ;
 				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d , type = %d coin = %u", GetPlayer()->GetUserUID(), m_nStateInRoomID, m_nStateInRoomType,msgEnter.tPlayerData.nCoin ) ;
 			}
-			else
-			{
-#ifdef _DEBUG
-				// temp code 
-				CLogMgr::SharedLogMgr()->ErrorLog("temp leave room ") ;
-				OnOtherWillLogined();
-				///------temp code end 
-#endif
-				stMsgPlayerEnterRoomRet msgRet ;
-				msgRet.nRet = 1;
-				SendMsg(&msgRet,sizeof(msgRet)) ;
-				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d already in room type = %d , id = %d ", GetPlayer()->GetUserUID() , m_nStateInRoomType,m_nStateInRoomID ) ;
-			}
+//			else
+//			{
+//#ifdef _DEBUG
+//				// temp code 
+//				CLogMgr::SharedLogMgr()->ErrorLog("temp leave room ") ;
+//				OnOtherWillLogined();
+//				///------temp code end 
+//#endif
+//				stMsgPlayerEnterRoomRet msgRet ;
+//				msgRet.nRet = 1;
+//				SendMsg(&msgRet,sizeof(msgRet)) ;
+//				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d already in room type = %d , id = %d ", GetPlayer()->GetUserUID() , m_nStateInRoomType,m_nStateInRoomID ) ;
+//			}
 		}
 		break;
 	default:
