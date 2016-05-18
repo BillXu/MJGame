@@ -206,7 +206,8 @@ enum eMsgType
 	// 数组对应玩家 定的缺门类型。
 
 	MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,  // 有人出了一张牌，等待需要这张牌的玩家 操作，可以 碰，杠，胡
-	// svr : null ;
+	// svr : { players : [ {idx : 1 , acts : [type0, type 1 , ..] },{idx : 0 , acts : [type0, type 1 , ..] }, ... ] } ;
+	// 可操作的玩家是一个数组，因为同一张牌，可能有多个玩家需要。 玩家可执行的操作，也是一个数组，同一张牌，玩家可以执行多种操作，type 类型参照 eMJActType
 
 	MSG_PLAYER_ACT, // 玩家操作
 	// client : { dstRoomID : 2345 ,actType : 0 , card : 23}
