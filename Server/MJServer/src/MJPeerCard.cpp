@@ -9,6 +9,7 @@ bool CPeerCardSubCollect::removeCardNumber( uint8_t nNumber )
 	{
 		if ( (*iter).nCardNumber == nNumber )
 		{
+			printf("remove a card numer = %u ",nNumber) ;
 			m_vAnCards.erase(iter) ;
 			return true ;
 		}
@@ -77,6 +78,7 @@ void CPeerCardSubCollect::doAction(eMJActType eType, uint8_t nNumber )
 				if ( (*iter).nCardNumber >= nNumber )
 				{
 					m_vAnCards.insert(iter,peer) ;
+					printf("add a card numer = %u ",nNumber) ;
 					return;
 				}
 			}

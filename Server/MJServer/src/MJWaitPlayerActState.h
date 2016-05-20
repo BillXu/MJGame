@@ -26,6 +26,7 @@ public:
 	void onExecuteOver()override;
 	void doExecuteAct( stActionItem* pAct);
 	uint16_t getStateID(){ return eRoomState_DoPlayerAct ; }
+	void leaveState()override{ IExecuingState::leaveState(); m_vecCardPlayerIdxs.clear() ;}
 protected:
 	eMJActType m_edoAct ;
 	uint8_t m_nCurIdx ;

@@ -97,7 +97,7 @@ uint8_t ISitableRoom::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )  /
 		}
 	}
 
-	return 6 ;
+	return 8 ;
 }
 
 bool ISitableRoom::canStartGame()

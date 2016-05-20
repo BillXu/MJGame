@@ -61,6 +61,7 @@ public:
 	void onStateDuringTimeUp()override final ;
 	void setWaitTime( float fSeconds );
 	bool isIdxInWaitList( uint8_t nIdx );
+	void leaveState()override{ m_vWaitIdxs.clear();}
 protected:
 	VEC_ACTITEM m_vActList ;  // free object in execute state 
 	VEC_WAIT_IDX m_vWaitIdxs ;
@@ -80,7 +81,7 @@ public:
 	{
 		onExecuteOver();
 	}
-	void leaveState(){ assert( m_vActList.empty() && "not delete this object ? " ); }
+	//void leaveState(){ assert( m_vActList.empty() && "not delete this object ? " ); }
 protected:
 	VEC_ACTITEM m_vActList ;
 };

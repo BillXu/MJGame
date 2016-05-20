@@ -25,6 +25,7 @@ void IWaitingState::enterState(IRoom* pRoom)
 	IRoomState::enterState(pRoom) ;
 	assert(getStateDuring() > 0.00001 && "must set wait time before enter state" );
 	assert( m_vWaitIdxs.empty() == false && "must set execute wait list before enter state" ) ;
+	m_vActList.clear();
 }
 
 void IWaitingState::addWaitingTarget( uint8_t nIdx , uint8_t nPrio )
@@ -76,7 +77,9 @@ bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 						delete (*iterAct) ;
 						m_vActList.erase(iterAct) ;
 						iterAct = m_vActList.begin() ;
+						continue;
 					}
+					++iterAct ;
 				}
 
 				m_vActList.push_back(pAct) ; 
@@ -89,7 +92,9 @@ bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 					{
 						m_vWaitIdxs.erase(iterWidx);
 						iterWidx = m_vWaitIdxs.begin() ;
+						continue;
 					}
+					++iterWidx;
 				}
 			}
 
@@ -130,7 +135,7 @@ void IExecuingState::setExecuteTime(float fseconds )
 void IExecuingState::enterState(IRoom* pRoom)
 {
 	IRoomState::enterState(pRoom) ;
-	assert(getStateDuring() < 0.00001 && "must set exeute time before enter state" );
+	assert(getStateDuring() > 0.00001 && "must set exeute time before enter state" );
 	assert(m_vActList.empty() == false && "must set execute act list before enter state" ) ;
 	
 	for ( auto act : m_vActList )

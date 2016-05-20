@@ -18,14 +18,13 @@ public:
 	uint16_t getStateID() override { return eRoomState_StartGame ; }
 	void onStateDuringTimeUp()override
 	{
-		auto pTargetState = (CMJWaitExchangeCardState*)m_pRoom->getRoomStateByID(eRoomState_WaitDecideQue);
+		auto pTargetState = (CMJWaitDecideQueState*)m_pRoom->getRoomStateByID(eRoomState_WaitDecideQue);
 
 		pTargetState->setWaitTime(eTime_WaitDecideQue);
-		pTargetState->addWaitingTarget(0);
-		pTargetState->addWaitingTarget(1);
-		pTargetState->addWaitingTarget(2);
-		pTargetState->addWaitingTarget(3);
-
+		for ( uint8_t nIdx = 0 ; nIdx < m_pRoom->getSeatCount() ; ++nIdx )
+		{
+			pTargetState->addWaitingTarget(nIdx);
+		}
 		m_pRoom->goToState(pTargetState) ;
 	}
 };

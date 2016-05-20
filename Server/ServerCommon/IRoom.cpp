@@ -460,7 +460,7 @@ void IRoom::onGameDidEnd()
 		{
 			onPlayerWillLeaveRoom(iter->second) ;
 			playerDoLeaveRoom(iter->second) ;
-			iter == m_vInRoomPlayers.begin() ;
+			iter = m_vInRoomPlayers.begin() ;
 		}
 		else
 		{
@@ -495,7 +495,7 @@ void IRoom::goToState(IRoomState* pTargetState )
 	stMsgRoomEnterNewState msgNewState ;
 	msgNewState.m_fStateDuring = m_pCurRoomState->getStateDuring();
 	msgNewState.nNewState = m_pCurRoomState->getStateID();
-	sendRoomMsg(&msgNewState,sizeof(msgNewState)) ;
+	//sendRoomMsg(&msgNewState,sizeof(msgNewState)) ;
 }
 
 void IRoom::goToState( uint16_t nStateID )

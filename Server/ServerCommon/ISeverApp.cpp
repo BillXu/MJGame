@@ -234,13 +234,14 @@ bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t
 
 	Json::StyledWriter writerJs ;
 	std::string strContent = writerJs.write(recvValue);
-	CLogMgr::SharedLogMgr()->PrintLog("send : %s",strContent.c_str());
+	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, send : %s",nSessionID,nTargetPort,strContent.c_str());
 	stMsgJsonContent msg ;
 	msg.cSysIdentifer = nTargetPort ;
 	msg.nJsLen = strContent.size() ;
 	CAutoBuffer bufferTemp(sizeof(msg) + msg.nJsLen);
 	bufferTemp.addContent(&msg,sizeof(msg)) ;
 	bufferTemp.addContent(strContent.c_str(),msg.nJsLen) ;
+	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, len = %u send : %s",nSessionID,nTargetPort,bufferTemp.getContentSize(),strContent.c_str());
 	return sendMsg(nSessionID,bufferTemp.getBufferPtr(),bufferTemp.getContentSize(),bBroadcast) ; 
 }
 

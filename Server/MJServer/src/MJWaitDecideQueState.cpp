@@ -28,6 +28,7 @@ void CMJWaitDecideQueState::onWaitEnd( bool bTimeOut )
 	}
 	else
 	{
+		CLogMgr::SharedLogMgr()->PrintLog("enter to do decide que ") ;
 		auto pTargeState = (IExecuingState*)m_pRoom->getRoomStateByID(eRoomState_DoDecideQue) ;
 		pTargeState->setExecuteTime(eTime_DoDecideQue) ;
 		pTargeState->setExecuteActs(m_vActList) ;
@@ -45,6 +46,7 @@ bool CMJWaitDecideQueState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	auto pp = (CMJRoomPlayer*)((ISitableRoom*)m_pRoom)->getSitdownPlayerBySessionID(nSessionID) ; 
 	if ( pp && isIdxInWaitList(pp->getIdx()) )
 	{
+		CLogMgr::SharedLogMgr()->PrintLog("player decide que id = %u",pp->getIdx()) ;
 		stQueTypeActionItem* pE = new stQueTypeActionItem ;
 		pE->nActIdx = pp->getIdx();
 		pE->nType = prealMsg["type"].asUInt();
@@ -79,6 +81,7 @@ void CMJDoDecideQueState::onExecuteOver()
 	auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
 	pTargeState->setWaitTime(eTime_WaitPlayerAct) ;
 	auto pRoom = (CMJRoom*)m_pRoom ;
+	CLogMgr::SharedLogMgr()->PrintLog("after decide que , enter wait player act banker id = %u",pRoom->getBankerIdx()) ;
 	pTargeState->addWaitingTarget(pRoom->getBankerIdx()) ;
 	m_pRoom->goToState(pTargeState) ;
 }
