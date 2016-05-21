@@ -96,14 +96,11 @@
     <ClInclude Include="..\..\Common\ConfigReader.h" />
     <ClInclude Include="..\..\Common\ContinueLoginConfig.h" />
     <ClInclude Include="..\..\Common\IConfigFile.h" />
-    <ClInclude Include="..\..\Common\ItemConfig.h" />
     <ClInclude Include="..\..\Common\LogManager.h" />
     <ClInclude Include="..\..\Common\MessageDefine.h" />
     <ClInclude Include="..\..\Common\MessageIdentifer.h" />
-    <ClInclude Include="..\..\Common\MissionConfig.h" />
     <ClInclude Include="..\..\Common\RoomConfig.h" />
     <ClInclude Include="..\..\Common\ShopConfg.h" />
-    <ClInclude Include="..\..\Common\TitleLevelConfig.h" />
     <ClInclude Include="..\..\Common\Utility.h" />
     <ClInclude Include="..\DataServer\src\EventCenter.h" />
     <ClInclude Include="..\DataServer\src\Events.h" />
@@ -138,12 +135,9 @@
     <ClCompile Include="..\..\Common\ConfigReader.cpp" />
     <ClCompile Include="..\..\Common\ContinueLoginConfig.cpp" />
     <ClCompile Include="..\..\Common\IConfigFile.cpp" />
-    <ClCompile Include="..\..\Common\ItemConfig.cpp" />
     <ClCompile Include="..\..\Common\LogManager.cpp" />
-    <ClCompile Include="..\..\Common\MissionConfig.cpp" />
     <ClCompile Include="..\..\Common\RoomConfig.cpp" />
     <ClCompile Include="..\..\Common\ShopConfg.cpp" />
-    <ClCompile Include="..\..\Common\TitleLevelConfig.cpp" />
     <ClCompile Include="..\..\Common\Utility.cpp" />
     <ClCompile Include="..\DataServer\src\EventCenter.cpp" />
     <ClCompile Include="..\DataServer\src\ExchangeCenter.cpp" />

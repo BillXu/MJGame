@@ -30,7 +30,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	stPlayerActTypeActionItem* pActTypeItem = new stPlayerActTypeActionItem ;
 	pActTypeItem->nActType = nActType ;
 	pActTypeItem->nActIdx = pPlayer->getIdx() ;
-	pActTypeItem->nCardNumber = 0 ;
+	pActTypeItem->nCardNumber = prealMsg["card"].asUInt() ;
 
 	CLogMgr::SharedLogMgr()->PrintLog("player do act = %u , idx = %u",pActTypeItem->nActType,pActTypeItem->nActIdx) ;
 	switch ( nActType )

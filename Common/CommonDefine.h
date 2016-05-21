@@ -12,10 +12,6 @@
 #define MAX_LEN_SPEAK_WORDS 200  
 #define MAX_MSG_BUFFER_LEN 2048*3
 
-#define PEER_CARD_COUNT 3
-#define GOLDEN_PEER_CARD 3
-#define TAXAS_PEER_CARD 2
-#define TAXAS_PUBLIC_CARD 5
 #define MAX_ROOM_PEER 5
 #define MAX_TAXAS_HOLD_CARD 5
 #define MAX_UPLOAD_PIC 4
@@ -23,14 +19,9 @@
 
 #define MATCH_MGR_UID 1349
 
-#define NIUNIU_HOLD_CARD_COUNT 5
-
-
 #define COIN_CONDITION_TO_GET_CHARITY 500
 #define TIMES_GET_CHARITY_PER_DAY 3   // 2 HOURE
 #define COIN_FOR_CHARITY 800
-#define GOLDEN_ROOM_COIN_LEVEL_CNT 4
-#define GOLDEN_PK_ROUND 2
 
 #ifndef SERVER
 #define PIEXL_TO_POINT(px) (px)/CC_CONTENT_SCALE_FACTOR()
@@ -53,18 +44,6 @@ enum ePayChannel
 	ePay_Max,
 };
 
-enum eRoomType
-{
-	eRoom_None,
-	eRoom_MJ = eRoom_None,
-	eRoom_MJ_Blood_River = eRoom_MJ,
-	eRoom_NiuNiu = eRoom_MJ,
-	eRoom_MJ_Blood_End,
-	eRoom_TexasPoker,
-	eRoom_Golden,
-	eRoom_Max ,
-};
-
 enum  eVipCardType
 {
 	eCard_None,
@@ -81,48 +60,12 @@ enum ePlayerType
 	ePlayer_Max,
 };
 
-
-
-
-// ROOM TIME BY SECOND 
-#define TIME_ROOM_WAIT_READY 5
-#define TIME_ROOM_DISTRIBUTE 5
-#define TIME_ROOM_WAIT_PEER_ACTION 30
-#define TIME_ROOM_PK_DURATION 5
-#define TIME_ROOM_SHOW_RESULT 5
-
-// Golden room time 
-#define TIME_GOLDEN_ROOM_WAIT_READY 10
-#define TIME_GOLDEN_ROOM_DISTRIBUTY 3
-#define TIME_GOLDEN_ROOM_WAIT_ACT 10
-#define TIME_GOLDEN_ROOM_PK 4
-#define TIME_GOLDEN_ROOM_RESULT 2
-
-static unsigned char s_vChangeCardDimonedNeed[GOLDEN_PEER_CARD] = {0,4,8} ;
-
-
-
-enum eSpeed
-{
-	eSpeed_Normal,
-	eSpeed_Quick,
-	eSpeed_Max,
-};
-
 enum eNoticeType
 {
 	eNotice_Text,
 	eNotice_BeInvite, // { targetUID : 2345 , addCoin : 34556 }
 	eNotice_InvitePrize, // { targetUID : 2345 addCoin : 3555 }
 };
-
-enum eRoomSeat
-{
-	eSeatCount_5,
-	eSeatCount_9,
-	eSeatCount_Max,
-};
-
 
 enum eSex
 {
@@ -155,19 +98,6 @@ enum eRoomPeerAction
 	eRoomPeerAction_Max
 };
 
-enum eRoomFlag
-{
-	eRoomFlag_None ,
-	eRoomFlag_ShowCard  ,
-	eRoomFlag_TimesPK ,
-	eRoomFlag_ChangeCard,
-	eRoomFlag_Max,
-};
-
-
-
- 
-
 
 // mail Module 
 #define MAX_KEEP_MAIL_COUNT 50
@@ -194,62 +124,6 @@ enum eProcessMailAct
 	ePro_Mail_Look,
 	ePor_Mail_Max,
 };
-
-// item id , here type = id ;
-enum eItemType
-{
-	eItem_None,
-	eItem_Car = eItem_None,
-	eItem_Boat,
-	eItem_Airplane,
-	eItem_House,
-	eItem_Asset, // uplow are assets ;
-	// below are can be used item ;
-	eItem_Props , // can be used item ;
-	eItem_Gift,
-	eItem_Max,
-};
-
-#define ITEM_ID_INTERACTIVE 10
-#define ITEM_ID_LA_BA 12
-#define ITEM_ID_KICK_CARD 11
-#define ITEM_ID_CREATE_ROOM 13
-// game ranker
-enum eRankType
-{
-	eRank_AllCoin,
-	eRank_SingleWinMost,
-	eRank_YesterDayWin,
-	eRank_Max,
-};
-#define RANK_SHOW_PEER_COUNT 50
-
-
-#define MAX_PAIJIU_HISTROY_RECORDER 20
-
-enum eRoomLevel
-{
-	eRoomLevel_None,
-	eRoomLevel_Junior = eRoomLevel_None ,
-	eRoomLevel_Middle,
-	eRoomLevel_Advanced,
-	eRoomLevel_Super,
-	eRoomLevel_Max,
-};
-
-// texas poker timer measus by second
-#define TIME_TAXAS_FILP_CARD 0.2f
-#define TIME_PLAYER_BET_COIN_ANI 0.3f
-#define TIME_BLIND_BET_STATE (TIME_PLAYER_BET_COIN_ANI + 1) 
-#define TIME_TAXAS_BET 10
-#define TIME_TAXAS_WAIT_COIN_GOTO_MAIN_POOL 0.6f
-#define TIME_TAXAS_MAKE_VICE_POOLS 0.8f
-#define TIME_TAXAS_DISTRIBUTE_ONE_HOLD_CARD (TIME_TAXAS_FILP_CARD + 0.2f)
-#define TIME_TAXAS_DISTRIBUTE_HOLD_CARD_DELAY ( 0.65f * TIME_TAXAS_DISTRIBUTE_ONE_HOLD_CARD )
-#define TIME_DISTRIBUTE_ONE_PUBLIC_CARD 0.5f
-#define TIME_TAXAS_WIN_COIN_GOTO_PLAYER TIME_TAXAS_WAIT_COIN_GOTO_MAIN_POOL
-#define TIME_TAXAS_CACULATE_PER_BET_POOL (TIME_TAXAS_WIN_COIN_GOTO_PLAYER+1.0f)
-#define TIME_TAXAS_SHOW_BEST_CARD 0.7f
 
 #define MIN_PEERS_IN_ROOM_ROBOT 6
 #define MAX_PEERS_IN_TAXAS_ROOM 9

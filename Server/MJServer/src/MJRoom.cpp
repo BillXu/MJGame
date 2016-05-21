@@ -143,6 +143,7 @@ void CMJRoom::prepareCards()
 	uint8_t nFetchCard = m_tPoker.getCard() ;
 	auto pBankerPlayer = (CMJRoomPlayer*)getPlayerByIdx(m_nBankerIdx);
 	pBankerPlayer->fetchCard(nFetchCard) ;
+	peerCards[m_nBankerIdx][(uint32_t)13] = nFetchCard ;
 	
 	msg["dice"] = nDice ;
 	msg["banker"] = m_nBankerIdx ;

@@ -2,16 +2,16 @@
 #include <string>
 #include "ContinueLoginConfig.h"
 #include "LogManager.h"
-#include "ItemConfig.h"
+//#include "ItemConfig.h"
 #ifdef DATA_SERVER
-#include "../Server/DataServer/src/InformConfig.h"
-#include "../Server/DataServer/src/SlotMachine.h"
+//#include "../Server/DataServer/src/InformConfig.h"
+//#include "../Server/DataServer/src/SlotMachine.h"
 #endif
 #include "RoomConfig.h"
 #include "ShopConfg.h"
-#include "MissionConfig.h"
-#include "BoxConfig.h"
-#include "TitleLevelConfig.h"
+//#include "MissionConfig.h"
+//#include "BoxConfig.h"
+//#include "TitleLevelConfig.h"
 CConfigManager::CConfigManager()
 {
 	memset(m_vConfigs,0,sizeof(m_vConfigs)) ;
@@ -48,7 +48,7 @@ void CConfigManager::LoadAllConfigFile( const char* pConfigRootPath )
 	// go on login 
 	m_vConfigs[eConfig_ContinueLogin] = new CContiuneLoginConfigMgr ;
 	// item config ;
-	m_vConfigs[eConfig_Item] = new CItemConfigManager ;
+	//m_vConfigs[eConfig_Item] = new CItemConfigManager ;
 #ifdef SERVER
 	// inform config 
 	//m_vConfigs[eConfig_Informs] = new CInformConfig ;
@@ -62,10 +62,10 @@ void CConfigManager::LoadAllConfigFile( const char* pConfigRootPath )
 	// shop config 
 	m_vConfigs[eConfig_Shop] = new CShopConfigMgr ;
 	// mission config
-	m_vConfigs[eConfig_Mission] = new CMissionConfigMgr ;
+	//m_vConfigs[eConfig_Mission] = new CMissionConfigMgr ;
 
 	// online box
-	m_vConfigs[eConfig_Box] = new CBoxConfigMgr ;
+	//m_vConfigs[eConfig_Box] = new CBoxConfigMgr ;
 
 	// title level config 
 	//m_vConfigs[eConfig_TitleLevel] = new CTitleLevelConfig ;
@@ -79,8 +79,8 @@ void CConfigManager::LoadAllConfigFile( const char* pConfigRootPath )
 	}
 
 	// gift config
-	strCL = strCL + "gift.txt";
-	m_vConfigs[eConfig_Item]->LoadFile(strCL.c_str());
+	//strCL = strCL + "gift.txt";
+	//m_vConfigs[eConfig_Item]->LoadFile(strCL.c_str());
 }
 
 IConfigFile* CConfigManager::GetConfig( eConfigType eConfig )

@@ -17,7 +17,14 @@ IRoomManager::IRoomManager(CRoomConfigMgr* pConfigMgr)
 
 IRoomManager::~IRoomManager()
 {
-
+	for ( auto ref : m_vRooms )
+	{
+		delete ref.second ;
+		ref.second = nullptr ;
+	}
+	m_vRooms.clear() ;
+	m_vSystemRooms.clear() ;
+	m_mapPrivateRooms.clear() ;
 }
 
 void IRoomManager::init(IServerApp* svrApp)
@@ -26,14 +33,24 @@ void IRoomManager::init(IServerApp* svrApp)
 
 	m_nMaxRoomID = 1 ;
 	m_vRooms.clear();
-	m_vCreatorAndRooms.clear();
+	m_mapPrivateRooms.clear() ;
 	m_pGoTyeAPI.init("https://qplusapi.gotye.com.cn:8443/api/");
 	m_pGoTyeAPI.setDelegate(this);
 
+	CLogMgr::SharedLogMgr()->SystemLog("temp create room") ;
 	// tem create room ;
-	Json::Value vDefault ;
-	IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,true,1,eRoom_MJ,vDefault);
-	m_vRooms[pRoom->getRoomID()] = pRoom ;
+	auto iter = m_pConfigMgr->GetBeginIter() ;
+	for ( ; iter != m_pConfigMgr->GetEndIter(); ++iter )
+	{
+		uint8_t nCreaeCnt = 5 ;
+		while ( nCreaeCnt-- )
+		{
+			Json::Value vDefault ;
+			IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,true,(*iter)->nConfigID,eRoom_MJ,vDefault);
+			addRoomToSystem(pRoom) ;
+		}
+		CLogMgr::SharedLogMgr()->PrintLog("system crate five room config id = %u",(*iter)->nConfigID ) ;
+	}
 }
 
 void IRoomManager::sendMsg(stMsg* pmsg, uint32_t nLen , uint32_t nSessionID )
@@ -164,8 +181,8 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 	case MSG_READ_MY_OWN_ROOMS:
 		{
 			stMsgReadMyOwnRooms* pRet = (stMsgReadMyOwnRooms*)prealMsg ;
-			LIST_ROOM vRL ;
-			if ( getRoomCreatorRooms(pRet->nUserUID,vRL) == false )
+			VEC_INT vRL ;
+			if ( getPrivateRooms(pRet->nUserUID,vRL) == false )
 			{
 				CLogMgr::SharedLogMgr()->PrintLog("uid = %d do not create room so , need not respone list" ,pRet->nUserUID ) ;
 				return true ;
@@ -177,9 +194,9 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			CAutoBuffer auBuffer(msgRead.nCnt * sizeof(stMyOwnRoom) + sizeof(msgRead));
 			auBuffer.addContent(&msgRead,sizeof(msgRead)) ;
 			stMyOwnRoom info ;
-			for ( IRoomInterface* proom : vRL )
+			for ( auto nRoomIDs : vRL )
 			{
-				info.nRoomID = proom->getRoomID() ;
+				info.nRoomID = nRoomIDs ;
 				auBuffer.addContent(&info,sizeof(info)) ;
 			}
 			sendMsg((stMsg*)auBuffer.getBufferPtr(),auBuffer.getContentSize(),nSessionID) ;
@@ -205,14 +222,20 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				break;
 			}
 			pRoom->serializationFromDB(this,pConfig,pRet->nRoomID,jsRoot);
-			m_vRooms[pRoom->getRoomID()] = pRoom ;
 
 			if ( pRet->nRoomID > m_nMaxRoomID )
 			{
 				m_nMaxRoomID = pRet->nRoomID ;
 			}
 
-			addRoomToCreator(pRoom->getOwnerUID(),pRoom);
+			if ( pRoom->getOwnerUID() == 0 )
+			{
+				addRoomToSystem(pRoom) ;
+			}
+			else
+			{
+				addRoomToPrivate(pRoom->getOwnerUID(),pRoom);
+			}
 		}
 		break;
 	case MSG_SVR_ENTER_ROOM:
@@ -220,20 +243,22 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			stMsgSvrEnterRoomRet msgBack ;
 			msgBack.nRet = 0 ;
 			stMsgSvrEnterRoom* pRet = (stMsgSvrEnterRoom*)prealMsg ;
-			msgBack.nGameType = pRet->nGameType ;
-			msgBack.nRoomID = pRet->nRoomID ;
+			msgBack.nGameType = getMgrRoomType() ;
+			msgBack.nRoomID = pRet->nTargetID ;
 			
-			IRoomInterface* pRoom = GetRoomByID(pRet->nRoomID) ;
+			IRoomInterface* pRoom = nullptr ;
+			if ( pRet->nType == 1 )
+			{
+				IRoomInterface* pRoom = GetRoomByID(pRet->nTargetID) ;
+			}
+			else
+			{
+
+			}
+			
 			if ( pRoom == nullptr )
 			{
 				msgBack.nRet = 8 ;
-				sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
-				break;
-			}
-
-			if ( pRoom->getRoomType() != pRet->nGameType )
-			{
-				msgBack.nRet = 6 ;
 				sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 				break;
 			}
@@ -242,16 +267,17 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			msgBack.nRoomID = pRoom->getRoomID() ;
 			if ( msgBack.nRet == 0 )
 			{
-				pRoom->onPlayerEnterRoom(&pRet->tPlayerData,pRet->nSubIdx);
+				int8_t nidx = 0 ;
+				pRoom->onPlayerEnterRoom(&pRet->tPlayerData,nidx);
 			}
-			msgBack.nSubIdx = (uint8_t)pRet->nSubIdx ;
+			msgBack.nSubIdx = 0 ;
 			sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 		}
 		break;
 	case MSG_REQUEST_ROOM_LIST:
 		{
-			LIST_ROOM vRL ;
-			if ( getRoomCreatorRooms(MATCH_MGR_UID,vRL) == false )
+			VEC_INT vRL ;
+			if ( getPrivateRooms(MATCH_MGR_UID,vRL) == false )
 			{
 				CLogMgr::SharedLogMgr()->PrintLog("system not create room so , need not respone list" ) ;
 				return true ;
@@ -264,7 +290,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			auBuffer.addContent((char*)&msgRet,sizeof(msgRet)) ;
 			for ( auto pRoom : vRL )
 			{
-				uint32_t nid = pRoom->getRoomID();
+				uint32_t nid = pRoom;
 				auBuffer.addContent(&nid,sizeof(nid)) ;
 			}
 			sendMsg((stMsg*)auBuffer.getBufferPtr(),auBuffer.getContentSize(),nSessionID);
@@ -347,7 +373,7 @@ void IRoomManager::update(float fDelta )
 
 	for ( IRoomInterface* pRoom : vDoDelteRoom )
 	{
-		removeRoom(pRoom);
+		removePrivateRoom(pRoom);
 	}
 }
 
@@ -481,8 +507,14 @@ bool IRoomManager::onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsg
 			return true ;
 		}
 
-		m_vRooms[pRoom->getRoomID()] = pRoom ;
-		addRoomToCreator(pRequest->nReqOrigID,pRoom);
+		if ( pRoom->getOwnerUID() == 0 )
+		{
+			addRoomToSystem(pRoom) ;
+		}
+		else
+		{
+			addRoomToPrivate(pRoom->getOwnerUID(),pRoom);
+		}
 
 		msgRet.vArg[1] = pRoom->getRoomID();
 		sendMsg(&msgRet,sizeof(msgRet),msgRet.nTargetID);
@@ -581,29 +613,67 @@ void IRoomManager::onConnectedSvr()
 	}
 }
 
-void IRoomManager::addRoomToCreator(uint32_t nOwnerUID ,IRoomInterface* pRoom)
+void IRoomManager::addRoomToPrivate(uint32_t nOwnerUID ,IRoomInterface* pRoom)
 {
-	MAP_UID_CR::iterator iter =  m_vCreatorAndRooms.find(nOwnerUID);
-	if ( iter != m_vCreatorAndRooms.end() )
+	assert(pRoom->getOwnerUID() > 0 && "private create room, ownerUID must not be 0 " );
+	MAP_UID_CR::iterator iter =  m_mapPrivateRooms.find(nOwnerUID);
+	if ( iter != m_mapPrivateRooms.end() )
 	{
-		iter->second.vRooms.push_back(pRoom) ;
-		return ;
+		iter->second.vRoomIDs.push_back(pRoom->getRoomID()) ;
+	}
+	else
+	{
+		stRoomCreatorInfo sInfo ;
+		sInfo.nPlayerUID = nOwnerUID ;
+		sInfo.vRoomIDs.push_back(pRoom->getRoomID()) ;
+		m_mapPrivateRooms[sInfo.nPlayerUID] = sInfo ;
 	}
 
-	stRoomCreatorInfo sInfo ;
-	sInfo.nPlayerUID = nOwnerUID ;
-	sInfo.vRooms.push_back(pRoom) ;
-	m_vCreatorAndRooms[sInfo.nPlayerUID] = sInfo ;
+	auto room = m_vRooms.find(pRoom->getRoomID()) ;
+	assert(room == m_vRooms.end() && "why have duplicate room ids? or this room ptr already added to vRooms " );
+	m_vRooms[pRoom->getRoomID()] = pRoom ;
+	CLogMgr::SharedLogMgr()->PrintLog("room id = %u add to system room",pRoom->getRoomID()) ;
 }
 
-bool IRoomManager::getRoomCreatorRooms(uint32_t nCreatorUID, LIST_ROOM& vInfo )
+
+void IRoomManager::addRoomToSystem(IRoomInterface* pRoom)
 {
-	MAP_UID_CR::iterator iter = m_vCreatorAndRooms.find(nCreatorUID) ;
-	if ( iter == m_vCreatorAndRooms.end() )
+	assert(pRoom->getOwnerUID() == 0 && "system create room, ownerUID must be 0 " );
+	auto iterSysRoom = m_vSystemRooms.find( pRoom->getConfigID()) ;
+	if ( iterSysRoom == m_vSystemRooms.end() )
+	{
+		stSystemRoomInfo stInfo ;
+		stInfo.nConfigID = pRoom->getConfigID() ;
+		stInfo.vRoomIDs.push_back(pRoom->getRoomID()) ;
+		m_vSystemRooms[stInfo.nConfigID] = stInfo ;
+	}
+	else
+	{
+		iterSysRoom->second.vRoomIDs.push_back(pRoom->getRoomID());
+	}
+	m_vRooms[pRoom->getRoomID()] = pRoom ;
+	CLogMgr::SharedLogMgr()->PrintLog("add to system room config id = %u ,room id = %u",pRoom->getConfigID(),pRoom->getRoomID()) ;
+}
+
+bool IRoomManager::getPrivateRooms(uint32_t nCreatorUID, VEC_INT& vInfo )
+{
+	MAP_UID_CR::iterator iter = m_mapPrivateRooms.find(nCreatorUID) ;
+	if ( iter == m_mapPrivateRooms.end() )
 	{
 		return false ;
 	}
-	vInfo = iter->second.vRooms ;
+	vInfo = iter->second.vRoomIDs ;
+	return true ;
+}
+
+bool IRoomManager::getSystemRooms(uint32_t nconfigID,VEC_INT& vRoomIDsInfo )
+{
+	auto iter = m_vSystemRooms.find(nconfigID) ;
+	if ( iter == m_vSystemRooms.end() )
+	{
+		return false ;
+	}
+	vRoomIDsInfo = iter->second.vRoomIDs ;
 	return true ;
 }
 
@@ -620,8 +690,31 @@ void IRoomManager::onTimeSave()
 	}
 }
 
-void IRoomManager::removeRoom( IRoomInterface* pRoom )
+void IRoomManager::removePrivateRoom( IRoomInterface* pRoom )
 {
+	// remove m_vCreatorAndRooms ; maybe sys create
+	bool bisPrivateRoom = false ;
+	auto iter_Create = m_mapPrivateRooms.find( pRoom->getOwnerUID() ) ;
+	if ( iter_Create != m_mapPrivateRooms.end() )
+	{
+		VEC_INT& list = iter_Create->second.vRoomIDs ;
+		auto iterC = list.begin() ;
+		for ( ; iterC != list.end(); ++iterC )
+		{
+			if ( (*iterC) == pRoom->getRoomID() )
+			{
+				list.erase(iterC) ;
+				bisPrivateRoom = true ;
+				break; ;
+			}
+		}
+	}
+
+	if ( bisPrivateRoom == false )
+	{
+		CLogMgr::SharedLogMgr()->PrintLog("room id = %u is not private room , so can not deleted from private room",pRoom->getRoomID()) ;
+		return ;
+	}
 	// remove from db ;
 	stMsgSaveDeleteRoom msgSaveDelte ;
 	msgSaveDelte.nRoomID = pRoom->getRoomID() ;
@@ -635,24 +728,9 @@ void IRoomManager::removeRoom( IRoomInterface* pRoom )
 		m_vRooms.erase(iter) ;
 	}
 
-	// remove m_vCreatorAndRooms ; maybe sys create
-	auto iter_Create = m_vCreatorAndRooms.find( pRoom->getOwnerUID() ) ;
-	if ( iter_Create != m_vCreatorAndRooms.end() )
-	{
-		LIST_ROOM& list = iter_Create->second.vRooms ;
-		LIST_ROOM::iterator iterC = list.begin() ;
-		for ( ; iterC != list.end(); ++iterC )
-		{
-			if ( (*iterC)->getRoomID() == pRoom->getRoomID() )
-			{
-				list.erase(iterC) ;
-				break; ;
-			}
-		}
-	}
-
 	delete pRoom ;
 	pRoom = nullptr ;
+	CLogMgr::SharedLogMgr()->PrintLog("deleted private room id = %u ",msgSaveDelte.nRoomID) ;
 }
 
 void IRoomManager::deleteRoomChatID( uint32_t nChatID )

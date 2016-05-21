@@ -524,9 +524,8 @@ struct stMsgSvrEnterRoom
 	:public stMsg
 {
 	stMsgSvrEnterRoom(){ cSysIdentifer = ID_MSG_PORT_NIU_NIU ; usMsgType = MSG_SVR_ENTER_ROOM ; }
-	uint8_t nGameType ;
-	uint8_t nRoomID ;
-	int8_t nSubIdx ;  // -1 means sys decide ;
+	uint8_t nType ; // type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
+	uint32_t nTargetID ;
 	stEnterRoomData tPlayerData ;
 };
 

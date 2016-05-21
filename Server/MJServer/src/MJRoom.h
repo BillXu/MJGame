@@ -19,6 +19,7 @@ public:
 	void setBankerIdx(uint8_t nIdx ){ m_nBankerIdx = nIdx ;}
 	uint8_t getBankerIdx(){ return m_nBankerIdx ;}
 	uint32_t getBaseBet(); // ji chu di zhu ;
+	uint32_t getConfigID()override{ return 0 ;}
 	
 	void onGameWillBegin()override ;
 	void onGameDidEnd()override ;

@@ -81,16 +81,16 @@ struct stTaxasInRoomPeerData
 	uint16_t nPhotoID ;
 };
 
-struct stTaxasPeerBaseData
-	:public stTaxasInRoomPeerData
-{
-	uint64_t nTakeInMoney ; // maybe coin or diamond
-	uint8_t eCurAct ;  // eRoomPeerAction
-	uint64_t nBetCoinThisRound ;
-	uint8_t vHoldCard[TAXAS_PEER_CARD];
-	uint32_t nStateFlag ;
-	uint8_t nSeatIdx ;
-};
+//struct stTaxasPeerBaseData
+//	:public stTaxasInRoomPeerData
+//{
+//	uint64_t nTakeInMoney ; // maybe coin or diamond
+//	uint8_t eCurAct ;  // eRoomPeerAction
+//	uint64_t nBetCoinThisRound ;
+//	uint8_t vHoldCard[TAXAS_PEER_CARD];
+//	uint32_t nStateFlag ;
+//	uint8_t nSeatIdx ;
+//};
 
 
 
@@ -147,24 +147,24 @@ struct stRoomGoldenDataOnly
 //	unsigned char vHoldCard[TAXAS_PEER_CARD];
 //};
 
-struct stTaxasRoomDataSimple
-	:public stRoomBaseDataOnly
-{
-	char cBankerIdx ;
-	unsigned char cLittleBlindIdx ;
-	unsigned char cBigBlindIdx ;
-	char cCurWaitPlayerActionIdx ;
-
-	uint64_t  nCurMainBetPool ;
-	uint64_t  nMostBetCoinThisRound;
-
-	unsigned char vPublicCardNums[TAXAS_PUBLIC_CARD] ; 
-	unsigned char ePrePeerAction ; 
-	unsigned char nBetRound ; //valid value , 0,1 , 2 , 3 ,4 
-
-	unsigned int nBigBlindBet ;
-	uint64_t nMaxTakeIn ;
-	float fCurStateTime;  // cur state will last seconds ;
-};
+//struct stTaxasRoomDataSimple
+//	:public stRoomBaseDataOnly
+//{
+//	char cBankerIdx ;
+//	unsigned char cLittleBlindIdx ;
+//	unsigned char cBigBlindIdx ;
+//	char cCurWaitPlayerActionIdx ;
+//
+//	uint64_t  nCurMainBetPool ;
+//	uint64_t  nMostBetCoinThisRound;
+//
+//	unsigned char vPublicCardNums[TAXAS_PUBLIC_CARD] ; 
+//	unsigned char ePrePeerAction ; 
+//	unsigned char nBetRound ; //valid value , 0,1 , 2 , 3 ,4 
+//
+//	unsigned int nBigBlindBet ;
+//	uint64_t nMaxTakeIn ;
+//	float fCurStateTime;  // cur state will last seconds ;
+//};
 
 #pragma pack(pop)

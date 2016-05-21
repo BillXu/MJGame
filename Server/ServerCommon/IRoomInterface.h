@@ -31,4 +31,5 @@ public:
 	virtual bool isDeleteRoom() = 0;
 	virtual void deleteRoom() = 0 ;
 	virtual uint32_t getOwnerUID() = 0 ;
+	virtual uint32_t getConfigID() = 0 ;
 };

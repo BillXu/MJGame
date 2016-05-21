@@ -1,7 +1,7 @@
 #include "ShopConfg.h"
 #include "LogManager.h"
 #include "ConfigManager.h"
-#include "ItemConfig.h"
+//#include "ItemConfig.h"
 #ifndef SERVER
 #include "ClientApp.h"
 #endif

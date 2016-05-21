@@ -33,6 +33,7 @@ public:
 	bool isDeleteRoom()override;
 	void deleteRoom()override ;
 	uint32_t getOwnerUID()override;
+	uint32_t getConfigID()override{ return m_pConfig->nConfigID ;}
 
 	// delegate msg ;
 	uint8_t canPlayerEnterRoom( IRoom* pRoom,stEnterRoomData* pEnterRoomPlayer )override;  // return 0 means ok ;
@@ -112,15 +113,6 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	m_eState = eRoomState_Opening ;
 	m_pRoomMgr = pRoomMgr ;
 	m_bRoomInfoDiry = true ;
-	if ( vJsValue["duringTime"].isNull() == false )
-	{
-		m_nDuringSeconds = vJsValue["duringTime"].asUInt() ;
-		CLogMgr::SharedLogMgr()->PrintLog("create private room duiring is = %u",m_nDuringSeconds) ;
-	}
-	else
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("create private room duiring is null ?") ;
-	}
 
 	if ( vJsValue["ownerUID"].isNull() == false )
 	{
@@ -129,7 +121,8 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("create private room ownerUID is null ?") ;
+		m_nOwnerUID = 0 ;
+		CLogMgr::SharedLogMgr()->PrintLog("create private room ownerUID is null ?") ;
 	}
 
 	m_tCloseTime = tNow + (time_t)m_nDuringSeconds ;

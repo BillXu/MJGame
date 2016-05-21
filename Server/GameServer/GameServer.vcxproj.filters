@@ -55,16 +55,10 @@
     <ClInclude Include="..\..\Common\IConfigFile.h">
       <Filter>Common\Config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Common\ItemConfig.h">
-      <Filter>Common\Config</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Common\RoomConfig.h">
       <Filter>Common\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\ShopConfg.h">
-      <Filter>Common\Config</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\MissionConfig.h">
       <Filter>Common\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common\LogManager.h">
@@ -75,9 +69,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Common\CommonData.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\TitleLevelConfig.h">
-      <Filter>Common\Config</Filter>
     </ClInclude>
     <ClInclude Include="..\ServerCommon\ServerMessageDefine.h">
       <Filter>SvrCommon</Filter>
@@ -174,16 +165,10 @@
     <ClCompile Include="..\..\Common\IConfigFile.cpp">
       <Filter>Common\Config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Common\ItemConfig.cpp">
-      <Filter>Common\Config</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Common\RoomConfig.cpp">
       <Filter>Common\Config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\ShopConfg.cpp">
-      <Filter>Common\Config</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\MissionConfig.cpp">
       <Filter>Common\Config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\LogManager.cpp">
@@ -191,9 +176,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Common\Utility.cpp">
       <Filter>Common\Uitility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\TitleLevelConfig.cpp">
-      <Filter>Common\Config</Filter>
     </ClCompile>
     <ClCompile Include="..\DataServer\src\main.cpp">
       <Filter>src\App</Filter>

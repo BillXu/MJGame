@@ -39,6 +39,7 @@ public:
 	bool isRoomShouldClose( IRoom* pRoom)override;
 	bool isOmitNewPlayerHalo(IRoom* pRoom )override;
 	void onRankPlayerChanged( uint32_t nUID , uint16_t nPreIdx , uint16_t nCurIdx )override;
+	uint32_t getConfigID()override{ return m_pConfig->nConfigID ;}
 	//bool isPlayerLoseReachMax( IRoom* pRoom, uint32_t nUserUID )override;
 
 	// self method 

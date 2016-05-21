@@ -98,9 +98,8 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				//	CLogMgr::SharedLogMgr()->PrintLog("player reEnter room ") ;
 				//}//}
 
-				msgEnter.nGameType = eRoom_MJ ;
-				msgEnter.nRoomID = 2 ;
-				msgEnter.nSubIdx = 0 ;
+				msgEnter.nType = recvValue["type"].asUInt() ;
+				msgEnter.nTargetID = recvValue["targetID"].asUInt() ;
 				msgEnter.tPlayerData.isRegisted = GetPlayer()->GetBaseData()->isPlayerRegistered() ;
 				msgEnter.tPlayerData.nCoin = GetPlayer()->GetBaseData()->getCoin() ;
 				msgEnter.tPlayerData.nUserSessionID = GetPlayer()->GetSessionID() ;
@@ -142,46 +141,46 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 	}
 	switch ( pMessage->usMsgType )
 	{
-	case MSG_PLAYER_ENTER_ROOM:
-		{
-			stMsgPlayerEnterRoom* pRet = (stMsgPlayerEnterRoom*)pMessage ;
-			//if ( isNotInAnyRoom()  )
-			{
-				stMsgSvrEnterRoom msgEnter ;
-				msgEnter.cSysIdentifer = GetPlayer()->getMsgPortByRoomType(pRet->nRoomGameType) ;
-				if ( msgEnter.cSysIdentifer == ID_MSG_PORT_NONE )
-				{
-					stMsgPlayerEnterRoomRet msgRet ;
-					msgRet.nRet = 6;
-					SendMsg(&msgRet,sizeof(msgRet)) ;
-					CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d enter game , can not find game port type = %d ",GetPlayer()->GetUserUID(), pRet->nRoomGameType ) ;
-					break;
-				}
+	//case MSG_PLAYER_ENTER_ROOM:
+	//	{
+	//		stMsgPlayerEnterRoom* pRet = (stMsgPlayerEnterRoom*)pMessage ;
+	//		//if ( isNotInAnyRoom()  )
+	//		{
+	//			stMsgSvrEnterRoom msgEnter ;
+	//			msgEnter.cSysIdentifer = GetPlayer()->getMsgPortByRoomType(pRet->nRoomGameType) ;
+	//			if ( msgEnter.cSysIdentifer == ID_MSG_PORT_NONE )
+	//			{
+	//				stMsgPlayerEnterRoomRet msgRet ;
+	//				msgRet.nRet = 6;
+	//				SendMsg(&msgRet,sizeof(msgRet)) ;
+	//				CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d enter game , can not find game port type = %d ",GetPlayer()->GetUserUID(), pRet->nRoomGameType ) ;
+	//				break;
+	//			}
 
-				if ( isNotInAnyRoom() == false )
-				{
-					pRet->nRoomGameType = m_nStateInRoomType;
-					pRet->nRoomID = m_nStateInRoomID ;
-					pRet->nSubIdx = m_nSubRoomIdx ;
+	//			if ( isNotInAnyRoom() == false )
+	//			{
+	//				pRet->nRoomGameType = m_nStateInRoomType;
+	//				pRet->nRoomID = m_nStateInRoomID ;
+	//				pRet->nSubIdx = m_nSubRoomIdx ;
 
-					CLogMgr::SharedLogMgr()->PrintLog("player reEnter room ") ;
-				}
+	//				CLogMgr::SharedLogMgr()->PrintLog("player reEnter room ") ;
+	//			}
 
-				msgEnter.nGameType = pRet->nRoomGameType ;
-				msgEnter.nRoomID = pRet->nRoomID ;
-				msgEnter.nSubIdx = pRet->nSubIdx ;
-				msgEnter.tPlayerData.isRegisted = GetPlayer()->GetBaseData()->isPlayerRegistered() ;
-				msgEnter.tPlayerData.nCoin = GetPlayer()->GetBaseData()->getCoin() ;
-				msgEnter.tPlayerData.nUserSessionID = GetPlayer()->GetSessionID() ;
-				msgEnter.tPlayerData.nUserUID = GetPlayer()->GetUserUID() ;
-				msgEnter.tPlayerData.nNewPlayerHaloWeight = GetPlayer()->GetBaseData()->getNewPlayerHaloWeight() ;
-				msgEnter.tPlayerData.nPlayerType = GetPlayer()->GetBaseData()->getPlayerType();
-				CGameServerApp::SharedGameServerApp()->sendMsg(msgEnter.tPlayerData.nUserSessionID,(char*)&msgEnter,sizeof(msgEnter)) ;
+	//			msgEnter.nGameType = pRet->nRoomGameType ;
+	//			msgEnter.nRoomID = pRet->nRoomID ;
+	//			msgEnter.nSubIdx = pRet->nSubIdx ;
+	//			msgEnter.tPlayerData.isRegisted = GetPlayer()->GetBaseData()->isPlayerRegistered() ;
+	//			msgEnter.tPlayerData.nCoin = GetPlayer()->GetBaseData()->getCoin() ;
+	//			msgEnter.tPlayerData.nUserSessionID = GetPlayer()->GetSessionID() ;
+	//			msgEnter.tPlayerData.nUserUID = GetPlayer()->GetUserUID() ;
+	//			msgEnter.tPlayerData.nNewPlayerHaloWeight = GetPlayer()->GetBaseData()->getNewPlayerHaloWeight() ;
+	//			msgEnter.tPlayerData.nPlayerType = GetPlayer()->GetBaseData()->getPlayerType();
+	//			CGameServerApp::SharedGameServerApp()->sendMsg(msgEnter.tPlayerData.nUserSessionID,(char*)&msgEnter,sizeof(msgEnter)) ;
 
-				m_nStateInRoomID = pRet->nRoomID;
-				m_nStateInRoomType = pRet->nRoomGameType;
-				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d , type = %d coin = %u", GetPlayer()->GetUserUID(), m_nStateInRoomID, m_nStateInRoomType,msgEnter.tPlayerData.nCoin ) ;
-			}
+	//			m_nStateInRoomID = pRet->nRoomID;
+	//			m_nStateInRoomType = pRet->nRoomGameType;
+	//			CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d , type = %d coin = %u", GetPlayer()->GetUserUID(), m_nStateInRoomID, m_nStateInRoomType,msgEnter.tPlayerData.nCoin ) ;
+	//		}
 			//else
 			//{
 			//	stMsgPlayerEnterRoomRet msgRet ;
@@ -189,8 +188,8 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			//	SendMsg(&msgRet,sizeof(msgRet)) ;
 			//	CLogMgr::SharedLogMgr()->PrintLog("player uid = %d already in room type = %d , id = %d ", GetPlayer()->GetUserUID() , m_nStateInRoomType,m_nStateInRoomID ) ;
 			//}
-		}
-		break;
+		//}
+		//break;
 	case MSG_SVR_ENTER_ROOM:
 		{
 			stMsgSvrEnterRoomRet* pRet = (stMsgSvrEnterRoomRet*)pMessage ;

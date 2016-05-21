@@ -22,12 +22,27 @@ enum eMJActType
 #if (C_SHARP)  
 public
 #endif
+enum eRoomType
+{
+	eRoom_None,
+	eRoom_MJ = eRoom_None,
+	eRoom_MJ_Blood_River = eRoom_MJ, // 血流成河
+	eRoom_NiuNiu = eRoom_MJ,
+	eRoom_MJ_Blood_End, // 血战到底
+	eRoom_TexasPoker,
+	eRoom_Golden,
+	eRoom_Max ,
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eTime
 {
 	eTime_ExeGameStart = 5,			// 执行游戏开始 的时间
 	eTime_WaitChoseExchangeCard = 5, //  等待玩家选择换牌的时间
 	eTime_DoExchangeCard = 3, //   执行换牌的时间
-	eTime_WaitDecideQue = 5, // 等待玩家定缺
+	eTime_WaitDecideQue = 10, // 等待玩家定缺
 	eTime_DoDecideQue = 2, // 定缺时间
 	eTime_WaitPlayerAct = 8,  // 等待玩家操作的时间
 	eTime_DoPlayerMoPai = 1 ,  //  玩家摸牌时间
@@ -159,10 +174,11 @@ enum eMsgType
 	MSG_REQUEST_PLAYER_INFO,
 	
 	// mj room msg 麻将房间信息。客户端发给svr的信息，必须包含 dstRoomID 的 key 
-	MSG_REQ_ENTER_ROOM,
-	// client : { roomType: "blood" , configID : "12" }
+	MSG_REQ_ENTER_ROOM = 10115,
+	// client : { type : 0 ， targetID : 23 }
 	// svr : { ret : 0  }
 	// ret :  0 success , 1 已经在房间里 , 2 房间要求游客不能进入 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 8 房间已经满了。
+	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
 	// svr : { roomID ： 23 , configID : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }
@@ -202,7 +218,7 @@ enum eMsgType
 
 
 	MSG_ROOM_FINISH_DECIDE_QUE,  // 玩家完成 定缺
-	// svr : { ret : [{type0, type 1 , type 2, type3 ] }
+	// svr : { ret : [ {type : 0, idx : 2 }, {type : 0, idx : 1 } , {type : 0, idx : 2 }, {type : 0, idx : 3 }] }
 	// 数组对应玩家 定的缺门类型。
 
 	MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,  // 有人出了一张牌，等待需要这张牌的玩家 操作，可以 碰，杠，胡
@@ -234,6 +250,6 @@ enum eMsgType
 	
 
 	MSG_ROOM_PLAYER_CARD_INFO,
-	// svr : { playersCard: [ { anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
+	// svr : { bankerIdx : 2,curActIdx : 0, playersCard: [ { anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
 	// 重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。
 };

@@ -67,8 +67,11 @@ void CMJDoDecideQueState::enterState(IRoom* pRoom)
 	Json::Value arrayType ;
 	for ( auto ref : m_vActList )
 	{
+		Json::Value jsPlayer ;
 		stQueTypeActionItem* pD = (stQueTypeActionItem*)ref ;
-		arrayType[ref->nActIdx] = pD->nType;
+		jsPlayer["idx"] = pD->nActIdx ;
+		jsPlayer["type"] = pD->nType ;
+		arrayType[ref->nActIdx] = jsPlayer;
 	}
 
 	msg["ret"] = arrayType ;
