@@ -51,6 +51,7 @@ bool CMJWaitDecideQueState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		pE->nActIdx = pp->getIdx();
 		pE->nType = prealMsg["type"].asUInt();
 		pp->setMustQueType(pE->nType) ;
+		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , que Type : %u",pp->getIdx(),pE->nType);
 		responeWaitAct(pE->nActIdx,pE) ;
 	}
 	else
@@ -63,6 +64,7 @@ bool CMJWaitDecideQueState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 // do act 
 void CMJDoDecideQueState::enterState(IRoom* pRoom)
 {
+	CLogMgr::SharedLogMgr()->PrintLog("finish Que : ") ;
 	Json::Value msg ;
 	Json::Value arrayType ;
 	for ( auto ref : m_vActList )
@@ -72,6 +74,7 @@ void CMJDoDecideQueState::enterState(IRoom* pRoom)
 		jsPlayer["idx"] = pD->nActIdx ;
 		jsPlayer["type"] = pD->nType ;
 		arrayType[ref->nActIdx] = jsPlayer;
+		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , que Type : %u",pD->nActIdx,pD->nType);
 	}
 
 	msg["ret"] = arrayType ;

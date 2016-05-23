@@ -11,8 +11,8 @@ void CPlayerGameData::Reset()
 {
 	IPlayerComponent::Reset();
 	m_nStateInRoomID = 0;
-	m_nStateInRoomType = eRoom_Max;
-	m_nSubRoomIdx = 0 ;
+	m_ePlayerGameState = ePlayerGameState_NotIn;
+	//m_nSubRoomIdx = 0 ;
 	memset(&m_vData,0,sizeof(m_vData));
 	for (auto& r : m_vMyOwnRooms )
 	{
@@ -22,20 +22,6 @@ void CPlayerGameData::Reset()
 	stMsgReadPlayerTaxasData msgr ;
 	msgr.nUserUID = GetPlayer()->GetUserUID() ;
 	SendMsg(&msgr,sizeof(msgr)) ;
-
-	/*stMsgReadMyOwnTaxasRooms msgReq ;
-	msgReq.nUserUID = GetPlayer()->GetUserUID();
-	SendMsg(&msgReq,sizeof(msgReq)) ;*/
-
-	// niu  niu 
-	//stMsgReadMyOwnRooms msgReqt ;
-	//msgReqt.nUserUID = GetPlayer()->GetUserUID();
-	//SendMsg(&msgReqt,sizeof(msgReqt)) ;
-
-	//stMsgReadPlayerNiuNiuData msg ;
-	//msg.nUserUID = GetPlayer()->GetUserUID() ;
-	//SendMsg(&msg,sizeof(msg)) ;
-	//CLogMgr::SharedLogMgr()->PrintLog("requesting player taxas data for uid = %d",msg.nUserUID);
 }
 
 void CPlayerGameData::Init()
@@ -43,31 +29,12 @@ void CPlayerGameData::Init()
 	IPlayerComponent::Init();
 	m_eType = ePlayerComponent_PlayerGameData ;
 	m_nStateInRoomID = 0;
-	m_nStateInRoomType = eRoom_Max;
+	m_ePlayerGameState = ePlayerGameState_NotIn;
 	memset(&m_vData,0,sizeof(m_vData));
 	for (auto& r : m_vMyOwnRooms )
 	{
 		r.clear() ;
 	}
-
-	//stMsgReadMyOwnTaxasRooms msgReqr ;
-	//msgReqr.nUserUID = GetPlayer()->GetUserUID();
-	//SendMsg(&msgReqr,sizeof(msgReqr)) ;
-
-	//// niu  niu 
-	//stMsgReadMyOwnRooms msgReq ;
-	//msgReq.nUserUID = GetPlayer()->GetUserUID();
-	//SendMsg(&msgReq,sizeof(msgReq)) ;
-
-	//stMsgReadPlayerNiuNiuData msg ;
-	//msg.nUserUID = GetPlayer()->GetUserUID() ;
-	//SendMsg(&msg,sizeof(msg)) ;
-	//CLogMgr::SharedLogMgr()->PrintLog("requesting player niuniu data for uid = %d",msg.nUserUID);
-
-	//stMsgReadPlayerTaxasData msgt ;
-	//msgt.nUserUID = GetPlayer()->GetUserUID() ;
-	//SendMsg(&msgt,sizeof(msgt)) ;
-	//CLogMgr::SharedLogMgr()->PrintLog("requesting player taxas data for uid = %d",msg.nUserUID);
 }
 
 bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort )
@@ -89,17 +56,22 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 					break;
 				}
 
-				//if ( isNotInAnyRoom() == false )
-				//{
-				//	pRet->nRoomGameType = m_nStateInRoomType;
-				//	pRet->nRoomID = m_nStateInRoomID ;
-				//	pRet->nSubIdx = m_nSubRoomIdx ;
+				if ( ePlayerGameState_Entering == m_ePlayerGameState )
+				{
+					CLogMgr::SharedLogMgr()->PrintLog("you are entering player do not do twice") ;
+					break ;
+				}
 
-				//	CLogMgr::SharedLogMgr()->PrintLog("player reEnter room ") ;
-				//}//}
+				if ( ePlayerGameState_StayIn == m_ePlayerGameState )
+				{
+					recvValue["type"] = 1;
+					recvValue["targetID"] = m_nStateInRoomID ;
+					CLogMgr::SharedLogMgr()->PrintLog("player reEnter room , already in room ") ;
+				}
 
 				msgEnter.nType = recvValue["type"].asUInt() ;
 				msgEnter.nTargetID = recvValue["targetID"].asUInt() ;
+
 				msgEnter.tPlayerData.isRegisted = GetPlayer()->GetBaseData()->isPlayerRegistered() ;
 				msgEnter.tPlayerData.nCoin = GetPlayer()->GetBaseData()->getCoin() ;
 				msgEnter.tPlayerData.nUserSessionID = GetPlayer()->GetSessionID() ;
@@ -109,22 +81,10 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				CGameServerApp::SharedGameServerApp()->sendMsg(msgEnter.tPlayerData.nUserSessionID,(char*)&msgEnter,sizeof(msgEnter)) ;
 
 				m_nStateInRoomID = 0;
-				m_nStateInRoomType = eRoom_MJ;
-				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d , type = %d coin = %u", GetPlayer()->GetUserUID(), m_nStateInRoomID, m_nStateInRoomType,msgEnter.tPlayerData.nCoin ) ;
+				m_ePlayerGameState = ePlayerGameState_Entering;
+				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d ,  coin = %u", GetPlayer()->GetUserUID(), m_nStateInRoomID ,msgEnter.tPlayerData.nCoin ) ;
 			}
-//			else
-//			{
-//#ifdef _DEBUG
-//				// temp code 
-//				CLogMgr::SharedLogMgr()->ErrorLog("temp leave room ") ;
-//				OnOtherWillLogined();
-//				///------temp code end 
-//#endif
-//				stMsgPlayerEnterRoomRet msgRet ;
-//				msgRet.nRet = 1;
-//				SendMsg(&msgRet,sizeof(msgRet)) ;
-//				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d already in room type = %d , id = %d ", GetPlayer()->GetUserUID() , m_nStateInRoomType,m_nStateInRoomID ) ;
-//			}
+
 		}
 		break;
 	default:
@@ -201,23 +161,24 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			if ( pRet->nRet )  // enter room failed ;
 			{
 				m_nStateInRoomID = 0;
-				m_nStateInRoomType = eRoom_Max;
-				m_nSubRoomIdx = 0 ;
+				m_ePlayerGameState = ePlayerGameState_NotIn;
+				//m_nSubRoomIdx = 0 ;
 				CLogMgr::SharedLogMgr()->PrintLog("player enter room failed ret = %d uid = %d",pRet->nRet,GetPlayer()->GetUserUID()) ;
 			}
 			else
 			{
 				m_nStateInRoomID = pRet->nRoomID;
-				m_nStateInRoomType = pRet->nGameType;
-				m_nSubRoomIdx = (uint8_t)pRet->nSubIdx ;
-				CLogMgr::SharedLogMgr()->PrintLog("player do enter oom id = %d , type = %d uid = %d subIdx = %u",m_nStateInRoomID,m_nStateInRoomType,GetPlayer()->GetUserUID(),m_nSubRoomIdx) ;
+				//m_nStateInRoomType = pRet->nGameType;
+				//m_nSubRoomIdx = (uint8_t)pRet->nSubIdx ;
+				m_ePlayerGameState = ePlayerGameState_StayIn;
+				CLogMgr::SharedLogMgr()->PrintLog("player do enter room id = %d , uid = %d ",m_nStateInRoomID,GetPlayer()->GetUserUID()) ;
 			}
 		}
 		break;
 	case MSG_SVR_DO_LEAVE_ROOM:
 		{
 			m_nStateInRoomID = 0;
-			m_nStateInRoomType = eRoom_Max;
+			m_ePlayerGameState = ePlayerGameState_NotIn;
 			stMsgSvrDoLeaveRoom* pRet = (stMsgSvrDoLeaveRoom*)pMessage ;
 			CLogMgr::SharedLogMgr()->PrintLog("uid = %d leave room coin = %u , back coin = %lld, temp coin = %u",GetPlayer()->GetUserUID(),GetPlayer()->GetBaseData()->getCoin(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin() ) ;
 			GetPlayer()->GetBaseData()->setCoin(pRet->nCoin + GetPlayer()->GetBaseData()->getTempCoin()) ;
@@ -496,7 +457,7 @@ bool CPlayerGameData::onCrossServerRequest(stMsgCrossServerRequest* pRequest , e
 	{
 	case eCrossSvrReq_LeaveRoomRet:
 		{
-			m_nStateInRoomType = eRoom_Max ;
+			m_ePlayerGameState = ePlayerGameState_NotIn;
 			m_nStateInRoomID = 0 ;
 			GetPlayer()->GetBaseData()->setCoin(GetPlayer()->GetBaseData()->getTempCoin() + GetPlayer()->GetBaseData()->getCoin()) ;
 			GetPlayer()->GetBaseData()->setTempCoin(0) ;
@@ -611,7 +572,7 @@ void CPlayerGameData::OnPlayerDisconnect()
 	if ( isNotInAnyRoom() == false )
 	{
 		stMsgCrossServerRequest msgEnter ;
-		msgEnter.cSysIdentifer = GetPlayer()->getMsgPortByRoomType(m_nStateInRoomType) ;
+		msgEnter.cSysIdentifer = ID_MSG_PORT_MJ ;//GetPlayer()->getMsgPortByRoomType(m_nStateInRoomType) ;
 		msgEnter.nJsonsLen = 0 ;
 		msgEnter.nReqOrigID = GetPlayer()->GetUserUID();
 		msgEnter.nRequestSubType = eCrossSvrReqSub_Default ;
@@ -619,7 +580,7 @@ void CPlayerGameData::OnPlayerDisconnect()
 		msgEnter.nTargetID = m_nStateInRoomID ;
 		msgEnter.vArg[0] = m_nStateInRoomID ;
 		msgEnter.vArg[1] = GetPlayer()->GetSessionID() ;
-		msgEnter.vArg[2] = m_nStateInRoomType ;
+		//msgEnter.vArg[2] = m_nStateInRoomType ;
 		SendMsg(&msgEnter,sizeof(msgEnter)) ;
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %d disconnected , apply to leave room id = %d ",GetPlayer()->GetUserUID(),m_nStateInRoomID) ;
 		GetPlayer()->delayDelete();
@@ -632,7 +593,7 @@ void CPlayerGameData::OnOtherWillLogined()
 	if ( isNotInAnyRoom() == false )
 	{
 		stMsgCrossServerRequest msgEnter ;
-		msgEnter.cSysIdentifer = GetPlayer()->getMsgPortByRoomType(m_nStateInRoomType) ;
+		msgEnter.cSysIdentifer = ID_MSG_PORT_MJ ; //GetPlayer()->getMsgPortByRoomType(m_nStateInRoomType) ;
 		msgEnter.nJsonsLen = 0 ;
 		msgEnter.nReqOrigID = GetPlayer()->GetUserUID();
 		msgEnter.nRequestSubType = eCrossSvrReqSub_Default ;

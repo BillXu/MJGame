@@ -5,6 +5,14 @@ class CPlayerGameData
 	:public IPlayerComponent
 {
 public:
+	enum ePlayerGameState 
+	{
+		ePlayerGameState_Entering,
+		ePlayerGameState_StayIn,
+		ePlayerGameState_NotIn,
+		ePlayerGameState_Max,
+	};
+
 	struct stGameData
 		: public stPlayerGameData
 	{
@@ -27,19 +35,19 @@ public:
 	void OnReactive(uint32_t nSessionID )override{ sendGameDataToClient(); }
 	void OnOtherDoLogined() override{sendGameDataToClient();}
 	uint32_t getCurRoomID(){ return m_nStateInRoomID ;}
-	uint16_t getCurRoomType(){ return m_nStateInRoomType ; }
+	ePlayerGameState getCurGameState(){ return m_ePlayerGameState ; }
 	void addOwnRoom(eRoomType eType , uint32_t nRoomID , uint16_t nConfigID );
 	bool isCreateRoomCntReachLimit(eRoomType eType);
 	bool deleteOwnRoom(eRoomType eType , uint32_t nRoomID );
 	/*uint16_t getMyOwnRoomConfig(eRoomType eType ,  uint32_t nRoomID ) ;*/
 	bool isRoomIDMyOwn(eRoomType eType , uint32_t nRoomID);
-	bool isNotInAnyRoom(){ return m_nStateInRoomID == 0 && m_nStateInRoomType == eRoom_Max ; }
+	bool isNotInAnyRoom(){ return m_ePlayerGameState == ePlayerGameState_NotIn ; }
 protected:
 	void sendGameDataToClient();
 protected:
 	uint32_t m_nStateInRoomID ;
-	uint8_t m_nStateInRoomType ;
-	uint8_t m_nSubRoomIdx ; 
+	ePlayerGameState m_ePlayerGameState ;
+	//uint8_t m_nSubRoomIdx ; 
 
 	stGameData m_vData[eRoom_Max] ;
 	MAP_ID_MYROOW m_vMyOwnRooms[eRoom_Max];

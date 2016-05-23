@@ -245,32 +245,85 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			stMsgSvrEnterRoom* pRet = (stMsgSvrEnterRoom*)prealMsg ;
 			msgBack.nGameType = getMgrRoomType() ;
 			msgBack.nRoomID = pRet->nTargetID ;
+			// temp set 
+			pRet->nType = 1 ;
+			pRet->nTargetID = 2 ;
 			
-			IRoomInterface* pRoom = nullptr ;
+			IRoomInterface* pRoomEnter = nullptr ;
 			if ( pRet->nType == 1 )
 			{
-				IRoomInterface* pRoom = GetRoomByID(pRet->nTargetID) ;
+				pRoomEnter = GetRoomByID(pRet->nTargetID) ;
+				if ( pRoomEnter == nullptr )
+				{
+					msgBack.nRet = 8 ;
+					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+					CLogMgr::SharedLogMgr()->PrintLog("target room id = %u is null",pRet->nTargetID) ;
+					break;
+				}
+
+				msgBack.nRet = pRoomEnter->canPlayerEnterRoom(&pRet->tPlayerData) ;
+				msgBack.nRoomID = pRoomEnter->getRoomID() ;
+				if ( msgBack.nRet )
+				{
+					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+					CLogMgr::SharedLogMgr()->PrintLog("you are not proper to enter this room target id = %u , ret = %d",pRet->nTargetID,msgBack.nRet) ;
+					break;
+				}
 			}
 			else
 			{
+				auto pConfig = m_pConfigMgr->GetConfigByConfigID(pRet->nTargetID) ;
+				if ( pConfig == nullptr )
+				{
+					msgBack.nRet = 2 ;
+					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+					break; 
+				}
 
+				if ( pRet->tPlayerData.nCoin < pConfig->nEnterLowLimit && pConfig->nEnterLowLimit != 0 )
+				{
+					msgBack.nRet = 3 ;
+					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+					break; 
+				}
+
+				if ( pRet->tPlayerData.nCoin > pConfig->nEnterTopLimit && pConfig->nEnterTopLimit != 0 )
+				{
+					msgBack.nRet = 4 ;
+					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+					break; 
+				}
+
+				VEC_INT vSysRooms  ;
+				getSystemRooms(pRet->nTargetID,vSysRooms) ;
+				std::vector<IRoomInterface*> vCanEnterRoom ;
+				for ( auto nRoomID : vSysRooms )
+				{
+					IRoomInterface* pCheckRoom = GetRoomByID(pRet->nTargetID) ;
+					if ( pCheckRoom->canPlayerEnterRoom(&pRet->tPlayerData) == 0 )
+					{
+						vCanEnterRoom.push_back(pCheckRoom) ;
+					}
+				}
+
+				if ( vCanEnterRoom.empty() )
+				{
+					Json::Value vDefault ;
+					IRoomInterface* pNewRoom = doCreateInitedRoomObject(++m_nMaxRoomID,true,pRet->nTargetID,eRoom_MJ,vDefault);
+					addRoomToSystem(pNewRoom) ;
+					vCanEnterRoom.push_back(pNewRoom) ;
+					CLogMgr::SharedLogMgr()->PrintLog("create a new for player to enter , config id = %u",pRet->nTargetID) ;
+				}
+
+				pRoomEnter = vCanEnterRoom[rand() % vCanEnterRoom.size()];
 			}
 			
-			if ( pRoom == nullptr )
-			{
-				msgBack.nRet = 8 ;
-				sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
-				break;
-			}
-
-			msgBack.nRet = pRoom->canPlayerEnterRoom(&pRet->tPlayerData) ;
-			msgBack.nRoomID = pRoom->getRoomID() ;
-			if ( msgBack.nRet == 0 )
-			{
-				int8_t nidx = 0 ;
-				pRoom->onPlayerEnterRoom(&pRet->tPlayerData,nidx);
-			}
+			int8_t nidx = 0 ;
+			pRoomEnter->onPlayerEnterRoom(&pRet->tPlayerData,nidx);
+			msgBack.nGameType = eRoom_MJ ;
+			msgBack.nRoomID = pRoomEnter->getRoomID() ;
 			msgBack.nSubIdx = 0 ;
+			msgBack.nRet = 0 ;
 			sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 		}
 		break;

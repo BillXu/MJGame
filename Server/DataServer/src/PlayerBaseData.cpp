@@ -1118,7 +1118,7 @@ void CPlayerBaseData::GetPlayerBrifData(stPlayerBrifData* pData )
 	}
 	memcpy(pData,&m_stBaseData,sizeof(stPlayerBrifData));
 	auto pGameData = (CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData);
-	pData->nCurrentRoomID = pGameData->getCurRoomID() * 10 + pGameData->getCurRoomType();
+	pData->nCurrentRoomID = pGameData->getCurRoomID() * 10 + eRoom_MJ;
 }
 
 void CPlayerBaseData::GetPlayerDetailData(stPlayerDetailData* pData )
