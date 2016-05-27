@@ -20,7 +20,7 @@ bool IServerApp::init()
 	m_pNetWork->SetupNetwork(1);
 	m_pNetWork->AddMessageDelegate(this);
 
-	m_pTimerMgr = new CTimerManager ;
+	m_pTimerMgr = CTimerManager::getInstance();
 
 	m_fReconnectTick = 0 ;
 
@@ -151,14 +151,13 @@ bool IServerApp::run()
 			m_pNetWork->ReciveMessage();
 		}
 
-		if ( m_pTimerMgr )
-		{
-			m_pTimerMgr->Update() ;
-		}
-
 		clock_t tNow = clock();
 		float fDelta = float(tNow - t ) / CLOCKS_PER_SEC ;
 		t = tNow ;
+		if ( m_pTimerMgr )
+		{
+			m_pTimerMgr->Update(fDelta) ;
+		}
 		update(fDelta);
 		Sleep(10);
 	}
@@ -228,20 +227,20 @@ bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("msg id = %u ,already have this tag uid = %u",nMsgID,recvValue[JS_KEY_MSG_TYPE].asUInt() ) ;
+			//CLogMgr::SharedLogMgr()->ErrorLog("msg id = %u ,already have this tag uid = %u",nMsgID,recvValue[JS_KEY_MSG_TYPE].asUInt() ) ;
 		}
 	}
 
 	Json::StyledWriter writerJs ;
 	std::string strContent = writerJs.write(recvValue);
-	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, send : %s",nSessionID,nTargetPort,strContent.c_str());
+	//CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, send : %s",nSessionID,nTargetPort,strContent.c_str());
 	stMsgJsonContent msg ;
 	msg.cSysIdentifer = nTargetPort ;
 	msg.nJsLen = strContent.size() ;
 	CAutoBuffer bufferTemp(sizeof(msg) + msg.nJsLen);
 	bufferTemp.addContent(&msg,sizeof(msg)) ;
 	bufferTemp.addContent(strContent.c_str(),msg.nJsLen) ;
-	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, len = %u send : %s",nSessionID,nTargetPort,bufferTemp.getContentSize(),strContent.c_str());
+	//CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, len = %u send : %s",nSessionID,nTargetPort,bufferTemp.getContentSize(),strContent.c_str());
 	return sendMsg(nSessionID,bufferTemp.getBufferPtr(),bufferTemp.getContentSize(),bBroadcast) ; 
 }
 

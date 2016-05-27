@@ -5,7 +5,7 @@
 #include <Dbghelp.h>
 #pragma comment( lib, "DbgHelp" )
 #pragma comment(lib,"JsonDll.lib")
-
+#include "LogManager.h"
 DWORD WINAPI ThreadProc(LPVOID lpParam)
 {
 	bool bRunning = true;
@@ -92,6 +92,7 @@ int main()
 
 	CMJServerApp* theApp = CMJServerApp::getInstance() ;
 	bool bok = theApp->init() ;
+	CLogMgr::SharedLogMgr()->SetOutputFile("MJSvr");
 	if ( !bok )
 	{
 		printf("init data svr error , start up error\n");

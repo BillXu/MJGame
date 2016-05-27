@@ -76,3 +76,4 @@ Server/Bin/Lib/NetworkUtilityD.lib
 Server/Bin/Lib/NetworkUtility.lib
 Server/DBServer/Debug/
 *.sdf
+Server/Bin/ServerBin/log/

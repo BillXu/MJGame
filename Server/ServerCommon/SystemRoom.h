@@ -500,7 +500,7 @@ void CSystemRoom<TR>::update(float fDelta)
 template<class TR >
 void CSystemRoom<TR>::onTimeSave()
 {
-	CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
+	//CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
 	// save room rank ;
 	stMsgSaveRoomPlayer msgSave ;
 	msgSave.nRoomID = getRoomID() ;

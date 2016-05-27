@@ -72,7 +72,7 @@ bool CBloodFanxingPingHu::checkType(CMJPeerCard& peerCard)
 		}
 	}
 
-	if ( vAnCards.size() % 3 == 2 )
+	if ( vAnCards.size() % 3 != 2 )
 	{
 		return false ;
 	}
@@ -233,8 +233,8 @@ bool CBloodFanxingPingHu::checkHaveJiangJustQueShun( std::vector<uint8_t>& vec, 
 			{
 				if ( findQueShun(vecCheck,nQueIdx) )
 				{
-					vecQueShun.push_back(vec[nQueIdx]);
-					vecQueShun.push_back(vec[nQueIdx+1]);
+					vecQueShun.push_back(vecCheck[nQueIdx]);
+					vecQueShun.push_back(vecCheck[nQueIdx+1]);
 				}
 				else
 				{
@@ -245,28 +245,29 @@ bool CBloodFanxingPingHu::checkHaveJiangJustQueShun( std::vector<uint8_t>& vec, 
 
 		for ( uint8_t nCIdx = 0 ; nCIdx + 1 < vecQueShun.size() ; nCIdx += 2 )
 		{
-			uint8_t nV = CMJCard::parseCardValue(vecQueShun[nCIdx]);
-			uint8_t nV1 = CMJCard::parseCardValue(vecQueShun[nCIdx + 1]);
-
+			uint8_t nNumberLeft = vecQueShun[nCIdx] ;
+			uint8_t nNumberRight = vecQueShun[nCIdx + 1 ] ;
+			uint8_t nV = CMJCard::parseCardValue(nNumberLeft);
+			uint8_t nV1 = CMJCard::parseCardValue(nNumberRight);
 			if ( nV == nV1 )
 			{
-				vecOutQue.push_back(nV) ;
+				vecOutQue.push_back(nNumberLeft) ;
 			}
 			else if ( nV + 1 == nV1 )
 			{
 				if ( nV > 1 )
 				{
-					vecOutQue.push_back(nV - 1 ) ;
+					vecOutQue.push_back(nNumberLeft - 1 ) ;
 				}
 
 				if ( nV1 < 9 )
 				{
-					vecOutQue.push_back(nV1 - 1 ) ;
+					vecOutQue.push_back(nNumberRight + 1 ) ;
 				}
 			}
 			else if ( nV + 2 == nV1 )
 			{
-				vecOutQue.push_back(nV + 1 ) ;
+				vecOutQue.push_back(nNumberLeft + 1 ) ;
 			}
 			else
 			{

@@ -93,7 +93,28 @@ void CMJRoom::roomInfoVisitor(Json::Value& vOutJsValue)
 
 void CMJRoom::sendRoomPlayersCardInfo(uint32_t nSessionID)
 {
-	CLogMgr::SharedLogMgr()->PrintLog("send room info to session id = %d, not used msg ", nSessionID ) ;
+	if ( getCurRoomState()->getStateID() == eRoomSate_WaitReady )
+	{
+		CLogMgr::SharedLogMgr()->PrintLog("current room not start game , so need not send runtime info msg") ;
+		return ;
+	}
+	Json::Value jsmsg ;
+	Json::Value vPeerCards ;
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount(); ++nIdx )
+	{
+		auto pp  = (CMJRoomPlayer*)getPlayerByIdx(nIdx) ;
+		if ( pp == nullptr || pp->isHaveState(eRoomPeer_CanAct) == false )
+		{
+			continue;
+		}
+		Json::Value jsCardInfo ;
+		pp->getCardInfo(jsCardInfo);
+		vPeerCards[vPeerCards.size()] = jsCardInfo ;
+	}
+
+	jsmsg["playersCard"] = vPeerCards ;
+	jsmsg["bankerIdx"] = getBankerIdx() ;
+	sendMsgToPlayer(jsmsg,MSG_ROOM_PLAYER_CARD_INFO,nSessionID) ;
 }
 
 
@@ -125,11 +146,11 @@ void CMJRoom::prepareCards()
 	Json::Value peerCards[4];
 
 	uint8_t nDice = rand() % getSeatCount() ;
-	for ( uint8_t nIdx = nDice; nIdx < getSeatCount() * 2 ; ++nIdx )
+	for ( uint8_t nIdx = 0; nIdx < getSeatCount() ; ++nIdx,++nDice )
 	{
-		uint8_t nRealIdx = nIdx % getSeatCount() ;
+		uint8_t nRealIdx = nDice % getSeatCount() ;
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nRealIdx);
-		CLogMgr::SharedLogMgr()->PrintLog("card player idx = %d",nIdx);
+		CLogMgr::SharedLogMgr()->PrintLog("card player idx = %d",nRealIdx);
 		for (uint8_t nCardIdx = 0 ; nCardIdx < 13 ; ++nCardIdx )
 		{
 			uint8_t nCard = m_tPoker.getCard();
@@ -297,7 +318,6 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 
 	// add coin 
 	pPlayerWiner->setCoin(pPlayerWiner->getCoin() + ntotalWin ) ;
-
 	// send msg 
 	Json::Value msg ;
 	msg["idx"] = pPlayerWiner->getIdx() ;
@@ -318,6 +338,7 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u qiang gang hu jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
 		nFanShu += 1 ;
+		pLosePlayer->beRobotGang(nCardNumber) ;
 	}
 	else if ( pLosePlayer->getNewFetchedFrom() != eMJAct_Mo )  // gang shang pao ;
 	{
@@ -340,7 +361,11 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 		pLosePlayer->setCoin(0) ;
 	}
 	pPlayerWiner->setCoin(pPlayerWiner->getCoin() + ntotalWin ) ;
-
+	if ( !isGangPai )
+	{
+		pLosePlayer->onChuedPaiBePengOrGang(nCardNumber);
+	}
+	
 	// send msg 
 	Json::Value msg ;
 	msg["idx"] = pPlayerWiner->getIdx() ;
@@ -357,13 +382,14 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	eMJActType eGangType = eMJAct_AnGang ;
 	if ( isBuGang )
 	{
-		pPlayer->addDistributeCard(nCardNumber) ;  // specail situation ;  // give back the card 
+		//pPlayer->addDistributeCard(nCardNumber) ;  // specail situation ;  // give back the card 
 		eGangType = eMJAct_BuGang ;
 	}
 
 	if ( nInvokeIdx != nActIdx )
 	{
 		eGangType = eMJAct_MingGang ;
+		pLosePlayer->onChuedPaiBePengOrGang(nCardNumber);
 	}
 	
 	uint8_t nGangPai = m_tPoker.getCard() ;
@@ -455,9 +481,9 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 		msg["actType"] = eMJAct_MingGang ;
 	}
 
-	msg["card"] = nGangPai ;
+	msg["card"] = nCardNumber ;
+	msg[ "gangCard" ] = nGangPai ;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
-	sendRoomMsg(msg,MSG_ROOM_ACT ) ;
 }
 
 bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
@@ -473,6 +499,7 @@ bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>
 		if ( pPlayer->isCardBeWanted(nCardNumber,false) )
 		{
 			nNeedCardPlayerIdxs.push_back(nIdx) ;
+			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u",nIdx,nCardNumber) ;
 		}
 	}
 
@@ -482,7 +509,7 @@ bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>
 void CMJRoom::onPlayerBuGangPre(uint8_t nPlayerIdx , uint8_t nCardNumber )
 {
 	auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
-	pPlayer->removeCard(nCardNumber);
+	pPlayer->declareBuGang(nCardNumber) ;
 
 	Json::Value msg ;
 	msg["idx"] = pPlayer->getIdx() ;
@@ -494,7 +521,7 @@ void CMJRoom::onPlayerBuGangPre(uint8_t nPlayerIdx , uint8_t nCardNumber )
 void CMJRoom::onPlayerChuPai(uint8_t nPlayerIdx , uint8_t nCardNumber )
 {
 	auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
-	pPlayer->removeCard(nCardNumber);
+	pPlayer->onChuCard(nCardNumber);
 
 	Json::Value msg ;
 	msg["idx"] = pPlayer->getIdx() ;
@@ -528,10 +555,13 @@ void CMJRoom::onPlayerMoPai( uint8_t nIdx )
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
 }
 
-void CMJRoom::onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber )
+void CMJRoom::onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber, uint8_t nInvokerIdx )
 {
 	auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
 	pPlayer->onPengCard(nCardNumber) ;
+
+	auto pPlayerInvoker = (CMJRoomPlayer*)getPlayerByIdx(nInvokerIdx) ;
+	pPlayerInvoker->onChuedPaiBePengOrGang(nCardNumber) ;
 
 	Json::Value msg ;
 	msg["idx"] = pPlayer->getIdx() ;
@@ -607,5 +637,44 @@ void CMJRoom::onPlayerRallBackWindRain(CMJRoomPlayer* pPlayer )
 uint32_t CMJRoom::getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu )
 {
 	return getBaseBet() * nFanshu + nGenShu * getBaseBet() ;
+}
+
+bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx )
+{
+	bool bSelfCheck = nPlayerIdx == cardProviderIdx ;
+	auto pp = getPlayerByIdx(nPlayerIdx) ;
+	Json::Value jsmsg ;
+	jsmsg["cardNum"] = nCardNum ;
+
+	Json::Value actArray ;
+	if ( canPlayerHuPai(nPlayerIdx,nCardNum) )
+	{
+		actArray[actArray.size()] = eMJAct_Hu ;
+		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Hu) ;
+	}
+
+	if ( bSelfCheck == false && canPlayerPengPai(nPlayerIdx,nCardNum) )
+	{
+		actArray[actArray.size()] = eMJAct_Peng ;
+		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Peng) ;
+	}
+
+	if ( getLeftCardCnt() > 1 && canPlayerGangWithCard(nPlayerIdx,nCardNum,bSelfCheck) )
+	{
+		actArray[actArray.size()] = eMJAct_MingGang ;
+		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_MingGang) ;
+	}
+
+	if ( actArray.empty() )
+	{
+		CLogMgr::SharedLogMgr()->PrintLog("this situation no need send act inform ") ;
+		return false;
+	}
+	actArray[actArray.size()] = eMJAct_Pass ;
+	jsmsg["acts"] = actArray ;
+
+
+	sendMsgToPlayer(jsmsg,MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,pp->getSessionID()) ;
+	return true ;
 }
 

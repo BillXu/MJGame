@@ -1,4 +1,5 @@
 #include "VerifyApp.h"
+#include <memory>
 //#include "HMAC_SHA1.h"
 //#include "Md5.h"
 //#include<algorithm>
@@ -17,6 +18,19 @@ int main()
 //	zsummer::log4z::ILog4zManager::GetInstance()->Config("server.cfg");
 //	zsummer::log4z::ILog4zManager::GetInstance()->Start();
 
+	auto p = new int(3);
+	std::shared_ptr<int> pt2( new int(4) );
+	std::weak_ptr<int> pt = pt2;
+	{
+		printf("count = %u",pt2.use_count());
+		auto pp = pt ;
+		printf("pp count = %u",pp.use_count());
+		pt = pt2 ;
+		printf("pp count = %u",pp.use_count());
+	}
+	printf("out count = %u",pt.use_count());
+
+	return 0 ;
 	CVerifyApp theApp ;
 	bool bok = theApp.init() ;
 	if ( !bok )

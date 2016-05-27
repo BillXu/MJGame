@@ -61,6 +61,7 @@ public:
 	void onStateDuringTimeUp()override final ;
 	void setWaitTime( float fSeconds );
 	bool isIdxInWaitList( uint8_t nIdx );
+	void removeWaitIdx(uint8_t nIdx );
 	void leaveState()override{ m_vWaitIdxs.clear();}
 protected:
 	VEC_ACTITEM m_vActList ;  // free object in execute state 

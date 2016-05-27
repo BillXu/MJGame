@@ -471,7 +471,7 @@ void IRoom::onGameDidEnd()
 
 void IRoom::onTimeSave( )
 {
-	CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
+	//CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
 
 	//if ( m_bRoomInfoDiry )
 	//{

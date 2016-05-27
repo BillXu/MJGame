@@ -21,7 +21,7 @@ void CMJWaitDecideQueState::onWaitEnd( bool bTimeOut )
 
 			stQueTypeActionItem* p = new stQueTypeActionItem ;
 			p->nActIdx = pp->getIdx() ;
-			p->nType = rand() % 3 ;
+			p->nType = rand() % 3 + 1 ;
 			pp->setMustQueType(p->nType) ;
 			responeWaitAct(p->nActIdx,p) ;
 		}
@@ -50,6 +50,14 @@ bool CMJWaitDecideQueState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		stQueTypeActionItem* pE = new stQueTypeActionItem ;
 		pE->nActIdx = pp->getIdx();
 		pE->nType = prealMsg["type"].asUInt();
+
+		if ( pE->nType <= eCT_None || pE->nType > eCT_Tiao )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("idx = %u ,decide invalid que type = %u",pp->getIdx(),pE->nType) ;
+			delete pE ;
+			pE = nullptr ;
+			return true ;
+		}
 		pp->setMustQueType(pE->nType) ;
 		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , que Type : %u",pp->getIdx(),pE->nType);
 		responeWaitAct(pE->nActIdx,pE) ;

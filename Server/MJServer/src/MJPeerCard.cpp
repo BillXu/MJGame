@@ -2,6 +2,7 @@
 #include <cassert>
 #include "MJCard.h"
 #include "MJBloodFanxing.h"
+#include "LogManager.h"
 bool CPeerCardSubCollect::removeCardNumber( uint8_t nNumber )
 {
 	auto iter = m_vAnCards.begin() ;
@@ -26,40 +27,32 @@ uint8_t CPeerCardSubCollect::getCardCount()
 
 uint8_t CPeerCardSubCollect::getGenCount()
 {
-	std::vector<uint8_t> vAllCard ;
-	for ( auto ref : m_vAnCards )
+	LIST_PEER_CARDS vAllCard ;
+	vAllCard.assign(m_vAnCards.begin(),m_vAnCards.end()) ;
+	vAllCard.insert(vAllCard.begin(),m_vMingCards.begin(),m_vMingCards.end()) ;
+	
+	std::map<uint8_t,uint8_t> vCardCnt ;
+	for ( auto ref : vAllCard )
 	{
-		vAllCard.push_back(ref.nCardNumber) ;
-	}
-
-	for ( auto ref : m_vMingCards )
-	{
-		auto iter = vAllCard.begin();
-		for ( ; iter != vAllCard.end() ; ++iter )
+		auto iter = vCardCnt.find(ref.nCardNumber) ;
+		if ( iter == vCardCnt.end() )
 		{
-			if ( (*iter) > ref.nCardNumber )
-			{
-				vAllCard.insert(iter,ref.nCardNumber) ;
-				break;
-			}
-			vAllCard.push_back(ref.nCardNumber) ;
+			vCardCnt[ref.nCardNumber] = 1 ;
+		}
+		else
+		{
+			vCardCnt[ref.nCardNumber] = 1 + vCardCnt[ref.nCardNumber] ;
 		}
 	}
 
 	uint8_t nCnt = 0 ;
-	for ( uint8_t nIdx = 0; uint8_t(nIdx + 3) < vAllCard.size() ; )
+	for ( auto refIter : vCardCnt )
 	{
-		if ( vAllCard[nIdx] == vAllCard[nIdx + 3] )
+		if ( refIter.second == 4 )
 		{
 			++nCnt ;
-			nIdx += 4 ;
-		}
-		else
-		{
-			++nIdx ;
 		}
 	}
-
 	return nCnt ;
 }
 
@@ -93,13 +86,17 @@ void CPeerCardSubCollect::doAction(eMJActType eType, uint8_t nNumber )
 
 			uint8_t nEraseCount= 2 ;
 			auto iter = m_vAnCards.begin() ;
-			for ( ; iter != m_vAnCards.end() && nEraseCount > 0; ++iter )
+			for ( ; iter != m_vAnCards.end() && nEraseCount > 0;  )
 			{
 				if ( (*iter).nCardNumber == nNumber )
 				{
 					m_vAnCards.erase(iter) ;
 					--nEraseCount ;
 					iter = m_vAnCards.begin() ;
+				}
+				else
+				{
+					++iter;
 				}
 			}
 			assert(nEraseCount == 0 && "why can not peng" );
@@ -129,13 +126,17 @@ void CPeerCardSubCollect::doAction(eMJActType eType, uint8_t nNumber )
 
 			uint8_t nEraseCount= 4 ;
 			auto iter = m_vAnCards.begin() ;
-			for ( ; iter != m_vAnCards.end() && nEraseCount > 0; ++iter )
+			for ( ; iter != m_vAnCards.end() && nEraseCount > 0; )
 			{
 				if ( (*iter).nCardNumber == nNumber )
 				{
 					m_vAnCards.erase(iter) ;
 					--nEraseCount ;
 					iter = m_vAnCards.begin() ;
+				}
+				else
+				{
+					++iter ;
 				}
 			}
 			assert(nEraseCount == 0 && "why can not peng" );
@@ -167,13 +168,17 @@ void CPeerCardSubCollect::doAction(eMJActType eType, uint8_t nNumber )
 
 			uint8_t nEraseCount= 3 ;
 			auto iter = m_vAnCards.begin() ;
-			for ( ; iter != m_vAnCards.end() && nEraseCount > 0; ++iter )
+			for ( ; iter != m_vAnCards.end() && nEraseCount > 0; )
 			{
 				if ( (*iter).nCardNumber == nNumber )
 				{
 					m_vAnCards.erase(iter) ;
 					--nEraseCount ;
 					iter = m_vAnCards.begin() ;
+				}
+				else
+				{
+					++iter ;
 				}
 			}
 			assert(nEraseCount == 0 && "why can not peng" );
@@ -241,61 +246,61 @@ void CPeerCardSubCollect::getWantedCardList(LIST_WANTED_CARD& vOutList,bool bOmi
 	assert(bOmitChi == true && "not id don't want the chi" );
 	// check an pai  ;
 	auto iter = m_vAnCards.begin() ;
-	LIST_PEER_CARDS vListTemp ;
-	uint8_t nCurListCardNumber = 0 ;
+	std::map<uint8_t,uint8_t> mapCardCount ;
 	for ( ; iter != m_vAnCards.end() ; ++iter )
 	{
-		if ( vListTemp.empty() )
+		auto cardNumber = (*iter).nCardNumber ;
+		auto mapIter = mapCardCount.find(cardNumber);
+		if ( mapIter == mapCardCount.end() )
 		{
-			vListTemp.push_back(*iter) ;
-			nCurListCardNumber = (*iter).nCardNumber ;
+			mapCardCount[cardNumber] = 1 ;
+		}
+		else
+		{
+			mapIter->second = mapIter->second + 1 ;
+		}
+	}
+
+	for ( auto checkCard : mapCardCount )
+	{
+		auto cnt = checkCard.second ;
+		auto nCard = checkCard.first ;
+		if ( cnt <= 1 )
+		{
 			continue;
 		}
 
-		if ( nCurListCardNumber == (*iter).nCardNumber )
-		{
-			vListTemp.push_back(*iter) ;
-			continue;
-		}
-		// another number card ;
-
-		// check preType 
-		if ( vListTemp.size() == 4 )
+		if ( cnt == 4 )
 		{
 			stWantedCard wtc ;
 			wtc.eCanInvokeAct = eMJAct_AnGang ;
-			wtc.eWanteddCardFrom = ePos_Self ;
-			wtc.nNumber = nCurListCardNumber ;
+			wtc.eWanteddCardFrom = ePos_Already ;
+			wtc.nNumber = nCard ;
 			vOutList.push_back(wtc) ;
+			continue; 
 		}
-		else if ( vListTemp.size() == 3 )
+
+		if ( cnt == 3 )
 		{
 			stWantedCard wtc ;
 			wtc.eCanInvokeAct = eMJAct_MingGang ;
 			wtc.eWanteddCardFrom = ePos_Other ;
-			wtc.nNumber = nCurListCardNumber ;
+			wtc.nNumber = nCard ;
 			vOutList.push_back(wtc) ;
 
-			// peng
-			wtc.eCanInvokeAct = eMJAct_Peng ;
-			wtc.eWanteddCardFrom = ePos_Other ;
-			wtc.nNumber = nCurListCardNumber ;
+			wtc.eCanInvokeAct = eMJAct_AnGang ;
+			wtc.eWanteddCardFrom = ePos_Self ;
+			wtc.nNumber = nCard ;
 			vOutList.push_back(wtc) ;
 		}
-		else if ( vListTemp.size() == 2 )
+
+		if ( cnt >= 2 )
 		{
 			stWantedCard wtc ;
 			wtc.eCanInvokeAct = eMJAct_Peng ;
 			wtc.eWanteddCardFrom = ePos_Other ;
-			wtc.nNumber = nCurListCardNumber ;
+			wtc.nNumber = nCard ;
 			vOutList.push_back(wtc) ;
-		}
-		else
-		{
-			// clear pre and add new ;
-			nCurListCardNumber = 0 ;
-			vListTemp.clear() ;
-			vListTemp.push_back(*iter) ;
 		}
 	}
 
@@ -405,6 +410,12 @@ uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ) // 
 		{
 			nGenShu -= 1 ;
 		}
+
+		if ( nCardNumber != 0 )
+		{
+			removeCardNumber(nCardNumber) ;
+			// must left 13 count card , because player can hu more than once 
+		} 
 		return nFanShu ;
 	}
 	else
@@ -525,4 +536,42 @@ bool CMJPeerCard::isHaveAnCard(uint8_t nCardNumber)
 	}
 
 	return false ;
+}
+
+void CMJPeerCard::getAnPai(Json::Value& vAnPia )
+{
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		for ( auto refValue : ref.second.m_vAnCards )
+		{
+			vAnPia[vAnPia.size()] = refValue.nCardNumber ;
+		}
+	}
+}
+
+void CMJPeerCard::getMingPai( Json::Value& vMingPia )
+{
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		for ( auto refValue : ref.second.m_vMingCards )
+		{
+			vMingPia[vMingPia.size()] = refValue.nCardNumber ;
+		}
+	}
+}
+
+void  CMJPeerCard::debugAnpaiCount()
+{
+	uint8_t nTotal = 0 ;
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		nTotal += ref.second.getAnPaiCount() ;
+		//CLogMgr::SharedLogMgr()->PrintLog("An pai type = %u, cnt = %u\n",ref.first,ref.second.getAnPaiCount()) ;
+		for ( auto refValue : ref.second.m_vAnCards )
+		{
+			//CLogMgr::SharedLogMgr()->PrintLog("An pai Number = %u\n",refValue.nCardNumber) ;
+		}
+	}
+
+	CLogMgr::SharedLogMgr()->PrintLog("total cnt = %u",nTotal) ;
 }

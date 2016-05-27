@@ -43,6 +43,8 @@ class CMJRoomPlayer
 	:public ISitableRoomPlayer
 {
 public:
+	typedef std::vector<uint8_t> VEC_UINT_8 ;
+public:
 	void reset(IRoom::stStandPlayer* pPlayer) override ;
 	void onGameEnd()override ;
 	void onGameBegin()override ;
@@ -52,6 +54,9 @@ public:
 	int32_t getGameOffset()override { return m_nGameOffset ; } ;
 	IPeerCard* getPeerCard()override{ return nullptr ;};
 	CMJPeerCard* getMJPeerCard(){ return &m_tPeerCard ;}
+
+	void declareBuGang(uint8_t nCardNumber );
+	void beRobotGang( uint8_t nCardNumber );
 
 	bool removeCard(uint8_t nCardNumber) ;
 	bool isHaveAnCard(uint8_t nCardNumber);
@@ -73,12 +78,25 @@ public:
 	uint8_t getMaxCanHuFanShu( uint8_t& nGenShu );
 	void addBill( stBill* pBill );
 	void getGangWinBill( std::vector<stBill*>& vecGangWin );
+
+	void onChuedPaiBePengOrGang(uint8_t nCardNum );
+	void addChuPai(uint8_t nCardNum );
+	void addHuPai(uint8_t nCardNum );
+	void getCardInfo( Json::Value& vCardInFoValue );
+	void debugWantedCard();
+protected:
+	void updateWantedCardList();
 protected:
 	int32_t m_nGameOffset ;
 	CMJPeerCard m_tPeerCard ;
 	std::vector<stBill*> m_vecBill ;
 
+	VEC_UINT_8 m_vHuedCards ;
+	VEC_UINT_8 m_vChuedCards ;
+
 	uint8_t m_nNewFetchCard ;
 	eMJActType m_eNewFetchCardFrom ;
+	uint8_t m_nBuGaneCard ;
 	LIST_WANTED_CARD m_listWantedCard ;
+	bool m_isWantedCarListDirty ;
 };

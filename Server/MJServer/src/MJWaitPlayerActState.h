@@ -26,7 +26,7 @@ public:
 	void onExecuteOver()override;
 	void doExecuteAct( stActionItem* pAct);
 	uint16_t getStateID(){ return eRoomState_DoPlayerAct ; }
-	void leaveState()override{ IExecuingState::leaveState(); m_vecCardPlayerIdxs.clear() ;}
+	void leaveState()override{ m_vecCardPlayerIdxs.clear() ; IExecuingState::leaveState(); }
 protected:
 	eMJActType m_edoAct ;
 	uint8_t m_nCurIdx ;
@@ -62,7 +62,7 @@ class CMJDoOtherPlayerActState
 	:public IExecuingState
 {
 public:
-	void enterState(IRoom* pRoom){ IExecuingState::enterState(pRoom); m_nCurIdx = 0 ;}
+	void enterState(IRoom* pRoom){ m_nCurIdx = 0 ; IExecuingState::enterState(pRoom); }
 	void onExecuteOver()override;
 	void doExecuteAct( stActionItem* pAct);
 	uint16_t getStateID(){ return eRoomState_DoOtherPlayerAct ; }

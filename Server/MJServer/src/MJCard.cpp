@@ -94,7 +94,7 @@ eMJCardType CMJCard::parseCardType(uint8_t nCardNum)
 {
 	uint8_t nType = nCardNum & 0xF0 ;
 	nType = nType >> 4 ;
-	assert(nType < eCT_Max && nType >= eCT_None && "invalid card type" );
+	assert(nType < eCT_Max && nType > eCT_None && "invalid card type" );
 	return (eMJCardType)nType ;
 }
 
@@ -105,7 +105,7 @@ uint8_t CMJCard::parseCardValue(uint8_t nCardNum )
 
 uint8_t CMJCard::makeCardNumber(eMJCardType eType,uint8_t nValue )
 {
-	assert(eType < eCT_Max && eType >= eCT_None && "invalid card type" );
+	assert(eType < eCT_Max && eType > eCT_None && "invalid card type" );
 	assert(nValue <= 9 && nValue >= 1 && "invalid card value" );
 	uint8_t nType = eType ;
 	nType = nType << 4 ;
@@ -117,6 +117,6 @@ void CMJCard::parseCardTypeValue(uint8_t nCardNum, eMJCardType& eType,uint8_t& n
 {
 	eType = parseCardType(nCardNum) ;
 	nValue = parseCardValue(nCardNum) ;
-	assert(eType < eCT_Max && eType >= eCT_None && "invalid card type" );
+	assert(eType < eCT_Max && eType > eCT_None && "invalid card type" );
 	assert(nValue <= 9 && nValue >= 1 && "invalid card value" );
 }

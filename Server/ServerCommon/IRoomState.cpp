@@ -51,6 +51,18 @@ bool IWaitingState::isIdxInWaitList( uint8_t nIdx )
 	return false ;
 }
 
+void IWaitingState::removeWaitIdx(uint8_t nIdx )
+{
+	auto iter = m_vWaitIdxs.begin() ;
+	for ( ; iter != m_vWaitIdxs.end(); ++iter )
+	{
+		if ( (*iter).nIdx == nIdx )
+		{
+			m_vWaitIdxs.erase(iter) ;
+		}
+	}
+}
+
 bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 {
 	auto iter = m_vWaitIdxs.begin() ;
@@ -58,9 +70,11 @@ bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 	{
 		if ( (*iter).nIdx == nIdx )
 		{
-			if ( (*iter).nMaxActExePrio > pAct->nExePrio )
+			if ( pAct != nullptr && (*iter).nMaxActExePrio > pAct->nExePrio )
 			{
 				printf("you can not do so high act \n");
+				delete pAct ;
+				pAct = nullptr ;
 				return false;
 			}
 
@@ -106,7 +120,10 @@ bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 		}
 	}
 
-	printf("act player idx = %d , not in wait list \n",pAct->nActIdx ) ;
+	if ( pAct )
+	{
+		printf("act player idx = %d , not in wait list \n",pAct->nActIdx ) ;
+	}
 	return false ;
 }
 

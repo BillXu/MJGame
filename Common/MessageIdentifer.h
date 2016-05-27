@@ -44,7 +44,7 @@ enum eTime
 	eTime_DoExchangeCard = 3, //   执行换牌的时间
 	eTime_WaitDecideQue = 10, // 等待玩家定缺
 	eTime_DoDecideQue = 2, // 定缺时间
-	eTime_WaitPlayerAct = 8,  // 等待玩家操作的时间
+	eTime_WaitPlayerAct = 80000,  // 等待玩家操作的时间
 	eTime_DoPlayerMoPai = 1 ,  //  玩家摸牌时间
 	eTime_DoPlayerActChuPai = 2,  // 玩家出牌的时间
 	eTime_DoPlayerAct_Gang = 2, // 玩家杠牌时间
@@ -232,8 +232,8 @@ enum eMsgType
 	// ret : 0 操作成功 , 1 没有轮到你操作 , 2 不能执行指定的操作，条件不满足, 3 参数错误 , 4 状态错误 ;
 
 	MSG_ROOM_ACT,  // 房间里有玩家执行了一个操作
-	// svr : { idx : 0 , actType : 234, card : 23 }
-	// idx :  执行操作的那个玩家的索引。 actType : 执行操作的类型，参照枚举值eMJActType 。 card： 操作涉及到的牌
+	// svr : { idx : 0 , actType : 234, card : 23, gangCard : 12 }
+	// idx :  执行操作的那个玩家的索引。 actType : 执行操作的类型，参照枚举值eMJActType 。 card： 操作涉及到的牌  gangCard: 杠牌后 获得的牌;
 
 	MSG_ROOM_WAIT_RECHARGE, // 等待一些玩家充值
 	// svr: { players: [0,1,3]}    
@@ -248,8 +248,11 @@ enum eMsgType
 	// svr : { ret : 0 }
 	// ret : 0 表示成功， 1 房间号错误,不在该房间里。
 	
+	MSG_PLAYER_REQ_ROOM_INFO,
+	// client : {dstRoomID : 23 } ;
+	// 此消息请求房间详细信息，用来恢复房间的现场，一般用在断线重连成功。
 
 	MSG_ROOM_PLAYER_CARD_INFO,
-	// svr : { bankerIdx : 2,curActIdx : 0, playersCard: [ { anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
+	// svr : { bankerIdx : 2, playersCard: [ { idx : 2,anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
 	// 重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。
 };

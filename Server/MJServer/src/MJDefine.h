@@ -12,9 +12,9 @@ enum eMJGameType
 enum  eMJCardType
 {
 	eCT_None,
-	eCT_Wan = eCT_None,
-	eCT_Tiao,
+	eCT_Wan,
 	eCT_Tong,
+	eCT_Tiao,
 	eCT_Feng,
 	eCT_ZFB,
 	eCT_Max,
@@ -28,6 +28,7 @@ enum  ePosType
 	ePos_Oppsite,
 	ePos_Any,
 	ePos_Other,
+	ePos_Max,
 };
 
 enum eFanxingType 

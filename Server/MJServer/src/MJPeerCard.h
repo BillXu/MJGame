@@ -3,6 +3,7 @@
 #include "NativeTypes.h"
 #include <list>
 #include <map>
+#include "json/json.h"
 enum eSinglePeerCardState
 {
 	eSinglePeerCard_An,
@@ -68,6 +69,9 @@ public:
 	uint8_t getMaxHuPaiFanShu( uint8_t& nGenShu );
 	uint8_t getCardByIdx(uint8_t nCardIdx, bool isForExchange = true );
 	bool isHaveAnCard(uint8_t nCardNumber);
+	void getAnPai(Json::Value& vAnPia );
+	void getMingPai( Json::Value& vMingPia );
+	void debugAnpaiCount();
 protected:
 	uint8_t getGenShu();
 protected:

@@ -23,11 +23,14 @@ CPlayer::CPlayer( )
 	m_eSate = ePlayerState_Online ;
 	m_nSessionID = 0 ;
 	m_nDisconnectTime = 0 ;
-	m_pTimerSave = 0 ;
 	for ( int i = ePlayerComponent_None; i < ePlayerComponent_Max ; ++i )
 	{
 		 m_vAllComponents[i] = NULL;
 	}
+
+	m_pTimerSave.setCallBack([this](CTimer* p , float fDeta){ this->OnTimerSave(0,0) ;} ) ;
+	m_pTimerSave.setInterval(TIME_SAVE) ;
+	m_pTimerSave.setIsAutoRepeat(true) ;
 }
 
 CPlayer::~CPlayer()
@@ -40,11 +43,7 @@ CPlayer::~CPlayer()
 		m_vAllComponents[i] = NULL ;
 	}
 
-	if ( m_pTimerSave )
-	{
-		CGameServerApp::SharedGameServerApp()->getTimerMgr()->RemoveTimer(m_pTimerSave) ;
-		m_pTimerSave = NULL ;
-	}
+	m_pTimerSave.canncel() ;
 }
 
 void CPlayer::Init(unsigned int nUserUID, unsigned int nSessionID )
@@ -52,7 +51,7 @@ void CPlayer::Init(unsigned int nUserUID, unsigned int nSessionID )
 	m_nSessionID = nSessionID ;
 	m_nUserUID = nUserUID ;
 	m_eSate = ePlayerState_Online ;
-	m_pTimerSave = NULL ;
+	m_pTimerSave.start() ;
 	m_nDisconnectTime = 0 ;
 	/// new components ;here ;
 	m_vAllComponents[ePlayerComponent_BaseData] = new CPlayerBaseData(this) ;
@@ -69,14 +68,6 @@ void CPlayer::Init(unsigned int nUserUID, unsigned int nSessionID )
 		{
 			p->Init();
 		}
-	}
-
-	if ( m_pTimerSave == NULL )
-	{
-		m_pTimerSave = CGameServerApp::SharedGameServerApp()->getTimerMgr()->AddTimer(this,cc_selector_timer(CPlayer::OnTimerSave)) ;
-		m_pTimerSave->SetDelayTime( TIME_SAVE * 0.5 ) ;
-		m_pTimerSave->SetInterval(TIME_SAVE) ;
-		m_pTimerSave->Start();
 	}
 }
 
@@ -96,11 +87,8 @@ void CPlayer::Reset(unsigned int nUserUID, unsigned int nSessionID )
 		}
 	}
 
-	if ( m_pTimerSave )
-	{
-		m_pTimerSave->Reset();
-		m_pTimerSave->Start();
-	}
+	m_pTimerSave.reset() ;
+	m_pTimerSave.start() ;
 }
 
 bool CPlayer::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
@@ -270,10 +258,7 @@ void CPlayer::OnPlayerDisconnect()
 
 	OnTimerSave(0,0);
 
-	if ( m_pTimerSave )
-	{
-		m_pTimerSave->Stop();
-	}
+	m_pTimerSave.canncel() ;
 	
 	SetState(ePlayerState_Offline) ;
 	CLogMgr::SharedLogMgr()->ErrorLog("player disconnect should inform other sever");
@@ -620,11 +605,8 @@ void CPlayer::OnReactive(uint32_t nSessionID )
 	SetState(ePlayerState_Online) ;
 	m_nDisconnectTime = 0 ;
 	
-	if ( m_pTimerSave )
-	{
-		m_pTimerSave->Reset();
-		m_pTimerSave->Start();
-	}
+	m_pTimerSave.reset();
+	m_pTimerSave.start() ;
 
 
 	for ( int i = ePlayerComponent_None; i < ePlayerComponent_Max ; ++i )

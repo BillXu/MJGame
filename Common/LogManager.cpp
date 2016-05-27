@@ -79,11 +79,11 @@ void CLogMgr::SystemLog(const char* sformate , ...)
 
 void CLogMgr::SetOutputFile(const char *pFilenamePre)
 {
-#ifndef _DEBUG
+//#ifndef _DEBUG
 	strFilePre = pFilenamePre ;
 	bOutPutToFile = true ;
 	RefreshFileState();
-#endif
+//#endif
 }
 
 void CLogMgr::Print(const char *sFormate, va_list va , eLogState eSate )
@@ -147,7 +147,7 @@ void CLogMgr::Print(const char *sFormate, va_list va , eLogState eSate )
 	}
 #endif
 	
-    if ( bOutPutToFile && pFile && (eSate == eLogState_Error || eLogState_System == eSate ))
+    if ( bOutPutToFile && pFile/* && (eSate == eLogState_Error || eLogState_System == eSate )*/  )
     {
         vfprintf(pFile, pBuffer, va) ;
 		fflush(pFile);

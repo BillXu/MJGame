@@ -6,7 +6,6 @@ class CPlayerBaseData ;
 struct stMsg ;
 class CRoomBaseNew ;
 class CPlayer
-	:public CTimerDelegate
 {
 public:
 	enum ePlayerState
@@ -50,6 +49,6 @@ protected:
 	unsigned int m_nSessionID ;  // comunicate with the client ;
 	IPlayerComponent* m_vAllComponents[ePlayerComponent_Max] ;
 	ePlayerState m_eSate ;
-	CTimer* m_pTimerSave ;
+	CTimer m_pTimerSave ;
 	time_t m_nDisconnectTime ;
 }; 

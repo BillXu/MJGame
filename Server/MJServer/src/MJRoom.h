@@ -38,12 +38,13 @@ public:
 	uint8_t getLeftCardCnt();
 	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
 	void onPlayerMoPai( uint8_t nIdx );
-	void onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber );
+	void onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber , uint8_t nInvokerIdx);
 	bool canPlayerGangWithCard(uint8_t nPlayerIdx , uint8_t nCardNumber, bool bCardFromSelf );
 	bool canPlayerHuPai( uint8_t nPlayerIdx , uint8_t nCardNumber );
 	bool canPlayerPengPai(uint8_t nPlayerIdx , uint8_t nCardNumber);
 	uint8_t getPlayerAutoChuCardWhenTimeOut(uint8_t nPlayerIdx);
 	void onPlayerRallBackWindRain(CMJRoomPlayer* pPlayer );
+	bool onInformActAboutCard(uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx );
 protected:
 	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;
@@ -52,5 +53,6 @@ protected:
 	uint32_t m_nBaseBet ;
 
 	CMJCard m_tPoker ;
+	
 	Json::Value m_arrPlayers ;
 };
