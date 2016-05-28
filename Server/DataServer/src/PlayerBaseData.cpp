@@ -853,6 +853,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["sex"] = m_stBaseData.nSex ;
 		jValue["diamond"] = m_stBaseData.nDiamoned ;
 		jValue["uid"] = m_stBaseData.nUserUID ;
+		jValue["sessionID"] = GetPlayer()->GetSessionID() ;
 		SendMsg(jValue,MSG_PLAYER_BASE_DATA);
 		CLogMgr::SharedLogMgr()->PrintLog("send base data to session id = %d ",GetPlayer()->GetSessionID() );
 		CLogMgr::SharedLogMgr()->SystemLog("send data uid = %d , final coin = %d, sex = %d",GetPlayer()->GetUserUID(),GetAllCoin(),m_stBaseData.nSex);

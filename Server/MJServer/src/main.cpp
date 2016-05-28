@@ -80,6 +80,7 @@ int main()
 	//m_tRoomPlayer.onPengCard(17) ;
 	//m_tRoomPlayer.fetchCard(17);
 	//m_tRoomPlayer.updateSelfOperateCards();
+	//m_tRoomPlayer.canGangWithCard(17,true);
 	//return 0 ;
 
 	CMJServerApp* theApp = CMJServerApp::getInstance() ;

@@ -161,7 +161,7 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",sex : 0,coin : 235 , diamond: 500, }
+	// svr : { name: "nickName",sex : 0,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345 }
 	// name ： 名字，sex ： 性别（0 是男，1 是女）， diamond ：钻石。 coin ： 金币；
 
 	// modify name and sigure
@@ -219,7 +219,7 @@ enum eMsgType
 
 	MSG_PLAYER_DECIDE_QUE,  // 玩家定缺
 	// client : { dstRoomID : 2345 , type : 2 }
-	// type: 定缺的类型，0 万 , 1 条 , 2 筒 
+	// type: 定缺的类型，1,万 2, 筒 3, 条
 
 
 	MSG_ROOM_FINISH_DECIDE_QUE,  // 玩家完成 定缺
@@ -262,6 +262,10 @@ enum eMsgType
 	// 此消息请求房间详细信息，用来恢复房间的现场，一般用在断线重连成功。
 
 	MSG_ROOM_PLAYER_CARD_INFO,
-	// svr : { bankerIdx : 2, playersCard: [ { idx : 2,anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
-	// 重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。
+	// svr : { bankerIdx : 2, playersCard: [ { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
+	// 重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。 queType : 1,万 2, 筒 3, 条
+
+	MSG_ROOM_REQ_TOTAL_INFO,
+	// client : {dstRoomID : 23 } ;
+	// 断线重连成功,以后请求房间信息，恢复房间现场。
 };

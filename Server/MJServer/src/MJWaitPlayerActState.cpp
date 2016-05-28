@@ -64,6 +64,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
 			if ( !pRoom->canPlayerHuPai(pActTypeItem->nActIdx,0) )
 			{
+				CLogMgr::SharedLogMgr()->ErrorLog("idx = %u can not hu with this card , new fetched card = %u",pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
 				msgBack["ret"] = 2 ;
 				m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 				delete pActTypeItem ;
@@ -94,18 +95,19 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
 			if ( pRoom->canPlayerGangWithCard(pActTypeItem->nActIdx,nCard,true) == false )
 			{
+				CLogMgr::SharedLogMgr()->ErrorLog("idx = %u can not gang type = %u, with this card , new fetched card = %u",nActType,pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
 				msgBack["ret"] = 2 ;
 				m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
 
 				delete pActTypeItem ;
 				pActTypeItem = nullptr ;
-
 				return true ;
 			}
 
 			if ( nActType == eMJAct_BuGang )
 			{
 				nActType = eMJAct_BuGang_Pre ;
+				CLogMgr::SharedLogMgr()->PrintLog("player idx = %u bu gang , card = %u",pPlayer->getIdx(),pActTypeItem->nCardNumber) ;
 			}
 		}
 		break ;
@@ -114,8 +116,10 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		pActTypeItem = nullptr ;
 		msgBack["ret"] = 2 ;
 		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
+		CLogMgr::SharedLogMgr()->PrintLog("unknown act type = %u, for idx = %u",nActType,pPlayer->getIdx()) ;
 		return true ;
 	}
+	pActTypeItem->nActType = nActType ;
 	responeWaitAct(pActTypeItem->nActIdx,pActTypeItem);
 	return true ;
 }
@@ -173,7 +177,7 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 	m_nCurIdx = pdoAct->nActIdx ;
 
 	CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-	CLogMgr::SharedLogMgr()->PrintLog("do player act = %u , idx = %u",pdoAct->nActIdx,pdoAct->nActType) ;
+	CLogMgr::SharedLogMgr()->PrintLog("do player act = %u , idx = %u",pdoAct->nActType,pdoAct->nActIdx) ;
 	switch ( m_edoAct )
 	{
 	case eMJAct_Mo:
@@ -217,6 +221,7 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 		}
 		break ;
 	default:
+		CLogMgr::SharedLogMgr()->ErrorLog("unknown act type = %u , for player idx = %u",m_edoAct,pdoAct->nActIdx) ;
 		break ;
 	}
 }
