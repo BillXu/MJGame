@@ -73,6 +73,7 @@ public:
 	uint8_t doHuPaiFanshu( uint8_t nCardNumber, uint8_t& nGenShu );  // nCardNumber = 0 , means self mo ; return value not include gen ;
 	bool isCardBeWanted(uint8_t nCardNumber, bool bFromSelf );
 	void onPengCard(uint8_t nCard );
+	void onChuCard(uint8_t nCard );
 	bool isHuaZhu();
 	bool isTingPai();
 	uint8_t getMaxCanHuFanShu( uint8_t& nGenShu );

@@ -28,6 +28,7 @@ enum  ePosType
 	ePos_Oppsite,
 	ePos_Any,
 	ePos_Other,
+	ePos_Already,
 	ePos_Max,
 };
 
