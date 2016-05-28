@@ -4,6 +4,7 @@
 #include "ServerMessageDefine.h"
 #include <cassert>
 #include <json/json.h>
+#include <algorithm>
 void CMJRoomPlayer::reset(IRoom::stStandPlayer* pPlayer)
 {
 	ISitableRoomPlayer::reset(pPlayer) ;
@@ -91,7 +92,14 @@ bool CMJRoomPlayer::canHuPai( uint8_t nCard ) // 0 means , self hu ;
 {
 	if ( nCard == 0 )
 	{
-		nCard = m_nNewFetchCard;
+		for ( auto refHu : m_listSelfOperateCard )
+		{
+			if ( refHu.eCanInvokeAct == eMJAct_Hu )
+			{
+				return true ;
+			}
+		}
+		 return false ;
 	}
 
 	updateWantedCardList();
@@ -112,30 +120,28 @@ bool CMJRoomPlayer::canHuPai( uint8_t nCard ) // 0 means , self hu ;
 
 bool CMJRoomPlayer::canGangWithCard( uint8_t nCard, bool bCardFromSelf )
 {
+	if ( bCardFromSelf )
+	{
+		for ( auto refCard : m_listSelfOperateCard )
+		{
+			if ( nCard == refCard.nNumber && ( refCard.eCanInvokeAct == eMJAct_BuGang || eMJAct_AnGang == refCard.eCanInvokeAct ) )
+			{
+				 return true ;
+			}
+		}
+		return false ;
+	}
+
 	updateWantedCardList();
 	for ( auto refWanted : m_listWantedCard )
 	{
-		if ( refWanted.eCanInvokeAct == eMJAct_MingGang || eMJAct_AnGang == refWanted.eCanInvokeAct  )
+		if ( refWanted.eCanInvokeAct == eMJAct_MingGang )
 		{
 			if ( nCard == refWanted.nNumber )
 			{
 				return true ;
 			}
-		}
-
-		if ( refWanted.eCanInvokeAct == eMJAct_BuGang )
-		{
-			if ( nCard == refWanted.nNumber )
-			{
-				if ( bCardFromSelf == false )
-				{
-					return false ;
-				}
-
-				return true ;
-			}
-		}
-		
+		}		
 	}
 
 	return false ;
@@ -189,6 +195,7 @@ uint8_t CMJRoomPlayer::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu )  
 	{
 		removeCard(getNewFetchCard()) ;
 		addHuPai(getNewFetchCard());
+		m_isWantedCarListDirty = true ;
 	}
 	else
 	{
@@ -199,47 +206,31 @@ uint8_t CMJRoomPlayer::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu )  
 
 bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , bool bFromSelf )
 {
-	updateWantedCardList();
 	if ( isHaveState(eRoomPeer_DecideLose) )
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("already decide lose , can not need card") ;
 		return false ;
 	}
 
-	if ( isHaveState(eRoomPeer_AlreadyHu) && bFromSelf == false )
-	{
-		CLogMgr::SharedLogMgr()->PrintLog("already hu , so can not need any card that not from self") ;
-		return false ;
-	}
+	updateWantedCardList();
 
 	for ( auto refWanted : m_listWantedCard )
 	{
-		if ( refWanted.eWanteddCardFrom == ePos_Already )
-		{
-			return true ;
-		}
-
 		if ( refWanted.nNumber == nCardNumber )
 		{
-			if ( bFromSelf )
+			if ( refWanted.eWanteddCardFrom == ePos_Other || ePos_Any == refWanted.eWanteddCardFrom )
 			{
-				if ( refWanted.eWanteddCardFrom == ePos_Self || ePos_Any == refWanted.eWanteddCardFrom )
+				if ( isHaveState(eRoomPeer_AlreadyHu) && refWanted.eCanInvokeAct != eMJAct_Hu )
 				{
-					return true ;
+					CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , already hu , so can not need the card not invoke hu",getIdx()) ;
+					continue;
 				}
-			}
-			else
-			{
-				if ( refWanted.eWanteddCardFrom == ePos_Other || ePos_Any == refWanted.eWanteddCardFrom )
-				{
-					return true ;
-				}
+				return true ;
 			}
 		}
 	}
 
 	CLogMgr::SharedLogMgr()->PrintLog("idx = %u , i need not the card : %u" ,getIdx(),nCardNumber) ;
-	CLogMgr::SharedLogMgr()->PrintLog("i need card is : ");
 	debugWantedCard();
 	return false ;
 }
@@ -293,9 +284,6 @@ void CMJRoomPlayer::gangPai( uint8_t nGangPai, eMJActType eGangType,uint8_t nNew
 	m_nNewFetchCard = nNewCard ;
 	m_eNewFetchCardFrom = eGangType ;
 	m_tPeerCard.doAction(eGangType,nGangPai);
-	
-	m_isWantedCarListDirty = true ;
-	updateWantedCardList();
 
 	m_tPeerCard.addCard(m_nNewFetchCard);
 
@@ -313,7 +301,6 @@ void CMJRoomPlayer::gangPai( uint8_t nGangPai, eMJActType eGangType,uint8_t nNew
 void CMJRoomPlayer::declareBuGang(uint8_t nCardNumber )
 {
 	m_nBuGaneCard = nCardNumber ;
-	m_isWantedCarListDirty = true ;
 }
 
 void CMJRoomPlayer::beRobotGang( uint8_t nCardNumber )
@@ -396,6 +383,35 @@ void CMJRoomPlayer::updateWantedCardList()
 		m_tPeerCard.updateWantedCard(m_listWantedCard) ;
 	}
 	m_isWantedCarListDirty = false ;
+}
+
+bool CMJRoomPlayer::updateSelfOperateCards()
+{
+	m_listSelfOperateCard.clear() ;
+	m_tPeerCard.updateSelfOperateCard(m_listSelfOperateCard,getNewFetchCard()) ;
+	return m_listSelfOperateCard.empty() == false ;
+}
+
+bool CMJRoomPlayer::getOperateListJoson(Json::Value& vActList )
+{
+	if ( m_listSelfOperateCard.empty() )
+	{
+		return false ;
+	}
+
+	for_each(m_listSelfOperateCard.begin(),m_listSelfOperateCard.end(),[&vActList,this](stWantedCard& ar)
+	{
+		if ( ar.eCanInvokeAct == eMJAct_AnGang && isHaveState(eRoomPeer_AlreadyHu ) )
+		{
+			return ;
+		}
+		Json::Value js ;
+		js["act"] = ar.eCanInvokeAct ;
+		js["cardNum"] = ar.nNumber ;
+		vActList[vActList.size()] = js;
+	}
+	) ;
+	return vActList.size() > 0  ;
 }
 
 

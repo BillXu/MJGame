@@ -43,6 +43,7 @@ public:
 	bool removeCardNumber( uint8_t nNumber );
 	void doAction(eMJActType eType, uint8_t nNumber );
 	void getWantedCardList(LIST_WANTED_CARD& vList,bool bOmitChi );
+	void getSelfOperateCardList(LIST_WANTED_CARD& vList);
 	void clear();
 	uint8_t getCardCount();
 	uint8_t getAnPaiCount() { return m_vAnCards.size() ; }
@@ -63,6 +64,7 @@ public:
 	virtual void reset();
 	eMJCardType getMustQueType(){ return m_eMustQueType ;}
 	void updateWantedCard( LIST_WANTED_CARD& vWantList );
+	void updateSelfOperateCard( LIST_WANTED_CARD& vOperateList, uint8_t nNewCard );
 	bool isContainMustQue();
 	void addCard( uint8_t nCardNuber );
 	uint8_t doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ); // nCardNumber = 0 , means self mo ; return value not include gen ;

@@ -173,6 +173,11 @@ enum eMsgType
 	MSG_RESET_PASSWORD,
 	MSG_REQUEST_PLAYER_INFO,
 	
+	MSG_DO_RECONNECT, // 断线重连的消息
+	// client : { nSessionID : 233 }
+	// svr : { ret : 0 }
+	// ret : 0 表示成功，1 表示失败；seesion id 就是会话ID 登录成功以后会服务器返回
+
 	// mj room msg 麻将房间信息。客户端发给svr的信息，必须包含 dstRoomID 的 key 
 	MSG_REQ_ENTER_ROOM = 10115,
 	// client : { type : 0 ， targetID : 23 }
@@ -224,6 +229,10 @@ enum eMsgType
 	MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,  // 有人出了一张牌，等待需要这张牌的玩家 操作，可以 碰，杠，胡
 	// svr : { cardNum : 32 , acts : [type0, type 1 , ..] }  ;
 	// 这个消息不会广播，只会发给需要这张牌的玩家，cardNum 待需要的牌，type 类型参照 eMJActType
+
+	MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD,  // 自己获得一张牌，杠或者摸，然后可以进行的操作 杠，胡
+	// svr : { acts : [ {act :eMJActType , cardNum : 23 } , {act :eMJActType , cardNum : 56 }, ... ]  }  ;
+	// 这个消息不会广播，只会发给当前操作的玩家，acts： 可操作的数组， 因为获得一张牌，以后可以进行的操作很多。cardNum 操作相对应的牌，type 类型参照 eMJActType
 
 	MSG_PLAYER_ACT, // 玩家操作
 	// client : { dstRoomID : 2345 ,actType : 0 , card : 23}

@@ -641,7 +641,8 @@ uint32_t CMJRoom::getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu )
 
 bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx )
 {
-	bool bSelfCheck = nPlayerIdx == cardProviderIdx ;
+	assert(nPlayerIdx != cardProviderIdx && "self can not need self card in this situation" );
+
 	auto pp = getPlayerByIdx(nPlayerIdx) ;
 	Json::Value jsmsg ;
 	jsmsg["cardNum"] = nCardNum ;
@@ -653,13 +654,13 @@ bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Hu) ;
 	}
 
-	if ( bSelfCheck == false && canPlayerPengPai(nPlayerIdx,nCardNum) )
+	if ( canPlayerPengPai(nPlayerIdx,nCardNum) )
 	{
 		actArray[actArray.size()] = eMJAct_Peng ;
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Peng) ;
 	}
 
-	if ( getLeftCardCnt() > 1 && canPlayerGangWithCard(nPlayerIdx,nCardNum,bSelfCheck) )
+	if ( getLeftCardCnt() > 1 && canPlayerGangWithCard(nPlayerIdx,nCardNum,false) )
 	{
 		actArray[actArray.size()] = eMJAct_MingGang ;
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_MingGang) ;
@@ -675,6 +676,26 @@ bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8
 
 
 	sendMsgToPlayer(jsmsg,MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,pp->getSessionID()) ;
+	return true ;
+}
+
+bool CMJRoom::onInformSelfCanActWithCard( uint8_t nPlayerIdx )
+{
+	auto pp = (CMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
+	Json::Value jsActArray ;
+	if ( !pp->getOperateListJoson(jsActArray) )
+	{
+		return false ;
+	}
+
+	Json::Value passAct ;
+	passAct["act"] = eMJAct_Pass ;
+	passAct["cardNum"] = pp->getNewFetchCard();
+	jsActArray[jsActArray.size()] = passAct ;
+
+	Json::Value jsmsg ;
+	jsmsg["acts"] = jsActArray ;
+	sendMsgToPlayer(jsmsg,MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD,pp->getSessionID()) ;
 	return true ;
 }
 

@@ -320,8 +320,11 @@ bool CPlayer::IsState( ePlayerState eState )
 void CPlayer::OnAnotherClientLoginThisPeer(unsigned int nSessionID )
 {
 	// tell prelogin client to disconnect ;
-	stMsgPlayerOtherLogin msg ;
-	SendMsgToClient((char*)&msg,sizeof(msg)) ;
+	//stMsgPlayerOtherLogin msg ;
+	//SendMsgToClient((char*)&msg,sizeof(msg)) ;
+
+	Json::Value jsMsg ;
+	SendMsgToClient(jsMsg,MSG_PLAYER_OTHER_LOGIN,false);
 
 	CLogMgr::SharedLogMgr()->ErrorLog("pls remember inform other server this envent OnAnotherClientLoginThisPeer ") ;
 

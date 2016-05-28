@@ -270,26 +270,11 @@ void CPeerCardSubCollect::getWantedCardList(LIST_WANTED_CARD& vOutList,bool bOmi
 			continue;
 		}
 
-		if ( cnt == 4 )
-		{
-			stWantedCard wtc ;
-			wtc.eCanInvokeAct = eMJAct_AnGang ;
-			wtc.eWanteddCardFrom = ePos_Already ;
-			wtc.nNumber = nCard ;
-			vOutList.push_back(wtc) ;
-			continue; 
-		}
-
 		if ( cnt == 3 )
 		{
 			stWantedCard wtc ;
 			wtc.eCanInvokeAct = eMJAct_MingGang ;
 			wtc.eWanteddCardFrom = ePos_Other ;
-			wtc.nNumber = nCard ;
-			vOutList.push_back(wtc) ;
-
-			wtc.eCanInvokeAct = eMJAct_AnGang ;
-			wtc.eWanteddCardFrom = ePos_Self ;
 			wtc.nNumber = nCard ;
 			vOutList.push_back(wtc) ;
 		}
@@ -303,20 +288,76 @@ void CPeerCardSubCollect::getWantedCardList(LIST_WANTED_CARD& vOutList,bool bOmi
 			vOutList.push_back(wtc) ;
 		}
 	}
+}
+
+void CPeerCardSubCollect::getSelfOperateCardList(LIST_WANTED_CARD& vOutList)
+{
+	// check an pai  ;
+	auto iter = m_vAnCards.begin() ;
+	std::map<uint8_t,uint8_t> mapCardCount ;
+	for ( ; iter != m_vAnCards.end() ; ++iter )
+	{
+		auto cardNumber = (*iter).nCardNumber ;
+		auto mapIter = mapCardCount.find(cardNumber);
+		if ( mapIter == mapCardCount.end() )
+		{
+			mapCardCount[cardNumber] = 1 ;
+		}
+		else
+		{
+			mapIter->second = mapIter->second + 1 ;
+		}
+	}
+
+	std::vector<uint8_t> vMayBeBuGang ;
+	for ( auto checkCard : mapCardCount )
+	{
+		auto cnt = checkCard.second ;
+		auto nCard = checkCard.first ;
+		if ( cnt <= 1 )
+		{
+			vMayBeBuGang.push_back(nCard) ;
+			continue;
+		}
+
+		if ( cnt == 4 )
+		{
+			stWantedCard wtc ;
+			wtc.eCanInvokeAct = eMJAct_AnGang ;
+			wtc.eWanteddCardFrom = ePos_Already ;
+			wtc.nNumber = nCard ;
+			vOutList.push_back(wtc) ;
+			continue; 
+		}
+	}
 
 	// check bu gang 
 	auto iterBu = m_vMingCards.begin() ;
 	uint8_t lastCheck = 0 ;
-	for ( ; iterBu != m_vMingCards.begin(); ++iterBu )
+	for ( ; iterBu != m_vMingCards.end(); ++iterBu )
 	{
-		if ( (*iterBu).eState == eSinglePeerCard_Peng && lastCheck != (*iterBu).nCardNumber )
+		if ( (*iterBu).eState == eSinglePeerCard_Peng )
 		{
+			if ( lastCheck == (*iterBu).nCardNumber )
+			{
+				continue;
+			}
+
 			lastCheck = (*iterBu).nCardNumber ;
-			stWantedCard wtc ;
-			wtc.eCanInvokeAct = eMJAct_BuGang;
-			wtc.eWanteddCardFrom = ePos_Self;
-			wtc.nNumber = lastCheck ;
-			vOutList.push_back(wtc) ;
+
+			for ( auto bu : vMayBeBuGang )
+			{
+				if ( bu == (*iterBu).nCardNumber )
+				{
+					stWantedCard wtc ;
+					wtc.eCanInvokeAct = eMJAct_BuGang;
+					wtc.eWanteddCardFrom = ePos_Already;
+					wtc.nNumber = (*iterBu).nCardNumber ;
+					vOutList.push_back(wtc) ;
+					break;
+				}
+			}
+
 		}
 	}
 }
@@ -377,6 +418,31 @@ void CMJPeerCard::updateWantedCard(LIST_WANTED_CARD& vWantList)
 	}
 }
 
+void CMJPeerCard::updateSelfOperateCard( LIST_WANTED_CARD& vOperateList, uint8_t nNewCard )
+{
+	for ( auto ref : m_vSubCollectionCards )
+	{
+		if ( ref.first == getMustQueType() )
+		{
+			continue;
+		}
+		ref.second.getSelfOperateCardList(vOperateList);
+	}
+
+	eFanxingType eFtype ;
+	uint8_t nFanShu = 0 ;
+	if ( CBloodFanxing::getInstance()->checkHuPai(*this,eFtype,nFanShu) )
+	{
+		stWantedCard stWt;
+		stWt.eCanInvokeAct = eMJAct_Hu ;
+		stWt.eFanxing = eFtype ;
+		stWt.eWanteddCardFrom = ePos_Already ;
+		stWt.nFanRate = nFanShu ;
+		stWt.nNumber = nNewCard ;
+		vOperateList.push_back(stWt) ;
+	}
+}
+
 bool CMJPeerCard::isContainMustQue()
 {
 	auto iter = m_vSubCollectionCards.find(getMustQueType()) ;
@@ -416,6 +482,7 @@ uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ) // 
 			removeCardNumber(nCardNumber) ;
 			// must left 13 count card , because player can hu more than once 
 		} 
+		CLogMgr::SharedLogMgr()->PrintLog("player hu pai , type = %u , fanShu = %u",eFtype,nFanShu) ;
 		return nFanShu ;
 	}
 	else

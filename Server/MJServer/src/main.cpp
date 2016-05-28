@@ -66,28 +66,20 @@ void RunFunc ( IServerApp* pApp )
 }
 
 
-//#include "NiuNiuPeerCard.h"
+#include "MJRoomPlayer.h"
 int main()
 {
-	//CNiuNiuPeerCard tC ;
-	//tC.reset();
-	//CCard t ;
-	//t.SetCard(CCard::eCard_Club,8);
-	//tC.addCompositCardNum(t.GetCardCompositeNum()) ;
+	//CMJRoomPlayer m_tRoomPlayer ;
+	//m_tRoomPlayer.addDistributeCard(17) ;
+	//m_tRoomPlayer.addDistributeCard(17) ;
+	//m_tRoomPlayer.addDistributeCard(18) ;
+	//m_tRoomPlayer.addDistributeCard(18) ;
+	//m_tRoomPlayer.addDistributeCard(19) ;
+	//m_tRoomPlayer.addDistributeCard(20) ;
 
-	//t.SetCard(CCard::eCard_Club,1);
-	//tC.addCompositCardNum(t.GetCardCompositeNum()) ;
-
-	//t.SetCard(CCard::eCard_Club,8);
-	//tC.addCompositCardNum(t.GetCardCompositeNum()) ;
-
-	//t.SetCard(CCard::eCard_Club,2);
-	//tC.addCompositCardNum(t.GetCardCompositeNum()) ;
-
-	//t.SetCard(CCard::eCard_Club,13);
-	//tC.addCompositCardNum(t.GetCardCompositeNum()) ;
-
-	//uint8_t n = t.GetType();
+	//m_tRoomPlayer.onPengCard(17) ;
+	//m_tRoomPlayer.fetchCard(17);
+	//m_tRoomPlayer.updateSelfOperateCards();
 	//return 0 ;
 
 	CMJServerApp* theApp = CMJServerApp::getInstance() ;

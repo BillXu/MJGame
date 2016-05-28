@@ -50,7 +50,6 @@ public:
 	void onGameBegin()override ;
 	void doSitdown(uint8_t nIdx ) override;
 	//void willStandUp() override;
-	void onGetCard( uint8_t nIdx , uint8_t nCard );
 	int32_t getGameOffset()override { return m_nGameOffset ; } ;
 	IPeerCard* getPeerCard()override{ return nullptr ;};
 	CMJPeerCard* getMJPeerCard(){ return &m_tPeerCard ;}
@@ -85,8 +84,11 @@ public:
 	void addHuPai(uint8_t nCardNum );
 	void getCardInfo( Json::Value& vCardInFoValue );
 	void debugWantedCard();
+	bool getOperateListJoson(Json::Value& vActList );
 protected:
 	void updateWantedCardList();
+public:
+	bool updateSelfOperateCards();
 protected:
 	int32_t m_nGameOffset ;
 	CMJPeerCard m_tPeerCard ;
@@ -100,4 +102,5 @@ protected:
 	uint8_t m_nBuGaneCard ;
 	LIST_WANTED_CARD m_listWantedCard ;
 	bool m_isWantedCarListDirty ;
+	LIST_WANTED_CARD m_listSelfOperateCard ;
 };

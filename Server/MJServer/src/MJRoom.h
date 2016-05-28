@@ -45,6 +45,7 @@ public:
 	uint8_t getPlayerAutoChuCardWhenTimeOut(uint8_t nPlayerIdx);
 	void onPlayerRallBackWindRain(CMJRoomPlayer* pPlayer );
 	bool onInformActAboutCard(uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx );
+	bool onInformSelfCanActWithCard( uint8_t nPlayerIdx );
 protected:
 	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;

@@ -8,6 +8,8 @@
 #include "ServerMessageDefine.h"
 #include "ServerNetwork.h"
 #include <time.h>
+#include "json/json.h"
+#include "AutoBuffer.h"
 #define TIME_WAIT_FOR_RECONNECTE 40
 CGateClientMgr::CGateClientMgr()
 {
@@ -67,44 +69,75 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 	}
 
 	// client reconnect ;
-	if ( MSG_RECONNECT == pMsg->usMsgType )
+	if ( MSG_JSON_CONTENT == pMsg->usMsgType )
 	{
-		stMsgReconnect* pRet = (stMsgReconnect*)pMsg ;
-		CHECK_MSG_SIZE(stMsgReconnect,pData->_len);
-		MAP_SESSIONID_GATE_CLIENT::iterator iter = m_vWaitToReconnect.find(pRet->nSessionID);
-		bool bReconnectOk = iter != m_vWaitToReconnect.end() && iter->second != NULL ;
-		if ( bReconnectOk )
-		{
-			// remove origin 
-			RemoveClientGate(iter->second);
+		stMsgJsonContent* pJsRet = (stMsgJsonContent*)pMsg ;
+		
+		Json::Value jsValue ;
+		char* pBufferJs = (char*)pMsg ;
+		pBufferJs += sizeof(stMsgJsonContent);
+		Json::Reader jsReader ;
+		jsReader.parse(pBufferJs,pBufferJs + pJsRet->nJsLen,jsValue) ;
 
-			// bind current Client to origin sesssion id ;
-			stGateClient* pNew = GetGateClientByNetWorkID(pData->_connectID);
-			if ( pNew )
+		do 
+		{
+			if ( jsValue[JS_KEY_MSG_TYPE].asUInt() != MSG_DO_RECONNECT )
 			{
-				 MAP_SESSIONID_GATE_CLIENT::iterator iterS = m_vSessionGateClient.find(pNew->nSessionId);
-				 if ( iterS == m_vSessionGateClient.end() )
-				 {
-					 CLogMgr::SharedLogMgr()->ErrorLog("why my session id = %d targe is null",pNew->nSessionId );
-				 }
-				 else
-				 {
-					 m_vSessionGateClient.erase(iterS);
-				 }
-				 pNew->nSessionId = pRet->nSessionID;
-				 m_vSessionGateClient[pNew->nSessionId] = pNew ;
+				break;
 			}
-		}
+			CLogMgr::SharedLogMgr()->PrintLog("received player reconnect request") ;
+			uint32_t nSessionIDRec = jsValue["nSessionID"].asUInt() ;
 
-		stMsgReconnectRet msgback ;
-		msgback.nRet = (bReconnectOk ? 0 : 1 ) ;
-		// send msg to client ;
-		CGateServer::SharedGateServer()->SendMsgToClient((char*)&msgback,sizeof(msgback),pData->_connectID,false) ;
-		if ( bReconnectOk )
-		{
-			CLogMgr::SharedLogMgr()->SystemLog("MSG¡¡reconnected ! session id = %d",pRet->nSessionID );
-		}
-		return true ;
+			MAP_SESSIONID_GATE_CLIENT::iterator iter = m_vWaitToReconnect.find(nSessionIDRec);
+			bool bReconnectOk = iter != m_vWaitToReconnect.end() && iter->second != NULL ;
+			if ( bReconnectOk )
+			{
+				// remove origin 
+				RemoveClientGate(iter->second);
+
+				// bind current Client to origin sesssion id ;
+				stGateClient* pNew = GetGateClientByNetWorkID(pData->_connectID);
+				if ( pNew )
+				{
+					MAP_SESSIONID_GATE_CLIENT::iterator iterS = m_vSessionGateClient.find(pNew->nSessionId);
+					if ( iterS == m_vSessionGateClient.end() )
+					{
+						CLogMgr::SharedLogMgr()->ErrorLog("why my session id = %d targe is null",pNew->nSessionId );
+					}
+					else
+					{
+						m_vSessionGateClient.erase(iterS);
+					}
+					pNew->nSessionId = nSessionIDRec;
+					m_vSessionGateClient[pNew->nSessionId] = pNew ;
+				}
+			}
+
+			Json::Value jsMsgBack ;
+			jsMsgBack["ret"] = (bReconnectOk ? 0 : 1 ) ;
+			jsMsgBack[JS_KEY_MSG_TYPE] = MSG_DO_RECONNECT ;
+
+			Json::StyledWriter jsWrite ;
+			auto str = jsWrite.write(jsMsgBack) ;
+			stMsgJsonContent msgContent ;
+			msgContent.nJsLen = str.size() ;
+			msgContent.cSysIdentifer = ID_MSG_PORT_CLIENT ;
+			
+			CAutoBuffer auBuffer (sizeof(stMsgJsonContent) + msgContent.nJsLen ) ;
+			auBuffer.addContent(&msgContent,sizeof(stMsgJsonContent)) ;
+			auBuffer.addContent(str.c_str(),msgContent.nJsLen) ;
+
+			// send msg to client ;
+			CGateServer::SharedGateServer()->SendMsgToClient(auBuffer.getBufferPtr(),auBuffer.getContentSize(),pData->_connectID,false) ;
+			
+			if ( bReconnectOk )
+			{
+				CLogMgr::SharedLogMgr()->SystemLog("MSG¡¡reconnected ! session id = %d",nSessionIDRec );
+			}
+			return true ;
+
+		} while (0);
+
 	}
 
 	// transfer to center server 
