@@ -612,6 +612,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			auto pRoom = (CMJRoom*)m_pRoom ;
 			CLogMgr::SharedLogMgr()->PrintLog("do peng ok wait idx = %u act " ,m_nCurIdx) ;
 			pTargeState->addWaitingTarget(m_nCurIdx) ;
+			pRoom->setCurWaitIdx(m_nCurIdx) ;
 			m_pRoom->goToState(pTargeState) ;
 		}
 		break;

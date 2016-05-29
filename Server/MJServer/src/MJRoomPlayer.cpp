@@ -363,6 +363,7 @@ void CMJRoomPlayer::getCardInfo( Json::Value& vCardInFoValue )
 	vCardInFoValue["mingPai"] = vMingPai ;
 	vCardInFoValue["huPai"] = vHuPai ;
 	vCardInFoValue["chuPai"] = vChuPai ;
+	vCardInFoValue["queType"] = m_tPeerCard.getMustQueType();
 }
 
 void CMJRoomPlayer::debugWantedCard()

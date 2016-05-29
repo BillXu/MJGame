@@ -434,6 +434,7 @@ bool IRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort
 			{
 				pp->isWillLeave = true ;
 				jsMsg["ret"] = 0 ;
+				CLogMgr::SharedLogMgr()->PrintLog("player session id = % apply to leave room ok",nSessionID) ;
 			}
 			else
 			{

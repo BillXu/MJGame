@@ -137,7 +137,7 @@ enum eMsgType
 	// login 
 	MSG_PLAYER_REGISTER,     //玩家注册
 	// client : {acc: "account" , pwd : "password",regType : 1 , regChannel : 0  } 
-	// svr : { ret: 0  , regType : 1 , UID : 2345 }
+	// svr : { ret: 0  , acc: "account" , pwd : "password",regType : 1 , UID : 2345 }
 	// ret : 0 success , 1 account already exist
 	// regType : 注册类型。0 游客注册 , 1 正常注册 , 2 绑定账号 ;
 	// regChannel : 0 appstore  // 注册渠道
@@ -262,8 +262,8 @@ enum eMsgType
 	// 此消息请求房间详细信息，用来恢复房间的现场，一般用在断线重连成功。
 
 	MSG_ROOM_PLAYER_CARD_INFO,
-	// svr : { bankerIdx : 2, playersCard: [ { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
-	// 重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。 queType : 1,万 2, 筒 3, 条
+	// svr : { bankerIdx : 2, leftCardCnt : 32 ,playersCard: [ { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
+	// leftCardCnt : 剩余牌的数量，重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。 queType : 1,万 2, 筒 3, 条
 
 	MSG_ROOM_REQ_TOTAL_INFO,
 	// client : {dstRoomID : 23 } ;

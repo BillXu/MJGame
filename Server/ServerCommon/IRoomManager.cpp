@@ -153,6 +153,7 @@ bool IRoomManager::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSen
 			Json::Value jsMsg ;
 			jsMsg["ret"] = 1 ;
 			sendMsg(jsMsg,nMsgType,nSessionID);
+			CLogMgr::SharedLogMgr()->ErrorLog("player leave room msg , lack of dstRoom argument") ;
 			return true ;
 		}
 		return false ;

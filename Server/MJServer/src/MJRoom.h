@@ -3,6 +3,7 @@
 #include <json/json.h>
 #include "MJDefine.h"
 #include "MJCard.h"
+#include "RoomConfig.h"
 class CMJRoomPlayer ;
 class CMJRoom
 	:public ISitableRoom
@@ -19,7 +20,9 @@ public:
 	void setBankerIdx(uint8_t nIdx ){ m_nBankerIdx = nIdx ;}
 	uint8_t getBankerIdx(){ return m_nBankerIdx ;}
 	uint32_t getBaseBet(); // ji chu di zhu ;
-	uint32_t getConfigID()override{ return 0 ;}
+	uint32_t getConfigID()override{ return m_pRoomConfig->nConfigID ;}
+	void sendRoomInfo(uint32_t nSessionID );
+	void onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )override ;
 	
 	void onGameWillBegin()override ;
 	void onGameDidEnd()override ;
@@ -37,6 +40,7 @@ public:
 	void onPlayerChuPai(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	uint8_t getLeftCardCnt();
 	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
+	void setCurWaitIdx(uint8_t nidx){m_nCurActIdx = nidx ;};
 	void onPlayerMoPai( uint8_t nIdx );
 	void onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber , uint8_t nInvokerIdx);
 	bool canPlayerGangWithCard(uint8_t nPlayerIdx , uint8_t nCardNumber, bool bCardFromSelf );
@@ -46,12 +50,14 @@ public:
 	void onPlayerRallBackWindRain(CMJRoomPlayer* pPlayer );
 	bool onInformActAboutCard(uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx );
 	bool onInformSelfCanActWithCard( uint8_t nPlayerIdx );
+	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 protected:
 	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;
 protected:
+	stMJRoomConfig* m_pRoomConfig ;
 	uint8_t m_nBankerIdx ;
-	uint32_t m_nBaseBet ;
+	uint8_t m_nCurActIdx ;
 
 	CMJCard m_tPoker ;
 	

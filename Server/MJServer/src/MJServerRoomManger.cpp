@@ -21,14 +21,14 @@ IRoomInterface* CMJRoomManager::doCreateInitedRoomObject(uint32_t nRoomID,bool i
 
 IRoomInterface* CMJRoomManager::doCreateRoomObject(eRoomType reqSubRoomType,bool isPrivateRoom)
 {
-	IRoomInterface* pRoom = nullptr ;
-	if ( !isPrivateRoom )
-	{
-		pRoom = new CSystemRoom<CMJRoom> ;
-	}
-	else
-	{
-		pRoom = new CPrivateRoom<CMJRoom> ;
-	}
+	IRoomInterface* pRoom = new CMJRoom ;
+	//if ( !isPrivateRoom )
+	//{
+	//	pRoom = new CSystemRoom<CMJRoom> ;
+	//}
+	//else
+	//{
+	//	pRoom = new CPrivateRoom<CMJRoom> ;
+	//}
 	return pRoom ;
 }

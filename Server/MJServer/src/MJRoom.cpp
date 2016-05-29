@@ -19,8 +19,8 @@ CMJRoom::CMJRoom()
 
 bool CMJRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue )
 {
+	m_pRoomConfig = (stMJRoomConfig*)pConfig ;
 	ISitableRoom::onFirstBeCreated(pRoomMgr,pConfig,nRoomID,vJsValue) ;
-	m_nBaseBet = ((stMJRoomConfig*)pConfig)->nBaseBet;
 	m_tPoker.initAllCard(eMJ_BloodRiver);
 	m_nBankerIdx = 0 ;
 	return true ;
@@ -44,8 +44,8 @@ void CMJRoom::prepareState()
 
 void CMJRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig,uint32_t nRoomID , Json::Value& vJsValue )
 {
+	m_pRoomConfig = (stMJRoomConfig*)pConfig ;
 	ISitableRoom::serializationFromDB(pRoomMgr,pConfig,nRoomID,vJsValue);
-	m_nBaseBet = ((stMJRoomConfig*)pConfig)->nBaseBet;
 	m_tPoker.initAllCard(eMJ_BloodRiver);
 	m_nBankerIdx = 0 ;
 }
@@ -114,13 +114,42 @@ void CMJRoom::sendRoomPlayersCardInfo(uint32_t nSessionID)
 
 	jsmsg["playersCard"] = vPeerCards ;
 	jsmsg["bankerIdx"] = getBankerIdx() ;
+	jsmsg["curActIdex"] = m_nCurActIdx;
+	jsmsg["leftCardCnt"] = m_tPoker.getLeftCardCount();
 	sendMsgToPlayer(jsmsg,MSG_ROOM_PLAYER_CARD_INFO,nSessionID) ;
 }
 
 
 uint32_t CMJRoom::getBaseBet()
 {
-	return m_nBaseBet ;
+	return m_pRoomConfig->nBaseBet ;
+}
+
+void CMJRoom::sendRoomInfo(uint32_t nSessionID )
+{
+	Json::Value jsMsg ;
+	jsMsg["roomID"] = getRoomID();
+	jsMsg["configID"] = getConfigID() ;
+	jsMsg["roomState"] = getCurRoomState()->getStateID();
+	Json::Value arrPlayers ;
+	for ( uint8_t nIdx = 0; nIdx < getSeatCount() ; ++nIdx )
+	{
+		ISitableRoomPlayer* pPlayer = getPlayerByIdx(nIdx);
+		if ( pPlayer == nullptr )
+		{
+			continue;
+		}
+		Json::Value jsPlayer ; 
+		jsPlayer["idx"] =  nIdx ;
+		jsPlayer["uid"] =  pPlayer->getUserUID() ;
+		jsPlayer["coin"] = pPlayer->getCoin() ;
+		jsPlayer["state"] = pPlayer->getState() ;
+		arrPlayers[nIdx] = jsPlayer ;
+	}
+
+	jsMsg["players"] = arrPlayers ;
+	sendMsgToPlayer(jsMsg,MSG_ROOM_INFO,nSessionID) ;
+	CLogMgr::SharedLogMgr()->PrintLog("send msg room info msg to player session id = %u",nSessionID) ;
 }
 
 void CMJRoom::onGameWillBegin()
@@ -130,6 +159,7 @@ void CMJRoom::onGameWillBegin()
 	m_nBankerIdx = m_nBankerIdx % getSeatCount() ;
 	CLogMgr::SharedLogMgr()->PrintLog("room game begin");
 	m_tPoker.shuffle();
+	m_nCurActIdx = m_nBankerIdx ;
 	prepareCards();
 }
 
@@ -539,6 +569,7 @@ uint8_t CMJRoom::getNextActPlayerIdx( uint8_t nCurActIdx )
 {
 	++nCurActIdx ;
 	nCurActIdx %= getSeatCount() ;
+	m_nCurActIdx = nCurActIdx ;
 	return nCurActIdx ;
 }
 
@@ -697,5 +728,63 @@ bool CMJRoom::onInformSelfCanActWithCard( uint8_t nPlayerIdx )
 	jsmsg["acts"] = jsActArray ;
 	sendMsgToPlayer(jsmsg,MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD,pp->getSessionID()) ;
 	return true ;
+}
+
+bool CMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
+{
+	if ( ISitableRoom::onMsg(prealMsg,nMsgType,eSenderPort,nSessionID) )
+	{
+		return true ;
+	}
+
+	switch (nMsgType)
+	{
+	case MSG_ROOM_REQ_TOTAL_INFO:
+		{
+			CLogMgr::SharedLogMgr()->PrintLog("reback room state and info msg to session id =%u",nSessionID) ;
+			sendRoomInfo(nSessionID) ;
+			sendRoomPlayersCardInfo(nSessionID) ;
+		}
+		break;
+	default:
+		return false ;
+	}
+	return true;
+}
+
+void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )
+{
+	nSubIdx = 0 ;
+	IRoom::stStandPlayer* pInPlayer = getPlayerByUserUID(pEnterRoomPlayer->nUserUID) ;
+	if ( pInPlayer )
+	{
+		pInPlayer->nUserSessionID = pEnterRoomPlayer->nUserSessionID ;
+		pInPlayer->isWillLeave = false ;
+		CLogMgr::SharedLogMgr()->PrintLog("player uid = %u , come back room ",pEnterRoomPlayer->nUserSessionID) ;
+	}
+	else
+	{
+		ISitableRoom::onPlayerEnterRoom(pEnterRoomPlayer,nSubIdx) ;
+	}
+
+	sendRoomInfo(pEnterRoomPlayer->nUserSessionID);
+	sendRoomPlayersCardInfo(pEnterRoomPlayer->nUserSessionID);
+	CLogMgr::SharedLogMgr()->PrintLog("uid = %u , enter room id = %u , subIdx = %u",pEnterRoomPlayer->nUserUID, getRoomID(),0) ;
+
+	auto pSitPlayer = getSitdownPlayerByUID(pEnterRoomPlayer->nUserUID) ;
+	if ( pSitPlayer )
+	{
+		pSitPlayer->setSessionID(pEnterRoomPlayer->nUserSessionID) ;
+		CLogMgr::SharedLogMgr()->PrintLog("player uid = %u , come back room , rebind session id ",pEnterRoomPlayer->nUserUID) ;
+	}
+	else
+	{
+		CLogMgr::SharedLogMgr()->PrintLog("player uid = %u not sit , system auto sit",pEnterRoomPlayer->nUserUID) ;
+		stMsgPlayerSitDown msgSitDown ;
+		msgSitDown.nIdx = 0 ;
+		msgSitDown.nSubRoomIdx = 0 ;
+		msgSitDown.nTakeInCoin = 0 ;
+		onMessage(&msgSitDown,ID_MSG_PORT_CLIENT,pEnterRoomPlayer->nUserSessionID) ;
+	}
 }
 

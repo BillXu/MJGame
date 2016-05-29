@@ -215,9 +215,9 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 				 return ;
 			 }
 
-			 //jValue[""] = pRow["strAccount"]->CStringValue() ;
-			 //jValue[""] = pRow["strPassword"]->CStringValue() ;
-			jValue["UID"] = pRow["nOutUserUID"]->IntValue();
+			 jValue["acc"] = pRow["strAccount"]->CStringValue() ;
+			 jValue["pwd"] = pRow["strPassword"]->CStringValue() ;
+			 jValue["UID"] = pRow["nOutUserUID"]->IntValue();
 
 			// request db to create new player data 
 			stMsgRequestDBCreatePlayerData msgCreateData ;
@@ -226,23 +226,6 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			getSvrApp()->sendMsg(pdata->nSessionID,(char*)&msgCreateData,sizeof(msgCreateData)) ;
 
 			// tell client the success register result ;
-			/*Json::Value testValue ;
-			Json::Value arrtObj ;
-			Json::Value arrValue ;
-			testValue["uid"] = "1235";
-			testValue["name"] = "hello" ;
-			for ( uint8_t nIdx = 0 ; nIdx < 3 ; ++nIdx )
-			{
-				Json::Value vObj ;
-				vObj["hell"] = "vle" ;
-				vObj["heha"] = "djfh" ;
-				arrValue[nIdx] = 364 + nIdx;
-				arrtObj[nIdx] = vObj ;
-			}
-
-			testValue["value"] = arrValue ;
-			testValue["obj"] = arrtObj ;
-			getSvrApp()->sendMsg(pdata->nSessionID,testValue,pResult->nRequestUID);*/
 			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
 			CLogMgr::SharedLogMgr()->PrintLog("register success account = %s",pRow["strAccount"]->CStringValue() );
 
