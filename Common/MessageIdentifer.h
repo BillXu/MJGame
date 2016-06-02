@@ -256,6 +256,9 @@ enum eMsgType
 	// client : {dstRoomID : 23 } ;
 	// svr : { ret : 0 }
 	// ret : 0 表示成功， 1 房间号错误,不在该房间里。
+
+	MSG_ROOM_PLAYER_LEAVE, // 有玩家离开房间;
+	// svr : { idx : 2 }
 	
 	MSG_PLAYER_REQ_ROOM_INFO,
 	// client : {dstRoomID : 23 } ;
@@ -268,4 +271,11 @@ enum eMsgType
 	MSG_ROOM_REQ_TOTAL_INFO,
 	// client : {dstRoomID : 23 } ;
 	// 断线重连成功,以后请求房间信息，恢复房间现场。
+
+	MSG_TELL_ROBOT_TYPE = 10338, // 向服务器表明客户端是机器人的身份
+	MSG_TELL_ROBOT_IDLE, // 通知服务器，当前机器人空闲，也就是没有在房间内。
+	MSG_SVR_INFORM_ROBOT_LEAVE, // 服务器通知机器人退出当前房间。
+	MSG_SVR_INFOR_ROBOT_ENTER, // 服务器通知机器人进入房间；
+	// svr : { dstRoomID : 0 }
+	// dstRoomID , 服务器通知机器人需要进入的房间ID。
 };

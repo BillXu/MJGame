@@ -6,6 +6,7 @@
 #include "ISitableRoom.h"
 #include "ISitableRoomPlayer.h"
 #include "json/json.h"
+#include "LogManager.h"
 void IRoomState::update(float fDeta)
 { 
 	if ( m_fStateDuring >= 0.0f )
@@ -19,7 +20,6 @@ void IRoomState::update(float fDeta)
 }
 
 // wait state 
-
 void IWaitingState::enterState(IRoom* pRoom)
 {
 	IRoomState::enterState(pRoom) ;
@@ -182,6 +182,11 @@ bool IRoomStateWaitPlayerReady::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, 
 	{
 		auto pSitRoom = (ISitableRoom*)(m_pRoom); 
 		auto pp = pSitRoom->getSitdownPlayerBySessionID(nSessionID) ;
+		if ( pp == nullptr )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you are not sit down , can not ready session id = %u",nSessionID) ;
+			return true ;
+		}
 		pp->setState(eRoomPeer_Ready) ;
 
 		Json::Value jsMsg ;

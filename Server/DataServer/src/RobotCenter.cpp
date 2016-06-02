@@ -2,6 +2,8 @@
 #include "LogManager.h"
 #include "ServerMessageDefine.h"
 #include "ISeverApp.h"
+#include "GameServerApp.h"
+#include "Player.h"
 CRobotCenter::CRobotCenter()
 {
 	m_vIdleRobots.clear() ;
@@ -24,29 +26,45 @@ CRobotCenter::~CRobotCenter()
 	m_vReqRobotCmdCacher.clear() ;
 }
 
-bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)
+bool CRobotCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
 {
-	switch (prealMsg->usMsgType)
+	switch (nMsgType)
 	{
 	case MSG_TELL_ROBOT_IDLE:
 		{
-			stMsgTellRobotIdle* pRet = (stMsgTellRobotIdle*)prealMsg ;
-			if ( isRobotInTheList(pRet->nRobotUID) )
+			auto ppPLayer = CGameServerApp::SharedGameServerApp()->GetPlayerMgr()->GetPlayerBySessionID(nSessionID) ;
+			if ( ppPLayer == nullptr )
 			{
-				onRobotOtherLogin(pRet->nRobotUID,nSessionID) ;
+				CLogMgr::SharedLogMgr()->ErrorLog("this robot not login session id = %u",nSessionID) ;
+				return ;
+			}
+
+			if ( isRobotInTheList(ppPLayer->GetUserUID()) )
+			{
+				onRobotOtherLogin(ppPLayer->GetUserUID(),nSessionID) ;
 			}
 			else
 			{
 				stIdleRobot* pR = new stIdleRobot ;
-				pR->nLevel = pRet->nRobotLevel ;
+				pR->nLevel = 0 ;
 				pR->nSessionID = nSessionID ;
-				pR->nUserUID = pRet->nRobotUID ;
+				pR->nUserUID = ppPLayer->GetUserUID() ;
 				m_vIdleRobots.push_back(pR) ;
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("a robot uid = %u enter idle ",pRet->nRobotUID ) ;
+			CLogMgr::SharedLogMgr()->PrintLog("a robot uid = %u enter idle ",ppPLayer->GetUserUID()) ;
 			processRobotReq();
 		}
 		break;
+	default:
+		return false;
+	}
+	return true ;
+}
+
+bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)
+{
+	switch (prealMsg->usMsgType)
+	{
 	case MSG_REQ_ROBOT_ENTER_ROOM:
 		{
 			stMsgRequestRobotToEnterRoom* pRet = (stMsgRequestRobotToEnterRoom*)prealMsg ;
@@ -139,11 +157,9 @@ void CRobotCenter::processRobotReq()
 		{
 			if ( cmd->nReqRobotLevel == (*iter)->nLevel )
 			{
-				stMsgTellRobotEnterRoom msgBack ;
-				msgBack.nRoomID = cmd->nRoomID ;
-				msgBack.nRoomType = cmd->nRoomType ;
-				msgBack.nSubRoomIdx = cmd->nSubRoomIdx ;
-				getSvrApp()->sendMsg((*iter)->nSessionID,(char*)&msgBack,sizeof(msgBack));
+				Json::Value jsMsg ;
+				jsMsg["dstRoomID"] = cmd->nRoomID ;
+				getSvrApp()->sendMsg((*iter)->nSessionID,jsMsg,MSG_SVR_INFOR_ROBOT_ENTER);
 				CLogMgr::SharedLogMgr()->PrintLog("order robot uid = %u to enter room type = %u , room id = %u",(*iter)->nUserUID,cmd->nRoomType,cmd->nRoomID) ;
 
 				delete (*iter) ;

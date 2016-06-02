@@ -47,17 +47,14 @@ public:
 	void update(float fDelta)override;
 	void setDelegate(IRoomDelegate* pDelegate ){ m_pDelegate = pDelegate ; }
 	IRoomDelegate* getDelegate(){ return m_pDelegate ;}
-	bool onPlayerApplyLeaveRoom(uint32_t nUserUID )final ;
 	void deleteRoom()final{}
 	uint32_t getOwnerUID()final{ return 0 ; }
 
 	// event function 
 	uint8_t canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )override;  // return 0 means ok ;
 	void onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )override;;
-	virtual void onPlayerWillLeaveRoom(stStandPlayer* pPlayer );
 	virtual bool canStartGame() ;
 	virtual void prepareCards() = 0 ;
-	virtual void doProcessNewPlayerHalo() = 0 ;
 	void roomItemDetailVisitor(Json::Value& vOutJsValue)override;
 	void playerDoLeaveRoom(stStandPlayer* pp );
 	void setDeskFee(uint32_t nDeskFee){ m_nDeskFree = nDeskFee ;}

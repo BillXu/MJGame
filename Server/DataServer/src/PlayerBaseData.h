@@ -17,6 +17,7 @@ public:
 	virtual bool onCrossServerRequest(stMsgCrossServerRequest* pRequest, eMsgPort eSenderPort,Json::Value* vJsValue = nullptr );
 	virtual bool onCrossServerRequestRet(stMsgCrossServerRequestRet* pResult,Json::Value* vJsValue = nullptr );
 	bool OnMessage( stMsg* pMessage , eMsgPort eSenderPort );
+	bool OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort)override ;
 	void SendBaseDatToClient();
 	void Reset();
 	virtual void OnOtherDoLogined();

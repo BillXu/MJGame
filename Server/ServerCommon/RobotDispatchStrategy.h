@@ -1,6 +1,7 @@
 #pragma once
 #include "ISitableRoom.h"
 #include <list>
+#include "Timer.h"
 class CRobotDispatchStrategy
 {
 public:
@@ -14,16 +15,15 @@ public:
 	CRobotDispatchStrategy();
 	~CRobotDispatchStrategy();
 	bool init(ISitableRoom* pRoom , uint8_t nReqRobotLevel, uint32_t nRoomID , uint8_t nsubRoomIdx );
-	void update(float fTicke);
-	void onRobotJoin(uint32_t nSessionID );
-	void onRobotLeave(uint32_t nSessioID );
+	void onPlayerJoin(uint32_t nSessionID, bool isRobot );
+	void onPlayerLeave(uint32_t nSessioID,bool isRobot );
 protected:
-	void updateRobotDispatch( float fDelta );
+
 protected:
 	ISitableRoom* m_pRoom ;
 	uint32_t m_nRoomID ;
 	uint8_t m_nSubRoomIdx ;
 	uint8_t m_nReqRobotLevel ; 
 	LIST_JOIN_ROBOT m_vPlayingRobot ;
-	float m_fUpdateDispatchTick ;
+	CTimer m_tReqRobotTimer ;
 };

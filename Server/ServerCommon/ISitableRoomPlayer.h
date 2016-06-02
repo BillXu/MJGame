@@ -40,7 +40,7 @@ public:
 	virtual int32_t getGameOffset() = 0 ;
 	virtual IPeerCard* getPeerCard() = 0 ;
 	int32_t getTotalGameOffset(){ return nTotalGameOffset ;}
-	void setSessionID( uint32_t nNewSessionID ){ nSessionID = nNewSessionID ;}
+	void setSessionID( uint32_t nNewSessionID ){ nSessionID = nNewSessionID ; m_isDelayStandUp = false ;}
 private:
 	uint16_t getTotalHaloWeight(){ return nNewPlayerHaloWeight + nTempHaloWeight; }
 	void increaseWinTimes(){ ++nWinTimes ;}

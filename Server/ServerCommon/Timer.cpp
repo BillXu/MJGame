@@ -51,11 +51,10 @@ void CTimer::setInterval(float fNewInterval )
 
 void CTimer::start()
 {
-	assert(m_eState != eTimerState_Runing && "timer already running , do not run again" );
 	assert( m_lpFunc != nullptr && "please set timer func first");
 	if ( m_eState == eTimerState_Runing )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("timer already running , don't runed it again") ;
+		CLogMgr::SharedLogMgr()->PrintLog("timer already running , don't runed it again") ;
 		return ;
 	}
 	m_eState = eTimerState_Runing ;

@@ -62,28 +62,6 @@ IRoom::~IRoom()
 	m_vRoomStates.clear() ;
 }
 
-void IRoom::forcePlayersLeaveRoom()
-{
-	if ( getCurRoomState()->getStateID() != eRoomState_Close  )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("when player is palying do not force them out room id = %u",getRoomID()) ;
-	}
-
-	LIST_STAND_PLAYER vAllInRoomPlayers ;
-	auto bGin = m_vInRoomPlayers.begin() ;
-	while (bGin != m_vInRoomPlayers.end())
-	{
-		vAllInRoomPlayers.push_back(bGin->second) ;
-		++bGin ;
-	}
-
-	for ( auto& p : vAllInRoomPlayers )
-	{
-		onPlayerWillLeaveRoom(p) ;
-		playerDoLeaveRoom(p);
-	}
-}
-
 bool IRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue )
 {
 	m_pRoomMgr = pRoomMgr ;
@@ -186,11 +164,6 @@ void IRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer ,int8_t& nSubIdx
 	}
 }
 
-void IRoom::onPlayerWillLeaveRoom(stStandPlayer* pPlayer )
-{
-	CLogMgr::SharedLogMgr()->PrintLog("player uid = %d , will leave room process this function",pPlayer->nUserUID);
-}
-
 bool IRoom::canStartGame()
 {
 	if ( m_vInRoomPlayers.empty() )
@@ -258,17 +231,6 @@ uint32_t IRoom::getRoomID()
 void IRoom::update(float fDelta)
 {
 	m_pCurRoomState->update(fDelta);
-}
-
-bool IRoom::onPlayerApplyLeaveRoom(uint32_t nUserUID )
-{
-	auto pp = getPlayerByUserUID(nUserUID) ;
-	if ( pp )
-	{
-		pp->isWillLeave = true ;
-		return true ;
-	}
-	return false ;
 }
 
 bool IRoom::addRoomPlayer(stStandPlayer* pPlayer )
@@ -409,46 +371,7 @@ bool IRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort
 	{
 		return true ;
 	}
-
-	switch ( nMsgType )
-	{
-	//case MSG_MODIFY_ROOM_RANK:
-	//	{
-	//		stMsgRobotModifyRoomRank* pRet = (stMsgRobotModifyRoomRank*)prealMsg ;
-	//		if ( getDelegate() && getPlayerByUserUID(pRet->nTargetUID) )
-	//		{
-	//			getDelegate()->onUpdatePlayerGameResult(this,pRet->nTargetUID,pRet->nOffset);
-	//			CLogMgr::SharedLogMgr()->SystemLog("modify uid = %u offset = %d",pRet->nTargetUID,pRet->nOffset) ;
-	//		}
-	//		else
-	//		{
-	//			CLogMgr::SharedLogMgr()->ErrorLog("modify room rank uid = %u not in room ", pRet->nTargetUID);
-	//		}
-	//	}
-	//	break;
-	case MSG_PLAYER_LEAVE_ROOM:
-		{
-			Json::Value jsMsg ;
-			stStandPlayer* pp = getPlayerBySessionID(nSessionID) ;
-			if ( pp )
-			{
-				pp->isWillLeave = true ;
-				jsMsg["ret"] = 0 ;
-				CLogMgr::SharedLogMgr()->PrintLog("player session id = % apply to leave room ok",nSessionID) ;
-			}
-			else
-			{
-				jsMsg["ret"] = 1 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("session id not in this room how to leave session id = %d",nSessionID) ;
-			}
-			sendMsgToPlayer(jsMsg,nMsgType,nSessionID);
-		}
-		break;
-	default:
-		return false ;
-	}
-
-	return true ;
+	return false ;
 }
 
 
@@ -459,7 +382,6 @@ void IRoom::onGameDidEnd()
 	{
 		if ( iter->second->isWillLeave )
 		{
-			onPlayerWillLeaveRoom(iter->second) ;
 			playerDoLeaveRoom(iter->second) ;
 			iter = m_vInRoomPlayers.begin() ;
 		}

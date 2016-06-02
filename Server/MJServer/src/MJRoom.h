@@ -26,8 +26,6 @@ public:
 	
 	void onGameWillBegin()override ;
 	void onGameDidEnd()override ;
-	void onPlayerWillStandUp( ISitableRoomPlayer* pPlayer )override ;
-	uint32_t getLeastCoinNeedForCurrentGameRound(ISitableRoomPlayer* pp)override ;
 	uint8_t getRoomType()override{ return eRoom_MJ ;}
 	void prepareCards()override;
 	uint32_t coinNeededToSitDown()override;
@@ -51,6 +49,7 @@ public:
 	bool onInformActAboutCard(uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx );
 	bool onInformSelfCanActWithCard( uint8_t nPlayerIdx );
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
+	bool onPlayerApplyLeaveRoom(uint32_t nUserUID )override ;
 protected:
 	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;

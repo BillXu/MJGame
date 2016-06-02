@@ -35,6 +35,7 @@ public:
 	~CRobotCenter() ;
 	uint16_t getModuleType(){ return eModule_Type ; }
 	bool onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)override ;
+	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	void onRobotDisconnect(uint32_t nUID);
 	void onRobotOtherLogin(uint32_t nUID , uint32_t nNewSessionID );
 	bool isRobotInTheList(uint32_t nUID );

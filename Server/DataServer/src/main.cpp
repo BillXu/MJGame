@@ -77,8 +77,7 @@ int main()
 	//int a = atoi(strNo.c_str());
 	//printf("%d",a);
 	//-----
-	CGameServerApp theApp ;
-	bool bok = theApp.init() ;
+	bool bok = CGameServerApp::SharedGameServerApp()->init() ;
 	CLogMgr::SharedLogMgr()->SetOutputFile("DataSvr");
 	if ( !bok )
 	{
@@ -87,7 +86,7 @@ int main()
 		scanf("%c",&c);
 		return 0 ;
 	}
-	CreateThred(&theApp);
-	RunFunc(&theApp);
+	CreateThred(CGameServerApp::SharedGameServerApp());
+	RunFunc(CGameServerApp::SharedGameServerApp());
 	return 0 ;
 }

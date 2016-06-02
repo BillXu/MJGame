@@ -12,6 +12,7 @@
 #include "MJWaitDecideQueState.h"
 #include "MJExchangeCardState.h"
 #include "MJGameStartState.h"
+#include "RobotDispatchStrategy.h"
 CMJRoom::CMJRoom()
 {
 	
@@ -66,25 +67,6 @@ ISitableRoomPlayer* CMJRoom::doCreateSitableRoomPlayer()
 	return new CMJRoomPlayer();
 }
 
-void CMJRoom::onPlayerWillStandUp( ISitableRoomPlayer* pPlayer )
-{
-	// always can stand up now ;
-	if ( 0 && pPlayer->isHaveState(eRoomPeer_CanAct) )
-	{
-		 ISitableRoom::onPlayerWillStandUp(pPlayer) ;
-	}
-	else
-	{
-		playerDoStandUp(pPlayer);
-	}
-}
-
-uint32_t CMJRoom::getLeastCoinNeedForCurrentGameRound(ISitableRoomPlayer* pp)
-{
-	CMJRoomPlayer* pPlayer = (CMJRoomPlayer*)pp ;
-	return pPlayer->getCoin() ;
-}
-
 void CMJRoom::roomInfoVisitor(Json::Value& vOutJsValue)
 {
 	vOutJsValue["bankIdx"] = m_nBankerIdx;
@@ -93,7 +75,7 @@ void CMJRoom::roomInfoVisitor(Json::Value& vOutJsValue)
 
 void CMJRoom::sendRoomPlayersCardInfo(uint32_t nSessionID)
 {
-	if ( getCurRoomState()->getStateID() == eRoomSate_WaitReady )
+	if ( getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID() )
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("current room not start game , so need not send runtime info msg") ;
 		return ;
@@ -165,9 +147,22 @@ void CMJRoom::onGameWillBegin()
 
 void CMJRoom::onGameDidEnd()
 {
+	std::map<uint32_t,bool> vMapSessionIDIsRobot ;
+	for ( uint8_t nidx = 0 ; nidx < getSeatCount() ; ++nidx )
+	{
+		auto pp = getPlayerByIdx(nidx);
+		auto pst = getPlayerByUserUID(pp->getUserUID()) ;
+		vMapSessionIDIsRobot[pst->nUserSessionID] = pst->nPlayerType == ePlayer_Robot ;
+	}
+
 	caculateGameResult();
 	ISitableRoom::onGameDidEnd();
 	CLogMgr::SharedLogMgr()->PrintLog("room game End");
+
+	for ( auto si : vMapSessionIDIsRobot )
+	{
+		getRobotDispatchStrage()->onPlayerLeave(si.first,si.second) ;
+	}
 }
 
 void CMJRoom::prepareCards()
@@ -746,14 +741,76 @@ bool CMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPo
 			sendRoomPlayersCardInfo(nSessionID) ;
 		}
 		break;
+	case MSG_PLAYER_LEAVE_ROOM:
+		{
+			Json::Value jsMsg ;
+			stStandPlayer* pp = getPlayerBySessionID(nSessionID) ;
+			if ( pp )
+			{
+				CLogMgr::SharedLogMgr()->PrintLog("player session id = % apply to leave room ok",nSessionID) ;
+				onPlayerApplyLeaveRoom(pp->nUserUID) ;
+				jsMsg["ret"] = 0 ;
+			}
+			else
+			{
+				jsMsg["ret"] = 1 ;
+				CLogMgr::SharedLogMgr()->ErrorLog("session id not in this room how to leave session id = %d",nSessionID) ;
+			}
+			sendMsgToPlayer(jsMsg,nMsgType,nSessionID);
+		}
+		break;
 	default:
 		return false ;
 	}
 	return true;
 }
 
+bool CMJRoom::onPlayerApplyLeaveRoom(uint32_t nUserUID )
+{
+	auto pp = getPlayerByUserUID(nUserUID) ;
+
+	if ( pp == nullptr )
+	{
+		return true ;
+	}
+
+	uint32_t nSessionID = pp->nUserSessionID ;
+	bool isRobot = pp->nPlayerType == ePlayer_Robot ;
+
+	pp->isWillLeave = true ;
+
+	if ( getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID() )
+	{
+		CLogMgr::SharedLogMgr()->PrintLog("game is not running , so direct leave room") ;
+		auto pS = getSitdownPlayerByUID(nUserUID) ;
+		if ( pS == nullptr )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("why you not sit down uid = %u",nUserUID) ;
+		}
+		else
+		{
+			playerDoStandUp(pS);
+		}
+		playerDoLeaveRoom(pp) ;
+
+		getRobotDispatchStrage()->onPlayerLeave(nSessionID,isRobot);
+	}
+	else
+	{
+		auto pS = getSitdownPlayerByUID(nUserUID) ;
+		if ( pS )
+		{
+			pS->delayStandUp() ;
+			CLogMgr::SharedLogMgr()->ErrorLog("why you are not sit down ? uid = %u",nUserUID) ;
+		}
+		CLogMgr::SharedLogMgr()->PrintLog("game is running , so delay leave room , uid = %u",nUserUID) ;
+	}
+	return true ;
+}
+
 void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )
 {
+	bool bNewEnter = false ;
 	nSubIdx = 0 ;
 	IRoom::stStandPlayer* pInPlayer = getPlayerByUserUID(pEnterRoomPlayer->nUserUID) ;
 	if ( pInPlayer )
@@ -765,6 +822,7 @@ void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubId
 	else
 	{
 		ISitableRoom::onPlayerEnterRoom(pEnterRoomPlayer,nSubIdx) ;
+		bNewEnter = true ;
 	}
 
 	sendRoomInfo(pEnterRoomPlayer->nUserSessionID);
@@ -785,6 +843,11 @@ void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubId
 		msgSitDown.nSubRoomIdx = 0 ;
 		msgSitDown.nTakeInCoin = 0 ;
 		onMessage(&msgSitDown,ID_MSG_PORT_CLIENT,pEnterRoomPlayer->nUserSessionID) ;
+	}
+
+	if ( bNewEnter )
+	{
+		getRobotDispatchStrage()->onPlayerJoin(pEnterRoomPlayer->nUserSessionID,pEnterRoomPlayer->nPlayerType == ePlayer_Robot );
 	}
 }
 

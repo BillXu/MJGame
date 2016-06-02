@@ -19,12 +19,8 @@ public:
 	void update(float fDelta)override;
 	uint8_t canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer ) ;
 	// event function 
-	virtual void onPlayerSitDown( ISitableRoomPlayer* pPlayer ){}
-	virtual void onPlayerWillStandUp(ISitableRoomPlayer* pPlayer );
 	void playerDoStandUp( ISitableRoomPlayer* pPlayer );
 
-	void onPlayerWillLeaveRoom(stStandPlayer* pPlayer )final;
-	virtual uint32_t getLeastCoinNeedForCurrentGameRound(ISitableRoomPlayer* pp) = 0 ;
 	uint16_t getEmptySeatCount();
 	ISitableRoomPlayer* getPlayerByIdx(uint16_t nIdx );
 	bool isSeatIdxEmpty( uint8_t nIdx );
@@ -39,25 +35,14 @@ public:
 	virtual  uint32_t coinNeededToSitDown() = 0;
 	void onGameDidEnd()override ;
 	void onGameWillBegin()override ;
-	void doProcessNewPlayerHalo()final;
-	size_t getSortedPlayerCnt(){ return m_vSortByPeerCardsAsc.size() ; }
-	ISitableRoomPlayer* getSortedPlayerByIdx( uint8_t nIdx )
-	{
-		if ( nIdx < m_vSortByPeerCardsAsc.size() )
-		{
-			return m_vSortByPeerCardsAsc[nIdx] ;
-		}
-		return nullptr ;
-	}
-	VEC_SITDOWN_PLAYERS::iterator getSortedPlayerEndIter(){ return m_vSortByPeerCardsAsc.end() ; }
+	CRobotDispatchStrategy* getRobotDispatchStrage(){ return m_pRobotDispatchStrage ;}
 protected:
 	uint8_t GetFirstInvalidIdxWithState( uint8_t nIdxFromInclude , eRoomPeerState estate );
 private:
 	time_t m_tTimeCheckRank ;
 	uint16_t m_nSeatCnt ;
 	ISitableRoomPlayer** m_vSitdownPlayers ;
-	//CRobotDispatchStrategy* m_pRobotDispatchStrage ;
+	CRobotDispatchStrategy* m_pRobotDispatchStrage ;
 private:
 	LIST_SITDOWN_PLAYERS m_vReserveSitDownObject ;
-	VEC_SITDOWN_PLAYERS m_vSortByPeerCardsAsc ;
 };

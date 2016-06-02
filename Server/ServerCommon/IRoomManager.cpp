@@ -474,58 +474,6 @@ void IRoomManager::onHttpCallBack(char* pResultData, size_t nDatalen , void* pUs
 
 bool IRoomManager::onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsgPort eSenderPort,Json::Value* vJsValue)
 {
-	/*	if ( eCrossSvrReq_RoomProfit == pRequest->nRequestType )
-	{
-	stMsgCrossServerRequestRet msgRet ;
-	msgRet.cSysIdentifer = ID_MSG_PORT_DATA ;
-	msgRet.nReqOrigID = pRequest->nTargetID ;
-	msgRet.nTargetID = pRequest->nReqOrigID ;
-	msgRet.nRequestType = pRequest->nRequestType ;
-	msgRet.nRequestSubType = pRequest->nRequestSubType ;
-	msgRet.nRet = 0 ;
-	msgRet.vArg[0] = true ;
-	msgRet.vArg[2] = eRoom_NiuNiu ;
-
-	IRoom* pRoom = GetRoomByID(pRequest->nTargetID );
-	if ( pRoom != nullptr )
-	{
-	msgRet.vArg[1] = pRoom->getProfit();
-	pRoom->setProfit(0) ;
-	pRoom->addTotoalProfit(msgRet.vArg[1]) ;
-	}
-	else
-	{
-	msgRet.nRet = 1 ;
-	msgRet.vArg[1] = 0;
-	}
-	sendMsg(&msgRet,sizeof(msgRet),msgRet.nTargetID);
-	return true ;
-	}
-	else if ( eCrossSvrReq_AddRentTime == pRequest->nRequestType )
-	{
-	IRoom* pRoom = GetRoomByID(pRequest->nTargetID) ;
-	stMsgCrossServerRequestRet msgRet ;
-	msgRet.cSysIdentifer = ID_MSG_PORT_DATA ;
-	msgRet.nReqOrigID = pRequest->nTargetID ;
-	msgRet.nTargetID = pRequest->nReqOrigID ;
-	msgRet.nRequestType = pRequest->nRequestType ;
-	msgRet.nRequestSubType = pRequest->nRequestSubType ;
-	msgRet.nRet = 0 ;
-	msgRet.vArg[0] = pRequest->vArg[0] ;
-	msgRet.vArg[1] = pRequest->vArg[1] ;
-	msgRet.vArg[2] = pRequest->vArg[2] ;
-	if ( pRoom == nullptr )
-	{
-	msgRet.nRet = 1 ;
-	}
-	else
-	{
-	pRoom->addLiftTime(pRequest->vArg[0]) ;
-	}
-	sendMsg(&msgRet,sizeof(msgRet),msgRet.nTargetID);
-	return true ;
-	}
-	else */
 	if ( eCrossSvrReq_CreateRoom == pRequest->nRequestType )
 	{
 		uint16_t nConfigID = (uint16_t)pRequest->vArg[0];

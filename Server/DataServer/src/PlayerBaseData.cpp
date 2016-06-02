@@ -21,6 +21,7 @@
 #include <assert.h>
 #include "SeverUtility.h"
 #include "ServerStringTable.h"
+#include "MessageIdentifer.h"
 #pragma warning( disable : 4996 )
 #define ONLINE_BOX_RESET_TIME 60*60*3   // offline 3 hour , will reset the online box ;
 #define COIN_BE_INVITED 588
@@ -173,13 +174,6 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			SendMsg(&msgBack,sizeof(msgBack)) ;
 			CLogMgr::SharedLogMgr()->PrintLog("robot uid = %u req total offset = %d",GetPlayer()->GetUserUID(),msgBack.nTotalGameOffset) ;
  		}
-		break;
-	case MSG_TELL_PLAYER_TYPE:
-		{
-			stMsgTellPlayerType* pRet = (stMsgTellPlayerType*)pMsg ;
-			m_ePlayerType = (ePlayerType)pRet->nPlayerType ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u , tell player type = %u",GetPlayer()->GetUserUID(),m_ePlayerType);
-		}
 		break;
 	case MSG_GET_VIP_CARD_GIFT:
 		{
@@ -712,6 +706,22 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			return false ;
 		}
 		break;
+	}
+	return true ;
+}
+
+bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort)
+{
+	switch (nmsgType)
+	{
+	case MSG_TELL_ROBOT_TYPE:
+		{
+			m_ePlayerType = ePlayer_Robot ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u , tell player type = %u",GetPlayer()->GetUserUID(),m_ePlayerType);
+		}
+		break;
+	default:
+		return false ;
 	}
 	return true ;
 }

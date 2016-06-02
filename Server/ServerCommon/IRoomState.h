@@ -106,6 +106,12 @@ public:
 	{
 		IRoomState::enterState(pRoom) ;
 		pRoom->onGameDidEnd();
+		setStateDuringTime(0.5) ;
+	}
+
+	void onStateDuringTimeUp()override 
+	{
+		((IRoom*)m_pRoom)->goToState(eRoomSate_WaitReady) ;
 	}
 	uint16_t getStateID(){ return eRoomState_GameEnd ; }
 };

@@ -931,12 +931,12 @@ struct stMsgRequestTopicDetailRet
 };
 
 // robot specail
-struct stMsgTellPlayerType
-	:public stMsg
-{
-	stMsgTellPlayerType(){ cSysIdentifer = ID_MSG_PORT_DATA ; usMsgType = MSG_TELL_PLAYER_TYPE ; }
-	uint8_t nPlayerType ; // ePlayerType ;
-};
+//struct stMsgTellPlayerType
+//	:public stMsg
+//{
+//	stMsgTellPlayerType(){ cSysIdentifer = ID_MSG_PORT_DATA ; usMsgType = MSG_TELL_PLAYER_TYPE ; }
+//	uint8_t nPlayerType ; // ePlayerType ;
+//};
 
 struct stMsgAddTempHalo
 	:public stMsgToRoom
