@@ -246,9 +246,9 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			stMsgSvrEnterRoom* pRet = (stMsgSvrEnterRoom*)prealMsg ;
 			msgBack.nGameType = getMgrRoomType() ;
 			msgBack.nRoomID = pRet->nTargetID ;
-			// temp set 
-			pRet->nType = 1 ;
-			pRet->nTargetID = 2 ;
+			//// temp set 
+			//pRet->nType = 1 ;
+			//pRet->nTargetID = 2 ;
 			
 			IRoomInterface* pRoomEnter = nullptr ;
 			if ( pRet->nType == 1 )
@@ -300,7 +300,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				std::vector<IRoomInterface*> vCanEnterRoom ;
 				for ( auto nRoomID : vSysRooms )
 				{
-					IRoomInterface* pCheckRoom = GetRoomByID(pRet->nTargetID) ;
+					IRoomInterface* pCheckRoom = GetRoomByID(nRoomID) ;
 					if ( pCheckRoom->canPlayerEnterRoom(&pRet->tPlayerData) == 0 )
 					{
 						vCanEnterRoom.push_back(pCheckRoom) ;
