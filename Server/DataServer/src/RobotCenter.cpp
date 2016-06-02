@@ -36,7 +36,7 @@ bool CRobotCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSen
 			if ( ppPLayer == nullptr )
 			{
 				CLogMgr::SharedLogMgr()->ErrorLog("this robot not login session id = %u",nSessionID) ;
-				return ;
+				return true;
 			}
 
 			if ( isRobotInTheList(ppPLayer->GetUserUID()) )
@@ -85,7 +85,7 @@ bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSess
 
 			if ( cmd == nullptr )
 			{
-				new stRequestRobotCmd ;
+				cmd = new stRequestRobotCmd ;
 				cmd->nReqRobotLevel = pRet->nReqRobotLevel ;
 				cmd->nRoomID = pRet->nRoomID ;
 				cmd->nRoomType = pRet->nRoomType ;
@@ -94,7 +94,7 @@ bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSess
 				m_vReqRobotCmdCacher.push_back(cmd) ;
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("received req from room id = %u , type = %u",pRet->nRoomID,pRet->nRoomType) ;
+			//CLogMgr::SharedLogMgr()->PrintLog("received req from room id = %u , type = %u",pRet->nRoomID,pRet->nRoomType) ;
 			processRobotReq();
 		}
 		break;

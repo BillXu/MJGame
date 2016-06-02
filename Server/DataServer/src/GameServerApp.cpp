@@ -14,6 +14,10 @@
 CGameServerApp* CGameServerApp::s_GameServerApp = NULL ;
 CGameServerApp* CGameServerApp::SharedGameServerApp()
 {
+	if ( s_GameServerApp == nullptr )
+	{
+		s_GameServerApp = new CGameServerApp ;
+	}
 	return s_GameServerApp ;
 }
 
@@ -26,15 +30,15 @@ CGameServerApp::~CGameServerApp()
 bool CGameServerApp::init()
 {
 	IServerApp::init();
-	if ( s_GameServerApp == NULL )
-	{
-		s_GameServerApp = this ;
-	}
-	else
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("Game Server App can not be init more than once !") ;
-		return false;
-	}
+	//if ( s_GameServerApp == NULL )
+	//{
+	//	s_GameServerApp = this ;
+	//}
+	//else
+	//{
+	//	CLogMgr::SharedLogMgr()->ErrorLog("Game Server App can not be init more than once !") ;
+	//	return false;
+	//}
 	srand((unsigned int)time(0));
 
 	CSeverConfigMgr SvrConfigMgr ;
