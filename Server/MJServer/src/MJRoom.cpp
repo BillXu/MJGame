@@ -801,6 +801,9 @@ bool CMJRoom::onPlayerApplyLeaveRoom(uint32_t nUserUID )
 		if ( pS )
 		{
 			pS->delayStandUp() ;
+		}
+		else
+		{
 			CLogMgr::SharedLogMgr()->ErrorLog("why you are not sit down ? uid = %u",nUserUID) ;
 		}
 		CLogMgr::SharedLogMgr()->PrintLog("game is running , so delay leave room , uid = %u",nUserUID) ;

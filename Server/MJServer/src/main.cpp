@@ -72,15 +72,27 @@ int main()
 	//CMJRoomPlayer m_tRoomPlayer ;
 	//m_tRoomPlayer.addDistributeCard(17) ;
 	//m_tRoomPlayer.addDistributeCard(17) ;
-	//m_tRoomPlayer.addDistributeCard(18) ;
-	//m_tRoomPlayer.addDistributeCard(18) ;
-	//m_tRoomPlayer.addDistributeCard(19) ;
 	//m_tRoomPlayer.addDistributeCard(20) ;
+	//m_tRoomPlayer.addDistributeCard(21) ;
+	//m_tRoomPlayer.addDistributeCard(22) ;
 
-	//m_tRoomPlayer.onPengCard(17) ;
-	//m_tRoomPlayer.fetchCard(17);
-	//m_tRoomPlayer.updateSelfOperateCards();
-	//m_tRoomPlayer.canGangWithCard(17,true);
+	//m_tRoomPlayer.addDistributeCard(35) ;
+	//m_tRoomPlayer.addDistributeCard(36) ;
+	//m_tRoomPlayer.addDistributeCard(37) ;
+
+	//m_tRoomPlayer.addDistributeCard(38) ;
+	//m_tRoomPlayer.addDistributeCard(38) ;
+	//m_tRoomPlayer.addDistributeCard(40) ;
+	//m_tRoomPlayer.addDistributeCard(40) ;
+	//m_tRoomPlayer.addDistributeCard(39) ;
+	////m_tRoomPlayer.addDistributeCard(41) ;
+
+	////m_tRoomPlayer.onPengCard(41) ;
+	////m_tRoomPlayer.fetchCard(17);
+	////m_tRoomPlayer.updateSelfOperateCards();
+	////m_tRoomPlayer.canGangWithCard(17,true);
+	//uint8_t nGen = 0;
+	//bool b = m_tRoomPlayer.doHuPaiFanshu(39,nGen);
 	//return 0 ;
 
 	CMJServerApp* theApp = CMJServerApp::getInstance() ;

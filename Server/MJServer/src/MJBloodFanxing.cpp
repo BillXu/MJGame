@@ -357,32 +357,61 @@ bool CBloodFanxingPingHu::findAllShun( std::vector<uint8_t>& vec , std::vector<s
 
 	// seak not 3 same shun ;
 	vecShun.clear() ;
-	for ( auto ref : vecCheck )
+	for ( uint8_t nFisrtIdx = 0 ; nFisrtIdx < vecCheck.size() ; ++nFisrtIdx)
 	{
+		uint8_t ref = vecCheck[nFisrtIdx] ;
 		if ( ref == 0 )
 		{
 			continue;
 		}
 
-		if ( vecShun.empty() )
+		// find second value ;
+		uint8_t nSecondValue = ref + 1 ;
+		uint8_t nSecondIdx = nFisrtIdx + 1 ;
+		bool bFind = false ;
+		for (  ; nSecondIdx < vecCheck.size() ; ++nSecondIdx )
 		{
-			vecShun.push_back(ref) ;
-			continue;
-		}
-
-		if ( ref == vecShun.back() + 1 )
-		{
-			vecShun.push_back(ref) ;
-			if ( vecShun.size() == 3 )  // find a shun 
+			auto vCheck = vecCheck[nSecondIdx] ;
+			if ( vCheck == nSecondValue )
 			{
-				vecOutShunzi.push_back(vecShun) ;
-				vecShun.clear() ;
+				vecCheck[nSecondIdx] = 0 ;
+				bFind = true ;
+				break; 
 			}
+		}
+		
 
-			continue;
+		if ( bFind == false )
+		{
+			vecOutShunzi.clear() ;
+			return false ;
 		}
 
-		return false ;
+		// find third value ;
+		uint8_t nThirdValue = nSecondValue + 1 ;
+		uint8_t nThirdIdx = nSecondIdx + 1 ;
+		bFind = false ;
+		for (  ; nThirdIdx < vecCheck.size() ; ++nThirdIdx )
+		{
+			auto vCheck = vecCheck[nThirdIdx] ;
+			if ( vCheck == nThirdValue )
+			{
+				vecCheck[nThirdIdx] = 0 ;
+				bFind = true ;
+				break; 
+			}
+		}
+
+		if ( bFind == false )
+		{
+			vecOutShunzi.clear() ;
+			return false ;
+		}
+
+		// find a shun 
+		vecShun.push_back(ref);
+		vecShun.push_back(nSecondValue);
+		vecShun.push_back(nThirdValue);
 	}
 
 	return true ;

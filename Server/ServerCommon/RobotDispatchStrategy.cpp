@@ -51,7 +51,7 @@ bool CRobotDispatchStrategy::init(ISitableRoom* pRoom , uint8_t nReqRobotLevel, 
 
 	} ) ;
 
-	m_tReqRobotTimer.setInterval(1) ;
+	m_tReqRobotTimer.setInterval(2) ;
 	m_tReqRobotTimer.setIsAutoRepeat(true) ;
 	m_tReqRobotTimer.start() ;
 	return true ;
