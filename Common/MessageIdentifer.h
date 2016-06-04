@@ -278,4 +278,29 @@ enum eMsgType
 	MSG_SVR_INFOR_ROBOT_ENTER, // 服务器通知机器人进入房间；
 	// svr : { dstRoomID : 0 }
 	// dstRoomID , 服务器通知机器人需要进入的房间ID。
+
+	// vip 房间消息
+	MSG_CREATE_VIP_ROOM,  // 创建vip房间 
+	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : 0 }
+	// svr : { ret : 0 , roomID : 2345 }
+	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间。
+
+	MSG_VIP_ROOM_INFO_EXT, // VIP 房间的额外信息；
+	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345 }
+	// letCircle : 剩余的圈数， baseBet 基础底注 ，creatorUID 创建者的ID , initCoin 每个人的初始金币
+
+	MSG_APPLY_DISMISS_VIP_ROOM, // 申请解散vip 房间
+	// client : { dstRoomID : 234 } 
+
+	MSG_ROOM_APPLY_DISMISS_VIP_ROOM , //房间里有人申请解散vip 房间
+	// svr : { applyerIdx : 2 }
+	// applyerIdx : 申请者的idx 
+
+	MSG_REPLY_DISSMISS_VIP_ROOM_APPLY,  // 答复申请解散的请求
+	// client { dstRoomID : 23 , reply : 0 }
+	// reply ： 0 表示同意， 1 表示拒绝。
+	
+	MSG_VIP_ROOM_GAME_OVER,  // vip 房间结束
+	// svr : { ret : 0 , initCoin : 235 , bills : [ { uid : 2345 , curCoin : 234 }, ....]  }
+	// ret , 0 正常结束， 1 房间被解散。 initCoin 房间的初始金币，bills，是一个数组 放着具体每个玩家的情况，curCoin 表示玩家最终剩余金额, uid 玩家的唯一id 
 };

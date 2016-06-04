@@ -94,7 +94,7 @@ bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSess
 				m_vReqRobotCmdCacher.push_back(cmd) ;
 			}
 
-			//CLogMgr::SharedLogMgr()->PrintLog("received req from room id = %u , type = %u",pRet->nRoomID,pRet->nRoomType) ;
+			CLogMgr::SharedLogMgr()->PrintLog("received req from room id = %u , type = %u",pRet->nRoomID,pRet->nRoomType) ;
 			processRobotReq();
 		}
 		break;
