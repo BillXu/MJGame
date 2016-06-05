@@ -161,7 +161,7 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",sex : 0,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345 }
+	// svr : { name: "nickName",sex : 0,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345, vipRoomCard : 23 }
 	// name ： 名字，sex ： 性别（0 是男，1 是女）， diamond ：钻石。 coin ： 金币；
 
 	// modify name and sigure
@@ -281,9 +281,9 @@ enum eMsgType
 
 	// vip 房间消息
 	MSG_CREATE_VIP_ROOM,  // 创建vip房间 
-	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : 0 }
+	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : 0, seatCnt : 4  }
 	// svr : { ret : 0 , roomID : 2345 }
-	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间。
+	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, seatCnt : 座位个数。
 
 	MSG_VIP_ROOM_INFO_EXT, // VIP 房间的额外信息；
 	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345 }

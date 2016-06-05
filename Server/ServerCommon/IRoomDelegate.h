@@ -12,6 +12,7 @@ struct stMsgCrossServerRequest ;
 struct stMsgCrossServerRequestRet ;
 struct stMsg ;
 class IRoom;
+class ISitableRoom ;
 class IRoomDelegate
 {
 public:
@@ -34,7 +35,11 @@ public:
 	virtual bool isRoomShouldClose( IRoom* pRoom);
 	virtual bool isOmitNewPlayerHalo(IRoom* pRoom );
 	virtual void onRankPlayerChanged( uint32_t nUID , uint16_t nPreIdx , uint16_t nCurIdx );
-	virtual bool isPlayerLoseReachMax( IRoom* pRoom, uint32_t nUserUID );
+
+	virtual uint32_t getWaitActTime(ISitableRoom* pRoom){ return 10 ;}
+	virtual void onDidGameOver(IRoom* pRoom){}
+	virtual void onPlayerLeave(IRoom* pRoom,uint8_t playerUID ){}
+	virtual bool canGameOver(IRoom* pRoom ){ return false ;}
 protected:
 	void removeAllRankItemPlayer();
 	void sortRoomRankItem();

@@ -478,7 +478,6 @@ bool IRoomManager::onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsg
 	{
 		uint16_t nConfigID = (uint16_t)pRequest->vArg[0];
 		assert(vJsValue&&"must not be null");
-		std::string strName = (*vJsValue)["roonName"].asCString();
 
 		stMsgCrossServerRequestRet msgRet ;
 		msgRet.cSysIdentifer = eSenderPort ;
@@ -491,16 +490,10 @@ bool IRoomManager::onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsg
 		msgRet.vArg[1] = 0 ;
 		msgRet.vArg[2] = pRequest->vArg[2] ;
 		msgRet.vArg[3] = pRequest->vArg[1] ;
-		Json::Value vCreateJs ;
-		vCreateJs["name"] = strName ;
-		vCreateJs["duringTime"] = (uint32_t)pRequest->vArg[1] * 60 ;
+		Json::Value vCreateJs = *vJsValue;
 		vCreateJs["ownerUID"] = (uint32_t)pRequest->nReqOrigID;
-		if ( (*vJsValue)["subRoomCnt"].isNull() == false )
-		{
-			vCreateJs["subRoomCnt"] = (*vJsValue)["subRoomCnt"].asUInt();
-		}
-		CLogMgr::SharedLogMgr()->PrintLog("recived create room name = %s",strName.c_str()) ;
-		IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,pRequest->nReqOrigID != MATCH_MGR_UID,nConfigID,(eRoomType)pRequest->vArg[2],vCreateJs);
+		CLogMgr::SharedLogMgr()->PrintLog("recived create room uid = %s",pRequest->nReqOrigID) ;
+		IRoomInterface* pRoom = doCreateInitedRoomObject(msgRet.vArg[1],pRequest->nReqOrigID != MATCH_MGR_UID,nConfigID,(eRoomType)pRequest->vArg[2],vCreateJs);
 		if ( pRoom == nullptr )
 		{
 			--m_nMaxRoomID;
@@ -519,6 +512,7 @@ bool IRoomManager::onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsg
 		}
 
 		msgRet.vArg[1] = pRoom->getRoomID();
+		msgRet.vArg[2] = pRoom->getRoomType() ;
 		sendMsg(&msgRet,sizeof(msgRet),msgRet.nTargetID);
 		return true ;
 	}

@@ -277,7 +277,7 @@ void CDBManager::OnMessage(stMsg* pmsg , eMsgPort eSenderPort , uint32_t nSessio
 			stMsgSavePlayerMoney* pRet = (stMsgSavePlayerMoney*)pmsg ;
 			pRequest->eType = eRequestType_Update ;
 			pRequest->nSqlBufferLen = sprintf_s(pRequest->pSqlBuffer,sizeof(pRequest->pSqlBuffer),
-				"UPDATE playerbasedata SET coin = '%I64d', diamond = '%d',nCupCnt = '%d' WHERE userUID = '%d'",pRet->nCoin,pRet->nDiamoned,pRet->nCupCnt,pRet->nUserUID) ;
+				"UPDATE playerbasedata SET coin = '%I64d', diamond = '%d',nCupCnt = '%d',vipRoomCardCnt = '%u' WHERE userUID = '%d'",pRet->nCoin,pRet->nDiamoned,pRet->nCupCnt,pRet->nVipRoomCardCnt,pRet->nUserUID) ;
 			CLogMgr::SharedLogMgr()->PrintLog("save player coin = %I64d uid = %d",pRet->nCoin,pRet->nUserUID);
 		}
 		break;
@@ -1852,6 +1852,7 @@ void CDBManager::GetPlayerBrifData(stPlayerBrifData*pData,CMysqlRow&prow)
 	memset(pData->cName,0,sizeof(pData->cName)) ;
 	sprintf_s(pData->cName,sizeof(pData->cName),"%s",prow["playerName"]->CStringValue()) ;
 	pData->nCoin = prow["coin"]->IntValue64();
+	pData->nVipRoomCardCnt = prow["vipRoomCardCnt"]->IntValue() ;
 	pData->nDiamoned = prow["diamond"]->IntValue();
 	pData->nPhotoID = prow["photoID"]->IntValue();
 	pData->nSex = prow["sex"]->IntValue();

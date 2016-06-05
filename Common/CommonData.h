@@ -14,6 +14,7 @@ struct stPlayerBrifData
 	uint32_t nDiamoned ;
 	bool bIsOnLine ;
 	uint32_t nCurrentRoomID ;
+	uint32_t nVipRoomCardCnt ;
 };
 
 struct stPlayerGameData

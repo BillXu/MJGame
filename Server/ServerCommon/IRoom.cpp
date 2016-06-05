@@ -202,19 +202,26 @@ void IRoom::playerDoLeaveRoom( stStandPlayer* pp )
 	// send msg to data svr tell player leave room ;
 	if ( pp )
 	{
-		stMsgSvrDoLeaveRoom msgdoLeave ;
-		msgdoLeave.nCoin = pp->nCoin ;
-		msgdoLeave.nGameType = getRoomType() ;
-		msgdoLeave.nRoomID = getRoomID() ;
-		msgdoLeave.nUserUID = pp->nUserUID ;
-		msgdoLeave.nWinTimes = pp->nWinTimes ;
-		msgdoLeave.nPlayerTimes = pp->nPlayerTimes ;
-		msgdoLeave.nSingleWinMost = pp->nSingleWinMost ;
-		msgdoLeave.nGameOffset = pp->nGameOffset ;
-		sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pp->nUserSessionID) ;
+		if ( getDelegate() )
+		{
+			getDelegate()->onPlayerLeave(this,pp->nUserUID) ;
+		}
+		else
+		{
+			stMsgSvrDoLeaveRoom msgdoLeave ;
+			msgdoLeave.nCoin = pp->nCoin ;
+			msgdoLeave.nGameType = getRoomType() ;
+			msgdoLeave.nRoomID = getRoomID() ;
+			msgdoLeave.nUserUID = pp->nUserUID ;
+			msgdoLeave.nWinTimes = pp->nWinTimes ;
+			msgdoLeave.nPlayerTimes = pp->nPlayerTimes ;
+			msgdoLeave.nSingleWinMost = pp->nSingleWinMost ;
+			msgdoLeave.nGameOffset = pp->nGameOffset ;
+			sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pp->nUserSessionID) ;
+		}
 
+		CLogMgr::SharedLogMgr()->PrintLog("uid = %d , do leave this room ",pp->nUserUID ) ;
 		removePlayer(pp);
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %d , do leave this room ",msgdoLeave.nUserUID ) ;
 	}
 	else
 	{
@@ -390,6 +397,11 @@ void IRoom::onGameDidEnd()
 			++iter ;
 		}
 	}
+
+	if ( getDelegate())
+	{
+		getDelegate()->onDidGameOver(this);
+	}
 }
 
 void IRoom::onTimeSave( )
@@ -463,4 +475,14 @@ void IRoom::setChatRoomID(uint32_t nChatRoomID )
 bool IRoom::isDeleteRoom()
 {
 	return false;
+}
+
+void IRoom::forcePlayersLeaveRoom()
+{
+	CLogMgr::SharedLogMgr()->PrintLog("force all player leave room") ;
+	MAP_UID_STAND_PLAYER vtempSet (m_vInRoomPlayers.begin(),m_vInRoomPlayers.end() ) ;
+	for ( auto iterRef : vtempSet )
+	{
+		onPlayerApplyLeaveRoom(iterRef.first) ;
+	}
 }

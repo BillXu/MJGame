@@ -22,6 +22,7 @@ void CPlayerGameData::Reset()
 	stMsgReadPlayerTaxasData msgr ;
 	msgr.nUserUID = GetPlayer()->GetUserUID() ;
 	SendMsg(&msgr,sizeof(msgr)) ;
+	m_bIsCreating = false ;
 }
 
 void CPlayerGameData::Init()
@@ -31,6 +32,7 @@ void CPlayerGameData::Init()
 	m_nStateInRoomID = 0;
 	m_ePlayerGameState = ePlayerGameState_NotIn;
 	memset(&m_vData,0,sizeof(m_vData));
+	m_bIsCreating = false ;
 	for (auto& r : m_vMyOwnRooms )
 	{
 		r.clear() ;
@@ -87,6 +89,54 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 		}
 		break;
+	case MSG_CREATE_VIP_ROOM:
+		{
+			Json::Value jsBack ;
+			jsBack["roomID"] = 0 ;
+			uint16_t nCardNeed = recvValue["circle"].asUInt() / ROOM_CIRCLES_PER_VIP_ROOM_CARDS  ;
+			if ( nCardNeed == 0 || nCardNeed < GetPlayer()->GetBaseData()->getVipRoomCard() )
+			{
+				jsBack["ret"] = 1 ;
+				SendMsg(jsBack,nmsgType) ;
+				return true;
+			}
+
+			if ( isCreateRoomCntReachLimit(eRoom_MJ) )
+			{
+				jsBack["ret"] = 2 ;
+				SendMsg(jsBack,nmsgType) ;
+				return true;
+			}
+
+			if ( m_bIsCreating )
+			{
+				jsBack["ret"] = 3 ;
+				SendMsg(jsBack,nmsgType) ;
+				CLogMgr::SharedLogMgr()->ErrorLog("already creating , don't try again uid = %u",GetPlayer()->GetUserUID()) ;
+				return true;
+			}
+
+			m_bIsCreating = true ;
+			stMsgCrossServerRequest msgReq ;
+			msgReq.cSysIdentifer = CPlayer::getMsgPortByRoomType(eRoom_MJ) ;
+			msgReq.nReqOrigID = GetPlayer()->GetUserUID() ;
+			msgReq.nRequestSubType = eCrossSvrReqSub_Default;
+			msgReq.nRequestType = eCrossSvrReq_CreateRoom ;
+			msgReq.nTargetID = 0 ;
+			msgReq.vArg[0] = 0;
+			msgReq.vArg[1] = 0;
+			msgReq.vArg[2] = 0 ;
+			CON_REQ_MSG_JSON(msgReq,recvValue,autoBuf) ;
+			CGameServerApp::SharedGameServerApp()->sendMsg(msgReq.nReqOrigID,autoBuf.getBufferPtr(),autoBuf.getContentSize()) ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u create vip room ",GetPlayer()->GetUserUID()) ;
+		}
+		break;
+	case MSG_VIP_ROOM_CLOSED:
+		{
+			deleteOwnRoom((eRoomType)recvValue["eType"].asUInt(),recvValue["roomID"].asUInt());
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u created vip room closed , room id = %u",GetPlayer()->GetUserUID(),recvValue["roomID"].asUInt()) ;
+		}
+		break; 
 	default:
 		return false;
 	}	
@@ -479,41 +529,31 @@ bool CPlayerGameData::onCrossServerRequestRet(stMsgCrossServerRequestRet* pResul
 
 	if ( eCrossSvrReq_CreateRoom == pResult->nRequestType  )
 	{
-		//stMsgCreateRoomRet msgBack ;
-		//msgBack.nRet = pResult->nRet ;
-		//msgBack.nRoomID = pResult->vArg[1];
-		//msgBack.nRoomType = pResult->vArg[2] ;
-		//msgBack.nFinalCoin = GetPlayer()->GetBaseData()->GetAllCoin() ;
-		//if ( pResult->nRet == 0 )
-		//{
-		//	if ( eRoom_Max > msgBack.nRoomType )
-		//	{
-		//		addOwnRoom((eRoomType)msgBack.nRoomType,msgBack.nRoomID,pResult->vArg[0]) ;
-		//	}
-		//	else
-		//	{
-		//		CLogMgr::SharedLogMgr()->ErrorLog("add my own room , unknown room type = %d , uid = %d",msgBack.nRoomType,GetPlayer()->GetUserUID()) ;
-		//	}
-		//	CLogMgr::SharedLogMgr()->PrintLog("uid = %d , create room id = %d , config id = %d", GetPlayer()->GetUserUID(),msgBack.nRoomID,(int32_t)pResult->vArg[0] ) ;
-		//}
-		//else
-		//{
-		//	CLogMgr::SharedLogMgr()->PrintLog("result create failed give back coin uid = %d",GetPlayer()->GetUserUID());
-
-		//	CRoomConfigMgr* pConfigMgr = (CRoomConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Room);
-
-		//	stTaxasRoomConfig* pRoomConfig = (stTaxasRoomConfig*)pConfigMgr->GetConfigByConfigID(pResult->vArg[0]) ;
-		//	if ( pRoomConfig == nullptr )
-		//	{
-		//		CLogMgr::SharedLogMgr()->ErrorLog("fuck arument error must fix now , room config id , can not find") ;
-		//		return true ;
-		//	}
-
-		//	GetPlayer()->GetBaseData()->AddMoney( pRoomConfig->nRentFeePerDay *  pResult->vArg[3]);
-		//	msgBack.nFinalCoin = GetPlayer()->GetBaseData()->getCoin() ;
-		//}
-		//SendMsg(&msgBack,sizeof(msgBack)) ;
-		//return true ;
+		Json::Value jsBack ;
+		jsBack["ret"] = pResult->nRet ;
+		eRoomType eType = (eRoomType)pResult->vArg[2] ;
+		uint32_t nroomid = pResult->vArg[1] ;
+		jsBack["roomID"] = nroomid ;
+		if ( pResult->nRet == 0 )
+		{
+			if ( eRoom_Max > pResult->vArg[2] )
+			{
+				addOwnRoom(eType,nroomid,pResult->vArg[0]) ;
+			}
+			else
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("add my own room , unknown room type = %d , uid = %d",eType,GetPlayer()->GetUserUID()) ;
+			}
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %d , create room id = %d , config id = %d", GetPlayer()->GetUserUID(),nroomid,(int32_t)pResult->vArg[0] ) ;
+		}
+		else
+		{
+			CLogMgr::SharedLogMgr()->PrintLog("result create failed give back coin uid = %d",GetPlayer()->GetUserUID());
+		}
+		SendMsg(jsBack,MSG_CREATE_VIP_ROOM) ;
+		m_bIsCreating = false ;
+		CLogMgr::SharedLogMgr()->PrintLog("uid = %u , create vip room ok ",GetPlayer()->GetUserUID()) ;
+		return true ;
 	}
 
 	if ( eCrossSvrReq_RoomProfit == pResult->nRequestType )

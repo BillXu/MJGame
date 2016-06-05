@@ -53,6 +53,7 @@ public:
 	void onGetReward( uint8_t nIdx ,uint16_t nRewardID, uint16_t nGameType , const char* nRoomName );
 	ePlayerType getPlayerType(){ return m_ePlayerType ;}
 	void addTodayGameCoinOffset(int32_t nOffset );
+	uint32_t getVipRoomCard(){ return m_stBaseData.nVipRoomCardCnt ;}
 protected:
 	bool onPlayerRequestMoney( uint64_t& nWantMoney,uint64_t nAtLeast, bool bDiamoned = false);
 	void onBeInviteBy(uint32_t nInviteUID );

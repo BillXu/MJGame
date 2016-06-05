@@ -36,6 +36,7 @@ public:
 	void onGameDidEnd()override ;
 	void onGameWillBegin()override ;
 	CRobotDispatchStrategy* getRobotDispatchStrage(){ return m_pRobotDispatchStrage ;}
+	bool checkHavePlayerLoseOver(std::vector<uint8_t>& vLoseOverPlayerIdxs);
 protected:
 	uint8_t GetFirstInvalidIdxWithState( uint8_t nIdxFromInclude , eRoomPeerState estate );
 private:

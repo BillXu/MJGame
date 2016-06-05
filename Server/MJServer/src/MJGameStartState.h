@@ -20,11 +20,12 @@ public:
 	{
 		auto pTargetState = (CMJWaitDecideQueState*)m_pRoom->getRoomStateByID(eRoomState_WaitDecideQue);
 
-		pTargetState->setWaitTime(eTime_WaitDecideQue);
+		pTargetState->setWaitTime(((CMJRoom*)m_pRoom)->getWaitPlayerActTime(0,eTime_WaitDecideQue));
 		for ( uint8_t nIdx = 0 ; nIdx < m_pRoom->getSeatCount() ; ++nIdx )
 		{
 			pTargetState->addWaitingTarget(nIdx);
 		}
+
 		m_pRoom->goToState(pTargetState) ;
 	}
 };

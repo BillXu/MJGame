@@ -47,7 +47,7 @@ protected:
 protected:
 	uint32_t m_nStateInRoomID ;
 	ePlayerGameState m_ePlayerGameState ;
-	//uint8_t m_nSubRoomIdx ; 
+	bool m_bIsCreating ;
 
 	stGameData m_vData[eRoom_Max] ;
 	MAP_ID_MYROOW m_vMyOwnRooms[eRoom_Max];

@@ -203,4 +203,11 @@ enum eMsgTypeSvr
 	MSG_REQ_TOTAL_GAME_OFFSET,
 	MSG_ADD_TEMP_HALO,
 	MSG_MODIFY_ROOM_RANK,
+
+	MSG_MJ_BEGIN = 1500,
+	// new add js msg ;
+	MSG_CONSUM_VIP_ROOM_CARDS,
+	// js : { uid : 235, cardCnt : 2 }
+	MSG_VIP_ROOM_CLOSED,
+	// { uid : 2345 , roomID : 2345 , eType : eroomType } 
 };

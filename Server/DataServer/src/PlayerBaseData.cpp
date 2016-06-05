@@ -720,6 +720,21 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			CLogMgr::SharedLogMgr()->PrintLog("uid = %u , tell player type = %u",GetPlayer()->GetUserUID(),m_ePlayerType);
 		}
 		break;
+	case MSG_CONSUM_VIP_ROOM_CARDS:
+		{
+			m_bMoneyDataDirty = true ;
+			uint8_t nConsued = recvValue["cardCnt"].asUInt() ;
+			if ( m_stBaseData.nVipRoomCardCnt < nConsued )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("lack of vip room card , why can create room uid = %u",GetPlayer()->GetUserUID()) ;
+				m_stBaseData.nVipRoomCardCnt = 0;
+				break ;
+			}
+
+			m_stBaseData.nVipRoomCardCnt -= nConsued ;
+			CLogMgr::SharedLogMgr()->PrintLog("consumed vip room card = %u , uid = %u",nConsued,GetPlayer()->GetUserUID()) ;
+		}
+		break;
 	default:
 		return false ;
 	}
@@ -864,6 +879,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["diamond"] = m_stBaseData.nDiamoned ;
 		jValue["uid"] = m_stBaseData.nUserUID ;
 		jValue["sessionID"] = GetPlayer()->GetSessionID() ;
+		jValue["vipRoomCard"] = m_stBaseData.nVipRoomCardCnt ;
 		SendMsg(jValue,MSG_PLAYER_BASE_DATA);
 		CLogMgr::SharedLogMgr()->PrintLog("send base data to session id = %d ",GetPlayer()->GetSessionID() );
 		CLogMgr::SharedLogMgr()->SystemLog("send data uid = %d , final coin = %d, sex = %d",GetPlayer()->GetUserUID(),GetAllCoin(),m_stBaseData.nSex);
@@ -969,6 +985,7 @@ void CPlayerBaseData::TimerSave()
 		msgSaveMoney.nDiamoned = m_stBaseData.nDiamoned;
 		msgSaveMoney.nUserUID = GetPlayer()->GetUserUID() ;
 		msgSaveMoney.nCupCnt = m_stBaseData.nCupCnt ;
+		msgSaveMoney.nVipRoomCardCnt = m_stBaseData.nVipRoomCardCnt ;
 		SendMsg((stMsgSavePlayerMoney*)&msgSaveMoney,sizeof(msgSaveMoney)) ;
 		CLogMgr::SharedLogMgr()->SystemLog("player do time save coin uid = %d coin = %I64d",msgSaveMoney.nUserUID,msgSaveMoney.nCoin + m_nTempCoin );
 	}
@@ -999,7 +1016,7 @@ void CPlayerBaseData::TimerSave()
 		msgLogicData.tLastTakeCharityCoinTime = m_stBaseData.tLastTakeCharityCoinTime ;
 		msgLogicData.tOfflineTime = m_stBaseData.tOfflineTime ;
 		memcpy(msgLogicData.vJoinedClubID,m_stBaseData.vJoinedClubID,sizeof(msgLogicData.vJoinedClubID));
-		SendMsg((stMsgSavePlayerMoney*)&msgLogicData,sizeof(msgLogicData)) ;
+		SendMsg((stMsgSavePlayerCommonLoginData*)&msgLogicData,sizeof(msgLogicData)) ;
 	}
 
 	if ( m_bPlayerInfoDataDirty )
@@ -1014,7 +1031,7 @@ void CPlayerBaseData::TimerSave()
 		memcpy(msgSaveInfo.vName,m_stBaseData.cName,sizeof(msgSaveInfo.vName));
 		memcpy(msgSaveInfo.vSigure,m_stBaseData.cSignature,sizeof(msgSaveInfo.vSigure));
 		memcpy(msgSaveInfo.vUploadedPic,m_stBaseData.vUploadedPic,sizeof(msgSaveInfo.vUploadedPic));
-		SendMsg((stMsgSavePlayerMoney*)&msgSaveInfo,sizeof(msgSaveInfo)) ;
+		SendMsg((stMsgSavePlayerInfo*)&msgSaveInfo,sizeof(msgSaveInfo)) ;
 	}
 }
 

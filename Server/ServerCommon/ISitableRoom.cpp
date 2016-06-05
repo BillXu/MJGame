@@ -522,3 +522,17 @@ uint8_t ISitableRoom::GetFirstInvalidIdxWithState( uint8_t nIdxFromInclude , eRo
 	CLogMgr::SharedLogMgr()->ErrorLog("why don't have peer with state = %d",estate ) ;
 	return 0 ;
 }
+
+bool ISitableRoom::checkHavePlayerLoseOver(std::vector<uint8_t>& vLoseOverPlayerIdxs)
+{
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
+	{
+		auto pp = getPlayerByIdx(nIdx) ;
+		if ( pp->getCoin() <= 0 )
+		{
+			vLoseOverPlayerIdxs.push_back(nIdx) ;
+		}
+	}
+
+	return vLoseOverPlayerIdxs.empty() == false ;
+}

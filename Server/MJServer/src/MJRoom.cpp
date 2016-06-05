@@ -427,17 +427,30 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	pBill->eType = stBillWin::eBill_GangWin ;
 	if ( nInvokeIdx == nActIdx )
 	{
+		if ( eGangType == eMJAct_BuGang )
+		{
+			nWinCoin = getBaseBet() ;
+		}
+		else if ( eGangType == eMJAct_AnGang )
+		{
+			nWinCoin = getBaseBet() * 2 ;
+		}
+		else
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("what type of gang ? ") ;
+		}
+
 		for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 		{
-			if ( nIdx == nActIdx )
+			auto pp = getPlayerByIdx(nIdx) ;
+			if ( nIdx == nActIdx || pp->isHaveState(eRoomPeer_AlreadyHu) ) 
 			{
 				continue; 
 			}
-
 			stBillLose* pLoseBill = new stBillLose ;
 			pLoseBill->eType = stBill::eBill_GangLose ;
 			pLoseBill->nWinnerIdx = nActIdx ;
-			auto pp = getPlayerByIdx(nIdx) ;
+			
 			if ( nWinCoin <= pp->getCoin() )
 			{
 				ntotalWin += nWinCoin ;
@@ -463,6 +476,8 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	}
 	else
 	{
+		// ming gang 
+		nWinCoin = getBaseBet() * 2 ;
 		uint32_t ntotalWin = nWinCoin ;
 
 		stBillLose* pLoseBill = new stBillLose ;
@@ -810,6 +825,32 @@ bool CMJRoom::onPlayerApplyLeaveRoom(uint32_t nUserUID )
 	}
 	return true ;
 }
+
+uint8_t CMJRoom::getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime )
+{
+	if ( getDelegate())
+	{
+		return getDelegate()->getWaitActTime(this) ;
+	}
+
+	return nSugguestTime;
+}
+
+bool CMJRoom::isGameOver()
+{
+	if ( getDelegate() && getDelegate()->canGameOver(this) )
+	{
+		return true ;
+	}
+
+	if ( getLeftCardCnt() <= 0 )
+	{
+		return true ;
+	}
+
+	return false ;
+}
+
 
 void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )
 {

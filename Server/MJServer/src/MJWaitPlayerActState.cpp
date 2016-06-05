@@ -235,6 +235,12 @@ void CMJDoPlayerActState::onExecuteOver()
 	case eMJAct_Mo:
 		{
 			auto pRoom = (CMJRoom*)m_pRoom ;
+			if ( m_edoAct != eMJAct_Mo && pRoom->isGameOver() )
+			{
+				pRoom->goToState(eRoomState_GameEnd) ;
+				return ;
+			}
+
 			auto ppPlayer = (CMJRoomPlayer*)pRoom->getPlayerByIdx(m_nCurIdx) ;
 			auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
 
@@ -244,7 +250,7 @@ void CMJDoPlayerActState::onExecuteOver()
 				fWaitTime *= 0.5 ;
 				CLogMgr::SharedLogMgr()->PrintLog("idx = %u already hu, so act time will be half as before",m_nCurIdx) ;
 			}
-			pTargeState->setWaitTime(fWaitTime) ;
+			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,fWaitTime)) ;
 			
 			pTargeState->addWaitingTarget(m_nCurIdx) ;
 			m_pRoom->goToState(pTargeState) ;
@@ -280,12 +286,13 @@ void CMJDoPlayerActState::onExecuteOver()
 			{
 				CLogMgr::SharedLogMgr()->PrintLog(" %u player need the card = %u, from idx = %u ,so wait them",m_vecCardPlayerIdxs.size(),m_nCardNumber,m_nCurIdx) ;
 				auto pTargeState = (CMJWaitOtherActState*)m_pRoom->getRoomStateByID(eRoomState_WaitOtherPlayerAct) ;
-				pTargeState->setWaitTime(eTime_WaitPlayerAct) ;
 				auto pRoom = (CMJRoom*)m_pRoom ;
 				for ( auto ref : m_vecCardPlayerIdxs )
 				{
 					pTargeState->addWaitingTarget(ref) ;
 				}
+
+				pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct));
 
 				stWaitCardInfo info ;
 				info.isBuGang = false ;
@@ -300,7 +307,7 @@ void CMJDoPlayerActState::onExecuteOver()
 	case eMJAct_Hu:
 		{
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-			if ( pRoom->getLeftCardCnt() < 1 )
+			if ( pRoom->isGameOver() )
 			{
 				pRoom->goToState(eRoomState_GameEnd) ;
 				return ;
@@ -323,12 +330,13 @@ void CMJDoPlayerActState::onExecuteOver()
 	case eMJAct_BuGang_Pre:
 		{
 			auto pTargeState = (CMJWaitOtherActState*)m_pRoom->getRoomStateByID(eRoomState_WaitOtherPlayerAct) ;
-			pTargeState->setWaitTime(eTime_WaitPlayerAct) ;
 			auto pRoom = (CMJRoom*)m_pRoom ;
 			for ( auto ref : m_vecCardPlayerIdxs )
 			{
 				pTargeState->addWaitingTarget(ref) ;
 			}
+
+			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct));
 
 			stWaitCardInfo info ;
 			info.isBuGang = true ;
@@ -583,8 +591,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 	{
 	case eMJAct_Hu:
 		{
-			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-			if ( pRoom->getLeftCardCnt() < 1 )
+			if ( pRoom->isGameOver() )
 			{
 				pRoom->goToState(eRoomState_GameEnd) ;
 				return ;
@@ -607,12 +614,18 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 	case eMJAct_MingGang:
 	case eMJAct_Peng:
 		{
+			if ( m_edoAct == eMJAct_MingGang && pRoom->isGameOver() )
+			{
+				pRoom->goToState(eRoomState_GameEnd) ;
+				return ;
+			}
+
 			auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
-			pTargeState->setWaitTime(eTime_WaitPlayerAct) ;
 			auto pRoom = (CMJRoom*)m_pRoom ;
 			CLogMgr::SharedLogMgr()->PrintLog("do peng ok wait idx = %u act " ,m_nCurIdx) ;
 			pTargeState->addWaitingTarget(m_nCurIdx) ;
 			pRoom->setCurWaitIdx(m_nCurIdx) ;
+			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct)) ;
 			m_pRoom->goToState(pTargeState) ;
 		}
 		break;

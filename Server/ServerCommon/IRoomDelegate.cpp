@@ -55,10 +55,6 @@ void IRoomDelegate::onRankPlayerChanged( uint32_t nUID , uint16_t nPreIdx , uint
 
 }
 
-bool IRoomDelegate::isPlayerLoseReachMax( IRoom* pRoom, uint32_t nUserUID )
-{
-	return false ;
-}
 
 void IRoomDelegate::removeAllRankItemPlayer()
 {

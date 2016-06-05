@@ -189,6 +189,7 @@ struct stMsgSavePlayerMoney
 	uint64_t nCoin ;
 	uint32_t nDiamoned ;
 	uint32_t nCupCnt ;
+	uint32_t nVipRoomCardCnt ;
 };
 
 struct stMsgReadPlayerTaxasData

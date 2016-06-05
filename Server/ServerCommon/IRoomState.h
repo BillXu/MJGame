@@ -54,6 +54,7 @@ class IWaitingState
 public:
 	typedef std::vector<stWaitIdx> VEC_WAIT_IDX ;
 public:
+	virtual ~IWaitingState(){ for( auto pact : m_vActList ) { delete pact ; pact = nullptr;} m_vActList.clear() ; }
 	void enterState(IRoom* pRoom)override;
 	void addWaitingTarget( uint8_t nIdx , uint8_t nPrio = 0 );
 	bool responeWaitAct(uint8_t nIdx ,stActionItem* pAct);
@@ -62,7 +63,7 @@ public:
 	void setWaitTime( float fSeconds );
 	bool isIdxInWaitList( uint8_t nIdx );
 	void removeWaitIdx(uint8_t nIdx );
-	void leaveState()override{ m_vWaitIdxs.clear();}
+	void leaveState()override{ m_vWaitIdxs.clear(); m_vActList.clear() ;}
 protected:
 	VEC_ACTITEM m_vActList ;  // free object in execute state 
 	VEC_WAIT_IDX m_vWaitIdxs ;
@@ -73,6 +74,7 @@ class IExecuingState
 	:public IRoomState
 {
 public:
+	virtual ~IExecuingState(){ for( auto pact : m_vActList ) { delete pact ; pact = nullptr;} m_vActList.clear() ; }
 	void setExecuteActs(VEC_ACTITEM& vActList );
 	void setExecuteTime(float fseconds );
 	void enterState(IRoom* pRoom)override;
@@ -82,7 +84,7 @@ public:
 	{
 		onExecuteOver();
 	}
-	//void leaveState(){ assert( m_vActList.empty() && "not delete this object ? " ); }
+	void leaveState(){ m_vActList.clear(); }
 protected:
 	VEC_ACTITEM m_vActList ;
 };

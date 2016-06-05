@@ -93,10 +93,10 @@ void CMJDoDecideQueState::enterState(IRoom* pRoom)
 void CMJDoDecideQueState::onExecuteOver()
 {
 	auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
-	pTargeState->setWaitTime(eTime_WaitPlayerAct) ;
 	auto pRoom = (CMJRoom*)m_pRoom ;
 	CLogMgr::SharedLogMgr()->PrintLog("after decide que , enter wait player act banker id = %u",pRoom->getBankerIdx()) ;
 	pTargeState->addWaitingTarget(pRoom->getBankerIdx()) ;
+	pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(pRoom->getBankerIdx(),eTime_WaitPlayerAct)) ;
 	m_pRoom->goToState(pTargeState) ;
 }
 
