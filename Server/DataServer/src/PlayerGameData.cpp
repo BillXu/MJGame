@@ -94,7 +94,7 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			Json::Value jsBack ;
 			jsBack["roomID"] = 0 ;
 			uint16_t nCardNeed = recvValue["circle"].asUInt() / ROOM_CIRCLES_PER_VIP_ROOM_CARDS  ;
-			if ( nCardNeed == 0 || nCardNeed < GetPlayer()->GetBaseData()->getVipRoomCard() )
+			if ( nCardNeed == 0 || nCardNeed > GetPlayer()->GetBaseData()->getVipRoomCard() )
 			{
 				jsBack["ret"] = 1 ;
 				SendMsg(jsBack,nmsgType) ;
@@ -108,6 +108,8 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				return true;
 			}
 
+#ifdef NDEBUG
+
 			if ( m_bIsCreating )
 			{
 				jsBack["ret"] = 3 ;
@@ -115,6 +117,8 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				CLogMgr::SharedLogMgr()->ErrorLog("already creating , don't try again uid = %u",GetPlayer()->GetUserUID()) ;
 				return true;
 			}
+#endif // NDEBUG
+
 
 			m_bIsCreating = true ;
 			stMsgCrossServerRequest msgReq ;
