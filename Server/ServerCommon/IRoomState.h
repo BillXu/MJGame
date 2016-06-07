@@ -84,7 +84,6 @@ public:
 	{
 		onExecuteOver();
 	}
-	void leaveState(){ m_vActList.clear(); }
 protected:
 	VEC_ACTITEM m_vActList ;
 };

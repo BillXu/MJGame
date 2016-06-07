@@ -50,7 +50,7 @@ public:
 	bool onInformSelfCanActWithCard( uint8_t nPlayerIdx );
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	bool onPlayerApplyLeaveRoom(uint32_t nUserUID )override ;
-	uint8_t getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime );
+	uint32_t getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime );
 	virtual bool isGameOver();
 protected:
 	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );

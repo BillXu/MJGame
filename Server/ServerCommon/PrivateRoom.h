@@ -514,7 +514,7 @@ bool CPrivateRoom<T>::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 			{
 				Json::Value jsMsg ;
 				jsMsg["applyerIdx"] = pp->getIdx() ;
-				m_pRoom->sendMsgToPlayer(jsMsg,MSG_ROOM_APPLY_DISMISS_VIP_ROOM,nSessionID);
+				m_pRoom->sendRoomMsg(jsMsg,MSG_ROOM_APPLY_DISMISS_VIP_ROOM);
 				m_tWaitRepklyTimer.setInterval(TIME_WAIT_REPLY_DISMISS);
 				m_tWaitRepklyTimer.setIsAutoRepeat(false) ;
 				m_tWaitRepklyTimer.setCallBack([this](CTimer*p ,float f){

@@ -249,7 +249,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			//// temp set 
 			//pRet->nType = 1 ;
 			//pRet->nTargetID = 2 ;
-			
+			CLogMgr::SharedLogMgr()->PrintLog("session id = %u enter room type = %u , roomID = %u",nSessionID,pRet->nType,pRet->nTargetID) ;
 			IRoomInterface* pRoomEnter = nullptr ;
 			if ( pRet->nType == 1 )
 			{

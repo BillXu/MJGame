@@ -762,7 +762,7 @@ bool CMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPo
 			stStandPlayer* pp = getPlayerBySessionID(nSessionID) ;
 			if ( pp )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("player session id = % apply to leave room ok",nSessionID) ;
+				CLogMgr::SharedLogMgr()->PrintLog("player session id = %d apply to leave room ok",nSessionID) ;
 				onPlayerApplyLeaveRoom(pp->nUserUID) ;
 				jsMsg["ret"] = 0 ;
 			}
@@ -826,7 +826,7 @@ bool CMJRoom::onPlayerApplyLeaveRoom(uint32_t nUserUID )
 	return true ;
 }
 
-uint8_t CMJRoom::getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime )
+uint32_t CMJRoom::getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime )
 {
 	if ( getDelegate())
 	{
