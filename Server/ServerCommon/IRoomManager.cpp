@@ -46,7 +46,7 @@ void IRoomManager::init(IServerApp* svrApp)
 		while ( nCreaeCnt-- )
 		{
 			Json::Value vDefault ;
-			IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,true,(*iter)->nConfigID,eRoom_MJ,vDefault);
+			IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,false,(*iter)->nConfigID,eRoom_MJ,vDefault);
 			addRoomToSystem(pRoom) ;
 		}
 		CLogMgr::SharedLogMgr()->PrintLog("system crate five room config id = %u",(*iter)->nConfigID ) ;
@@ -492,8 +492,8 @@ bool IRoomManager::onCrossServerRequest(stMsgCrossServerRequest* pRequest , eMsg
 		msgRet.vArg[3] = pRequest->vArg[1] ;
 		Json::Value vCreateJs = *vJsValue;
 		vCreateJs["ownerUID"] = (uint32_t)pRequest->nReqOrigID;
-		CLogMgr::SharedLogMgr()->PrintLog("recived create room uid = %s",pRequest->nReqOrigID) ;
-		IRoomInterface* pRoom = doCreateInitedRoomObject(msgRet.vArg[1],pRequest->nReqOrigID != MATCH_MGR_UID,nConfigID,(eRoomType)pRequest->vArg[2],vCreateJs);
+		CLogMgr::SharedLogMgr()->PrintLog("recived create room uid = %d",pRequest->nReqOrigID) ;
+		IRoomInterface* pRoom = doCreateInitedRoomObject(((uint32_t)time(nullptr)) % 1000000,pRequest->nReqOrigID != MATCH_MGR_UID,nConfigID,(eRoomType)pRequest->vArg[2],vCreateJs);
 		if ( pRoom == nullptr )
 		{
 			--m_nMaxRoomID;

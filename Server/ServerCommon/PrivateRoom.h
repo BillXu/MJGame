@@ -133,6 +133,12 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	m_stConfig.nBaseBet = vJsValue["baseBet"].asUInt() ;
 	m_stConfig.nMaxSeat = vJsValue["seatCnt"].asUInt() ;
 	m_stConfig.nGameType = vJsValue["roomType"].asUInt() ;
+	if ( m_stConfig.nMaxSeat == 0 || m_stConfig.nBaseBet == 0 )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("create private argument error seatCnt = %u , baseBet = %u",m_stConfig.nMaxSeat,m_stConfig.nBaseBet) ;
+		m_stConfig.nMaxSeat = 4;
+		m_stConfig.nBaseBet = 1 ;
+	}
 
 	m_bComsumedRoomCards = false ;
 	m_mapRecievedReply.clear() ;

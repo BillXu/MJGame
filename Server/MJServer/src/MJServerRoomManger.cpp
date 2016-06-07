@@ -9,7 +9,7 @@
 IRoomInterface* CMJRoomManager::doCreateInitedRoomObject(uint32_t nRoomID,bool isPrivateRoom , uint16_t nRoomConfigID ,eRoomType reqSubRoomType, Json::Value& vJsValue ) 
 {
 	auto pConfig = CMJServerApp::getInstance()->getRoomConfigMgr()->GetConfigByConfigID(nRoomConfigID) ;
-	if ( pConfig == nullptr )
+	if ( pConfig == nullptr && isPrivateRoom == false )
 	{
 		return nullptr ;
 	}
