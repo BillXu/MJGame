@@ -88,6 +88,11 @@ uint8_t ISitableRoom::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )  /
 		return nRet ;
 	}
 
+	if ( pEnterRoomPlayer->nCoin < coinNeededToSitDown() )
+	{
+		return 3;
+	}
+
 	for ( uint8_t nidx = 0 ; nidx < getSeatCount() ; ++nidx )
 	{
 		auto pp = getPlayerByIdx(nidx) ;
@@ -391,6 +396,7 @@ bool ISitableRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t 
 			{
 				msgBack.nRet = 1 ;
 				sendMsgToPlayer(&msgBack,sizeof(msgBack),nPlayerSessionID) ;
+				CLogMgr::SharedLogMgr()->PrintLog("player coin is not enought so can not sit down session id = %u",nPlayerSessionID) ;
 				break; 
 			}
 
@@ -414,6 +420,7 @@ bool ISitableRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t 
 			{
 				msgBack.nRet = 2 ;
 				sendMsgToPlayer(&msgBack,sizeof(msgBack),nPlayerSessionID) ;
+				CLogMgr::SharedLogMgr()->PrintLog("seat is not empty , session id = %u can not sit down",nPlayerSessionID) ;
 				break; 
 			}
 
@@ -444,6 +451,7 @@ bool ISitableRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t 
 				CLogMgr::SharedLogMgr()->PrintLog("robot uid = %d enter room",sitDownPlayer->getUserUID()) ;
 				//m_pRobotDispatchStrage->onRobotJoin(sitDownPlayer->getSessionID());
 			}
+			CLogMgr::SharedLogMgr()->PrintLog("a player sit down uid = %u",sitDownPlayer->getUserUID()) ;
 		}
 		break;
 	default:

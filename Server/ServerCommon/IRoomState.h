@@ -56,7 +56,7 @@ public:
 public:
 	virtual ~IWaitingState(){ for( auto pact : m_vActList ) { delete pact ; pact = nullptr;} m_vActList.clear() ; }
 	void enterState(IRoom* pRoom)override;
-	void addWaitingTarget( uint8_t nIdx , uint8_t nPrio = 0 );
+	void addWaitingTarget( uint8_t nIdx , uint8_t nPrio );
 	bool responeWaitAct(uint8_t nIdx ,stActionItem* pAct);
 	virtual void onWaitEnd( bool bTimeOut ) = 0 ;
 	void onStateDuringTimeUp()override final ;

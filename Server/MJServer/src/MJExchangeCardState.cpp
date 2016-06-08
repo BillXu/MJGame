@@ -186,7 +186,7 @@ void CMJDoExchangeCardState::onExecuteOver()
 	auto ppState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitDecideQue) ;
 	for ( uint8_t nIdx = 0 ; nIdx < m_pRoom->getSeatCount() ; ++nIdx )
 	{
-		ppState->addWaitingTarget(nIdx) ;
+		ppState->addWaitingTarget(nIdx,eMJAct_Hu) ;
 	}
 	ppState->setWaitTime(eTime_WaitDecideQue) ;
 	m_pRoom->goToState(ppState) ;

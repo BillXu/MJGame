@@ -32,7 +32,7 @@ protected:
 	eMJActType m_edoAct ;
 	uint8_t m_nCurIdx ;
 	uint8_t m_nCardNumber ;
-	std::vector<uint8_t> m_vecCardPlayerIdxs ;
+	std::vector<stWaitIdx> m_vecCardPlayerIdxs ;
 };
 
 // other player 

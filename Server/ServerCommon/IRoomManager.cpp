@@ -250,6 +250,15 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			//pRet->nType = 1 ;
 			//pRet->nTargetID = 2 ;
 			CLogMgr::SharedLogMgr()->PrintLog("session id = %u enter room type = %u , roomID = %u",nSessionID,pRet->nType,pRet->nTargetID) ;
+			if ( pRet->tPlayerData.nPlayerType == ePlayer_Robot )
+			{
+				if ( pRet->tPlayerData.nCoin < 8000 )
+				{
+					pRet->tPlayerData.nCoin = 8000 ;
+					CLogMgr::SharedLogMgr()->ErrorLog("temp set robot coin uid = %u",pRet->tPlayerData.nUserUID) ;
+				}
+			}
+			CLogMgr::SharedLogMgr()->ErrorLog("temp set robot coin ") ;
 			IRoomInterface* pRoomEnter = nullptr ;
 			if ( pRet->nType == 1 )
 			{
@@ -319,6 +328,15 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				pRoomEnter = vCanEnterRoom[rand() % vCanEnterRoom.size()];
 			}
 			
+			msgBack.nRet = pRoomEnter->canPlayerEnterRoom(&pRet->tPlayerData) ;
+			msgBack.nRoomID = pRoomEnter->getRoomID() ;
+			if ( msgBack.nRet )
+			{
+				sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+				CLogMgr::SharedLogMgr()->PrintLog("you are not proper to enter this room target id = %u , ret = %d",pRet->nTargetID,msgBack.nRet) ;
+				break;
+			}
+
 			int8_t nidx = 0 ;
 			pRoomEnter->onPlayerEnterRoom(&pRet->tPlayerData,nidx);
 			msgBack.nGameType = eRoom_MJ ;

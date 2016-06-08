@@ -10,7 +10,7 @@ public:
 	virtual bool OnMessage( Packet* pData ) = 0;
 	virtual void OnNewPeerConnected( CONNECT_ID nNewPeer, ConnectInfo* IpInfo ){}
 	virtual void OnPeerDisconnected( CONNECT_ID nPeerDisconnected, ConnectInfo* IpInfo ){}
-	void SetPriority(unsigned int nPriority );
+	//void SetPriority(unsigned int nPriority );
 	unsigned int GetPriority(){ return m_nPriority ; }
 protected:
 	unsigned int m_nPriority ;

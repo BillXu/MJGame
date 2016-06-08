@@ -1,19 +1,19 @@
 #include "ServerNetwork.h"
 #include "SeverNetworkImp.h"
-void CServerNetworkDelegate::SetPriority(unsigned int nPriority )
-{
-	if ( nPriority == m_nPriority )
-		return ;
-	m_nPriority = nPriority ;
-	CServerNetwork::SharedNetwork()->RemoveDelegate(this);
-	CServerNetwork::SharedNetwork()->AddDelegate(this,nPriority);
-}
+//void CServerNetworkDelegate::SetPriority(unsigned int nPriority )
+//{
+//	if ( nPriority == m_nPriority )
+//		return ;
+//	m_nPriority = nPriority ;
+//	CServerNetwork::SharedNetwork()->RemoveDelegate(this);
+//	CServerNetwork::SharedNetwork()->AddDelegate(this,nPriority);
+//}
 
-CServerNetwork* CServerNetwork::SharedNetwork()
-{
-	static CServerNetwork g_sNetwork ;
-	return &g_sNetwork ;
-}
+//CServerNetwork* CServerNetwork::SharedNetwork()
+//{
+//	static CServerNetwork g_sNetwork ;
+//	return &g_sNetwork ;
+//}
 
 CServerNetwork::CServerNetwork()
 {

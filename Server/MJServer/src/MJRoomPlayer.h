@@ -70,7 +70,7 @@ public:
 	void gangPai(uint8_t nGangPai, eMJActType eGangType,uint8_t nNewCard );
 	eMJActType getNewFetchedFrom();
 	uint8_t doHuPaiFanshu( uint8_t nCardNumber, uint8_t& nGenShu );  // nCardNumber = 0 , means self mo ; return value not include gen ;
-	bool isCardBeWanted(uint8_t nCardNumber, bool bFromSelf );
+	bool isCardBeWanted(uint8_t nCardNumber, uint8_t& nActType ,bool bFromSelf );
 	void onPengCard(uint8_t nCard );
 	void onChuCard(uint8_t nCard );
 	bool isHuaZhu();

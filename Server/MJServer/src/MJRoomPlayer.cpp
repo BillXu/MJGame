@@ -204,7 +204,7 @@ uint8_t CMJRoomPlayer::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu )  
 	return nFan ;
 }
 
-bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , bool bFromSelf )
+bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , uint8_t& nActType , bool bFromSelf )
 {
 	if ( isHaveState(eRoomPeer_DecideLose) )
 	{
@@ -214,6 +214,7 @@ bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , bool bFromSelf )
 
 	updateWantedCardList();
 
+	nActType = 0 ;
 	for ( auto refWanted : m_listWantedCard )
 	{
 		if ( refWanted.nNumber == nCardNumber )
@@ -225,9 +226,18 @@ bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , bool bFromSelf )
 					CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , already hu , so can not need the card not invoke hu",getIdx()) ;
 					continue;
 				}
-				return true ;
+
+				if ( nActType < refWanted.eCanInvokeAct )
+				{
+					nActType = refWanted.eCanInvokeAct ;
+				}
 			}
 		}
+	}
+
+	if ( nActType != 0 )
+	{
+		return true ;
 	}
 
 	CLogMgr::SharedLogMgr()->PrintLog("idx = %u , i need not the card : %u" ,getIdx(),nCardNumber) ;

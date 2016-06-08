@@ -4,6 +4,7 @@
 #include "MJDefine.h"
 #include "MJCard.h"
 #include "RoomConfig.h"
+#include "IRoomState.h"
 class CMJRoomPlayer ;
 class CMJRoom
 	:public ISitableRoom
@@ -33,7 +34,7 @@ public:
 	void onPlayerHuPai(uint8_t nActIdx);
 	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvokerIdx ,bool isGangPai );
 	void onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGang , uint8_t nInvokeIdx );
-	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
+	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitIdx>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
 	void onPlayerBuGangPre(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	void onPlayerChuPai(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	uint8_t getLeftCardCnt();

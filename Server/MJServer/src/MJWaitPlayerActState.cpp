@@ -252,7 +252,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			}
 			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,fWaitTime)) ;
 			
-			pTargeState->addWaitingTarget(m_nCurIdx) ;
+			pTargeState->addWaitingTarget(m_nCurIdx,eMJAct_Hu) ;
 			m_pRoom->goToState(pTargeState) ;
 		}
 		break ;
@@ -289,7 +289,7 @@ void CMJDoPlayerActState::onExecuteOver()
 				auto pRoom = (CMJRoom*)m_pRoom ;
 				for ( auto ref : m_vecCardPlayerIdxs )
 				{
-					pTargeState->addWaitingTarget(ref) ;
+					pTargeState->addWaitingTarget(ref.nIdx,ref.nMaxActExePrio) ;
 				}
 
 				pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct));
@@ -333,7 +333,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			auto pRoom = (CMJRoom*)m_pRoom ;
 			for ( auto ref : m_vecCardPlayerIdxs )
 			{
-				pTargeState->addWaitingTarget(ref) ;
+				pTargeState->addWaitingTarget(ref.nIdx,ref.nMaxActExePrio) ;
 			}
 
 			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct));
@@ -623,7 +623,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
 			auto pRoom = (CMJRoom*)m_pRoom ;
 			CLogMgr::SharedLogMgr()->PrintLog("do peng ok wait idx = %u act " ,m_nCurIdx) ;
-			pTargeState->addWaitingTarget(m_nCurIdx) ;
+			pTargeState->addWaitingTarget(m_nCurIdx,eMJAct_Chu) ;
 			pRoom->setCurWaitIdx(m_nCurIdx) ;
 			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct)) ;
 			m_pRoom->goToState(pTargeState) ;

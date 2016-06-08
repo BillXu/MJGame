@@ -70,7 +70,7 @@ bool IWaitingState::responeWaitAct(uint8_t nIdx ,stActionItem* pAct)
 	{
 		if ( (*iter).nIdx == nIdx )
 		{
-			if ( pAct != nullptr && (*iter).nMaxActExePrio > pAct->nExePrio )
+			if ( pAct != nullptr && (*iter).nMaxActExePrio < pAct->nExePrio )
 			{
 				printf("you can not do so high act \n");
 				delete pAct ;

@@ -151,6 +151,11 @@ void CMJRoom::onGameDidEnd()
 	for ( uint8_t nidx = 0 ; nidx < getSeatCount() ; ++nidx )
 	{
 		auto pp = getPlayerByIdx(nidx);
+		if ( pp->isDelayStandUp() == false )
+		{
+			continue;
+		}
+
 		auto pst = getPlayerByUserUID(pp->getUserUID()) ;
 		vMapSessionIDIsRobot[pst->nUserSessionID] = pst->nPlayerType == ePlayer_Robot ;
 	}
@@ -526,7 +531,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
 }
 
-bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
+bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitIdx>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
 {
 	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
@@ -536,10 +541,14 @@ bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>
 		}
 
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nIdx) ;
-		if ( pPlayer->isCardBeWanted(nCardNumber,false) )
+		uint8_t nActType = 0 ;
+		if ( pPlayer->isCardBeWanted(nCardNumber,nActType,false) )
 		{
-			nNeedCardPlayerIdxs.push_back(nIdx) ;
-			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u",nIdx,nCardNumber) ;
+			stWaitIdx wid ;
+			wid.nIdx = nIdx ;
+			wid.nMaxActExePrio = nActType ;
+			nNeedCardPlayerIdxs.push_back(wid) ;
+			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u,max Act Type = %u",nIdx,nCardNumber,nActType) ;
 		}
 	}
 
@@ -881,6 +890,11 @@ void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubId
 	}
 	else
 	{
+		if ( pEnterRoomPlayer->nUserUID == 22 )
+		{
+			int a = 0 ;
+			++a ;
+		}
 		CLogMgr::SharedLogMgr()->PrintLog("player uid = %u not sit , system auto sit",pEnterRoomPlayer->nUserUID) ;
 		stMsgPlayerSitDown msgSitDown ;
 		msgSitDown.nIdx = 0 ;
