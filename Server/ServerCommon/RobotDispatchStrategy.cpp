@@ -47,6 +47,20 @@ bool CRobotDispatchStrategy::init(ISitableRoom* pRoom , uint8_t nReqRobotLevel, 
 		msgreq.nRoomType = m_pRoom->getRoomType() ;
 		msgreq.nSubRoomIdx = m_nSubRoomIdx ;
 		m_pRoom->sendMsgToPlayer(&msgreq,sizeof(msgreq),0) ;
+		printf("room id = %u timer req robot join \n ",m_pRoom->getRoomID());
+	}
+
+	if ( m_pRoom->isHaveRealPlayer() == false )
+	{
+		// all robot leave ;
+			Json::Value jsmsg ;
+			for ( auto proto : m_vPlayingRobot )
+			{
+				m_pRoom->sendMsgToPlayer(jsmsg,MSG_SVR_INFORM_ROBOT_LEAVE,proto->nSessionID);
+				delete proto ;
+				proto = nullptr ;
+			}
+			m_vPlayingRobot.clear() ;
 	}
 
 	} ) ;
@@ -65,6 +79,8 @@ void CRobotDispatchStrategy::onPlayerJoin(uint32_t nSessionID, bool isRobot )
 		pRet->nSessionID = nSessionID ;
 		pRet->tLeaveTime = time(nullptr) + TIME_ROBOT_STAY ;
 		m_vPlayingRobot.push_back(pRet) ;
+
+		CLogMgr::SharedLogMgr()->PrintLog("a robot session id = %u join room id = %u",nSessionID,m_pRoom->getRoomID() );
 		return ;
 	}
 
@@ -76,6 +92,8 @@ void CRobotDispatchStrategy::onPlayerJoin(uint32_t nSessionID, bool isRobot )
 		msgreq.nRoomType = m_pRoom->getRoomType() ;
 		msgreq.nSubRoomIdx = m_nSubRoomIdx ;
 		m_pRoom->sendMsgToPlayer(&msgreq,sizeof(msgreq),0) ;
+
+		CLogMgr::SharedLogMgr()->PrintLog("real player session id = %u , join room id = %u, still have empty seat , just req robot ",nSessionID , m_pRoom->getRoomID() );
 	}
 }
 
@@ -94,6 +112,8 @@ void CRobotDispatchStrategy::onPlayerLeave(uint32_t nSessioID,bool isRobot )
 				return ;
 			}
 		}
+
+		CLogMgr::SharedLogMgr()->PrintLog( "a robot leave room session id = %u , room id = %u" ,nSessioID , m_pRoom->getRoomID() );
 	}
 	else
 	{
@@ -103,6 +123,7 @@ void CRobotDispatchStrategy::onPlayerLeave(uint32_t nSessioID,bool isRobot )
 		}
 		else
 		{
+			CLogMgr::SharedLogMgr()->PrintLog("a real player session = %u , leave room id = %u, and no real player in , so order all robot leave ",nSessioID,m_pRoom->getRoomID() );
 			// all robot leave ;
 			Json::Value jsmsg ;
 			for ( auto proto : m_vPlayingRobot )
@@ -112,6 +133,13 @@ void CRobotDispatchStrategy::onPlayerLeave(uint32_t nSessioID,bool isRobot )
 				proto = nullptr ;
 			}
 			m_vPlayingRobot.clear() ;
+
+			stMsgRequestRobotCanncel msgreq ;
+			msgreq.nRoomID = m_nRoomID ;
+			msgreq.nRoomType = m_pRoom->getRoomType() ;
+			msgreq.nSubRoomIdx = m_nSubRoomIdx ;
+			m_pRoom->sendMsgToPlayer(&msgreq,sizeof(msgreq),0) ;
+			CLogMgr::SharedLogMgr()->PrintLog("room id = %u , req canncel all robot req ",m_pRoom->getRoomID()) ;
 		}
 	}
 

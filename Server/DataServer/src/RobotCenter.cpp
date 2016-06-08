@@ -98,6 +98,23 @@ bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSess
 			processRobotReq();
 		}
 		break;
+	case MSG_REQ_ROBOT_CANNCEL:
+		{
+			stMsgRequestRobotCanncel* pRet = (stMsgRequestRobotCanncel*)prealMsg ;
+			auto iter = m_vReqRobotCmdCacher.begin();
+			for ( ; iter != m_vReqRobotCmdCacher.end(); ++iter )
+			{
+				auto ref = *iter ;
+				if ( ref->nRoomID == pRet->nRoomID && ref->nRoomType == pRet->nRoomType &&  ref->nSubRoomIdx == pRet->nSubRoomIdx )
+				{
+					delete ref ;
+					m_vReqRobotCmdCacher.erase(iter);
+					CLogMgr::SharedLogMgr()->PrintLog(" can all request from room id = %u",pRet->nRoomID);
+					return true ;
+				}
+			}
+		}
+		break ;
 	default:
 		return false;
 	}

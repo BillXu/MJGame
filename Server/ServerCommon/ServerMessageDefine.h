@@ -852,4 +852,13 @@ struct stMsgRequestRobotToEnterRoom
 	uint32_t nSubRoomIdx ;
 	uint8_t nReqRobotLevel ;
 };
+
+struct stMsgRequestRobotCanncel
+	:public stMsg
+{
+	stMsgRequestRobotCanncel(){ cSysIdentifer = ID_MSG_PORT_DATA ; usMsgType = MSG_REQ_ROBOT_CANNCEL ;}
+	uint8_t nRoomType ;
+	uint32_t nRoomID ; 
+	uint32_t nSubRoomIdx ;
+};
 #pragma pack(pop)//
