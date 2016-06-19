@@ -22,6 +22,9 @@
 #include "SeverUtility.h"
 #include "ServerStringTable.h"
 #include "MessageIdentifer.h"
+#include "ItemConfig.h"
+#include "PlayerBag.h"
+#include "PlateConfig.h"
 #pragma warning( disable : 4996 )
 #define ONLINE_BOX_RESET_TIME 60*60*3   // offline 3 hour , will reset the online box ;
 #define COIN_BE_INVITED 588
@@ -735,6 +738,200 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			CLogMgr::SharedLogMgr()->PrintLog("consumed vip room card = %u , uid = %u",nConsued,GetPlayer()->GetUserUID()) ;
 		}
 		break;
+	case MSG_SHOP_BUY_ITEM:
+		{
+			uint32_t nShopItemID = recvValue["shopItemID"].asUInt();
+			CShopConfigMgr* pMgr = (CShopConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Shop);
+			stShopItem* pShopItem = pMgr->GetShopItem(nShopItemID);
+			
+			auto itemConfig = (CItemConfigManager*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Item);
+
+			Json::Value jsmsg ;
+			jsmsg["shopItemID"] = nShopItemID ;
+			jsmsg["ret"] = 0 ;
+			do 
+			{
+				if ( pShopItem == nullptr )
+				{
+					jsmsg["ret"] = 1 ;
+					break ;
+				}
+
+				if ( pShopItem->eType == eShopItem_Item )
+				{
+					if ( itemConfig->GetItemConfigByItemID(pShopItem->nItemID) == nullptr )
+					{
+						jsmsg["ret"] = 3 ;
+						break ;
+					}
+				}
+
+				if ( pShopItem->nPrizeType == 0 )
+				{
+					CLogMgr::SharedLogMgr()->ErrorLog("why have rmb shop item ? should in recharge") ;
+					jsmsg["ret"] = 2 ;
+					break;
+				}
+				else if ( 1 == pShopItem->nPrizeType )
+				{
+					if ( pShopItem->nPrize > getCoin() )
+					{
+						jsmsg["ret"] = 2 ;
+						break ;
+					}
+				}
+				else if ( 2 == pShopItem->nPrizeType )
+				{
+					if ( pShopItem->nPrize > GetAllDiamoned() )
+					{
+						jsmsg["ret"] = 2 ;
+						break ;
+					}
+				}
+			} while (0);
+
+			if ( jsmsg["ret"].asUInt() == 0 )
+			{
+				decressMoney(pShopItem->nPrize,2 == pShopItem->nPrizeType) ;
+				switch ( pShopItem->eType )
+				{
+				case eShopItem_Item:
+					{
+						auto item = itemConfig->GetItemConfigByItemID(pShopItem->nItemID);
+						auto pBag = (CPlayerBag*)GetPlayer()->GetComponent(ePlayerComponet_Bag);
+						pBag->addPlayerItem(pShopItem->nItemID,item->isStack,pShopItem->nCount,true) ;
+					}
+					break;
+				case eShopItem_Coin:
+					{
+						AddMoney(pShopItem->nCount,false) ;
+					}
+					break;
+				case eShopItem_Diamoned:
+					{
+						AddMoney(pShopItem->nCount,true) ;
+					}
+					break ;
+				case eShopItem_RoomCard:
+					{
+						m_stBaseData.nVipRoomCardCnt += pShopItem->nCount ;
+						m_bMoneyDataDirty = true ;
+					}
+					break;
+				default:
+					{
+						jsmsg["ret"] = 4 ;
+						CLogMgr::SharedLogMgr()->ErrorLog("unknown shop item type shop item = %u, give back money",pShopItem->nShopItemID) ;
+						AddMoney(pShopItem->nPrize,2 == pShopItem->nPrizeType) ;
+					}
+					break;
+				}
+			}
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u buy shop item = %u , ret = %u",GetPlayer()->GetUserUID(),pShopItem->nShopItemID,jsmsg["ret"].asUInt()) ;
+			SendMsg(jsmsg,nmsgType);
+		}
+		break ;
+	case MSG_START_ROLL_PLATE:
+		{
+			struct tm ptnw ,tlast;
+			time_t nNow = time(nullptr);
+			ptnw = *localtime(&nNow);
+			if ( m_stBaseData.tLastRollPlateTime == 0 )
+			{
+				tlast.tm_mday = 0 ;
+				tlast.tm_mon = 0 ;
+			}
+			else
+			{
+				tlast = *localtime((time_t*)&m_stBaseData.tLastRollPlateTime) ;
+			}
+
+			if ( tlast.tm_mday != ptnw.tm_mday && tlast.tm_mon != ptnw.tm_mon )
+			{
+				// a new day rest free roll times ;
+				m_stBaseData.nFreeRollPlateTimes = 1 ;
+			}
+
+			Json::Value jsMsg ;
+			jsMsg["ret"] = 0 ; 
+			jsMsg["isFree"] = 1 ;
+			jsMsg["plateID"] = 0 ;
+			do 
+			{
+				if ( m_stBaseData.nFreeRollPlateTimes <= 0 )
+				{
+					jsMsg["isFree"] = 0 ; 
+					if ( getCoin() < 1000 )
+					{
+						CLogMgr::SharedLogMgr()->ErrorLog("temp set roll plate fee is 1000 ") ;
+						jsMsg["ret"] = 1 ;
+						break ;
+					}
+
+					decressMoney(1000) ;
+				}
+				else
+				{
+					--m_stBaseData.nFreeRollPlateTimes ;
+				}
+
+				// do the result ;
+				auto pPlateConfig = (CPlateConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Plate);
+				auto pp = pPlateConfig->randPlateItem();
+				jsMsg["plateID"] = pp->nConfigID ;
+				switch ( pp->ePlateItemType )
+				{
+				case eShopItem_Item:
+					{
+						auto itemConfig = (CItemConfigManager*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Item);
+						auto item = itemConfig->GetItemConfigByItemID(pp->nItemID);
+						auto pBag = (CPlayerBag*)GetPlayer()->GetComponent(ePlayerComponet_Bag);
+						pBag->addPlayerItem(pp->nItemID,item->isStack,pp->nCount,true) ;
+					}
+					break;
+				case eShopItem_Coin:
+					{
+						AddMoney(pp->nCount,false) ;
+					}
+					break;
+				case eShopItem_Diamoned:
+					{
+						AddMoney(pp->nCount,true) ;
+					}
+					break ;
+				case eShopItem_RoomCard:
+					{
+						m_stBaseData.nVipRoomCardCnt += pp->nCount ;
+						m_bMoneyDataDirty = true ;
+					}
+					break;
+				default:
+					{
+						if ( jsMsg["isFree"].asUInt() )
+						{
+							++m_stBaseData.nFreeRollPlateTimes ;
+						}
+						else
+						{
+							AddMoney(1000) ;
+						}
+						CLogMgr::SharedLogMgr()->ErrorLog("unknown item type roll plate item = %u, give back money",pp->nConfigID) ;
+						jsMsg["ret"] = 2 ; 
+					}
+					break;
+				}
+				
+			} while (0);
+
+			if ( jsMsg["isFree"].asUInt() )
+			{
+				m_stBaseData.tLastRollPlateTime = (uint32_t)time(nullptr);
+				m_bCommonLogicDataDirty = true ;
+			}
+			SendMsg(jsMsg,nmsgType);
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u roll plate id = %u, isfee = %u",GetPlayer()->GetUserUID(),jsMsg["plateID"].asUInt(),jsMsg["isFree"].asUInt()) ;
+		}
+		break ;
 	default:
 		return false ;
 	}
@@ -1015,6 +1212,8 @@ void CPlayerBaseData::TimerSave()
 		msgLogicData.tLastLoginTime = m_stBaseData.tLastLoginTime ;
 		msgLogicData.tLastTakeCharityCoinTime = m_stBaseData.tLastTakeCharityCoinTime ;
 		msgLogicData.tOfflineTime = m_stBaseData.tOfflineTime ;
+		msgLogicData.nFreeRollPlateTimes = m_stBaseData.nFreeRollPlateTimes ;
+		msgLogicData.tLastRollPlateTime = m_stBaseData.tLastRollPlateTime ;
 		memcpy(msgLogicData.vJoinedClubID,m_stBaseData.vJoinedClubID,sizeof(msgLogicData.vJoinedClubID));
 		SendMsg((stMsgSavePlayerCommonLoginData*)&msgLogicData,sizeof(msgLogicData)) ;
 	}

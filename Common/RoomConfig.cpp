@@ -25,6 +25,7 @@ bool CRoomConfigMgr::OnPaser(CReaderRow& refReaderRow )
 	pRoomConfig->nEnterLowLimit = refReaderRow["CoinLowLimit"]->IntValue();
 	pRoomConfig->nEnterTopLimit = refReaderRow["CoinTopLimit"]->IntValue();
 	pRoomConfig->nMaxSeat = refReaderRow["seat"]->IntValue();
+	pRoomConfig->nGameType = cType;
 	m_vAllConfig.push_back(pRoomConfig) ;
 	return true ;
 }

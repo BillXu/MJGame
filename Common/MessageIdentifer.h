@@ -326,4 +326,24 @@ enum eMsgType
 	MSG_VIP_ROOM_GAME_OVER,  // vip 房间结束
 	// svr : { ret : 0 , initCoin : 235 , bills : [ { uid : 2345 , curCoin : 234 }, ....]  }
 	// ret , 0 正常结束， 1 房间被解散。 initCoin 房间的初始金币，bills，是一个数组 放着具体每个玩家的情况，curCoin 表示玩家最终剩余金额, uid 玩家的唯一id 
+
+	// shop module
+	MSG_SHOP_BUY_ITEM = 10548,  // 购买商店里的商品
+	// client : { shopItemID : 2345 }
+	// svr : { ret : 0 , shopItemID : 2345 }
+	// shopItemID ， 商品的配置ID。
+	// ret : 0 购买成功， 1 商品部存在，2 货币不足, 3 道具ID 不存在；
+
+	MSG_REQ_MY_BAG,  // 请求背包内容
+	// client : null 
+	// svr : { items : [ {itemID : 234 , cnt : 23 , buyTime : 23345} , {itemID : 2 , cnt : 23 , buyTime : 23345},  ...... ] }
+	// items : 所以物品数组
+	//  itemID 道具的ID , cnt : 数量 ， buyTime : 购买的时间
+
+	MSG_START_ROLL_PLATE,// 转转盘
+	// client : null 
+	// svr : { ret : 0 , plateID : 234 , isFree : 0  }
+	// ret : 0 成功 , 1 货币不足 , 2 系统错误
+	// plateID :  命中的 配置ID， 根据配置ID 给玩家物品
+	// isFree : 本次转盘 是否免费， 0 是否，1 是 是。
 };

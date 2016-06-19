@@ -18,6 +18,7 @@ public:
 		eConfig_Box,
 		eConfig_Room,
 		eConfig_TitleLevel,
+		eConfig_Plate,
 		eConfig_Max,
 	};
 public:

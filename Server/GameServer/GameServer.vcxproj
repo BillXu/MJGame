@@ -96,6 +96,7 @@
     <ClInclude Include="..\..\Common\ConfigReader.h" />
     <ClInclude Include="..\..\Common\ContinueLoginConfig.h" />
     <ClInclude Include="..\..\Common\IConfigFile.h" />
+    <ClInclude Include="..\..\Common\ItemConfig.h" />
     <ClInclude Include="..\..\Common\LogManager.h" />
     <ClInclude Include="..\..\Common\MessageDefine.h" />
     <ClInclude Include="..\..\Common\MessageIdentifer.h" />
@@ -109,7 +110,9 @@
     <ClInclude Include="..\DataServer\src\GameServerApp.h" />
     <ClInclude Include="..\DataServer\src\IPlayerComponent.h" />
     <ClInclude Include="..\DataServer\src\main.h" />
+    <ClInclude Include="..\DataServer\src\PlateConfig.h" />
     <ClInclude Include="..\DataServer\src\Player.h" />
+    <ClInclude Include="..\DataServer\src\PlayerBag.h" />
     <ClInclude Include="..\DataServer\src\PlayerBaseData.h" />
     <ClInclude Include="..\DataServer\src\PlayerFriend.h" />
     <ClInclude Include="..\DataServer\src\PlayerGameData.h" />
@@ -135,6 +138,7 @@
     <ClCompile Include="..\..\Common\ConfigReader.cpp" />
     <ClCompile Include="..\..\Common\ContinueLoginConfig.cpp" />
     <ClCompile Include="..\..\Common\IConfigFile.cpp" />
+    <ClCompile Include="..\..\Common\ItemConfig.cpp" />
     <ClCompile Include="..\..\Common\LogManager.cpp" />
     <ClCompile Include="..\..\Common\RoomConfig.cpp" />
     <ClCompile Include="..\..\Common\ShopConfg.cpp" />
@@ -145,7 +149,9 @@
     <ClCompile Include="..\DataServer\src\GameServerApp.cpp" />
     <ClCompile Include="..\DataServer\src\IPlayerComponent.cpp" />
     <ClCompile Include="..\DataServer\src\main.cpp" />
+    <ClCompile Include="..\DataServer\src\PlateConfig.cpp" />
     <ClCompile Include="..\DataServer\src\Player.cpp" />
+    <ClCompile Include="..\DataServer\src\PlayerBag.cpp" />
     <ClCompile Include="..\DataServer\src\PlayerBaseData.cpp" />
     <ClCompile Include="..\DataServer\src\PlayerFriend.cpp" />
     <ClCompile Include="..\DataServer\src\PlayerGameData.cpp" />

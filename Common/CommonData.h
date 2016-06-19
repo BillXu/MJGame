@@ -70,6 +70,8 @@ struct stServerBaseData
 	bool isRegister ;
 	uint8_t nNewPlayerHaloWeight ;
 	uint32_t tLastTakeCardGiftTime ;
+	uint32_t nFreeRollPlateTimes ;
+	uint32_t tLastRollPlateTime ;
 };
 
 struct stTaxasInRoomPeerData

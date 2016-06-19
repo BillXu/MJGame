@@ -2,13 +2,14 @@
 #include <string>
 #include "ContinueLoginConfig.h"
 #include "LogManager.h"
-//#include "ItemConfig.h"
+#include "ItemConfig.h"
 #ifdef DATA_SERVER
 //#include "../Server/DataServer/src/InformConfig.h"
 //#include "../Server/DataServer/src/SlotMachine.h"
 #endif
 #include "RoomConfig.h"
 #include "ShopConfg.h"
+#include "../Server/DataServer/src/PlateConfig.h"
 //#include "MissionConfig.h"
 //#include "BoxConfig.h"
 //#include "TitleLevelConfig.h"
@@ -36,19 +37,20 @@ void CConfigManager::LoadAllConfigFile( const char* pConfigRootPath )
 		strCL.append("/");
 	}
 	std::string pConfgiPath[eConfig_Max] ;
-	pConfgiPath[eConfig_ContinueLogin] = strCL + "ContiuneLoginConfig.txt" ;
+	//pConfgiPath[eConfig_ContinueLogin] = strCL + "ContiuneLoginConfig.txt" ;
 	pConfgiPath[eConfig_Item] = strCL + "ItemConfig.txt" ;
-	pConfgiPath[eConfig_Informs] = strCL + "Inform.txt" ;
+	//pConfgiPath[eConfig_Informs] = strCL + "Inform.txt" ;
 	pConfgiPath[eConfig_Shop] = strCL + "ShopConfig.txt" ;
-	pConfgiPath[eConfig_Mission] = strCL + "MissionConfig.txt" ;
-	pConfgiPath[eConfig_SlotMachine] = strCL + "SlotMachine.txt";
-	pConfgiPath[eConfig_Box] = strCL + "BoxConfig.txt";
+	//pConfgiPath[eConfig_Mission] = strCL + "MissionConfig.txt" ;
+	//pConfgiPath[eConfig_SlotMachine] = strCL + "SlotMachine.txt";
+	//pConfgiPath[eConfig_Box] = strCL + "BoxConfig.txt";
 	pConfgiPath[eConfig_Room] = strCL + "RoomConfig.txt";
+	pConfgiPath[eConfig_Plate] = strCL + "rollPlate.txt";
 	//pConfgiPath[eConfig_TitleLevel] = strCL + "TitleLevelConfig.txt";
 	// go on login 
 	m_vConfigs[eConfig_ContinueLogin] = new CContiuneLoginConfigMgr ;
 	// item config ;
-	//m_vConfigs[eConfig_Item] = new CItemConfigManager ;
+	m_vConfigs[eConfig_Item] = new CItemConfigManager ;
 #ifdef SERVER
 	// inform config 
 	//m_vConfigs[eConfig_Informs] = new CInformConfig ;
@@ -69,6 +71,8 @@ void CConfigManager::LoadAllConfigFile( const char* pConfigRootPath )
 
 	// title level config 
 	//m_vConfigs[eConfig_TitleLevel] = new CTitleLevelConfig ;
+
+	m_vConfigs[eConfig_Plate] = new CPlateConfigMgr ;
 
 	for ( int i = eConfig_One; i < eConfig_Max ; ++i )
 	{

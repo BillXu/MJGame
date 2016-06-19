@@ -15,6 +15,7 @@
 #include "AutoBuffer.h"
 #include "RoomConfig.h"
 #include "PlayerGameData.h"
+#include "PlayerBag.h"
 #define TIME_SAVE 60*10
 #define TIME_DELAY_DELETE 2*60
 CPlayer::CPlayer( )
@@ -43,7 +44,7 @@ CPlayer::~CPlayer()
 		m_vAllComponents[i] = NULL ;
 	}
 
-	m_pTimerSave.canncel() ;
+	//m_pTimerSave.canncel() ;
 }
 
 void CPlayer::Init(unsigned int nUserUID, unsigned int nSessionID )
@@ -61,6 +62,7 @@ void CPlayer::Init(unsigned int nUserUID, unsigned int nSessionID )
 	//m_vAllComponents[ePlayerComponent_PlayerMission] = new CPlayerMission(this);
 	//m_vAllComponents[ePlayerComponent_PlayerShop] = new CPlayerShop(this);
 	m_vAllComponents[ePlayerComponent_Friend] = new CPlayerFriend(this);
+	m_vAllComponents[ePlayerComponet_Bag] = new CPlayerBag(this);
 	for ( int i = ePlayerComponent_None; i < ePlayerComponent_Max ; ++i )
 	{
 		IPlayerComponent* p = m_vAllComponents[i] ;

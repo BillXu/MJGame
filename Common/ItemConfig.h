@@ -5,16 +5,17 @@
 #include "CommonDefine.h"
 struct stItemConfig
 {
-	unsigned short nItemID ;
-	eItemType eType ;
-#ifndef GAME_SERVER
-	std::string strName;
-	std::string strDesc ;
-	std::string strIcon ;
-#endif
-	uint64_t nPrizeCoin ;
-	int nPrizeDiamoned ;
-	unsigned int nValue ; // keep value ;
+	uint32_t nItemID ;
+	bool isStack;
+//	eItemType eType ;
+//#ifndef GAME_SERVER
+//	std::string strName;
+//	std::string strDesc ;
+//	std::string strIcon ;
+//#endif
+	//uint64_t nPrizeCoin ;
+	//int nPrizeDiamoned ;
+	//unsigned int nValue ; // keep value ;
 };
 
 struct stItemGift

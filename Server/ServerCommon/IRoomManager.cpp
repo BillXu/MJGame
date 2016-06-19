@@ -243,7 +243,6 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 					CLogMgr::SharedLogMgr()->ErrorLog("temp set robot coin uid = %u",pRet->tPlayerData.nUserUID) ;
 				}
 			}
-			CLogMgr::SharedLogMgr()->ErrorLog("temp set robot coin ") ;
 			IRoomInterface* pRoomEnter = nullptr ;
 			if ( pRet->nType == 1 )
 			{

@@ -14,7 +14,7 @@ void CMJRoomManager::init(IServerApp* svrApp)
 	auto iter = m_pConfigMgr->GetBeginIter() ;
 	for ( ; iter != m_pConfigMgr->GetEndIter(); ++iter )
 	{
-		uint8_t nCreaeCnt = 3 ;
+		uint8_t nCreaeCnt = 1 ;
 		while ( nCreaeCnt-- )
 		{
 			Json::Value vDefault ;

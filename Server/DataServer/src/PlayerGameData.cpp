@@ -84,7 +84,7 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 				m_nStateInRoomID = 0;
 				m_ePlayerGameState = ePlayerGameState_Entering;
-				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d ,  coin = %u", GetPlayer()->GetUserUID(), m_nStateInRoomID ,msgEnter.tPlayerData.nCoin ) ;
+				CLogMgr::SharedLogMgr()->PrintLog("player uid = %d enter to enter room id = %d ,  coin = %u", GetPlayer()->GetUserUID(), msgEnter.nTargetID ,msgEnter.tPlayerData.nCoin ) ;
 			}
 
 		}

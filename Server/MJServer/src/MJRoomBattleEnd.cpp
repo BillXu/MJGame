@@ -21,7 +21,7 @@ bool CMJRoomBattleEnd::isGameOver()
 	return false ;
 }
 
-bool CMJRoomBattleEnd::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
+bool CMJRoomBattleEnd::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitIdx>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
 {
 	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
@@ -31,15 +31,19 @@ bool CMJRoomBattleEnd::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector
 		}
 
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nIdx) ;
-		if ( pPlayer->isHaveState(eRoomPeer_AlreadyHu) )
+		if ( pPlayer == nullptr || pPlayer->isHaveState(eRoomPeer_AlreadyHu) )
 		{
 			continue;
 		}
 
-		if ( pPlayer->isCardBeWanted(nCardNumber,false) )
+		uint8_t nActType = 0 ;
+		if ( pPlayer->isCardBeWanted(nCardNumber,nActType,false) )
 		{
-			nNeedCardPlayerIdxs.push_back(nIdx) ;
-			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u",nIdx,nCardNumber) ;
+			stWaitIdx wid ;
+			wid.nIdx = nIdx ;
+			wid.nMaxActExePrio = nActType ;
+			nNeedCardPlayerIdxs.push_back(wid) ;
+			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u,max Act Type = %u",nIdx,nCardNumber,nActType) ;
 		}
 	}
 

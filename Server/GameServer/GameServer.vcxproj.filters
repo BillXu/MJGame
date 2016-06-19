@@ -142,6 +142,15 @@
     <ClInclude Include="..\ServerCommon\ServerMessageIdentifer.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common\ItemConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlayerBag.h">
+      <Filter>src\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\PlateConfig.h">
+      <Filter>Common\Config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp">
@@ -230,6 +239,15 @@
     </ClCompile>
     <ClCompile Include="..\DataServer\src\RobotCenter.cpp">
       <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ItemConfig.cpp">
+      <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlayerBag.cpp">
+      <Filter>src\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\PlateConfig.cpp">
+      <Filter>Common\Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@ enum ePlayerComponentType
 	ePlayerComponent_PlayerMission,
 	ePlayerComponent_PlayerGameData ,
 	ePlayerComponent_Mail,            // last sit the last pos ,
+	ePlayerComponet_Bag,
 	ePlayerComponent_Max,
 };
 
