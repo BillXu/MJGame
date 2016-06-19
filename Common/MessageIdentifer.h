@@ -26,9 +26,9 @@ enum eRoomType
 {
 	eRoom_None,
 	eRoom_MJ = eRoom_None,
-	eRoom_MJ_Blood_River = eRoom_MJ, // 血流成河
-	eRoom_NiuNiu = eRoom_MJ,
-	eRoom_MJ_Blood_End, // 血战到底
+	eRoom_MJ_Blood_End = eRoom_None, // 血战到底 
+	eRoom_MJ_Blood_River,// 血流成河
+	eRoom_NiuNiu = eRoom_MJ_Blood_River,
 	eRoom_TexasPoker,
 	eRoom_Golden,
 	eRoom_Max ,
@@ -281,7 +281,7 @@ enum eMsgType
 
 	// vip 房间消息
 	MSG_CREATE_VIP_ROOM,  // 创建vip房间 
-	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : 0, seatCnt : 4  }
+	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : eRoomType, seatCnt : 4  }
 	// svr : { ret : 0 , roomID : 2345 }
 	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, seatCnt : 座位个数。
 

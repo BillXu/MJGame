@@ -25,6 +25,9 @@
     <Filter Include="src\Card">
       <UniqueIdentifier>{7a7f0b62-48f6-4841-9f57-4bf4f84c5309}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\RoomBattleEnd">
+      <UniqueIdentifier>{7467e420-fea2-4556-983a-ce238cbf0ab1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -174,6 +177,9 @@
     <ClInclude Include="..\..\Common\StringHash.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="src\MJRoomBattleEnd.h">
+      <Filter>src\RoomBattleEnd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -280,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Common\StringHash.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJRoomBattleEnd.cpp">
+      <Filter>src\RoomBattleEnd</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

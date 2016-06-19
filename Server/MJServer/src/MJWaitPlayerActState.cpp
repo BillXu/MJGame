@@ -263,7 +263,7 @@ void CMJDoPlayerActState::onExecuteOver()
 				CLogMgr::SharedLogMgr()->PrintLog(" no one need the card = %u, from idx = %u ,so wait them",m_nCardNumber,m_nCurIdx) ;
 
 				CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-				if ( pRoom->getLeftCardCnt() < 1 )
+				if ( pRoom->isGameOver() )
 				{
 					pRoom->goToState(eRoomState_GameEnd) ;
 					return ;
@@ -518,7 +518,7 @@ void CMJWaitOtherActState::onWaitEnd( bool bTimeOut )
 		{
 			// go to next player act 
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-			if ( pRoom->getLeftCardCnt() < 1 )
+			if ( pRoom->isGameOver() )
 			{
 				pRoom->goToState(eRoomState_GameEnd) ;
 				return ;
