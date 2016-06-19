@@ -9,7 +9,8 @@ void CMJWaitPlayerActState::enterState(IRoom* ptRoom)
 	auto pRoom = (CMJRoom*)m_pRoom ;
 	auto ppPlayer = (CMJRoomPlayer*)pRoom->getPlayerByIdx(m_vWaitIdxs.front().nIdx) ;
 	uint8_t nNewCard = ppPlayer->getNewFetchCard() ;
-	if ( ppPlayer->updateSelfOperateCards() )
+	auto firt = m_vWaitIdxs.front();
+	if ( firt.nMaxActExePrio != eMJAct_Chu && ppPlayer->updateSelfOperateCards() )
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , self need the card = %u" , m_vWaitIdxs.front().nIdx,nNewCard) ;
 		pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
@@ -38,6 +39,14 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	{
 		msgBack["ret"] = 1 ;
 		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
+		return true ;
+	}
+
+	if ( m_vWaitIdxs.front().nMaxActExePrio == eMJAct_Chu && nActType != eMJAct_Chu )
+	{
+		msgBack["ret"] = 2 ;
+		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
+		CLogMgr::SharedLogMgr()->PrintLog("you must chu pai") ;
 		return true ;
 	}
 

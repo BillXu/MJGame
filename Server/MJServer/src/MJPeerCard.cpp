@@ -460,19 +460,18 @@ void CMJPeerCard::addCard( uint8_t nCardNuber )
 	doAction(eMJAct_Mo,nCardNuber);
 }
 
-uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ) // nCardNumber = 0 , means self mo ; return value not include gen ;
+uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ,eFanxingType &htype ) // nCardNumber = 0 , means self mo ; return value not include gen ;
 {
 	if ( nCardNumber != 0 )
 	{
 		addCard(nCardNumber) ;
 	}
 
-	eFanxingType eFtype ;
 	uint8_t nFanShu = 0 ;
-	if ( CBloodFanxing::getInstance()->checkHuPai(*this,eFtype,nFanShu) )
+	if ( CBloodFanxing::getInstance()->checkHuPai(*this,htype,nFanShu) )
 	{
 		nGenShu = getGenShu() ;
-		if ( eFtype == eFanxing_LongQiDui )
+		if ( htype == eFanxing_LongQiDui )
 		{
 			nGenShu -= 1 ;
 		}
@@ -482,7 +481,7 @@ uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ) // 
 			removeCardNumber(nCardNumber) ;
 			// must left 13 count card , because player can hu more than once 
 		} 
-		CLogMgr::SharedLogMgr()->PrintLog("player hu pai , type = %u , fanShu = %u",eFtype,nFanShu) ;
+		CLogMgr::SharedLogMgr()->PrintLog("player hu pai , type = %u , fanShu = %u",htype,nFanShu) ;
 		return nFanShu ;
 	}
 	else

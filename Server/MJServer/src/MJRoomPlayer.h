@@ -85,6 +85,7 @@ public:
 	void getCardInfo( Json::Value& vCardInFoValue );
 	void debugWantedCard();
 	bool getOperateListJoson(Json::Value& vActList );
+	uint32_t getHuType(){ return m_eHuType; }
 protected:
 	void updateWantedCardList();
 public:
@@ -103,4 +104,5 @@ protected:
 	LIST_WANTED_CARD m_listWantedCard ;
 	bool m_isWantedCarListDirty ;
 	LIST_WANTED_CARD m_listSelfOperateCard ;
+	eFanxingType m_eHuType ;
 };

@@ -18,6 +18,7 @@ void CMJRoomPlayer::reset(IRoom::stStandPlayer* pPlayer)
 	m_vChuedCards.clear() ;
 	m_nBuGaneCard  = 0 ;
 	m_isWantedCarListDirty = false ;
+	m_eHuType = eFanxing_Max ;
 }
 
 void CMJRoomPlayer::onGameEnd()
@@ -38,6 +39,7 @@ void CMJRoomPlayer::onGameEnd()
 	m_vChuedCards.clear() ;
 	m_nBuGaneCard  = 0 ;
 	m_isWantedCarListDirty = false ;
+	m_eHuType = eFanxing_Max ;
 }
 
 void CMJRoomPlayer::onGameBegin()
@@ -49,6 +51,7 @@ void CMJRoomPlayer::onGameBegin()
 	m_vHuedCards.clear() ;
 	m_vChuedCards.clear() ;
 	m_isWantedCarListDirty = false ;
+	m_eHuType = eFanxing_Max ;
 }
 
 void CMJRoomPlayer::doSitdown(uint8_t nIdx )
@@ -190,7 +193,7 @@ eMJActType CMJRoomPlayer::getNewFetchedFrom()
 uint8_t CMJRoomPlayer::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu )  // nCardNumber = 0 , means self mo ;
 {
 	setState(eRoomPeer_AlreadyHu) ;
-	uint8_t nFan = m_tPeerCard.doHuPaiFanshu(nCardNumber,nGenShu) ;
+	uint8_t nFan = m_tPeerCard.doHuPaiFanshu(nCardNumber,nGenShu,m_eHuType) ;
 	if ( nCardNumber == 0 )   // must keep 13, player can hu more than once , so must remove new added card , for self ;
 	{
 		removeCard(getNewFetchCard()) ;

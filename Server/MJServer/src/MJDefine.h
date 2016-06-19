@@ -32,21 +32,3 @@ enum  ePosType
 	ePos_Max,
 };
 
-enum eFanxingType 
-{
-	eFanxing_PingHu,
-	eFanxing_QingYiSe,
-	eFanxing_QiDui,
-	eFanxing_QingDui,
-	eFanxing_LongQiDui,
-	eFanxing_QingLongQiDui,
-	eFanxing_DuiDuiHu,
-	eFanxing_QingDuiDuiHu,
-	eFanxing_JinGouDiao,
-	eFanxing_QingJinGouDiao,
-	eFanxing_ShiBaLuoHan,
-	eFanxing_JiangJinGouDiao,
-	eFanxing_DaiYaoJiu,
-	eFanxing_QingDaiYaoJiu,
-	eFanxing_Max,
-};

@@ -294,10 +294,11 @@ void CMJRoom::caculateGameResult()
 	Json::Value msgArray ;
 	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
-		auto pPlayer = getPlayerByIdx(nIdx) ;
+		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nIdx) ;
 		Json::Value info ;
 		info["idx"] = nIdx ;
 		info["coin"] = pPlayer->getCoin() ; 
+		info["huType"] = pPlayer->getHuType();
 		msgArray[(uint32_t)nIdx] = info ;
 	}
 	msg["players"] = msgArray ;
@@ -890,11 +891,6 @@ void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubId
 	}
 	else
 	{
-		if ( pEnterRoomPlayer->nUserUID == 22 )
-		{
-			int a = 0 ;
-			++a ;
-		}
 		CLogMgr::SharedLogMgr()->PrintLog("player uid = %u not sit , system auto sit",pEnterRoomPlayer->nUserUID) ;
 		stMsgPlayerSitDown msgSitDown ;
 		msgSitDown.nIdx = 0 ;

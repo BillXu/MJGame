@@ -22,6 +22,28 @@ enum eMJActType
 #if (C_SHARP)  
 public
 #endif
+enum eFanxingType 
+{
+	eFanxing_PingHu, // 平胡
+	eFanxing_QingYiSe, // 清一色
+	eFanxing_QiDui, //  七对
+	eFanxing_QingDui, //  清对
+	eFanxing_LongQiDui, //  龙七对
+	eFanxing_QingLongQiDui, //  清龙七对
+	eFanxing_DuiDuiHu, //  对对胡
+	eFanxing_QingDuiDuiHu, // 清对对胡
+	eFanxing_JinGouDiao, //  金钩钓
+	eFanxing_QingJinGouDiao, // 清金钩钓
+	eFanxing_ShiBaLuoHan, //  十八罗汉
+	eFanxing_JiangJinGouDiao, // 将金钩钓
+	eFanxing_DaiYaoJiu, //  带幺九
+	eFanxing_QingDaiYaoJiu, //  清 带幺九
+	eFanxing_Max, // 没有胡
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eRoomType
 {
 	eRoom_None,
@@ -249,7 +271,8 @@ enum eMsgType
 	// players : 需要充值的玩家所以 数组，可能有多个玩家。
 	
 	MSG_ROOM_GAME_OVER, // 游戏结束
-	// svr : { players : [ {idx : 0 , coin : 2345 } ,{idx : 1 , coin : 2345 } ,{idx : 2 , coin : 2345 },{idx : 3 , coin : 2345 } ]  } 
+	// svr : { players : [ {idx : 0 , coin : 2345 ,huType : eFanxingType } ,{idx : 1 , coin : 2345 ,huType : eFanxingType } ,{idx : 2 , coin : 2345,huType : eFanxingType },{idx : 3 , coin : 2345,huType : eFanxingType } ]  } 
+	// eFanxingType 参照枚举值
 	// players: 结束后，每个玩家最终的钱数。
 
 	MSG_PLAYER_LEAVE_ROOM, // 玩家离开房间

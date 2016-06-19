@@ -67,7 +67,7 @@ public:
 	void updateSelfOperateCard( LIST_WANTED_CARD& vOperateList, uint8_t nNewCard );
 	bool isContainMustQue();
 	void addCard( uint8_t nCardNuber );
-	uint8_t doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ); // nCardNumber = 0 , means self mo ; return value not include gen ;
+	uint8_t doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ,eFanxingType &htype); // nCardNumber = 0 , means self mo ; return value not include gen ;
 	uint8_t getMaxHuPaiFanShu( uint8_t& nGenShu );
 	uint8_t getCardByIdx(uint8_t nCardIdx, bool isForExchange = true );
 	bool isHaveAnCard(uint8_t nCardNumber);

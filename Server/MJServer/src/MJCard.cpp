@@ -1,5 +1,6 @@
 #include "MJCard.h"
 #include <cassert>
+#include "LogManager.h"
 uint8_t CMJCard::getCard()
 {
 	if ( isEmpty() )
@@ -94,6 +95,10 @@ eMJCardType CMJCard::parseCardType(uint8_t nCardNum)
 {
 	uint8_t nType = nCardNum & 0xF0 ;
 	nType = nType >> 4 ;
+	if ( (nType < eCT_Max && nType > eCT_None) == false )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("parse card type error , cardnum = %u",nCardNum) ;
+	}
 	assert(nType < eCT_Max && nType > eCT_None && "invalid card type" );
 	return (eMJCardType)nType ;
 }
@@ -105,6 +110,11 @@ uint8_t CMJCard::parseCardValue(uint8_t nCardNum )
 
 uint8_t CMJCard::makeCardNumber(eMJCardType eType,uint8_t nValue )
 {
+	if ( ((eType < eCT_Max && eType > eCT_None) == false) || (nValue <= 9 && nValue >= 1) == false )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("makeCardNumber card type error , type  = %u, value = %u ",eType,nValue) ;
+	}
+
 	assert(eType < eCT_Max && eType > eCT_None && "invalid card type" );
 	assert(nValue <= 9 && nValue >= 1 && "invalid card value" );
 	uint8_t nType = eType ;
@@ -117,6 +127,12 @@ void CMJCard::parseCardTypeValue(uint8_t nCardNum, eMJCardType& eType,uint8_t& n
 {
 	eType = parseCardType(nCardNum) ;
 	nValue = parseCardValue(nCardNum) ;
+
+	if ( ((eType < eCT_Max && eType > eCT_None) == false) || (nValue <= 9 && nValue >= 1) == false )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("parseCardTypeValue card type error , type  = %u, value = %u number = %u",eType,nValue ,nCardNum) ;
+	}
+
 	assert(eType < eCT_Max && eType > eCT_None && "invalid card type" );
 	assert(nValue <= 9 && nValue >= 1 && "invalid card value" );
 }
