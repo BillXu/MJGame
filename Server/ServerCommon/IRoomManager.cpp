@@ -36,21 +36,6 @@ void IRoomManager::init(IServerApp* svrApp)
 	m_mapPrivateRooms.clear() ;
 	m_pGoTyeAPI.init("https://qplusapi.gotye.com.cn:8443/api/");
 	m_pGoTyeAPI.setDelegate(this);
-
-	CLogMgr::SharedLogMgr()->SystemLog("temp create room") ;
-	// tem create room ;
-	auto iter = m_pConfigMgr->GetBeginIter() ;
-	for ( ; iter != m_pConfigMgr->GetEndIter(); ++iter )
-	{
-		uint8_t nCreaeCnt = 5 ;
-		while ( nCreaeCnt-- )
-		{
-			Json::Value vDefault ;
-			IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,false,(*iter)->nConfigID,eRoom_MJ,vDefault);
-			addRoomToSystem(pRoom) ;
-		}
-		CLogMgr::SharedLogMgr()->PrintLog("system crate five room config id = %u",(*iter)->nConfigID ) ;
-	}
 }
 
 void IRoomManager::sendMsg(stMsg* pmsg, uint32_t nLen , uint32_t nSessionID )

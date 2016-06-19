@@ -34,11 +34,11 @@ public:
 	void onPlayerHuPai(uint8_t nActIdx);
 	void onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvokerIdx ,bool isGangPai );
 	void onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGang , uint8_t nInvokeIdx );
-	bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitIdx>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
+	virtual bool checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<uint8_t>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx );
 	void onPlayerBuGangPre(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	void onPlayerChuPai(uint8_t nPlayerIdx , uint8_t nCardNumber );
 	uint8_t getLeftCardCnt();
-	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
+	virtual uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
 	void setCurWaitIdx(uint8_t nidx){m_nCurActIdx = nidx ;};
 	void onPlayerMoPai( uint8_t nIdx );
 	void onPlayerPeng(uint8_t nPlayerIdx ,uint8_t nCardNumber , uint8_t nInvokerIdx);

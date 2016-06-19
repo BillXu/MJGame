@@ -125,6 +125,7 @@
     <ClInclude Include="..\ServerCommon\ISitableRoom.h" />
     <ClInclude Include="..\ServerCommon\SystemRoom.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
+    <ClInclude Include="src\MJRoomBattleEnd.h" />
     <ClInclude Include="src\MJWaitDecideQueState.h" />
     <ClInclude Include="src\MJBloodFanxing.h" />
     <ClInclude Include="src\MJCard.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="src\MJGameStartState.cpp" />
     <ClCompile Include="src\MJPeerCard.cpp" />
     <ClCompile Include="src\MJRoom.cpp" />
+    <ClCompile Include="src\MJRoomBattleEnd.cpp" />
     <ClCompile Include="src\MJServerRoomManger.cpp" />
     <ClCompile Include="src\MJRoomPlayer.cpp" />
     <ClCompile Include="src\MJServer.cpp" />
