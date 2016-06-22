@@ -15,7 +15,7 @@ bool CItemConfigManager::OnPaser(CReaderRow& refReaderRow )
 	stItemConfig* pItem = NULL ; 
 	//if ( eItem_Gift == eType )
 	//{
-		pItem = new stItemGift ;
+		//pItem = new stItemGift ;
 	//}
 	//else
 	{

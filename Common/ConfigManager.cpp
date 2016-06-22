@@ -37,7 +37,7 @@ void CConfigManager::LoadAllConfigFile( const char* pConfigRootPath )
 		strCL.append("/");
 	}
 	std::string pConfgiPath[eConfig_Max] ;
-	//pConfgiPath[eConfig_ContinueLogin] = strCL + "ContiuneLoginConfig.txt" ;
+	pConfgiPath[eConfig_ContinueLogin] = strCL + "ContiuneLoginConfig.txt" ;
 	pConfgiPath[eConfig_Item] = strCL + "ItemConfig.txt" ;
 	//pConfgiPath[eConfig_Informs] = strCL + "Inform.txt" ;
 	pConfgiPath[eConfig_Shop] = strCL + "ShopConfig.txt" ;
