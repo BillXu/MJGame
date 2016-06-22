@@ -827,7 +827,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 					break;
 				}
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u buy shop item = %u , ret = %u",GetPlayer()->GetUserUID(),pShopItem->nShopItemID,jsmsg["ret"].asUInt()) ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u buy shop item = %u , ret = %u",GetPlayer()->GetUserUID(),nShopItemID,jsmsg["ret"].asUInt()) ;
 			SendMsg(jsmsg,nmsgType);
 		}
 		break ;

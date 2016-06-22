@@ -78,3 +78,4 @@ Server/DBServer/Debug/
 *.sdf
 Server/Bin/ServerBin/log/
 Server/jacksnail.rar
+*.dmp
