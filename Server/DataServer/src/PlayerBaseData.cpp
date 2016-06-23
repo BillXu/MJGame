@@ -843,7 +843,8 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			}
 			else
 			{
-				tlast = *localtime((time_t*)&m_stBaseData.tLastRollPlateTime) ;
+				time_t tLasttt = m_stBaseData.tLastRollPlateTime;
+				tlast = *localtime(&tLasttt) ;
 			}
 
 			if ( tlast.tm_mday != ptnw.tm_mday && tlast.tm_mon != ptnw.tm_mon )
