@@ -346,4 +346,10 @@ enum eMsgType
 	// ret : 0 成功 , 1 货币不足 , 2 系统错误
 	// plateID :  命中的 配置ID， 根据配置ID 给玩家物品
 	// isFree : 本次转盘 是否免费， 0 是否，1 是 是。
+
+	MSG_PLAYER_DO_EXCHANGE, // 玩家兑换
+	// client : { configID : 235 , info :{ phone : 12345 , addr : "shanghai changNing chian" } }
+	// ret : { ret : 0 , configID : 235 }
+	// ret : // 0 兑换成功 , 1 指定的配置id 不存在 , 2 钻石货币不足，不能兑换 ; 3 其他错误 ; 
+	// configID : 兑换表里的配置ID，info ： 玩家填写的基本信息，客户端可以自行扩展，原样存入数据库。
 };

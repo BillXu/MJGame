@@ -15,7 +15,8 @@ bool CExchangeConfig::OnPaser(CReaderRow& refReaderRow )
 	pItem->nConfigID = refReaderRow["id"]->IntValue() ;
 	pItem->nDiamondNeed = refReaderRow["diamond"]->IntValue();
 	pItem->strDesc = refReaderRow["desc"]->StringValue() ;
-	pItem->strIcon = refReaderRow["icon"]->StringValue() ;
+	pItem->strIcon = "";//refReaderRow["icon"]->StringValue() ;
+	printf("svr do not need icon\n");
 	auto already = getExchangeByID(pItem->nConfigID) ;
 	printf("%s\n",pItem->strDesc.c_str());
 	if ( already )

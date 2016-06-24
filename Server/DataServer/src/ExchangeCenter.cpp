@@ -214,6 +214,99 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 	return true ;
 }
 
+bool CExchangeCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
+{
+	switch (nMsgType)
+	{
+	case MSG_PLAYER_DO_EXCHANGE:
+		{
+			uint32_t nConfigID = prealMsg["configID"].asUInt() ;
+			Json::Value jsInfo = prealMsg["info"] ;
+
+			Json::Value jsmsgBack ;
+			jsmsgBack["configID"] = nConfigID ;
+			uint8_t nRet = 0 ;
+			do 
+			{
+				auto pPlayer = CGameServerApp::SharedGameServerApp()->GetPlayerMgr()->GetPlayerBySessionID(nSessionID) ;
+				if ( !pPlayer )
+				{
+					nRet = 3 ;
+					break ;
+				}
+
+				auto pExchangeItem = m_tConfig.getExchangeByID(nConfigID);
+				if ( !pExchangeItem )
+				{
+					nRet = 1 ;
+					CLogMgr::SharedLogMgr()->PrintLog("can not find exchange item uid = %d , exchange id = %d",pPlayer->GetUserUID(),pExchangeItem->nConfigID) ;
+					break ;
+				}
+
+				if ( pPlayer->GetBaseData()->GetAllDiamoned() < pExchangeItem->nDiamondNeed )
+				{
+					nRet = 2 ;
+					CLogMgr::SharedLogMgr()->PrintLog("uid = %d , you diamond is not enough",pPlayer->GetUserUID()) ;
+					break ;
+				}
+
+				// do exchange
+				pPlayer->GetBaseData()->decressMoney(pExchangeItem->nDiamondNeed,true) ;
+
+				// give order 
+				stMsgSaveLog msgLog ;
+				msgLog.nLogType = eLog_ExchangeOrder ;
+				msgLog.nTargetID = pPlayer->GetUserUID() ;
+				memset(msgLog.vArg,0,sizeof(msgLog.vArg));
+				msgLog.vArg[0] = pExchangeItem->nConfigID ;
+
+				Json::Value jValue ;
+				jValue["playerName"] = pPlayer->GetBaseData()->GetPlayerName() ;
+				jValue["excDesc"] = pExchangeItem->strDesc ;
+				jValue["configID"] = nConfigID ;
+				jValue["info"] = jsInfo ;
+
+				Json::StyledWriter jWriter ;
+				std::string  strArg = jWriter.write(jValue) ;
+				msgLog.nJsonExtnerLen = strArg.size() ;
+
+				CAutoBuffer auBuffer(sizeof(msgLog) + msgLog.nJsonExtnerLen );
+				auBuffer.addContent(&msgLog,sizeof(msgLog)) ;
+				auBuffer.addContent(strArg.c_str(),msgLog.nJsonExtnerLen) ;
+				getSvrApp()->sendMsg(nSessionID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
+				CLogMgr::SharedLogMgr()->PrintLog("uid = %d do exchange item id = %d, remark = %s",pPlayer->GetUserUID(),pExchangeItem->nConfigID,strArg.c_str()) ;
+
+				// update recorder ;
+				auto pRec = vExchangeEntrys.find(nConfigID);
+				if ( pRec != vExchangeEntrys.end() )
+				{
+					++pRec->second->nExchangedCnt ;
+					pRec->second->bDirty = true ;
+				}
+				else
+				{
+					auto pp = new stExchangeEntry ;
+					pp->bDirty = true ;
+					pp->nExchangedCnt = 1 ;
+					pp->nExchangeID = nConfigID ;
+					vExchangeEntrys[pp->nExchangeID] = pp ;
+				}
+
+				bItemBufferDirty = true ;
+
+			} while (0);
+
+			jsmsgBack["ret"] = nRet ;
+			getSvrApp()->sendMsg(nSessionID,jsmsgBack,nMsgType);
+
+		}
+		break;
+	default:
+		return false ;
+	}
+	return true ;
+}
+
 void CExchangeCenter::onTimeSave()
 {
 	IGlobalModule::onTimeSave();
