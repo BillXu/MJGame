@@ -3,6 +3,7 @@
 #include <list>
 #include <map>
 #include <assert.h>
+#include "json/json.h"
 struct stDBResult ;
 class CDBServerApp ;
 struct stPlayerDetailData;
@@ -28,6 +29,7 @@ public:
 	void Init();
 	void OnMessage(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID );
 	void OnDBResult(stDBResult* pResult);
+	bool onAsyncRequest(uint32_t nReqType , uint32_t nSerialNum, uint8_t nSrcPort,Json::Value jsReqContent );
 	stArgData* GetReserverArgData();
 	unsigned int GenerateUserUID(){ return ++nCurUserUID ;}
 	void GetPlayerDetailData(stPlayerDetailData* pData, CMysqlRow&prow);

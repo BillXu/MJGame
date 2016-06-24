@@ -120,6 +120,7 @@
     <ClInclude Include="..\DataServer\src\PlayerManager.h" />
     <ClInclude Include="..\DataServer\src\PokerCircle.h" />
     <ClInclude Include="..\DataServer\src\RobotCenter.h" />
+    <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h" />
     <ClInclude Include="..\ServerCommon\AutoBuffer.h" />
     <ClInclude Include="..\ServerCommon\IGlobalModule.h" />
     <ClInclude Include="..\ServerCommon\ISeverApp.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="..\DataServer\src\PlayerManager.cpp" />
     <ClCompile Include="..\DataServer\src\PokerCircle.cpp" />
     <ClCompile Include="..\DataServer\src\RobotCenter.cpp" />
+    <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp" />
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp" />
     <ClCompile Include="..\ServerCommon\RewardConfig.cpp" />
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp" />

@@ -180,6 +180,9 @@
     <ClInclude Include="src\MJRoomBattleEnd.h">
       <Filter>src\RoomBattleEnd</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -289,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="src\MJRoomBattleEnd.cpp">
       <Filter>src\RoomBattleEnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp">
+      <Filter>SvrCommon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

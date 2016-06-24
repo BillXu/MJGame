@@ -83,6 +83,26 @@ struct stMsgGetMaxRoomIDRet
 	stMsgGetMaxRoomIDRet(){ cSysIdentifer = ID_MSG_PORT_NONE ; usMsgType = MSG_GET_MAX_ROOM_ID; }
 	uint32_t nMaxRoomID ; 
 };
+
+struct stMsgAsyncRequest
+	:public stMsg
+{
+	stMsgAsyncRequest(){ cSysIdentifer = ID_MSG_PORT_NONE ; usMsgType = MSG_ASYNC_REQUEST ;}
+	uint16_t nReqType ;
+	uint32_t nReqSerailID ;
+	uint16_t nReqContentLen ;
+	PLACE_HOLDER(char* jsReqContentLen);
+};
+
+struct stMsgAsyncRequestRet
+	:public stMsg
+{
+	stMsgAsyncRequestRet(){ cSysIdentifer = ID_MSG_PORT_NONE ; usMsgType = MSG_ASYNC_REQUEST_RESULT ;}
+	uint32_t nReqSerailID ;
+	uint16_t nResultContentLen ;
+	PLACE_HOLDER(char* jsResultContentLen);
+};
+
 // game and db 
 struct stMsgDataServerGetBaseData
 	:public stMsg

@@ -5,11 +5,7 @@
 class CExchangeCenter
 	:public IGlobalModule
 {
-public:
-	enum 
-	{
-		eModule_Type = 2,
-	};
+
 public:
 	struct stExchangeEntry
 		:public stExchangeItem
@@ -19,7 +15,7 @@ public:
 public:
 	CExchangeCenter(const char* pConfigFilePath);
 	~CExchangeCenter() ;
-	uint16_t getModuleType(){ return eModule_Type ; }
+	uint16_t getModuleType(){ return eMod_Exchange ; }
 	bool onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	void onTimeSave()override ;
 	void onConnectedSvr()override ;

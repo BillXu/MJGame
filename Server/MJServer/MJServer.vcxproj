@@ -100,6 +100,7 @@
     <ClInclude Include="..\..\Common\RoomConfig.h" />
     <ClInclude Include="..\..\Common\StringHash.h" />
     <ClInclude Include="..\..\Common\Utility.h" />
+    <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h" />
     <ClInclude Include="..\ServerCommon\AutoBuffer.h" />
     <ClInclude Include="..\ServerCommon\httpRequest.h" />
     <ClInclude Include="..\ServerCommon\IGlobalModule.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="..\..\Common\RoomConfig.cpp" />
     <ClCompile Include="..\..\Common\StringHash.cpp" />
     <ClCompile Include="..\..\Common\Utility.cpp" />
+    <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp" />
     <ClCompile Include="..\ServerCommon\httpRequest.cpp" />
     <ClCompile Include="..\ServerCommon\IRoom.cpp" />
     <ClCompile Include="..\ServerCommon\IRoomDelegate.cpp" />

@@ -151,6 +151,9 @@
     <ClInclude Include="..\DataServer\src\PlateConfig.h">
       <Filter>Common\Config</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp">
@@ -248,6 +251,9 @@
     </ClCompile>
     <ClCompile Include="..\DataServer\src\PlateConfig.cpp">
       <Filter>Common\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp">
+      <Filter>SvrCommon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

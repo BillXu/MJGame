@@ -1,7 +1,6 @@
 #pragma once
 #include "MessageDefine.h"
 #include "json/json.h"
-
 class IServerApp ;
 class IGlobalModule
 {
@@ -9,6 +8,10 @@ public:
 	enum  eModule
 	{
 		eMod_None,
+		eMod_Group,
+		eMode_AsyncRequestQueu,
+		eMod_RoomCenter,
+		eMod_Exchange,
 		eMod_RoomMgr,
 		eMod_Max
 	}; 
@@ -21,6 +24,7 @@ public:
 	virtual void onExit(){ onTimeSave() ;}
 	virtual bool onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID){ return false ;}
 	virtual bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID){ return false ;}
+	virtual bool onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult ){ return false ;};
 	virtual void update(float fDeta )
 	{
 		m_fTicket -= fDeta ;

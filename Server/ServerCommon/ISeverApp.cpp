@@ -8,9 +8,9 @@
 #include <synchapi.h>
 #include "IGlobalModule.h"
 #include "AutoBuffer.h"
+#include "AsyncRequestQuene.h"
 
 #define TIME_WAIT_FOR_RECONNECT 5
-#pragma comment(lib,"JsonDll.lib")
 bool IServerApp::init()
 {
 	m_bRunning = true;
@@ -20,10 +20,12 @@ bool IServerApp::init()
 	m_pNetWork->SetupNetwork(1);
 	m_pNetWork->AddMessageDelegate(this);
 
-	m_pTimerMgr = CTimerManager::getInstance();
+	m_pTimerMgr = CTimerManager::getInstance() ;
 
 	m_fReconnectTick = 0 ;
 
+	auto pAsy = new CAsyncRequestQuene ;
+	registerModule(pAsy) ;
 	return true ;
 }
 
@@ -43,12 +45,6 @@ IServerApp::~IServerApp()
 	{
 		delete pp.second ;
 		pp.second = nullptr ;
-	}
-
-	if ( m_pTimerMgr )
-	{
-		delete m_pTimerMgr ;
-		m_pTimerMgr = nullptr ;
 	}
 
 	if ( m_pNetWork )
@@ -79,16 +75,57 @@ bool IServerApp::OnMessage( Packet* pMsg )
 	stMsgTransferData* pData = (stMsgTransferData*)pRet ;
 	stMsg* preal = (stMsg*)( pMsg->_orgdata + sizeof(stMsgTransferData));
 
+	// check async request 
+	if ( preal->usMsgType == MSG_ASYNC_REQUEST )
+	{
+		stMsgAsyncRequest* pRet = (stMsgAsyncRequest*)preal ;
+		Json::Value jsReqContent ;
+		if ( pRet->nReqContentLen > 0 )
+		{
+			char* pBuffer = (char*)pRet ;
+			pBuffer += sizeof(stMsgAsyncRequest) ;
+			Json::Reader jsReader ;
+			jsReader.parse(pBuffer,pBuffer + pRet->nReqContentLen,jsReqContent,false);
+		}
+
+		Json::Value jsResult ;
+		if ( !onAsyncRequest(pRet->nReqType,jsReqContent,jsResult) )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("async request type = %u , not process from port = %u",pRet->nReqType,pData->nSenderPort) ;
+			assert(0 && "must process the req" );
+		}
+		
+		stMsgAsyncRequestRet msgBack ;
+		msgBack.cSysIdentifer = (eMsgPort)pData->nSenderPort ;
+		msgBack.nReqSerailID = pRet->nReqSerailID ;
+		msgBack.nResultContentLen = 0 ;
+		if ( jsResult.isNull() == true )
+		{
+			sendMsg(pData->nSessionID,(char*)&msgBack,sizeof(msgBack)) ;
+		}
+		else
+		{
+			Json::StyledWriter jsWrite ;
+			auto strResult = jsWrite.write(jsResult);
+			msgBack.nResultContentLen = strResult.size() ;
+			CAutoBuffer auBuffer(sizeof(msgBack) + msgBack.nResultContentLen );
+			auBuffer.addContent(&msgBack,sizeof(msgBack));
+			auBuffer.addContent(strResult.c_str(),msgBack.nResultContentLen) ;
+			sendMsg(pData->nSessionID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
+		}
+		return true ;
+	}
+
 	if ( preal->usMsgType == MSG_JSON_CONTENT  )
 	{
 		stMsgJsonContent* pRet = (stMsgJsonContent*)preal ;
 		char* pBuffer = (char*)preal ;
 		pBuffer += sizeof(stMsgJsonContent);
-//#ifdef __DEBUG
+		//#ifdef __DEBUG
 		char pLog[1024] = { 0 };
 		memcpy(pLog,pBuffer,pRet->nJsLen);
 		printf("rec : %s\n",pLog);
-//#endif // __DEBUG
+		//#endif // __DEBUG
 
 		Json::Reader reader ;
 		Json::Value rootValue ;
@@ -101,11 +138,11 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		return false ;
 	}
 
+	// normal logic msg ;
 	if ( onLogicMsg(preal,(eMsgPort)pData->nSenderPort,pData->nSessionID) )
 	{
 		return true ;
 	}
-
 
 	CLogMgr::SharedLogMgr()->ErrorLog("unprocessed msg = %d , from port = %d , session id = %d",preal->usMsgType,pData->nSenderPort,pData->nSessionID) ;
 	return false ;
@@ -154,11 +191,8 @@ bool IServerApp::run()
 		clock_t tNow = clock();
 		float fDelta = float(tNow - t ) / CLOCKS_PER_SEC ;
 		t = tNow ;
-		if ( m_pTimerMgr )
-		{
-			m_pTimerMgr->Update(fDelta) ;
-		}
-		update(fDelta);
+		m_pTimerMgr->Update(fDelta);
+		update(fDelta*m_pTimerMgr->GetTimeScale());
 		Sleep(10);
 	}
 
@@ -273,6 +307,18 @@ bool IServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPor
 	return false ;
 }
 
+bool IServerApp::onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult )
+{
+	for ( auto pp : m_vAllModule )
+	{
+		if ( pp.second->onAsyncRequest(nRequestType,jsReqContent,jsResult) )
+		{
+			return true ;
+		}
+	}
+	return false ;
+}
+
 void IServerApp::update(float fDeta )
 {
 	if ( m_eConnectState == CNetWorkMgr::eConnectType_Disconnectd )
@@ -371,6 +417,7 @@ void IServerApp::onExit()
 	{
 		pp.second->onExit();
 	}
+	getNetwork()->RemoveAllDelegate();
 }
 
 void IServerApp::onConnectedToSvr()
@@ -397,4 +444,9 @@ IGlobalModule* IServerApp::getModuleByType(uint16_t nType )
 		return pp->second ;
 	}
 	return nullptr;
+}
+
+CAsyncRequestQuene* IServerApp::getAsynReqQueue()
+{
+	return (CAsyncRequestQuene*)getModuleByType(IGlobalModule::eMode_AsyncRequestQueu);
 }
