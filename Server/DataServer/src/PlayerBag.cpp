@@ -2,10 +2,16 @@
 #include <ctime>
 #include "LogManager.h"
 #include "Player.h"
+#include "GameServerApp.h"
+#include "AsyncRequestQuene.h"
+#include "ServerCommon.h"
+#include <iostream>
+#include <sstream>
 CPlayerBag::CPlayerBag(CPlayer* pPlayer):IPlayerComponent(pPlayer)
 {
 	m_eType = ePlayerComponet_Bag ;
 	clearItems();
+	m_isReading = false ;
 }
 
 CPlayerBag::~CPlayerBag()
@@ -21,17 +27,25 @@ bool CPlayerBag::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort
 		{
 			Json::Value jsmsg ;
 			Json::Value jsItems ;
+			uint32_t tNow = time(nullptr) ;
 			for ( auto pItem : m_vAllItems )
 			{
 				Json::Value jsItem ;
 				jsItem["itemID"] = pItem->nItemID;
 				jsItem["cnt"] = pItem->nCnt ;
 				jsItem["buyTime"] = pItem->nBuyTime ;
+				
+				uint32_t nLeftTime = 0 ;
+				if ( tNow <  pItem->nDeadTime  )
+				{
+					nLeftTime = pItem->nDeadTime - tNow ;
+				}
+				jsItem["leftTime"] = nLeftTime ;
 				jsItems[jsItems.size()] = jsItem;
 			}
 			jsmsg["items"] = jsItems ;
 			SendMsg(jsmsg,nmsgType);
-			CLogMgr::SharedLogMgr()->PrintLog("send bag msg to players uid = %u",GetPlayer()->GetUserUID()) ;
+			CLogMgr::SharedLogMgr()->PrintLog("send bag msg to players uid = %u size = %u",GetPlayer()->GetUserUID(),jsmsg.size()) ;
 		}
 		break ;
 	default:
@@ -43,48 +57,120 @@ bool CPlayerBag::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort
 void CPlayerBag::Reset()
 {
 	clearItems();
+	readItems();
 }
 
 void CPlayerBag::Init()
 {
 	clearItems();
+	readItems();
+}
+
+void CPlayerBag::readItems()
+{
+	m_isReading = true ;
+	Json::Value jsReq ;
+	char pBuffer[256] = { 0 } ;
+	sprintf_s(pBuffer,sizeof(pBuffer),"select itemID,deadTime,buyTime from playeritems where userUID = '%u' limit 20 offset '%u'; ",GetPlayer()->GetUserUID(),m_vAllItems.size() ) ;
+	jsReq["sql"] = pBuffer;
+	CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReq,[this](uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData){
+	
+		uint16_t nfact = retContent["afctRow"].asUInt() ;
+		auto jsData = retContent["data"] ;
+		for ( uint16_t nIdx = 0 ; nIdx < jsData.size() ; ++nIdx )
+		{
+			auto jsRow = jsData[nIdx] ;
+			auto pItem = new stPlayerItem ;
+			pItem->nBuyTime = jsRow["buyTime"].asUInt();
+			pItem->nCnt = 1 ;
+			pItem->nDeadTime = jsRow["deadTime"].asUInt() ;
+			pItem->nItemID = jsRow["itemID"].asUInt() ;
+			m_vAllItems.push_back(pItem) ;
+		}
+
+		if ( nfact >= 20 )
+		{
+			readItems();
+		}
+		else
+		{
+			m_isReading = false ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u finished read items = %u",GetPlayer()->GetUserUID(),m_vAllItems.size()) ;
+		}
+	});
+
 }
 
 void CPlayerBag::addPlayerItem(uint32_t nItemID , bool isStack , uint32_t nCnt ,bool isNewAdd )
 {
+	uint32_t nNow = (uint32_t)time(nullptr) ;
+	stPlayerItem* pItem = nullptr ;
+	bool isUpdate = false ;
 	if ( isStack )
 	{
-		auto pItem = getPlayerItem(nItemID) ;
+		pItem = getPlayerItem(nItemID) ;
 		if ( pItem == nullptr )
 		{
 			pItem = new CPlayerBag::stPlayerItem;
 			pItem->nBuyTime = (uint32_t)time(nullptr) ;
-			pItem->nCnt = nCnt ;
+			pItem->nCnt = 1 ;
 			pItem->nItemID = nItemID ;
+			pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
 			m_vAllItems.push_back(pItem) ;
 
 			// save to db ;
 		}
 		else
 		{
-			pItem->nCnt += nCnt ;
+			pItem->nCnt = 1 ;
+			if ( pItem->nDeadTime < nNow )
+			{
+				pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
+			}
+			else
+			{
+				pItem->nDeadTime += ( nCnt * 60*60*24 ) ;
+			}
+
+			isUpdate = true ;
 			// save to db ;
 		}
 	}
 	else
 	{
-		auto pItem = new CPlayerBag::stPlayerItem;
-		pItem->nBuyTime = (uint32_t)time(nullptr) ;
-		pItem->nCnt = nCnt ;
+		pItem = new CPlayerBag::stPlayerItem;
+		pItem->nBuyTime = nNow ;
+		pItem->nCnt = 1 ;
 		pItem->nItemID = nItemID ;
+		pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
 		m_vAllItems.push_back(pItem) ;
 
 		// save to db ;
 	}
 
-	if ( isNewAdd )
+	if ( !isNewAdd )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you should save to DB") ;
+		CLogMgr::SharedLogMgr()->PrintLog("not new add so do no do db operate") ;
+	}
+
+	if ( !isUpdate )
+	{
+		Json::Value jsSql ;
+		char pBuffer[256] = { 0 } ;
+		sprintf_s(pBuffer,"insert into playeritems (userUID,itemID,buyTime,deadTime) values ( '%u','%u','%u','%u');",GetPlayer()->GetUserUID(),pItem->nItemID,pItem->nBuyTime,pItem->nDeadTime);
+		
+		jsSql["sql"] = pBuffer;
+		CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsSql);
+		CLogMgr::SharedLogMgr()->PrintLog("add item sql = %s",jsSql["sql"].asCString()) ;
+	}
+	else
+	{
+		Json::Value jsSql ;
+		std::ostringstream strStream ;
+		strStream << "update playeritems set deadTime = ' " << pItem->nDeadTime << " ' where userUID = ' " << GetPlayer()->GetUserUID() << " ' and itemID = ' " << pItem->nItemID << " ' ;"  ;
+		jsSql["sql"] = strStream.str().c_str();
+		CLogMgr::SharedLogMgr()->PrintLog("update item sql = %s",jsSql["sql"].asCString()) ;
+		CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Update,jsSql);
 	}
 }
 

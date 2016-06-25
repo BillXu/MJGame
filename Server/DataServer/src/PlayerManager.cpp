@@ -13,6 +13,17 @@
 #include "RewardConfig.h"
 #include "RobotCenter.h"
 
+void CSelectPlayerDataCacher::playerDataToJsonInfo(stPlayerDetailData* pData, Json::Value& jsInfo )
+{
+	jsInfo["nickName"] = pData->cName;
+	jsInfo["photoID"] = pData->nPhotoID;
+	jsInfo["uid"] = pData->nUserUID;
+	jsInfo["ip"] = (char*)pData->cIP;
+	jsInfo["sex"] = pData->nSex;
+	jsInfo["diamond"] = pData->nDiamoned;
+	jsInfo["phone"] = (char*)pData->cPhoneNum;
+}
+
 void CSelectPlayerDataCacher::stPlayerDataPrifle::recivedData(stPlayerBrifData* pRecData)
 {
 	if ( isContentData() )
@@ -33,7 +44,7 @@ void CSelectPlayerDataCacher::stPlayerDataPrifle::recivedData(stPlayerBrifData* 
 
 	if ( vBrifeSubscribers.size() > 0  )
 	{
-		stMsgRequestPlayerDataRet msgBack ;
+		/*stMsgRequestPlayerDataRet msgBack ;
 		msgBack.nRet = isContentData() ? 0 : 1 ;
 		msgBack.isDetail = false ;
 
@@ -41,13 +52,20 @@ void CSelectPlayerDataCacher::stPlayerDataPrifle::recivedData(stPlayerBrifData* 
 		auB.addContent(&msgBack,sizeof(msgBack));
 		if ( msgBack.nRet == 0 )
 		{
-			uint16_t nLen = sizeof(stPlayerBrifData) ;
-			auB.addContent((char*)pData,nLen );
+		uint16_t nLen = sizeof(stPlayerBrifData) ;
+		auB.addContent((char*)pData,nLen );
+		}*/
+
+		Json::Value jsInfo ;
+		jsInfo["ret"] = isContentData() ? 0 : 1 ;
+		if ( isContentData() )
+		{
+			CSelectPlayerDataCacher::playerDataToJsonInfo(pData,jsInfo);
 		}
 
 		for ( auto pp : vBrifeSubscribers )
 		{
-			CGameServerApp::SharedGameServerApp()->sendMsg(pp.second.nSessionID,auB.getBufferPtr(),auB.getContentSize()) ;
+			CGameServerApp::SharedGameServerApp()->sendMsg(pp.second.nSessionID,jsInfo,MSG_REQUEST_PLAYER_BRIF_INFO);
 			CLogMgr::SharedLogMgr()->PrintLog("send data detail profile to subscrible = %d",pp.second.nSessionID) ;
 		}
 
@@ -56,23 +74,38 @@ void CSelectPlayerDataCacher::stPlayerDataPrifle::recivedData(stPlayerBrifData* 
 
 	if ( vDetailSubscribers.size() > 0 )
 	{
-		stMsgRequestPlayerDataRet msgBack ;
-		msgBack.nRet = isContentData() ? 0 : 1 ;
-		msgBack.isDetail = true ;
+		//stMsgRequestPlayerDataRet msgBack ;
+		//msgBack.nRet = isContentData() ? 0 : 1 ;
+		//msgBack.isDetail = true ;
 
-		CAutoBuffer auB (sizeof(msgBack) + sizeof(stPlayerDetailDataClient));
-		auB.addContent(&msgBack,sizeof(msgBack));
-		if ( msgBack.nRet == 0 )
+		//CAutoBuffer auB (sizeof(msgBack) + sizeof(stPlayerDetailDataClient));
+		//auB.addContent(&msgBack,sizeof(msgBack));
+		//if ( msgBack.nRet == 0 )
+		//{
+		//	uint16_t nLen = sizeof(stPlayerDetailDataClient) ;
+		//	auB.addContent((char*)pData,nLen );
+		//}
+
+		//for ( auto pp : vDetailSubscribers )
+		//{
+		//	CGameServerApp::SharedGameServerApp()->sendMsg(pp.second.nSessionID,auB.getBufferPtr(),auB.getContentSize()) ;
+		//	CLogMgr::SharedLogMgr()->PrintLog("send data profile detail to subscrible = %d",pp.second.nSessionID) ;
+		//}
+
+		Json::Value jsInfo ;
+		jsInfo["ret"] = isContentData() ? 0 : 1 ;
+		if ( isContentData() )
 		{
-			uint16_t nLen = sizeof(stPlayerDetailDataClient) ;
-			auB.addContent((char*)pData,nLen );
+			CSelectPlayerDataCacher::playerDataToJsonInfo(pData,jsInfo);
 		}
 
 		for ( auto pp : vDetailSubscribers )
 		{
-			CGameServerApp::SharedGameServerApp()->sendMsg(pp.second.nSessionID,auB.getBufferPtr(),auB.getContentSize()) ;
-			CLogMgr::SharedLogMgr()->PrintLog("send data profile detail to subscrible = %d",pp.second.nSessionID) ;
+			CGameServerApp::SharedGameServerApp()->sendMsg(pp.second.nSessionID,jsInfo,MSG_REQUEST_PLAYER_BRIF_INFO);
+			CLogMgr::SharedLogMgr()->PrintLog("send data detail profile to subscrible = %d",pp.second.nSessionID) ;
 		}
+
+		vDetailSubscribers.clear() ;
 	}
 
 }
@@ -209,15 +242,23 @@ bool CSelectPlayerDataCacher::sendPlayerDataProfile(uint32_t nReqUID ,bool isDet
 	}
 	else
 	{
-		stMsgRequestPlayerDataRet msgBack ;
-		msgBack.nRet = 0 ;
-		msgBack.isDetail = isDetail ;
+		Json::Value jsInfo ;
+		jsInfo["ret"] = 0;
+		 
+		{
+			CSelectPlayerDataCacher::playerDataToJsonInfo(pData->pData,jsInfo);
+		}
+		CGameServerApp::SharedGameServerApp()->sendMsg(nSubscriberSessionID,jsInfo,MSG_REQUEST_PLAYER_BRIF_INFO);
+
+		//stMsgRequestPlayerDataRet msgBack ;
+		//msgBack.nRet = 0 ;
+		//msgBack.isDetail = isDetail ;
 	
-		CAutoBuffer auB (sizeof(msgBack) + sizeof(stPlayerDetailDataClient));
-		auB.addContent(&msgBack,sizeof(msgBack));
-		uint16_t nLen = isDetail ? sizeof(stPlayerDetailDataClient) : sizeof(stPlayerBrifData) ;
-		auB.addContent((char*)pData->pData,nLen );
-		CGameServerApp::SharedGameServerApp()->sendMsg(nSubscriberSessionID,auB.getBufferPtr(),auB.getContentSize()) ;
+		//CAutoBuffer auB (sizeof(msgBack) + sizeof(stPlayerDetailDataClient));
+		//auB.addContent(&msgBack,sizeof(msgBack));
+		//uint16_t nLen = isDetail ? sizeof(stPlayerDetailDataClient) : sizeof(stPlayerBrifData) ;
+		//auB.addContent((char*)pData->pData,nLen );
+		//CGameServerApp::SharedGameServerApp()->sendMsg(nSubscriberSessionID,auB.getBufferPtr(),auB.getContentSize()) ;
 		CLogMgr::SharedLogMgr()->PrintLog("send data profile uid = %d to subscrible = %d",nReqUID,nSubscriberSessionID) ;
 	}
 	return true ;
@@ -296,6 +337,22 @@ bool CPlayerManager::OnMessage( stMsg* pMessage , eMsgPort eSenderPort , uint32_
 
 bool CPlayerManager::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )
 {
+	if ( MSG_REQUEST_PLAYER_BRIF_INFO == nmsgType )
+	{
+		uint32_t nTargetUID = recvValue["targetUID"].asUInt();
+		Json::Value jsBack ; 
+		jsBack["ret"] = 0 ;
+		auto pPlayer = GetPlayerByUserUID(nTargetUID) ;
+		if ( pPlayer )
+		{
+			pPlayer->GetBaseData()->GetPlayerBrifData(jsBack) ;
+			CGameServerApp::SharedGameServerApp()->sendMsg(nSessionID,jsBack,nmsgType);
+			return true ;
+		}
+
+		m_tPlayerDataCaher.sendPlayerDataProfile(nTargetUID,true,nSessionID);
+		return true ;
+	}
 	CPlayer* pTargetPlayer = nullptr ;
 	if ( MSG_CONSUM_VIP_ROOM_CARDS == nmsgType )
 	{

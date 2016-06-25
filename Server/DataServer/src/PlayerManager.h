@@ -37,6 +37,7 @@ public:
 	void removePlayerDataCache( uint32_t nUID );
 	void cachePlayerData(stMsgSelectPlayerDataRet* pmsg );
 	bool sendPlayerDataProfile(uint32_t nReqUID ,bool isDetail , uint32_t nSubscriberSessionID );
+	static void playerDataToJsonInfo(stPlayerDetailData* pData, Json::Value& jsInfo );
 protected:
 	MAP_ID_DATA m_vDetailData ;
 };

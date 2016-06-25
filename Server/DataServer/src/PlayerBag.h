@@ -13,6 +13,7 @@ public:
 		uint32_t nItemID ;
 		uint32_t nBuyTime ;
 		uint32_t nCnt ;
+		uint32_t nDeadTime ;
 	};
 	typedef std::list<stPlayerItem*> PLAYER_ITEMS ;
 public:
@@ -28,6 +29,8 @@ public:
 	void clearItems();
 protected:
 	void SendListToClient();
+	void readItems();
 protected:
 	PLAYER_ITEMS m_vAllItems ;
+	bool m_isReading;
 };

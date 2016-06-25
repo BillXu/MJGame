@@ -323,9 +323,9 @@ void CDBManager::OnMessage(stMsg* pmsg , eMsgPort eSenderPort , uint32_t nSessio
 			pRequest->nSqlBufferLen = sprintf_s(pRequest->pSqlBuffer,sizeof(pRequest->pSqlBuffer),
 				"UPDATE playerbasedata SET mostCoinEver = '%I64d', vipLevel = '%d', nYesterdayCoinOffset = '%I64d', \
 				nTodayCoinOffset = '%I64d',offlineTime = '%d',continueLoginDays = '%d',lastLoginTime = '%d',lastTakeCharityCoinTime = '%d', \
-				longitude = '%f',latitude = '%f',vJoinedClubID = '%s',newPlayerHaloWeight = '%d',nVipCardType = '%d',vipCardEndTime = '%d',lastTakeCardGiftTime = '%u',totalInvitePrizeCoin = '%u',takeCharityTimes = '%u',totalGameCoinOffset = %d, freeRollPlateTimes = '%u', tLastRollPlateTime = '%u' WHERE userUID = '%d' ",
+				longitude = '%f',latitude = '%f',vJoinedClubID = '%s',newPlayerHaloWeight = '%d',nVipCardType = '%d',vipCardEndTime = '%d',lastTakeCardGiftTime = '%u',totalInvitePrizeCoin = '%u',takeCharityTimes = '%u',totalGameCoinOffset = %d, rolledPlateTimes = '%u', tLastRollPlateTime = '%u' WHERE userUID = '%d' ",
 				pRet->nMostCoinEver,pRet->nVipLevel,pRet->nYesterdayCoinOffset,pRet->nTodayCoinOffset,pRet->tOfflineTime,pRet->nContinueDays,pRet->tLastLoginTime,pRet->tLastTakeCharityCoinTime,pRet->dfLongitude,pRet->dfLatidue,
-				strJoinedClub.c_str(),pRet->nNewPlayerHaloWeight,pRet->nCardType,pRet->nCardEndTime,pRet->nLastTakeCardGiftTime,pRet->nTotalInvitePrizeCoin,pRet->nTakeCharityTimes,pRet->nTotalGameCoinOffset,pRet->nFreeRollPlateTimes,pRet->tLastRollPlateTime,pRet->nUserUID) ;
+				strJoinedClub.c_str(),pRet->nNewPlayerHaloWeight,pRet->nCardType,pRet->nCardEndTime,pRet->nLastTakeCardGiftTime,pRet->nTotalInvitePrizeCoin,pRet->nTakeCharityTimes,pRet->nTotalGameCoinOffset,pRet->nRolledPlateTimes,pRet->tLastRollPlateTime,pRet->nUserUID) ;
 		}
 		break;
 
@@ -1082,6 +1082,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 				tData.nSex = pRow["nSex"]->IntValue();
 				tData.nUserUID = pRow["nUserUID"]->IntValue();
 				tData.nVipLevel = pRow["nVipLevel"]->IntValue();
+				sprintf_s((char*)tData.cPhoneNum,sizeof(tData.cPhoneNum),"%s",pRow["cPhoneNum"]->CStringValue()) ;
 
 				memset(tData.cSignature,0,sizeof(tData.cSignature)) ;
 				sprintf_s(tData.cSignature,sizeof(tData.cSignature),"%s",pRow["cSignature"]->CStringValue()) ;
@@ -1258,7 +1259,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 				msg.stBaseData.nTotalInvitePrizeCoin = pRow["totalInvitePrizeCoin"]->IntValue() ;
 				msg.stBaseData.nTakeCharityTimes = pRow["takeCharityTimes"]->IntValue();
 				msg.stBaseData.nTotalGameCoinOffset = pRow["totalGameCoinOffset"]->IntValue() ;
-				msg.stBaseData.nFreeRollPlateTimes = pRow["freeRollPlateTimes"]->IntValue();
+				msg.stBaseData.nRolledPlateTimes = pRow["rolledPlateTimes"]->IntValue();
 				msg.stBaseData.tLastRollPlateTime = pRow["tLastRollPlateTime"]->IntValue();
 				m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msg,sizeof(msg)) ;
 			}

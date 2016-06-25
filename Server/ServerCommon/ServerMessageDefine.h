@@ -396,7 +396,7 @@ struct stMsgSavePlayerCommonLoginData
 	uint8_t nCardType ;
 	uint32_t nCardEndTime ;
 	uint32_t nLastTakeCardGiftTime ;
-	uint32_t nFreeRollPlateTimes ;
+	uint32_t nRolledPlateTimes ;
 	uint32_t tLastRollPlateTime ;
 	uint32_t vJoinedClubID[MAX_JOINED_CLUB_CNT] ;
 };

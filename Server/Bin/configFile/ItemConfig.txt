@@ -1,113 +1,37 @@
-ItemID	Name	Type	LineTime	stack	Desc	Icon
-210001	时尚休闲	0	7	0	null	boy_suit_00
-210002	时尚休闲	0	30	0	null	boy_suit_00
-210003	时尚休闲	0	60	0	null	boy_suit_00
-210004	青春年华	0	7	0	null	boy_suit_01
-210005	青春年华	0	30	0	null	boy_suit_01
-210006	青春年华	0	60	0	null	boy_suit_01
-210007	经典运动	0	7	0	null	boy_suit_02
-210008	经典运动	0	30	0	null	boy_suit_02
-210009	经典运动	0	60	0	null	boy_suit_02
-210010	街头朋克	0	7	0	null	boy_suit_03
-210011	街头朋克	0	30	0	null	boy_suit_03
-210012	街头朋克	0	60	0	null	boy_suit_03
-210013	贵族典范	0	7	0	null	boy_suit_04
-210014	贵族典范	0	30	0	null	boy_suit_04
-210015	贵族典范	0	60	0	null	boy_suit_04
-210016	伯爵诱惑	0	7	0	null	boy_suit_05
-210017	伯爵诱惑	0	30	0	null	boy_suit_05
-210018	伯爵诱惑	0	60	0	null	boy_suit_05
-210019	男戒指1	0	7	0	null	boy_jz_00
-210020	男戒指1	0	30	0	null	boy_jz_00
-210021	男戒指1	0	60	0	null	boy_jz_00
-210022	男戒指2	0	7	0	null	boy_jz_01
-210023	男戒指2	0	30	0	null	boy_jz_01
-210024	男戒指2	0	60	0	null	boy_jz_01
-210025	男戒指3	0	7	0	null	boy_jz_02
-210026	男戒指3	0	30	0	null	boy_jz_02
-210027	男戒指3	0	60	0	null	boy_jz_02
-210028	男戒指4	0	7	0	null	boy_jz_03
-210029	男戒指4	0	30	0	null	boy_jz_03
-210030	男戒指4	0	60	0	null	boy_jz_03
-210031	男戒指5	0	7	0	null	boy_jz_04
-210032	男戒指5	0	30	0	null	boy_jz_04
-210033	男戒指5	0	60	0	null	boy_jz_04
-210034	男戒指6	0	7	0	null	boy_jz_05
-210035	男戒指6	0	30	0	null	boy_jz_05
-210036	男戒指6	0	60	0	null	boy_jz_05
-210037	男纹身1	0	7	0	null	boy_tattoo_00
-210038	男纹身1	0	30	0	null	boy_tattoo_00
-210039	男纹身1	0	60	0	null	boy_tattoo_00
-210040	男纹身2	0	7	0	null	boy_tattoo_01
-210041	男纹身2	0	30	0	null	boy_tattoo_01
-210042	男纹身2	0	60	0	null	boy_tattoo_01
-210043	男纹身3	0	7	0	null	boy_tattoo_02
-210044	男纹身3	0	30	0	null	boy_tattoo_02
-210045	男纹身3	0	60	0	null	boy_tattoo_02
-210046	男纹身4	0	7	0	null	boy_tattoo_03
-210047	男纹身4	0	30	0	null	boy_tattoo_03
-210048	男纹身4	0	60	0	null	boy_tattoo_03
-210049	男纹身5	0	7	0	null	boy_tattoo_04
-210050	男纹身5	0	30	0	null	boy_tattoo_04
-210051	男纹身5	0	60	0	null	boy_tattoo_04
-210052	男纹身6	0	7	0	null	boy_tattoo_05
-210053	男纹身6	0	30	0	null	boy_tattoo_05
-210054	男纹身6	0	60	0	null	boy_tattoo_05
-220001	时尚休闲	0	7	0	null	girl_suit_00
-220002	时尚休闲	0	30	0	null	girl_suit_00
-220003	时尚休闲	0	60	0	null	girl_suit_00
-220004	青春年华	0	7	0	null	girl_suit_01
-220005	青春年华	0	30	0	null	girl_suit_01
-220006	青春年华	0	60	0	null	girl_suit_01
-220007	经典运动	0	7	0	null	girl_suit_02
-220008	经典运动	0	30	0	null	girl_suit_02
-220009	经典运动	0	60	0	null	girl_suit_02
-220010	街头朋克	0	7	0	null	girl_suit_03
-220011	街头朋克	0	30	0	null	girl_suit_03
-220012	街头朋克	0	60	0	null	girl_suit_03
-220013	贵族典范	0	7	0	null	girl_suit_04
-220014	贵族典范	0	30	0	null	girl_suit_04
-220015	贵族典范	0	60	0	null	girl_suit_04
-220016	伯爵诱惑	0	7	0	null	girl_suit_05
-220017	伯爵诱惑	0	30	0	null	girl_suit_05
-220018	伯爵诱惑	0	60	0	null	girl_suit_05
-220019	女戒指1	0	7	0	null	girl_jz_00
-220020	女戒指1	0	30	0	null	girl_jz_00
-220021	女戒指1	0	60	0	null	girl_jz_00
-220022	女戒指2	0	7	0	null	girl_jz_01
-220023	女戒指2	0	30	0	null	girl_jz_01
-220024	女戒指2	0	60	0	null	girl_jz_01
-220025	女戒指3	0	7	0	null	girl_jz_02
-220026	女戒指3	0	30	0	null	girl_jz_02
-220027	女戒指3	0	60	0	null	girl_jz_02
-220028	女戒指4	0	7	0	null	girl_jz_03
-220029	女戒指4	0	30	0	null	girl_jz_03
-220030	女戒指4	0	60	0	null	girl_jz_03
-220031	女戒指5	0	7	0	null	girl_jz_04
-220032	女戒指5	0	30	0	null	girl_jz_04
-220033	女戒指5	0	60	0	null	girl_jz_04
-220034	女戒指6	0	7	0	null	girl_jz_05
-220035	女戒指6	0	30	0	null	girl_jz_05
-220036	女戒指6	0	60	0	null	girl_jz_05
-220037	女纹身1	0	7	0	null	girl_tattoo_00
-220038	女纹身1	0	30	0	null	girl_tattoo_00
-220039	女纹身1	0	60	0	null	girl_tattoo_00
-220040	女纹身2	0	7	0	null	girl_tattoo_01
-220041	女纹身2	0	30	0	null	girl_tattoo_01
-220042	女纹身2	0	60	0	null	girl_tattoo_01
-220043	女纹身3	0	7	0	null	girl_tattoo_02
-220044	女纹身3	0	30	0	null	girl_tattoo_02
-220045	女纹身3	0	60	0	null	girl_tattoo_02
-220046	女纹身4	0	7	0	null	girl_tattoo_03
-220047	女纹身4	0	30	0	null	girl_tattoo_03
-220048	女纹身4	0	60	0	null	girl_tattoo_03
-220049	女纹身5	0	7	0	null	girl_tattoo_04
-220050	女纹身5	0	30	0	null	girl_tattoo_04
-220051	女纹身5	0	60	0	null	girl_tattoo_04
-220052	女纹身6	0	7	0	null	girl_tattoo_05
-220053	女纹身6	0	30	0	null	girl_tattoo_05
-220054	女纹身6	0	60	0	null	girl_tattoo_05
-100001	钻石	0	0	1	null	101_diamoned
-100002	金币	0	0	1	null	102_gold
-100003	房卡	0	0	1	null	103_roomCard
-100004	奖券	0	60	1	null	104_lottery
+ItemID	Name	Type	Gender	stack	renew	Desc	Icon
+210001	时尚休闲	0	1	0	1	null	boy_suit_00
+210002	青春年华	0	1	0	1	null	boy_suit_01
+210003	经典运动	0	1	0	1	null	boy_suit_02
+210004	街头朋克	0	1	0	1	null	boy_suit_03
+210005	贵族典范	0	1	0	1	null	boy_suit_04
+210006	伯爵诱惑	0	1	0	1	null	boy_suit_05
+210007	男戒指1	1	1	0	1	null	boy_jz_00
+210008	男戒指2	1	1	0	1	null	boy_jz_01
+210009	男戒指3	1	1	0	1	null	boy_jz_02
+210010	男戒指4	1	1	0	1	null	boy_jz_03
+210011	男戒指5	1	1	0	1	null	boy_jz_04
+210012	男戒指6	1	1	0	1	null	boy_jz_05
+210013	男纹身1	2	1	0	1	null	boy_tattoo_00
+210014	男纹身2	2	1	0	1	null	boy_tattoo_01
+210015	男纹身3	2	1	0	1	null	boy_tattoo_02
+210016	男纹身4	2	1	0	1	null	boy_tattoo_03
+210017	男纹身5	2	1	0	1	null	boy_tattoo_04
+210018	男纹身6	2	1	0	1	null	boy_tattoo_05
+210019	时尚休闲	0	2	0	1	null	girl_suit_00
+210020	青春年华	0	2	0	1	null	girl_suit_01
+210021	经典运动	0	2	0	1	null	girl_suit_02
+210022	街头朋克	0	2	0	1	null	girl_suit_03
+210023	贵族典范	0	2	0	1	null	girl_suit_04
+210024	伯爵诱惑	0	2	0	1	null	girl_suit_05
+210025	女戒指1	1	2	0	1	null	girl_jz_00
+210026	女戒指2	1	2	0	1	null	girl_jz_01
+210027	女戒指3	1	2	0	1	null	girl_jz_02
+210028	女戒指4	1	2	0	1	null	girl_jz_03
+210029	女戒指5	1	2	0	1	null	girl_jz_04
+210030	女戒指6	1	2	0	1	null	girl_jz_05
+210031	女纹身1	2	2	0	1	null	girl_tattoo_00
+210032	女纹身2	2	2	0	1	null	girl_tattoo_01
+210033	女纹身3	2	2	0	1	null	girl_tattoo_02
+210034	女纹身4	2	2	0	1	null	girl_tattoo_03
+210035	女纹身5	2	2	0	1	null	girl_tattoo_04
+210036	女纹身6	2	2	0	1	null	girl_tattoo_05

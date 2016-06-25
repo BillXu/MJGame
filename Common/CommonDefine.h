@@ -16,11 +16,13 @@
 #define MAX_TAXAS_HOLD_CARD 5
 #define MAX_UPLOAD_PIC 4
 #define MAX_JOINED_CLUB_CNT 10
+#define MAX_PHONE_NUM_LEN 14
+#define MAX_IP_ADD_LEN 17
 
 #define MATCH_MGR_UID 1349
 
 #define COIN_CONDITION_TO_GET_CHARITY 500
-#define TIMES_GET_CHARITY_PER_DAY 3   // 2 HOURE
+#define TIMES_GET_CHARITY_PER_DAY 2   // 2 HOURE
 #define COIN_FOR_CHARITY 800
 
 #ifndef SERVER
@@ -65,14 +67,6 @@ enum eNoticeType
 	eNotice_Text,
 	eNotice_BeInvite, // { targetUID : 2345 , addCoin : 34556 }
 	eNotice_InvitePrize, // { targetUID : 2345 addCoin : 3555 }
-};
-
-enum eSex
-{
-	eSex_Unknown,
-	eSex_Male,
-	eSex_Female,
-	eSex_Max,
 };
 
 enum eRoomPeerAction

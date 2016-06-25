@@ -151,6 +151,17 @@ enum eRoomPeerState  // 牌局内玩家的状态
 #if (C_SHARP)  
 public
 #endif
+enum eSex
+{
+	eSex_Unknown,  // 未知
+	eSex_Male,  // 男
+	eSex_Female, // 女
+	eSex_Max,
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eMsgType 
 {
 	MSG_CLIENT = 10000,
@@ -183,8 +194,8 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",sex : 0,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345, vipRoomCard : 23 }
-	// name ： 名字，sex ： 性别（0 是男，1 是女）， diamond ：钻石。 coin ： 金币；
+	// svr : { name: "nickName",sex : eSex,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345, vipRoomCard : 23 }
+	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币；
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME,
@@ -336,9 +347,9 @@ enum eMsgType
 
 	MSG_REQ_MY_BAG,  // 请求背包内容
 	// client : null 
-	// svr : { items : [ {itemID : 234 , cnt : 23 , buyTime : 23345} , {itemID : 2 , cnt : 23 , buyTime : 23345},  ...... ] }
+	// svr : { items : [ {itemID : 234 , cnt : 23 , buyTime : 23345, leftTime : 2352 } , {itemID : 2 , cnt : 23 , buyTime : 23345, leftTime : 2352},  ...... ] }
 	// items : 所以物品数组
-	//  itemID 道具的ID , cnt : 数量 ， buyTime : 购买的时间
+	//  itemID 道具的ID , cnt : 数量 ， buyTime : 购买的时间, leftTime 剩余时间 单位是秒
 
 	MSG_START_ROLL_PLATE,// 转转盘
 	// client : null 
@@ -352,4 +363,18 @@ enum eMsgType
 	// ret : { ret : 0 , configID : 235 }
 	// ret : // 0 兑换成功 , 1 指定的配置id 不存在 , 2 钻石货币不足，不能兑换 ; 3 其他错误 ; 
 	// configID : 兑换表里的配置ID，info ： 玩家填写的基本信息，客户端可以自行扩展，原样存入数据库。
+
+	MSG_PLAYER_DO_GET_CHARITY, // 领取救济金
+	// client : null 
+	// svr : { ret : 0 , finalCoin : 23455 , recievedCoin : 234 , leftTimes : 23 }
+	// ret : 0 成功， 1 表示达到次数限制，finalCoin 领取后的最终金币数额 ，recievedCoin 领取到的金币， leftTimes 剩余可领取次数;
+
+	MSG_REQUEST_PLAYER_BRIF_INFO, // 请求玩家的基本信息；
+	// client : { targetUID : 23456 }
+	// svr : { ret : 0 , nickName : "lucy" , photoID : 2345 , uid : 2345 , ip : "192.168.1.56" ,sex : eSex, diamond : 2345, phone : 18023043245 }
+	// ret : 0 成功，1 不存在该玩家
+	// nickName : 昵称 ， photoID : 头像ID， uid ： 玩家Id , ip： 玩家的ip地址，只有在线的玩家存在，否则为空。 sex ： 玩家性别， diamond : 玩家的钻石， phone ： 玩家的手机号
+
+	MSG_TELL_SELF_IP, // 通知玩家自己的IP 地址
+	// svr : { ip : "192.235.133.23" }
 };

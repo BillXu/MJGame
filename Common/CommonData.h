@@ -39,6 +39,8 @@ struct stPlayerDetailData
 	uint32_t nCupCnt ;  // jiang bei ge shu ;
 	uint8_t vUploadedPic[MAX_UPLOAD_PIC] ;
 	uint32_t vJoinedClubID[MAX_JOINED_CLUB_CNT] ;
+	uint8_t cPhoneNum[MAX_PHONE_NUM_LEN] ;
+	uint8_t cIP[MAX_IP_ADD_LEN];
 };
 
 
@@ -70,7 +72,7 @@ struct stServerBaseData
 	bool isRegister ;
 	uint8_t nNewPlayerHaloWeight ;
 	uint32_t tLastTakeCardGiftTime ;
-	uint32_t nFreeRollPlateTimes ;
+	uint32_t nRolledPlateTimes ;
 	uint32_t tLastRollPlateTime ;
 };
 

@@ -286,10 +286,18 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			if ( pRet->nRet == 0 )
 			{
 				m_strCurIP = pRet->vIP ;
+				sprintf_s((char*)m_stBaseData.cIP,sizeof(m_stBaseData.cIP),"%s",(char*)pRet->vIP);
 				CLogMgr::SharedLogMgr()->PrintLog("get client ip = %s session id = %d",m_strCurIP.c_str(),GetPlayer()->GetSessionID()) ;
+
+				Json::Value jsIP ;
+				jsIP["ip"] = m_strCurIP ;
+				SendMsg(jsIP,MSG_TELL_SELF_IP) ;
 			}
 			else
 			{
+				Json::Value jsIP ;
+				jsIP["ip"] = "0.0.0.0" ;
+				SendMsg(jsIP,MSG_TELL_SELF_IP) ;
 				CLogMgr::SharedLogMgr()->ErrorLog("cant not request client ip , uid = %d",GetPlayer()->GetUserUID()) ;
 			}
 		}
@@ -850,7 +858,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			if ( tlast.tm_mday != ptnw.tm_mday && tlast.tm_mon != ptnw.tm_mon )
 			{
 				// a new day rest free roll times ;
-				m_stBaseData.nFreeRollPlateTimes = 1 ;
+				m_stBaseData.nRolledPlateTimes = 0 ;
 			}
 
 			Json::Value jsMsg ;
@@ -859,21 +867,20 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			jsMsg["plateID"] = 0 ;
 			do 
 			{
-				if ( m_stBaseData.nFreeRollPlateTimes <= 0 )
+				uint32_t nCost = 0 ;
+				if ( m_stBaseData.nRolledPlateTimes > 0 )
 				{
 					jsMsg["isFree"] = 0 ; 
-					if ( getCoin() < 1000 )
+					nCost = m_stBaseData.nRolledPlateTimes * 20 ;
+					nCost = nCost > 120 ? 120 : nCost ;
+					if ( GetAllDiamoned() < nCost )
 					{
-						CLogMgr::SharedLogMgr()->ErrorLog("temp set roll plate fee is 1000 ") ;
+						CLogMgr::SharedLogMgr()->ErrorLog("roll plate diamond is not enought cost = %u ",nCost) ;
 						jsMsg["ret"] = 1 ;
 						break ;
 					}
-
-					decressMoney(1000) ;
-				}
-				else
-				{
-					--m_stBaseData.nFreeRollPlateTimes ;
+					CLogMgr::SharedLogMgr()->PrintLog("roll plate cost = %u , this is time = %u",nCost,m_stBaseData.nRolledPlateTimes) ;
+					decressMoney(nCost,true) ;
 				}
 
 				// do the result ;
@@ -908,15 +915,11 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 					break;
 				default:
 					{
-						if ( jsMsg["isFree"].asUInt() )
+						if ( nCost > 0 )
 						{
-							++m_stBaseData.nFreeRollPlateTimes ;
+							AddMoney(nCost,true) ;
 						}
-						else
-						{
-							AddMoney(1000) ;
-						}
-						CLogMgr::SharedLogMgr()->ErrorLog("unknown item type roll plate item = %u, give back money",pp->nConfigID) ;
+						CLogMgr::SharedLogMgr()->ErrorLog("unknown item type roll plate item = %u, give back money = %u",pp->nConfigID,nCost) ;
 						jsMsg["ret"] = 2 ; 
 					}
 					break;
@@ -924,15 +927,80 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				
 			} while (0);
 
+			if ( jsMsg["ret"].asUInt() == 0 )
+			{
+				++m_stBaseData.nRolledPlateTimes ;
+			}
+			
 			if ( jsMsg["isFree"].asUInt() )
 			{
 				m_stBaseData.tLastRollPlateTime = (uint32_t)time(nullptr);
-				m_bCommonLogicDataDirty = true ;
 			}
+			m_bCommonLogicDataDirty = true ;
 			SendMsg(jsMsg,nmsgType);
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u roll plate id = %u, isfee = %u",GetPlayer()->GetUserUID(),jsMsg["plateID"].asUInt(),jsMsg["isFree"].asUInt()) ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %u roll plate id = %u, isfee = %u, already times = %u",GetPlayer()->GetUserUID(),jsMsg["plateID"].asUInt(),jsMsg["isFree"].asUInt(),m_stBaseData.nRolledPlateTimes) ;
 		}
 		break ;
+	case MSG_PLAYER_DO_GET_CHARITY:
+		{
+			Json::Value jsmsgBack ;
+			// 0 success ,  1 you coin is enough , do not need charity, 2 time not reached ;
+			jsmsgBack["ret"] = 0 ;
+			jsmsgBack["finalCoin"] = getCoin() ;
+			jsmsgBack["recievedCoin"] = 0 ;
+			jsmsgBack["leftTimes"] = 0 ;
+			if ( 0 && GetAllCoin() > COIN_CONDITION_TO_GET_CHARITY )  
+			{
+				break;
+			}
+
+			// check times limit state ;
+			time_t tNow = time(nullptr) ;
+			struct tm pTimeCur ;
+			struct tm pTimeLast ;
+			pTimeCur = *localtime(&tNow);
+			time_t nLastTakeTime = m_stBaseData.tLastTakeCharityCoinTime;
+			pTimeLast = *localtime(&nLastTakeTime);
+			if ( pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_mon == pTimeLast.tm_mon && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
+			{
+
+			}
+			else
+			{
+				m_stBaseData.nTakeCharityTimes = 0 ; // new day reset times ;
+			}
+
+			if ( m_stBaseData.nTakeCharityTimes >= TIMES_GET_CHARITY_PER_DAY  )
+			{
+				jsmsgBack["ret"] = 1 ;
+				SendMsg(jsmsgBack,nmsgType);
+				break;
+			}
+
+			++m_stBaseData.nTakeCharityTimes;
+			jsmsgBack["recievedCoin"] = COIN_FOR_CHARITY;
+			jsmsgBack["leftTimes"] = TIMES_GET_CHARITY_PER_DAY - m_stBaseData.nTakeCharityTimes ;
+			m_stBaseData.tLastTakeCharityCoinTime = time(NULL) ;
+			AddMoney(COIN_FOR_CHARITY);
+			jsmsgBack["finalCoin"] = getCoin() ;
+			CLogMgr::SharedLogMgr()->PrintLog("player uid = %d get charity",GetPlayer()->GetUserUID());
+			m_bCommonLogicDataDirty = true ;
+			m_bMoneyDataDirty = true ;
+
+			// save log 
+			stMsgSaveLog msgLog ;
+			memset(msgLog.vArg,0,sizeof(msgLog.vArg));
+			msgLog.nJsonExtnerLen = 0 ;
+			msgLog.nLogType = eLog_GetCharity ;
+			msgLog.nTargetID = GetPlayer()->GetUserUID() ;
+			memset(msgLog.vArg,0,sizeof(msgLog.vArg)) ;
+			msgLog.vArg[0] = GetAllCoin() ;
+			SendMsg(&msgLog,sizeof(msgLog)) ;
+
+			CLogMgr::SharedLogMgr()->SystemLog("uid = %d , final coin = %I64d",GetPlayer()->GetUserUID(),GetAllCoin());
+			SendMsg(jsmsgBack,nmsgType);
+		}
+		break;
 	default:
 		return false ;
 	}
@@ -1213,7 +1281,7 @@ void CPlayerBaseData::TimerSave()
 		msgLogicData.tLastLoginTime = m_stBaseData.tLastLoginTime ;
 		msgLogicData.tLastTakeCharityCoinTime = m_stBaseData.tLastTakeCharityCoinTime ;
 		msgLogicData.tOfflineTime = m_stBaseData.tOfflineTime ;
-		msgLogicData.nFreeRollPlateTimes = m_stBaseData.nFreeRollPlateTimes ;
+		msgLogicData.nRolledPlateTimes = m_stBaseData.nRolledPlateTimes ;
 		msgLogicData.tLastRollPlateTime = m_stBaseData.tLastRollPlateTime ;
 		memcpy(msgLogicData.vJoinedClubID,m_stBaseData.vJoinedClubID,sizeof(msgLogicData.vJoinedClubID));
 		SendMsg((stMsgSavePlayerCommonLoginData*)&msgLogicData,sizeof(msgLogicData)) ;
@@ -1347,6 +1415,11 @@ void CPlayerBaseData::GetPlayerBrifData(stPlayerBrifData* pData )
 	memcpy(pData,&m_stBaseData,sizeof(stPlayerBrifData));
 	auto pGameData = (CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData);
 	pData->nCurrentRoomID = pGameData->getCurRoomID() * 10 + eRoom_MJ;
+}
+
+void CPlayerBaseData::GetPlayerBrifData( Json::Value& jsInfo )
+{
+	CSelectPlayerDataCacher::playerDataToJsonInfo(&m_stBaseData,jsInfo) ;
 }
 
 void CPlayerBaseData::GetPlayerDetailData(stPlayerDetailData* pData )

@@ -1,0 +1,11 @@
+﻿id	desc	diamond	icon
+1	5元话费	300	huafei10.png
+2	10元话费	600	huafei20.png
+3	30元话费	2000	huafei30.png
+4	50元话费	3000	huafei50.png
+5	100元话费	10000	huafei100.png
+6	购物券100元	15000	poker.png
+7	红米note2	80000	duleisi.png
+8	苹果ipad Air 2	160000	jinzhuan.png
+9	苹果iphone6	600000	ipad.png
+10	苹果iphone6plus	888888	iphone.png
