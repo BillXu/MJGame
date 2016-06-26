@@ -45,7 +45,7 @@ bool CPlayerBag::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort
 			}
 			jsmsg["items"] = jsItems ;
 			SendMsg(jsmsg,nmsgType);
-			CLogMgr::SharedLogMgr()->PrintLog("send bag msg to players uid = %u size = %u",GetPlayer()->GetUserUID(),jsmsg.size()) ;
+			CLogMgr::SharedLogMgr()->PrintLog("send bag msg to players uid = %u size = %u",GetPlayer()->GetUserUID(),jsItems.size()) ;
 		}
 		break ;
 	default:
@@ -106,40 +106,11 @@ void CPlayerBag::addPlayerItem(uint32_t nItemID , bool isStack , uint32_t nCnt ,
 	uint32_t nNow = (uint32_t)time(nullptr) ;
 	stPlayerItem* pItem = nullptr ;
 	bool isUpdate = false ;
-	if ( isStack )
-	{
-		pItem = getPlayerItem(nItemID) ;
-		if ( pItem == nullptr )
-		{
-			pItem = new CPlayerBag::stPlayerItem;
-			pItem->nBuyTime = (uint32_t)time(nullptr) ;
-			pItem->nCnt = 1 ;
-			pItem->nItemID = nItemID ;
-			pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
-			m_vAllItems.push_back(pItem) ;
-
-			// save to db ;
-		}
-		else
-		{
-			pItem->nCnt = 1 ;
-			if ( pItem->nDeadTime < nNow )
-			{
-				pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
-			}
-			else
-			{
-				pItem->nDeadTime += ( nCnt * 60*60*24 ) ;
-			}
-
-			isUpdate = true ;
-			// save to db ;
-		}
-	}
-	else
+	pItem = getPlayerItem(nItemID) ;
+	if ( pItem == nullptr )
 	{
 		pItem = new CPlayerBag::stPlayerItem;
-		pItem->nBuyTime = nNow ;
+		pItem->nBuyTime = (uint32_t)time(nullptr) ;
 		pItem->nCnt = 1 ;
 		pItem->nItemID = nItemID ;
 		pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
@@ -147,10 +118,68 @@ void CPlayerBag::addPlayerItem(uint32_t nItemID , bool isStack , uint32_t nCnt ,
 
 		// save to db ;
 	}
+	else
+	{
+		pItem->nCnt = 1 ;
+		if ( pItem->nDeadTime < nNow )
+		{
+			pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
+		}
+		else
+		{
+			pItem->nDeadTime += ( nCnt * 60*60*24 ) ;
+		}
+
+		isUpdate = true ;
+		// save to db ;
+	}
+
+	//if ( isStack )
+	//{
+	//	pItem = getPlayerItem(nItemID) ;
+	//	if ( pItem == nullptr )
+	//	{
+	//		pItem = new CPlayerBag::stPlayerItem;
+	//		pItem->nBuyTime = (uint32_t)time(nullptr) ;
+	//		pItem->nCnt = 1 ;
+	//		pItem->nItemID = nItemID ;
+	//		pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
+	//		m_vAllItems.push_back(pItem) ;
+
+	//		// save to db ;
+	//	}
+	//	else
+	//	{
+	//		pItem->nCnt = 1 ;
+	//		if ( pItem->nDeadTime < nNow )
+	//		{
+	//			pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
+	//		}
+	//		else
+	//		{
+	//			pItem->nDeadTime += ( nCnt * 60*60*24 ) ;
+	//		}
+
+	//		isUpdate = true ;
+	//		// save to db ;
+	//	}
+	//}
+	//else
+	//{
+	//	pItem = new CPlayerBag::stPlayerItem;
+	//	pItem->nBuyTime = nNow ;
+	//	pItem->nCnt = 1 ;
+	//	pItem->nItemID = nItemID ;
+	//	pItem->nDeadTime = nCnt * 60*60*24 + nNow; 
+	//	m_vAllItems.push_back(pItem) ;
+
+	//	// save to db ;
+	//}
 
 	if ( !isNewAdd )
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("not new add so do no do db operate") ;
+		return ;
 	}
 
 	if ( !isUpdate )

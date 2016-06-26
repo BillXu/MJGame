@@ -25,10 +25,6 @@
 #define TIMES_GET_CHARITY_PER_DAY 2   // 2 HOURE
 #define COIN_FOR_CHARITY 800
 
-#ifndef SERVER
-#define PIEXL_TO_POINT(px) (px)/CC_CONTENT_SCALE_FACTOR()
-#define FOINT_NAME "Helvetica"
-#endif
 
 #define MAX_IP_STRING_LEN 17
 
@@ -69,45 +65,33 @@ enum eNoticeType
 	eNotice_InvitePrize, // { targetUID : 2345 addCoin : 3555 }
 };
 
-enum eRoomPeerAction
-{
-	eRoomPeerAction_None,
-	eRoomPeerAction_EnterRoom,
-	eRoomPeerAction_Ready,
-	eRoomPeerAction_Follow,
-	eRoomPeerAction_Add,
-	eRoomPeerAction_PK,
-	eRoomPeerAction_GiveUp,
-	eRoomPeerAction_ShowCard,
-	eRoomPeerAction_ViewCard,
-	eRoomPeerAction_TimesMoneyPk,
-	eRoomPeerAction_LeaveRoom,
-	eRoomPeerAction_Speak_Default,
-	eRoomPeerAction_Speak_Text,
-	// action for 
-	eRoomPeerAction_Pass,
-	eRoomPeerAction_AllIn,
-	eRoomPeerAction_SitDown,
-	eRoomPeerAction_StandUp,
-	eRoomPeerAction_Max
-};
+//enum eRoomPeerAction
+//{
+//	eRoomPeerAction_None,
+//	eRoomPeerAction_EnterRoom,
+//	eRoomPeerAction_Ready,
+//	eRoomPeerAction_Follow,
+//	eRoomPeerAction_Add,
+//	eRoomPeerAction_PK,
+//	eRoomPeerAction_GiveUp,
+//	eRoomPeerAction_ShowCard,
+//	eRoomPeerAction_ViewCard,
+//	eRoomPeerAction_TimesMoneyPk,
+//	eRoomPeerAction_LeaveRoom,
+//	eRoomPeerAction_Speak_Default,
+//	eRoomPeerAction_Speak_Text,
+//	// action for 
+//	eRoomPeerAction_Pass,
+//	eRoomPeerAction_AllIn,
+//	eRoomPeerAction_SitDown,
+//	eRoomPeerAction_StandUp,
+//	eRoomPeerAction_Max
+//};
 
 
 // mail Module 
 #define MAX_KEEP_MAIL_COUNT 50
-enum eMailType
-{
-	eMail_SysOfflineEvent,// { event: concret type , arg:{ arg0: 0 , arg 1 = 3 } }  // processed in svr , will not send to client ;
-	eMail_DlgNotice, // content will be send by , stMsgDlgNotice 
-	eMail_ReadTimeTag,  // use tell time for public mail ;
-	eMail_Sys_End,
 
-	eMail_RealMail_Begin, // will mail will show in golden server windown ;
-	eMail_PlainText,  // need not parse , just display the content ;
-	eMail_InvitePrize, // { targetUID : 2345 , addCoin : 300 } // you invite player to join game ,and give prize to you 
-	eMail_WinMatch, // { gameType:234,roomName:234,rankIdx:2,addCoin:345,cup : 2 , diamomd : 34 }
-	eMail_Max,
-};
 
 enum eProcessMailAct
 {

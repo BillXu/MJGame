@@ -6,8 +6,8 @@ enum eShopItemType
 {
 	eShopItem_Diamoned,
 	eShopItem_Coin,
-	eShopItem_Item,
 	eShopItem_RoomCard,
+	eShopItem_Item,
 	eShopItem_Max,
 };
 
@@ -20,7 +20,7 @@ struct stShopItem
 //#endif
 	uint32_t nShopItemID ;
     eShopItemType eType;
-	std::string strItemName ;
+	//std::string strItemName ;
 	uint32_t nItemID ;  // meanning deponed on eType ; 
 	uint32_t nCount ;
 	uint8_t nPrizeType ; // 0 RMB ,1 diamoned ,2 coin ;

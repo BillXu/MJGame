@@ -29,7 +29,7 @@ bool CItemConfigManager::OnPaser(CReaderRow& refReaderRow )
 		pItem = NULL ;
 		return false ;
 	}
-	pItem->isStack = refReaderRow["stack"]->IntValue();
+	pItem->isStack = false ;//refReaderRow["stack"]->IntValue();
 //#ifndef GAME_SERVER
 //    pItem->strDesc = refReaderRow["Desc"]->StringValue() ;
 //	pItem->strIcon = refReaderRow["Icon"]->StringValue() ;

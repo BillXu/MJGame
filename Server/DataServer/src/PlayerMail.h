@@ -14,8 +14,11 @@ public:
 	{
 		Event_Reward, // {rankIdx : 2 rewardID: 23,gameType: 2 , roomName : 234 }
 		Event_AddCoin, // { comment: "why add coin" addCoin : 34556 }
+		Event_AddFriend, // { friendUID : 2345 }
+		Event_DelteFriend, // { friendUID : 2345 }
 		Event_Max,
 	};
+
 	struct stRecievedMail
 	{
 		uint32_t nRecvTime ;
@@ -27,6 +30,7 @@ public:
 	CPlayerMailComponent(CPlayer* pPlayer ):IPlayerComponent(pPlayer){ClearMails();}
 	~CPlayerMailComponent(){ ClearMails() ;}
 	virtual bool OnMessage( stMsg* pMessage , eMsgPort eSenderPort );
+	bool OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort)override ;
 	virtual void Reset();
 	virtual void Init();
 	virtual void OnOtherDoLogined();

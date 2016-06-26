@@ -5,23 +5,36 @@ bool CPlateConfigMgr::OnPaser(CReaderRow& refReaderRow )
 	stPlateItem* pItem = new stPlateItem ;
 	pItem->ePlateItemType = (eShopItemType)refReaderRow["plateType"]->IntValue() ;
 	pItem->nConfigID = refReaderRow["configID"]->IntValue() ;
-	if ( GetPlateItem(pItem->nConfigID) )
+
+	bool isCharge = refReaderRow["isCharge"]->IntValue();
+
+	if ( GetPlateItem(pItem->nConfigID,!isCharge ) )
 	{
 		delete pItem ;
 		pItem = NULL ;
 		CLogMgr::SharedLogMgr()->ErrorLog("have two shop id the same") ;
 		return false;
 	}
-	m_vAllPlateItems.push_back(pItem) ;
+
+	if ( isCharge )
+	{
+		m_vChargePlateItems.push_back(pItem) ;
+	}
+	else
+	{
+		m_vFreePlateItems.push_back(pItem) ;
+	}
+	
 	pItem->nCount = refReaderRow["count"]->IntValue() ;
 	pItem->nItemID = refReaderRow["itemID"]->IntValue() ;
 	pItem->nRate = refReaderRow["rate"]->IntValue() ;
 	return true ;
 }
 
-stPlateItem* CPlateConfigMgr::GetPlateItem(unsigned int nConfigID )
+stPlateItem* CPlateConfigMgr::GetPlateItem(unsigned int nConfigID , bool isFree )
 {
-	for ( auto pitem : m_vAllPlateItems )
+	auto vPlateItems = isFree ? m_vFreePlateItems : m_vChargePlateItems ;
+	for ( auto pitem : vPlateItems )
 	{
 		if ( pitem->nConfigID == nConfigID )
 		{
@@ -31,15 +44,16 @@ stPlateItem* CPlateConfigMgr::GetPlateItem(unsigned int nConfigID )
 	return nullptr ;
 }
 
-stPlateItem* CPlateConfigMgr::randPlateItem()
+stPlateItem* CPlateConfigMgr::randPlateItem( bool isFree )
 {
+	auto vPlateItems = isFree ? m_vFreePlateItems : m_vChargePlateItems ;
 	uint32_t nRand = rand() % 10000 + 1 ;
 	uint16_t nCheckRate = 0 ;
-	uint16_t nIdx = rand() % m_vAllPlateItems.size() ;
-	for ( ; nIdx < m_vAllPlateItems.size() * 2 ; ++nIdx )
+	uint16_t nIdx = rand() % vPlateItems.size() ;
+	for ( ; nIdx < vPlateItems.size() * 2 ; ++nIdx )
 	{
-		uint16_t nRealIdx = nIdx % m_vAllPlateItems.size() ;
-		auto pItem = m_vAllPlateItems[nRealIdx] ;
+		uint16_t nRealIdx = nIdx % vPlateItems.size() ;
+		auto pItem = vPlateItems[nRealIdx] ;
 		nCheckRate += pItem->nRate ;
 		if ( nRand <= nCheckRate )
 		{
@@ -47,15 +61,22 @@ stPlateItem* CPlateConfigMgr::randPlateItem()
 		}
 	}
 	CLogMgr::SharedLogMgr()->ErrorLog("why no rand target plate nRand = %u",nRand) ;
-	return m_vAllPlateItems.front() ;
+	return vPlateItems.front() ;
 }
 
 void CPlateConfigMgr::Clear()
 {
-	for ( auto pitem : m_vAllPlateItems )
+	for ( auto pitem : m_vFreePlateItems )
 	{
 		delete pitem ;
 		pitem = nullptr ;
 	}
-	m_vAllPlateItems.clear() ;
+	m_vFreePlateItems.clear() ;
+
+	for ( auto pitem : m_vChargePlateItems )
+	{
+		delete pitem ;
+		pitem = nullptr ;
+	}
+	m_vChargePlateItems.clear() ;
 }

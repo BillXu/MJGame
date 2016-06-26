@@ -1,37 +1,19 @@
-ItemID	Name	Type	Gender	stack	renew	Desc	Icon
-210001	时尚休闲	0	1	0	1	null	boy_suit_00
-210002	青春年华	0	1	0	1	null	boy_suit_01
-210003	经典运动	0	1	0	1	null	boy_suit_02
-210004	街头朋克	0	1	0	1	null	boy_suit_03
-210005	贵族典范	0	1	0	1	null	boy_suit_04
-210006	伯爵诱惑	0	1	0	1	null	boy_suit_05
-210007	男戒指1	1	1	0	1	null	boy_jz_00
-210008	男戒指2	1	1	0	1	null	boy_jz_01
-210009	男戒指3	1	1	0	1	null	boy_jz_02
-210010	男戒指4	1	1	0	1	null	boy_jz_03
-210011	男戒指5	1	1	0	1	null	boy_jz_04
-210012	男戒指6	1	1	0	1	null	boy_jz_05
-210013	男纹身1	2	1	0	1	null	boy_tattoo_00
-210014	男纹身2	2	1	0	1	null	boy_tattoo_01
-210015	男纹身3	2	1	0	1	null	boy_tattoo_02
-210016	男纹身4	2	1	0	1	null	boy_tattoo_03
-210017	男纹身5	2	1	0	1	null	boy_tattoo_04
-210018	男纹身6	2	1	0	1	null	boy_tattoo_05
-210019	时尚休闲	0	2	0	1	null	girl_suit_00
-210020	青春年华	0	2	0	1	null	girl_suit_01
-210021	经典运动	0	2	0	1	null	girl_suit_02
-210022	街头朋克	0	2	0	1	null	girl_suit_03
-210023	贵族典范	0	2	0	1	null	girl_suit_04
-210024	伯爵诱惑	0	2	0	1	null	girl_suit_05
-210025	女戒指1	1	2	0	1	null	girl_jz_00
-210026	女戒指2	1	2	0	1	null	girl_jz_01
-210027	女戒指3	1	2	0	1	null	girl_jz_02
-210028	女戒指4	1	2	0	1	null	girl_jz_03
-210029	女戒指5	1	2	0	1	null	girl_jz_04
-210030	女戒指6	1	2	0	1	null	girl_jz_05
-210031	女纹身1	2	2	0	1	null	girl_tattoo_00
-210032	女纹身2	2	2	0	1	null	girl_tattoo_01
-210033	女纹身3	2	2	0	1	null	girl_tattoo_02
-210034	女纹身4	2	2	0	1	null	girl_tattoo_03
-210035	女纹身5	2	2	0	1	null	girl_tattoo_04
-210036	女纹身6	2	2	0	1	null	girl_tattoo_05
+ItemID	boyName	girlName	Type	Desc	Icon
+200001	时尚休闲	时尚休闲	0	null	boy_suit_00
+200002	青春年华	青春年华	0	null	boy_suit_01
+200003	经典运动	经典运动	0	null	boy_suit_02
+200004	街头朋克	街头朋克	0	null	boy_suit_03
+200005	贵族典范	贵族典范	0	null	boy_suit_04
+200006	伯爵诱惑	伯爵诱惑	0	null	boy_suit_05
+200007	男戒指1	女戒指1	1	null	boy_jz_00
+200008	男戒指2	女戒指2	1	null	boy_jz_01
+200009	男戒指3	女戒指3	1	null	boy_jz_02
+200010	男戒指4	女戒指4	1	null	boy_jz_03
+200011	男戒指5	女戒指5	1	null	boy_jz_04
+200012	男戒指6	女戒指6	1	null	boy_jz_05
+200013	男纹身1	女纹身1	2	null	boy_tattoo_00
+200014	男纹身2	女纹身2	2	null	boy_tattoo_01
+200015	男纹身3	女纹身3	2	null	boy_tattoo_02
+200016	男纹身4	女纹身4	2	null	boy_tattoo_03
+200017	男纹身5	女纹身5	2	null	boy_tattoo_04
+200018	男纹身6	女纹身6	2	null	boy_tattoo_05

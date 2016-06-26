@@ -162,6 +162,25 @@ enum eSex
 #if (C_SHARP)  
 public
 #endif
+enum eMailType
+{
+	eMail_SysOfflineEvent,// { event: concret type , arg:{ arg0: 0 , arg 1 = 3 } }  // processed in svr , will not send to client ;
+	eMail_DlgNotice, // content will be send by , stMsgDlgNotice 
+	eMail_ReadTimeTag,  // use tell time for public mail ;
+	eMail_Sys_End,
+
+	// 以下为客户端需要识别的邮件类型
+	eMail_RealMail_Begin, // 开始标识 ;
+	eMail_PlainText,  // 内容为普通字符串，注意： 不是json对象 ;
+	eMail_InvitePrize, // { targetUID : 2345 , addCoin : 300 } // you invite player to join game ,and give prize to you 
+	eMail_WinMatch, // { gameType:234,roomName:234,rankIdx:2,addCoin:345,cup : 2 , diamomd : 34 }
+	eMail_VIP_INVITE, // { inviteUID : 2345 , roomID : 2345 } vip 房间邀请， inviteUID 邀请者的UID， roomID 房间的id ，可以通过这个进入房间
+	eMail_Max,
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eMsgType 
 {
 	MSG_CLIENT = 10000,
@@ -377,4 +396,48 @@ enum eMsgType
 
 	MSG_TELL_SELF_IP, // 通知玩家自己的IP 地址
 	// svr : { ip : "192.235.133.23" }
+
+	MSG_REQ_UPDATE_COIN, // 获取玩家最新的金钱
+	// client : null ;
+	// svr : { coin : 2345 , diamond : 2345 };
+
+	// friend module 
+	MSG_REQ_ADD_FRIEND, // 请求添加好友
+	// client : { targetUID : 2345 , notice : "i want to make friend with you" }
+	// svr : { ret : 0 , targetUID ：2345 }
+	// taregetUID : 请求加好友，对方的ID， notice 是请求是捎带的一句话
+	// ret : 0 发出成功 ; 1 找不到目标玩家 , 2 对方好友已经满了， 3 自己的好友已经满了, 4 对方已经是自己的好友
+	
+	MSG_REQ_ADD_FRIEND_RESULT, // 请求添加好友的结果
+	// svr : { targetUID ：2345 ， name : "bigGirl", isAgree : 0 }
+	// targetUID :  回复者的UID ， name 回复者的name 。 isAgree ： 1 是同意， 0 是不同意
+
+
+	MSG_RECIEVED_NEW_FRIEND_REQ,  //  收到加好友的请求
+	// svr : { reqUID : 2345 , reqName : "name" , notice : "i want to make friend with you " }
+	// reqUID 请求者的UID， reqName 请求者的名字，notice 请求者捎带的一句话
+	MSG_REPLY_NEW_FRIEND_REQ, // 回复加好友的请求
+	// client : { targetUID : 2345 , isAgree : 0 }
+	// target ： 回复目标的UID ，isAgree 是否同意 1 是同意，0 是不同意；
+	MSG_DELETE_FRIEND , // 删除好友
+	// client { targetUID : 2345 } ;
+	// svr : { ret : 0 , targetUID : 2345 } ;
+	// ret : 0 成功， 1 对方不是你的好友。  targetUID : 要删除的好友UID ；
+
+	MSG_REQ_FRIEND_LIST, // 请求好友列表；
+	// client : { startIdx : 0 , cnt : 2345 }
+	// svr : { totalCnt : 1 , friendUIDs : [2345 ,235 ,2346 ,2345 ] }
+	// startIdx :  请求好友列表的开始所有， cnt ： 本次请求多少个好友。 
+	// totalCnt : 总好友数量
+
+	// mail module 
+	MSG_REQUEST_NEW_MAIL_LIST, // 请求新邮件列表
+	// client : null ;
+	// svr : { mails : [ { type : eMailType ,recvTime : 2345, content : 【】 }, { type : 1 ,recvTime : 2345, content :【】 }, ... ] } ;
+	// mails : 邮件数组； 数组内是邮件的json 对象，包含type 类型。 content 邮件内容； 注意邮件内容太content 有可能是json对象，有可能不是，具体要根据type来决定，content 里的信息
+	// 请参考 eMailType 相应枚举里的解释 ；recvTime : 邮件接收到的时间
+
+	MSG_RECIEVED_NEW_MAIL,  // 新邮件通知，当有新邮件到达的时候，会收到这个消息；
+	// svr : { newMailCnt : 12 }  
+	// newMailCnt : 收到新邮件的条数
 };

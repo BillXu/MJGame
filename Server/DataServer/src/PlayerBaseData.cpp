@@ -339,7 +339,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 
 			stMsgVerifyItemOrder msgOrder ;
 			memset(msgOrder.cShopDesc,0,sizeof(msgOrder.cShopDesc));
-			sprintf_s(msgOrder.cShopDesc,sizeof(msgOrder.cShopDesc),"%s",pItem->strItemName.c_str()) ;
+			sprintf_s(msgOrder.cShopDesc,sizeof(msgOrder.cShopDesc),"%s","shopNameDefault") ;
 
 			memset(msgOrder.cOutTradeNo,0,sizeof(msgOrder.cOutTradeNo));
 			sprintf_s(msgOrder.cOutTradeNo,sizeof(msgOrder.cOutTradeNo),"%dE%dE%u",pItem->nShopItemID,GetPlayer()->GetUserUID(),(uint32_t)time(nullptr)) ;
@@ -725,6 +725,14 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 {
 	switch (nmsgType)
 	{
+	case MSG_REQ_UPDATE_COIN:
+		{
+			Json::Value jsmsgBack ;
+			jsmsgBack["coin"] = getCoin();
+			jsmsgBack["diamond"] = GetAllDiamoned();
+			SendMsg(jsmsgBack,nmsgType);
+		}
+		break ;
 	case MSG_TELL_ROBOT_TYPE:
 		{
 			m_ePlayerType = ePlayer_Robot ;
@@ -885,7 +893,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 				// do the result ;
 				auto pPlateConfig = (CPlateConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Plate);
-				auto pp = pPlateConfig->randPlateItem();
+				auto pp = pPlateConfig->randPlateItem(jsMsg["isFree"].asInt() == 1 );
 				jsMsg["plateID"] = pp->nConfigID ;
 				switch ( pp->ePlateItemType )
 				{

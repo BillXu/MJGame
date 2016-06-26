@@ -118,6 +118,21 @@ bool CPlayerMailComponent::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 	return true ;
 }
 
+bool CPlayerMailComponent::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort)
+{
+	switch (nmsgType)
+	{
+	case MSG_REQUEST_NEW_MAIL_LIST:
+		{
+			SendMailListToClient();
+		}
+		break ;
+	default:
+		return false;
+	}
+	return true ;
+}
+
 void CPlayerMailComponent::Reset()
 {
 	ClearMails();
@@ -153,7 +168,10 @@ void CPlayerMailComponent::InformRecievedUnreadMails()
 
 	if ( msg.nUnreadMailCount )
 	{
-		SendMsg(&msg,sizeof(msg)) ;
+		//SendMsg(&msg,sizeof(msg)) ;
+		Json::Value jsmsg ;
+		jsmsg["newMailCnt"] = msg.nUnreadMailCount ;
+		SendMsg(jsmsg,MSG_RECIEVED_NEW_MAIL);
 	}
 }
 
@@ -184,27 +202,39 @@ void CPlayerMailComponent::SendMailListToClient()
 
 	vSendMailList.sort(arrageMailByTime);
 
-
-	stMsgRequestMailListRet msgRet;
-	uint8_t nSize = vSendMailList.size() ;
-	CAutoBuffer auBuff(sizeof(msgRet) + 100 );
-	for ( stRecievedMail& pMail : vSendMailList )
+	Json::Value jsmsg ;
+	Json::Value jsmails ;
+	for ( auto ref : vSendMailList )
 	{
-		--nSize ;
-		msgRet.isFinal = nSize == 0 ;
-		msgRet.tMail.eType = pMail.eType ;
-		msgRet.tMail.nPostTime = pMail.nRecvTime ;
-		msgRet.tMail.nContentLen = pMail.strContent.size() ;
-		if ( pMail.eType <= eMail_RealMail_Begin )
-		{
-			CLogMgr::SharedLogMgr()->ErrorLog("send sys process mail to player uid = %u , type = %u",GetPlayer()->GetUserUID(),pMail.eType);
-			continue;
-		}
-		auBuff.clearBuffer();
-		auBuff.addContent(&msgRet,sizeof(msgRet));
-		auBuff.addContent(pMail.strContent.c_str(),msgRet.tMail.nContentLen) ;
-		SendMsg((stMsg*)auBuff.getBufferPtr(),auBuff.getContentSize()) ;
+		Json::Value jsmail ;
+		jsmail["type"] = ref.eType ;
+		jsmail["content"] = ref.strContent ;
+		jsmail["recvTime"] = ref.nRecvTime ;
+		jsmails[jsmails.size()] = jsmail ;
 	}
+	jsmsg["mails"] = jsmails ;
+	SendMsg(jsmsg,MSG_REQUEST_NEW_MAIL_LIST);
+
+	//stMsgRequestMailListRet msgRet;
+	//uint8_t nSize = vSendMailList.size() ;
+	//CAutoBuffer auBuff(sizeof(msgRet) + 100 );
+	//for ( stRecievedMail& pMail : vSendMailList )
+	//{
+	//	--nSize ;
+	//	msgRet.isFinal = nSize == 0 ;
+	//	msgRet.tMail.eType = pMail.eType ;
+	//	msgRet.tMail.nPostTime = pMail.nRecvTime ;
+	//	msgRet.tMail.nContentLen = pMail.strContent.size() ;
+	//	if ( pMail.eType <= eMail_RealMail_Begin )
+	//	{
+	//		CLogMgr::SharedLogMgr()->ErrorLog("send sys process mail to player uid = %u , type = %u",GetPlayer()->GetUserUID(),pMail.eType);
+	//		continue;
+	//	}
+	//	auBuff.clearBuffer();
+	//	auBuff.addContent(&msgRet,sizeof(msgRet));
+	//	auBuff.addContent(pMail.strContent.c_str(),msgRet.tMail.nContentLen) ;
+	//	SendMsg((stMsg*)auBuff.getBufferPtr(),auBuff.getContentSize()) ;
+	//}
 	CLogMgr::SharedLogMgr()->PrintLog("send mail to client uid = %d ,size = %d",GetPlayer()->GetUserUID(),vSendMailList.size() ) ;
 
 	saveReadTimeTag();
@@ -478,6 +508,22 @@ void CPlayerMailComponent::processSysOfflineEvent(stRecievedMail& pMail)
 			CLogMgr::SharedLogMgr()->PrintLog("do give coin uid = %d , coin = %d comment = %s",GetPlayer()->GetUserUID(),jArg["addCoin"].asInt(),jArg["comment"].asCString()) ;
 		}
 		break;
+	case Event_AddFriend:
+		{
+			uint32_t nTargetUID = jArg["friendUID"].asUInt() ;
+			auto pF = (CPlayerFriend*)GetPlayer()->GetComponent(ePlayerComponent_Friend);
+			pF->AddFriend(nTargetUID) ;
+			CLogMgr::SharedLogMgr()->PrintLog("offline event add friend uid = %u",nTargetUID) ;
+		}
+		break;
+	case Event_DelteFriend:
+		{
+			uint32_t nTargetUID = jArg["friendUID"].asUInt() ;
+			auto pF = (CPlayerFriend*)GetPlayer()->GetComponent(ePlayerComponent_Friend);
+			pF->RemoveFriendByUID(nTargetUID) ;
+			CLogMgr::SharedLogMgr()->PrintLog("offline event delete friend uid = %u",nTargetUID) ;
+		}
+		break ;
 	default:
 		CLogMgr::SharedLogMgr()->ErrorLog("unknown event type from offline , %d  uid = %d ",eEvent,GetPlayer()->GetUserUID()) ;
 		break;

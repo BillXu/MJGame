@@ -36,13 +36,13 @@ bool CShopConfigMgr::OnPaser(CReaderRow& refReaderRow )
 //	pItem->strAppStroeIdentifer = refReaderRow["AppStroeIdentifer"]->StringValue() ;
 //#endif
 	//pItem->nFlag = refReaderRow["Flag"]->IntValue() ;
-	pItem->strItemName = refReaderRow["shopItemName"]->StringValue() ;
+	//pItem->strItemName = refReaderRow["shopItemName"]->StringValue() ;
 	pItem->nPrizeType = refReaderRow["PriceType"]->IntValue() ;
 	//pItem->nOrigPrize = refReaderRow["OrigPrice"]->IntValue() ;
 	pItem->nPrize = refReaderRow["CurPrice"]->IntValue() ;
 	//pItem->nCanByTimes = refReaderRow["CanBuyTimes"]->IntValue();
-	pItem->nItemID = refReaderRow["ItemID"]->IntValue();
-	pItem->nCount = refReaderRow["Count"]->IntValue();
+	pItem->nItemID = refReaderRow["itemID"]->IntValue();
+	pItem->nCount = refReaderRow["CountOrTime"]->IntValue();
 
 //    
 //	// begin time 

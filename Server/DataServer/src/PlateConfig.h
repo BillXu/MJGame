@@ -21,10 +21,11 @@ public:
 	CPlateConfigMgr(){ Clear();}
 	~CPlateConfigMgr() { Clear() ;}
 	bool OnPaser(CReaderRow& refReaderRow );
-	stPlateItem* GetPlateItem(unsigned int nConfigID );
-	stPlateItem* randPlateItem();
+	stPlateItem* GetPlateItem(unsigned int nConfigID, bool isFree );
+	stPlateItem* randPlateItem( bool isFree );
 protected:
 	void Clear();
 protected:
-	VEC_PLATE_ITEMS m_vAllPlateItems ;
+	VEC_PLATE_ITEMS m_vFreePlateItems ;
+	VEC_PLATE_ITEMS m_vChargePlateItems ;
 };
