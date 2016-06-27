@@ -480,6 +480,7 @@ void CPlayerFriend::readFriendList()
 	auto asynQueue = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
 	Json::Value jsReq ;
 	std::string strSql = "select friendUID from playerfriend where userUID = '" + std::to_string(GetPlayer()->GetUserUID()) + "' limit 20 offset '" + std::to_string(m_vAllFriends.size()) + "' ;";
+	jsReq["sql"] = strSql ;
 	asynQueue->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReq,[this](uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData ){
 		Json::Value jsData = retContent["data"] ;
 		for ( uint16_t nIdx = 0 ; nIdx < jsData.size() ; ++nIdx )
