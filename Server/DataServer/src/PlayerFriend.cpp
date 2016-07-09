@@ -455,6 +455,7 @@ void CPlayerFriend::RemoveFriendByUID(unsigned int nPlayerUID )
 	auto asynQueue = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
 	Json::Value jsReq ;
 	std::string strSql = "delete from playerfriend where userUID = '" + std::to_string(GetPlayer()->GetUserUID()) + "' and friendUID = ' "  + std::to_string(nPlayerUID) + " ' ;";
+	jsReq["sql"] = strSql;
 	asynQueue->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_Db_Delete,jsReq);
 }
 
@@ -472,6 +473,7 @@ void CPlayerFriend::AddFriend(unsigned int nFriendUserUID)
 	auto asynQueue = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
 	Json::Value jsReq ;
 	std::string strSql = "insert into playerfriend ( userUID,friendUID ) values ( '" + std::to_string(GetPlayer()->GetUserUID()) + "' , ' "  + std::to_string(nFriendUserUID) + " ') ;";
+	jsReq["sql"] = strSql ;
 	asynQueue->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsReq);
 }
 
