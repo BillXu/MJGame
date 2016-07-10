@@ -32,7 +32,7 @@ IRoom::IRoom()
 
 IRoom::~IRoom()
 {
-	for ( auto pPlayer : m_vReseverPlayerObjects )
+	for ( auto& pPlayer : m_vReseverPlayerObjects )
 	{
 			if ( pPlayer )
 			{
@@ -182,7 +182,7 @@ bool IRoom::canStartGame()
 
 bool IRoom::isHaveRealPlayer()
 {
-	for ( auto pp : m_vInRoomPlayers )
+	for ( auto& pp : m_vInRoomPlayers )
 	{
 		if ( pp.second->nPlayerType != ePlayer_Robot )
 		{
@@ -213,9 +213,9 @@ void IRoom::playerDoLeaveRoom( stStandPlayer* pp )
 			msgdoLeave.nGameType = getRoomType() ;
 			msgdoLeave.nRoomID = getRoomID() ;
 			msgdoLeave.nUserUID = pp->nUserUID ;
-			msgdoLeave.nWinTimes = pp->nWinTimes ;
-			msgdoLeave.nPlayerTimes = pp->nPlayerTimes ;
-			msgdoLeave.nSingleWinMost = pp->nSingleWinMost ;
+			msgdoLeave.nMaxFangXingType = pp->nMaxFangXingType ;
+			msgdoLeave.nMaxFanShu = pp->nMaxFanShu ;
+			msgdoLeave.nRoundsPlayed = pp->nRoundsPlayed ;
 			msgdoLeave.nGameOffset = pp->nGameOffset ;
 			sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pp->nUserSessionID) ;
 		}
@@ -481,7 +481,7 @@ void IRoom::forcePlayersLeaveRoom()
 {
 	CLogMgr::SharedLogMgr()->PrintLog("force all player leave room") ;
 	MAP_UID_STAND_PLAYER vtempSet (m_vInRoomPlayers.begin(),m_vInRoomPlayers.end() ) ;
-	for ( auto iterRef : vtempSet )
+	for ( auto& iterRef : vtempSet )
 	{
 		onPlayerApplyLeaveRoom(iterRef.first) ;
 	}

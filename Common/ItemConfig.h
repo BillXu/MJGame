@@ -7,6 +7,7 @@ struct stItemConfig
 {
 	uint32_t nItemID ;
 	bool isStack;
+	uint32_t nType ;
 //	eItemType eType ;
 //#ifndef GAME_SERVER
 //	std::string strName;

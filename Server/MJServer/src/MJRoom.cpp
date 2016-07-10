@@ -164,7 +164,7 @@ void CMJRoom::onGameDidEnd()
 	ISitableRoom::onGameDidEnd();
 	CLogMgr::SharedLogMgr()->PrintLog("room game End");
 
-	for ( auto si : vMapSessionIDIsRobot )
+	for ( auto& si : vMapSessionIDIsRobot )
 	{
 		getRobotDispatchStrage()->onPlayerLeave(si.first,si.second) ;
 	}
@@ -246,9 +246,9 @@ void CMJRoom::caculateGameResult()
 
 	// process hua zhu ;
 	uint8_t nHuaZhuCoin = getBaseBet() ;
-	for ( auto pHuaZhu : vecHuaZhu )
+	for ( auto& pHuaZhu : vecHuaZhu )
 	{
-		for ( auto pNotHuaZhu : vecNotHuaZhu )
+		for ( auto& pNotHuaZhu : vecNotHuaZhu )
 		{
 			uint8_t nAddcoin = nHuaZhuCoin ;
 			if ( pHuaZhu->getCoin() < nHuaZhuCoin )
@@ -266,10 +266,10 @@ void CMJRoom::caculateGameResult()
 	}
 
 	// process da jiao 
-	for ( auto pNotTing : vecNotTingPai )
+	for ( auto& pNotTing : vecNotTingPai )
 	{
 		onPlayerRallBackWindRain( pNotTing );
-		for ( auto pTing : vecTingPai )
+		for ( auto& pTing : vecTingPai )
 		{
 			if ( pNotTing->getCoin() <= 0 )
 			{
@@ -315,13 +315,19 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 	
 	if ( pPlayerWiner->getNewFetchedFrom() != eMJAct_Mo )
 	{
-		// gang shang hua 
-		nFanShu += 1 ;
+		// gang shang hua jia yi fan 
+		nFanShu *= 2 ;
 	}
 	else
 	{
 		 // zi mo 
 		 CLogMgr::SharedLogMgr()->ErrorLog("zi mo xu yao jia fan ma ?");
+	}
+
+	// update max fan shu 
+	if ( pPlayerWiner->getMaxWinTimes() < nFanShu )
+	{
+		pPlayerWiner->setMaxWinTimes(nFanShu) ;
 	}
 
 	uint32_t nWinCoin = getCacualteCoin(nFanShu,nGenshu) ;
@@ -368,16 +374,22 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 	if ( isGangPai )  // qiang gang hu 
 	{
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u qiang gang hu jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
-		nFanShu += 1 ;
+		nFanShu *= 2 ; // add a fan
 		pLosePlayer->beRobotGang(nCardNumber) ;
 	}
 	else if ( pLosePlayer->getNewFetchedFrom() != eMJAct_Mo )  // gang shang pao ;
 	{
 		CLogMgr::SharedLogMgr()->ErrorLog("process rollback wind and rain , gang shang Pao") ;
-		nFanShu += 1 ;
+		nFanShu *= 2 ; // add a fan
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u Gang shang pao jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
 	}
 	
+	// update max fan shu 
+	if ( pPlayerWiner->getMaxWinTimes() < nFanShu )
+	{
+		pPlayerWiner->setMaxWinTimes(nFanShu) ;
+	}
+
 	uint32_t nWinCoin = getCacualteCoin(nFanShu,nGenshu) ;
 
 	uint32_t ntotalWin = 0 ;
@@ -660,10 +672,10 @@ void CMJRoom::onPlayerRallBackWindRain(CMJRoomPlayer* pPlayer )
 		return ;
 	}
 
-	for ( auto ref : vecGangWin )
+	for ( auto& ref : vecGangWin )
 	{
 		stBillWin* pWinBill = (stBillWin*)ref ;
-		for ( auto tPlayer : pWinBill->vLoseIdxAndCoin )
+		for ( auto& tPlayer : pWinBill->vLoseIdxAndCoin )
 		{
 			if ( pPlayer->getCoin() <= 0 )
 			{

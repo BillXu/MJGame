@@ -25,19 +25,24 @@ public
 enum eFanxingType 
 {
 	eFanxing_PingHu, // 平胡
-	eFanxing_QingYiSe, // 清一色
-	eFanxing_QiDui, //  七对
-	eFanxing_QingDui, //  清对
-	eFanxing_LongQiDui, //  龙七对
-	eFanxing_QingLongQiDui, //  清龙七对
+
 	eFanxing_DuiDuiHu, //  对对胡
-	eFanxing_QingDuiDuiHu, // 清对对胡
-	eFanxing_JinGouDiao, //  金钩钓
-	eFanxing_QingJinGouDiao, // 清金钩钓
-	eFanxing_ShiBaLuoHan, //  十八罗汉
-	eFanxing_JiangJinGouDiao, // 将金钩钓
+
+	eFanxing_QingYiSe, // 清一色
 	eFanxing_DaiYaoJiu, //  带幺九
+	eFanxing_QiDui, //  七对
+	eFanxing_JinGouDiao, //  金钩钓
+
+	eFanxing_QingDuiDuiHu, // 清对对胡
+
+	eFanxing_QingDui, //  清七对
+	eFanxing_LongQiDui, //  龙七对
 	eFanxing_QingDaiYaoJiu, //  清 带幺九
+	eFanxing_JiangJinGouDiao, // 将金钩钓
+	eFanxing_QingJinGouDiao, // 清金钩钓
+
+	eFanxing_QingLongQiDui, //  清龙七对
+	eFanxing_ShiBaLuoHan, //  十八罗汉
 	eFanxing_Max, // 没有胡
 };
 
@@ -50,10 +55,11 @@ enum eRoomType
 	eRoom_MJ = eRoom_None,
 	eRoom_MJ_Blood_End = eRoom_None, // 血战到底 
 	eRoom_MJ_Blood_River,// 血流成河
-	eRoom_NiuNiu = eRoom_MJ_Blood_River,
-	eRoom_TexasPoker,
-	eRoom_Golden,
-	eRoom_Max ,
+	eRoom_MJ_MAX,
+	eRoom_NiuNiu = eRoom_MJ_Blood_River, // not used 
+	eRoom_TexasPoker,   // not used 
+	eRoom_Golden, // not used 
+	eRoom_Max = eRoom_MJ_MAX,
 };
 
 #if (C_SHARP)  
@@ -213,8 +219,8 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",sex : eSex,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345, vipRoomCard : 23 }
-	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币；
+	// svr : { name: "nickName",sex : eSex,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345, vipRoomCard : 23, clothe : [235,235,234] }
+	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME,
@@ -440,4 +446,26 @@ enum eMsgType
 	MSG_RECIEVED_NEW_MAIL,  // 新邮件通知，当有新邮件到达的时候，会收到这个消息；
 	// svr : { newMailCnt : 12 }  
 	// newMailCnt : 收到新邮件的条数
+
+	MSG_PLAYER_WEAR_CLOTHE, // 玩家穿上衣服；
+	// client : { itemID : 23456 }
+	// svr : { ret : 0 ,itemID : 23456 }
+	// itemID 就是所穿衣服的 物品ID ；
+	// ret : 0 成功， 1 玩家没有这个衣服，2 该衣服已经过期, 3 不存在改物品
+
+	MSG_REQ_GAME_DATA, // 请求游戏的统计数据，非比赛场
+	// client : { gameType : eRoomType  }
+	// svr : { ret : 0 , gameType : eRoomType , roundPlayed : 2345 ,maxFanShu : 345 , maxFanXing : eFanxingType  }
+	// ret : 0 成功返回，1 参数错误
+	// gameType 场次类型，取值参考eRoomType，roundPlayed， 总共玩的局数， maxFanShu 最大番数， maxFanXing 最大番数牌型 ， 取值参考eFanxingType；
+	MSG_REQ_VIP_ROOM_BILL_INFO,  // 请求vip 房间的账单, 此消息发往游戏服务器；
+	// client : { billID : 2345 }
+	// svr : { ret : 0 , billID : 234, billTime : 23453, roomID : 235, roomType : eRoomType , creatorUID : 345 , circle： 8 ，initCoin : 2345 , detail : [ { uid : 2345 , curCoin : 234 }, ....]  } 
+	// ret : 0 成功，1 账单id不存在，billID, 账单ID， billTime ： 账单产生的时间, roomID : 房间ID ， roomType 房间类型eRoomType， creatorUID 创建者的ID，circle 房间的圈数，initCoin ： 初始金币，detail : 每个人的输赢详情 json数组
+	// uid : 玩家的uid，curCoin 结束时剩余钱；
+
+	MSG_REQ_VIP_ROOM_BILL_IDS, // 请求最近10条 vip房间 账单的ID ， 次消息发送给 舒服服务器 data server；
+	// client : null
+	// svr : { billIDs : [234,234,2345 ] }
+	// billIDs 账单id的数组，通过id 可以通过 MSG_REQ_VIP_ROOM_BILL_INFO 这个消息，获取账单详情
 };

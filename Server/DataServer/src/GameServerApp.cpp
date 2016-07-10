@@ -111,6 +111,15 @@ bool CGameServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMs
 	return false ;
 }
 
+bool CGameServerApp::onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult )
+{
+	if ( m_pPlayerManager->onAsyncRequest(nRequestType,jsReqContent,jsResult) )
+	{
+		return true ;
+	}
+	return false ;
+}
+
 bool CGameServerApp::ProcessPublicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID )
 {
 	return false ;

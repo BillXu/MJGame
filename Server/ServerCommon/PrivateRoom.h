@@ -64,6 +64,7 @@ protected:
 	uint32_t m_nOwnerUID ;
 
 	uint8_t m_nLeftCircle ;
+	uint8_t m_nInitCircle ;
 	uint32_t m_nInitCoin ;
 	bool m_bComsumedRoomCards ;
 	MAP_UID_VIP_PLAYERS m_vAllPlayers ;
@@ -92,6 +93,7 @@ protected:
 #include "ServerStringTable.h"
 #include "IRoomState.h"
 #include "RewardConfig.h"
+#include "AsyncRequestQuene.h"
 #define TIME_WAIT_REPLY_DISMISS 60*5
 
 template<class T >
@@ -104,7 +106,7 @@ CPrivateRoom<T>::CPrivateRoom()
 	m_pRoom = nullptr;
 	m_bRoomInfoDiry = false;
 
-	m_nLeftCircle = 0 ;
+	m_nLeftCircle = m_nInitCircle = 0 ;
 	m_nInitCoin = 0 ;
 	m_bComsumedRoomCards = false ;
 	m_mapRecievedReply.clear() ;
@@ -127,6 +129,7 @@ template<class T >
 bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue )
 {
 	m_nLeftCircle = vJsValue["circle"].asUInt() ;
+	m_nInitCircle = m_nLeftCircle;
 	m_nInitCoin = vJsValue["initCoin"].asUInt() ;
 	memset(&m_stConfig,0,sizeof(m_stConfig));
 	m_stConfig.nConfigID = 0 ;
@@ -350,7 +353,7 @@ void CPrivateRoom<T>::onTimeSave()
 	msgSave.nRoomID = getRoomID() ;
 	msgSave.nRoomType = getRoomType() ;
 	msgSave.nTermNumber = 0 ;
-	for ( auto pp : m_vSortedRankItems )
+	for ( auto& pp : m_vSortedRankItems )
 	{
 		if ( !pp->bIsDiryt )
 		{
@@ -561,7 +564,7 @@ void CPrivateRoom<T>::onCheckDismissReply( bool bTimerOut )
 {
 	uint8_t nAgreeCnt =  0 ;
 	uint8_t nDisAgreeCnt = 0 ;
-	for ( auto ref : m_mapRecievedReply )
+	for ( auto& ref : m_mapRecievedReply )
 	{
 		if ( ref.second )
 		{
@@ -677,16 +680,19 @@ void CPrivateRoom<T>::onRoomGameOver( bool isDismissed )
 	jsMsg["initCoin"] = m_nInitCoin ;
 
 	Json::Value jsVBills ;
-	for ( auto ref : m_vAllPlayers )
+	Json::Value jsPlayedPlayers;
+	for ( auto& ref : m_vAllPlayers )
 	{
 		Json::Value jsPlayer ;
 		jsPlayer["uid"] = ref.second.nUID;
 		jsPlayer["curCoin"] = ref.second.nRoomCoin ;
 		jsVBills[jsVBills.size()] = jsPlayer ;
+
+		jsPlayedPlayers[jsPlayedPlayers.size()] = ref.second.nUID;
 	}
 	jsMsg["bills"] = jsVBills ;
 
-	for ( auto ref : m_vAllPlayers )
+	for ( auto& ref : m_vAllPlayers )
 	{
 		if ( ref.second.nSessionID )
 		{
@@ -700,6 +706,24 @@ void CPrivateRoom<T>::onRoomGameOver( bool isDismissed )
 	jsClosed["roomID"] = getRoomID() ;
 	jsClosed["eType"] = getRoomType();
 	m_pRoomMgr->sendMsg(jsClosed,MSG_VIP_ROOM_CLOSED,0,ID_MSG_PORT_DATA);
+
+	// add vip room bill 
+	auto pBill = m_pRoomMgr->createVipRoomBill();
+	pBill->jsDetail = jsVBills ;
+	pBill->nBillTime = (uint32_t)time(nullptr);
+	pBill->nCreateUID = getOwnerUID() ;
+	pBill->nRoomID = getRoomID() ;
+	pBill->nRoomType = getRoomType() ;
+	pBill->nRoomInitCoin = m_nInitCoin ;
+	pBill->nCircleCnt = m_nInitCircle - m_nLeftCircle ;
+	m_pRoomMgr->addVipRoomBill(pBill,true ) ;
+
+	// sys bill id to data svr 
+	Json::Value jsReqSync ;
+	jsReqSync["billID"] = pBill->nBillID;
+	jsReqSync["useUIDs"] = jsPlayedPlayers ;
+	auto asynQueue = m_pRoomMgr->getSvrApp()->getAsynReqQueue();
+	asynQueue->pushAsyncRequest(ID_MSG_PORT_DATA,eAsync_SyncVipRoomBillID,jsReqSync) ;
 }
 
 template<class T >
@@ -728,9 +752,9 @@ void CPrivateRoom<T>::onPlayerLeave(IRoom* pRoom,uint8_t playerUID )
 	msgdoLeave.nGameType = getRoomType() ;
 	msgdoLeave.nRoomID = getRoomID() ;
 	msgdoLeave.nUserUID = pp->nUserUID ;
-	msgdoLeave.nWinTimes = pp->nWinTimes ;
-	msgdoLeave.nPlayerTimes = pp->nPlayerTimes ;
-	msgdoLeave.nSingleWinMost = pp->nSingleWinMost ;
+	msgdoLeave.nMaxFangXingType = pp->nMaxFangXingType ;
+	msgdoLeave.nMaxFanShu = pp->nMaxFanShu ;
+	msgdoLeave.nRoundsPlayed = pp->nRoundsPlayed ;
 	msgdoLeave.nGameOffset = pp->nGameOffset ;
 	m_pRoom->sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pp->nUserSessionID) ;
 

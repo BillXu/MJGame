@@ -23,7 +23,7 @@ public:
 	typedef std::list<stArgData*> LIST_ARG_DATA ;
 	enum eModeType
 	{
-		eModule_Type = 2 ,
+		eModule_Type = 200 ,
 	};
 public:
 	CDBManager();

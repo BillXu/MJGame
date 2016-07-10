@@ -1,4 +1,5 @@
 #include "ItemConfig.h"
+#include <cassert>
 CItemConfigManager::CItemConfigManager()
 {
 	ClearAllItems();
@@ -39,6 +40,8 @@ bool CItemConfigManager::OnPaser(CReaderRow& refReaderRow )
 //	pItem->nPrizeCoin = refReaderRow["PrizeCoin"]->IntValue();
 //	pItem->nPrizeDiamoned = refReaderRow["PrizeDiamoned"]->IntValue() ;
 //	pItem->nValue = refReaderRow["Value"]->IntValue() ;
+	pItem->nType = refReaderRow["Type"]->IntValue() ;
+	assert(pItem->nType < 3 && "why type biger than 3 " );
 	m_vAllItems[pItem->nItemID] = pItem ;
 
 	// read gift 

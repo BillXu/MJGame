@@ -71,7 +71,7 @@ void CPlayerBag::readItems()
 	m_isReading = true ;
 	Json::Value jsReq ;
 	char pBuffer[256] = { 0 } ;
-	sprintf_s(pBuffer,sizeof(pBuffer),"select itemID,deadTime,buyTime from playeritems where userUID = '%u' limit 20 offset '%u'; ",GetPlayer()->GetUserUID(),m_vAllItems.size() ) ;
+	sprintf_s(pBuffer,sizeof(pBuffer),"select itemID,deadTime,buyTime from playeritems where userUID = '%u' limit 20 offset %u; ",GetPlayer()->GetUserUID(),m_vAllItems.size() ) ;
 	jsReq["sql"] = pBuffer;
 	CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReq,[this](uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData){
 	

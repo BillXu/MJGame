@@ -41,7 +41,7 @@ IServerApp::IServerApp()
 
 IServerApp::~IServerApp()
 {
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		delete pp.second ;
 		pp.second = nullptr ;
@@ -285,7 +285,7 @@ void IServerApp::stop()
 
 bool IServerApp::onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)
 {
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		if ( pp.second->onMsg(prealMsg,eSenderPort,nSessionID) )
 		{
@@ -297,7 +297,7 @@ bool IServerApp::onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nS
 
 bool IServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )
 {
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		if ( pp.second->onMsg(recvValue,nmsgType,eSenderPort,nSessionID) )
 		{
@@ -309,7 +309,7 @@ bool IServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPor
 
 bool IServerApp::onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult )
 {
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		if ( pp.second->onAsyncRequest(nRequestType,jsReqContent,jsResult) )
 		{
@@ -333,7 +333,7 @@ void IServerApp::update(float fDeta )
 	}
 
 	// moudle update ;
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		pp.second->update(fDeta);
 	}
@@ -413,7 +413,7 @@ uint16_t IServerApp::getVerifyType()
 
 void IServerApp::onExit()
 {
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		pp.second->onExit();
 	}
@@ -422,7 +422,7 @@ void IServerApp::onExit()
 
 void IServerApp::onConnectedToSvr()
 {
-	for ( auto pp : m_vAllModule )
+	for ( auto& pp : m_vAllModule )
 	{
 		pp.second->onConnectedSvr();
 	}

@@ -725,6 +725,42 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 {
 	switch (nmsgType)
 	{
+	case MSG_PLAYER_WEAR_CLOTHE:
+		{
+			uint32_t nWearItemID = recvValue["itemID"].asUInt();
+			auto itemConfig = (CItemConfigManager*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Item);
+			auto pItem = itemConfig->GetItemConfigByItemID(nWearItemID);
+			uint8_t nRet = 0 ;
+			do 
+			{
+				if ( !pItem )
+				{
+					nRet = 3 ;
+					break;
+				}
+
+				auto pBag = (CPlayerBag*)GetPlayer()->GetComponent(ePlayerComponet_Bag);
+				auto pOwnItem = pBag->getPlayerItem(nWearItemID);
+				if ( !pOwnItem )
+				{
+					nRet = 1 ;
+					break ;
+				}
+
+				time_t tTime = time(nullptr);
+				if ( pOwnItem->nDeadTime <= (uint32_t)tTime )
+				{
+					nRet = 2 ;
+					break ;
+				}
+
+				m_stBaseData.vJoinedClubID[pItem->nType] = pItem->nItemID ;
+
+			} while (0);
+			recvValue["ret"] = nRet ;
+			SendMsg(recvValue,nmsgType);
+		}
+		break;
 	case MSG_REQ_UPDATE_COIN:
 		{
 			Json::Value jsmsgBack ;
@@ -1154,6 +1190,14 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["uid"] = m_stBaseData.nUserUID ;
 		jValue["sessionID"] = GetPlayer()->GetSessionID() ;
 		jValue["vipRoomCard"] = m_stBaseData.nVipRoomCardCnt ;
+
+		Json::Value jsclothe ;
+		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];
+		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];
+		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];
+
+		jValue["clothe"] = jsclothe ;
+
 		SendMsg(jValue,MSG_PLAYER_BASE_DATA);
 		CLogMgr::SharedLogMgr()->PrintLog("send base data to session id = %d ",GetPlayer()->GetSessionID() );
 		CLogMgr::SharedLogMgr()->SystemLog("send data uid = %d , final coin = %d, sex = %d",GetPlayer()->GetUserUID(),GetAllCoin(),m_stBaseData.nSex);

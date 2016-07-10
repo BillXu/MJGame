@@ -49,6 +49,7 @@ enum eAsyncReq
 	eAsync_DB_Add,	// { sql : "select * from table where uid = 345" , order : 0 } // order [ 0 - 3 ] biger first process ,  result : { afctRow : 1 , data : [row0,row1] }/// row { tile0 : value , title 0 ;}
 	eAsync_Db_Delete,	// { sql : "select * from table where uid = 345" , order : 0 } // order [ 0 - 3 ] biger first process ,  result : { afctRow : 1 , data : [row0,row1] }/// row { tile0 : value , title 0 ;}
 	eAsync_ReqRoomSerials, // {roomType : 2 }  // result :  { ret : 0 , serials : [0 , 2 ,34,56 ] }  // ret : 0 success , 1 svr is reading from db wait a moment ; 
+	eAsync_SyncVipRoomBillID, // { billID : 2345 , useUIDs : [2345,2345,2345,2345] }
 	eAsync_Max,
 };
 

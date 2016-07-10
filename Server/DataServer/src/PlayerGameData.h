@@ -1,6 +1,7 @@
 #pragma once
 #include "IPlayerComponent.h"
 #include <set>
+#include <list>
 class CPlayerGameData
 	:public IPlayerComponent
 {
@@ -14,7 +15,7 @@ public:
 	};
 
 	struct stGameData
-		: public stPlayerGameData
+		: public stMJPlayerGameData
 	{
 		bool bDirty ;
 	};
@@ -42,6 +43,7 @@ public:
 	/*uint16_t getMyOwnRoomConfig(eRoomType eType ,  uint32_t nRoomID ) ;*/
 	bool isRoomIDMyOwn(eRoomType eType , uint32_t nRoomID);
 	bool isNotInAnyRoom(){ return m_ePlayerGameState == ePlayerGameState_NotIn ; }
+	void addNewBillIDs(uint32_t nBillID );
 protected:
 	void sendGameDataToClient();
 protected:
@@ -49,6 +51,7 @@ protected:
 	ePlayerGameState m_ePlayerGameState ;
 	bool m_bIsCreating ;
 
-	stGameData m_vData[eRoom_Max] ;
-	MAP_ID_MYROOW m_vMyOwnRooms[eRoom_Max];
+	std::list<uint32_t> m_vVipBillIDs ;
+	stGameData m_vData[eRoom_MJ_MAX] ;
+	MAP_ID_MYROOW m_vMyOwnRooms[eRoom_MJ_MAX];
 };

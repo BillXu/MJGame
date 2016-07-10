@@ -17,6 +17,15 @@ struct stPlayerBrifData
 	uint32_t nVipRoomCardCnt ;
 };
 
+
+struct stMJPlayerGameData
+{
+	uint16_t nGameType ;
+	uint32_t nRoundsPlayed;
+	uint32_t nMaxFanShu ;
+	uint32_t nMaxFangXingType ;
+};
+
 struct stPlayerGameData
 {
 	uint32_t nWinTimes ;

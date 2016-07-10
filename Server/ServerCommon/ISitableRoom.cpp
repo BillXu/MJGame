@@ -173,9 +173,9 @@ void ISitableRoom::playerDoStandUp( ISitableRoomPlayer* pPlayer )
 			msgdoLeave.nGameType = getRoomType() ;
 			msgdoLeave.nRoomID = getRoomID() ;
 			msgdoLeave.nUserUID = pPlayer->getUserUID() ;
-			msgdoLeave.nWinTimes = pPlayer->getWinTimes()  ;
-			msgdoLeave.nPlayerTimes = pPlayer->getPlayTimes() ;
-			msgdoLeave.nSingleWinMost = pPlayer->getSingleWinMost() ;
+			msgdoLeave.nMaxFanShu = pPlayer->getMaxWinTimes()  ;
+			msgdoLeave.nRoundsPlayed = pPlayer->getPlayTimes() ;
+			msgdoLeave.nMaxFangXingType = pPlayer->getMaxWinCardType() ;
 			msgdoLeave.nUserUID = pPlayer->getUserUID() ;
 			msgdoLeave.nGameOffset = pPlayer->getTotalGameOffset() ;
 			sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pPlayer->getSessionID()) ;
@@ -190,13 +190,18 @@ void ISitableRoom::playerDoStandUp( ISitableRoomPlayer* pPlayer )
 	{
 		standPlayer->nCoin += pPlayer->getCoin() ;
 		standPlayer->nNewPlayerHaloWeight = pPlayer->getHaloWeight() ;
-		standPlayer->nPlayerTimes += pPlayer->getPlayTimes();
-		standPlayer->nWinTimes += pPlayer->getWinTimes();
+		standPlayer->nRoundsPlayed += pPlayer->getPlayTimes();
 		standPlayer->nGameOffset += pPlayer->getTotalGameOffset() ;
-		if ( pPlayer->getSingleWinMost() > standPlayer->nSingleWinMost )
+		if ( pPlayer->getMaxWinCardType() > standPlayer->nMaxFangXingType )
 		{
-			standPlayer->nSingleWinMost = pPlayer->getSingleWinMost() ;
+			standPlayer->nMaxFangXingType = pPlayer->getMaxWinCardType() ;
 		}
+
+		if ( pPlayer->getMaxWinTimes() > standPlayer->nMaxFanShu )
+		{
+			standPlayer->nMaxFanShu = pPlayer->getMaxWinTimes() ;
+		}
+
 		CLogMgr::SharedLogMgr()->PrintLog("player uid = %d just normal stand up ",pPlayer->getUserUID() ) ;
 	}
 	m_vReserveSitDownObject.push_back(pPlayer) ;

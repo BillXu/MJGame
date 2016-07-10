@@ -22,9 +22,9 @@ bool CBloodFanxingPingHu::checkFanXingWantedCards(CMJPeerCard& peerCard, LIST_WA
 	}
 
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -48,7 +48,7 @@ bool CBloodFanxingPingHu::checkFanXingWantedCards(CMJPeerCard& peerCard, LIST_WA
 	stWant.eFanxing = getType() ;
 	stWant.eWanteddCardFrom = ePos_Any ;
 	stWant.nFanRate = getFanRate();
-	for ( auto ref : vAll )
+	for ( auto& ref : vAll )
 	{
 		stWant.nNumber = ref ;
 		vWanted.push_back(stWant) ;
@@ -64,9 +64,9 @@ bool CBloodFanxingPingHu::checkType(CMJPeerCard& peerCard)
 	}
 
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -104,7 +104,7 @@ bool CBloodFanxingPingHu::checkType(CMJPeerCard& peerCard)
 		return false ;
 	}
 
-	for ( auto nJiang : vmayBeJiang )
+	for ( auto& nJiang : vmayBeJiang )
 	{
 		std::vector<uint8_t> vecCheck ;
 		uint8_t nSkipJiang = 0 ;
@@ -204,7 +204,7 @@ bool CBloodFanxingPingHu::checkHaveJiangJustQueShun( std::vector<uint8_t>& vec, 
 		return false ;
 	}
 
-	for ( auto nJiang : vmayBeJiang )
+	for ( auto& nJiang : vmayBeJiang )
 	{
 		std::vector<uint8_t> vecCheck ;
 		uint8_t nSkipJiang = 0 ;
@@ -293,7 +293,7 @@ bool CBloodFanxingPingHu::checkJustQueJiang( std::vector<uint8_t>& vec, std::vec
 	}
 
 	bool bFind = false ;
-	for ( auto nQueJiang : vec )
+	for ( auto& nQueJiang : vec )
 	{
 		std::vector<uint8_t> vecCheckShun ;
 		for ( uint8_t nIdx = 0 ; nIdx < vec.size(); ++nIdx )
@@ -443,9 +443,9 @@ bool CBloodFanxingQiDui::checkFanXingWantedCards(CMJPeerCard& peerCard, LIST_WAN
 	}
 
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -492,9 +492,9 @@ bool CBloodFanxingQiDui::checkType(CMJPeerCard& peerCard)
 	}
 
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -526,9 +526,9 @@ CBloodFanxingLongQiDui::CBloodFanxingLongQiDui()
 bool CBloodFanxingLongQiDui::checkType(CMJPeerCard& peerCard)
 {
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -561,9 +561,9 @@ CBloodFanxingDuiDuiHu::CBloodFanxingDuiDuiHu()
 bool CBloodFanxingDuiDuiHu::checkType(CMJPeerCard& peerCard)
 {
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -594,9 +594,9 @@ CBloodFanxingJinGouDiao::CBloodFanxingJinGouDiao()
 bool CBloodFanxingJinGouDiao::checkType(CMJPeerCard& peerCard)
 {
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -609,14 +609,14 @@ bool CBloodFanxingJinGouDiao::checkType(CMJPeerCard& peerCard)
 bool CBloodFanxingShiBaLuoHan::checkType(CMJPeerCard& peerCard)
 {
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
 
-		for ( auto singlCard : ref.second.m_vMingCards )
+		for ( auto& singlCard : ref.second.m_vMingCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}
@@ -629,9 +629,9 @@ bool CBloodFanxingShiBaLuoHan::checkType(CMJPeerCard& peerCard)
 bool CBloodFanxingJiangJinGouDiao::checkType(CMJPeerCard& peerCard)
 {
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			uint8_t nValue = CMJCard::parseCardValue(singlCard.nCardNumber) ;
 			if ( nValue != 5 && 8 != nValue && 2 != nValue )
@@ -640,7 +640,7 @@ bool CBloodFanxingJiangJinGouDiao::checkType(CMJPeerCard& peerCard)
 			}
 		}
 
-		for ( auto singlCard : ref.second.m_vMingCards )
+		for ( auto& singlCard : ref.second.m_vMingCards )
 		{
 			uint8_t nValue = CMJCard::parseCardValue(singlCard.nCardNumber) ;
 			if ( nValue != 5 && 8 != nValue && 2 != nValue )
@@ -663,9 +663,9 @@ CBloodFanxingDaiYaoJiu::CBloodFanxingDaiYaoJiu()
 bool CBloodFanxingDaiYaoJiu::checkType(CMJPeerCard& peerCard)
 {
 	std::vector<uint8_t> vAnCards;
-	for ( auto ref : peerCard.m_vSubCollectionCards )
+	for ( auto& ref : peerCard.m_vSubCollectionCards )
 	{
-		for ( auto singlCard : ref.second.m_vAnCards )
+		for ( auto& singlCard : ref.second.m_vAnCards )
 		{
 			vAnCards.push_back(singlCard.nCardNumber) ;
 		}

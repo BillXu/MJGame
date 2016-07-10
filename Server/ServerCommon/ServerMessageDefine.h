@@ -579,10 +579,10 @@ struct stMsgSvrDoLeaveRoom
 	uint8_t nGameType ;
 	uint8_t nRoomID ;
 	uint32_t nUserUID ;
-	uint64_t nCoin ;
-	uint32_t nPlayerTimes ;
-	uint32_t nWinTimes ;
-	uint32_t nSingleWinMost ;
+	uint32_t nCoin ;
+	uint32_t nRoundsPlayed ;
+	uint32_t nMaxFanShu ;
+	uint32_t nMaxFangXingType ;
 	int32_t nGameOffset ;
 };
 

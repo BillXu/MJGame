@@ -1,4 +1,5 @@
 #include "PlayerGameData.h"
+#include <sstream>
 #include "Player.h"
 #include "LogManager.h"
 #include "GameServerApp.h"
@@ -7,6 +8,7 @@
 #include "AutoBuffer.h"
 #include "TaxasPokerPeerCard.h"
 #include "RoomConfig.h"
+#include "AsyncRequestQuene.h"
 void CPlayerGameData::Reset()
 {
 	IPlayerComponent::Reset();
@@ -18,31 +20,95 @@ void CPlayerGameData::Reset()
 	{
 		r.clear() ;
 	}
-
-	stMsgReadPlayerTaxasData msgr ;
-	msgr.nUserUID = GetPlayer()->GetUserUID() ;
-	SendMsg(&msgr,sizeof(msgr)) ;
 	m_bIsCreating = false ;
+
+	// read player game recorder 
+	char pBuffer[256] = { 0 } ;
+	Json::Value jsReq ;
+	sprintf_s(pBuffer,sizeof(pBuffer),"select * from playergamerecoder where userUID = %u ;",GetPlayer()->GetUserUID()) ;
+	jsReq["sql"] = pBuffer ;
+	auto pAsq = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
+	pAsq->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReq,[this]( uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData){
+		uint16_t nfact = retContent["afctRow"].asUInt() ;
+		auto jsData = retContent["data"] ;
+		for ( uint16_t nIdx = 0 ; nIdx < jsData.size() ; ++nIdx )
+		{
+			auto jsRow = jsData[nIdx] ;
+			eRoomType eType = (eRoomType)jsRow["gameType"].asUInt();
+			if ( eType >= eRoom_MJ_MAX )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("invalid game type = %u",eType) ;
+				continue;
+			}
+
+			auto& ref = m_vData[eType];
+			ref.bDirty = false ;
+			ref.nGameType = eType ;
+			ref.nMaxFangXingType = jsRow["maxWinCardType"].asUInt();
+			ref.nMaxFanShu = jsRow["maxWinTimes"].asUInt() ;
+			ref.nRoundsPlayed = jsRow["roundsPlayed"].asUInt() ;
+		}
+	}) ;
+
+
+	// read bill ids 
+	std::ostringstream ss ;
+	ss << "select billID from playerbillids where userUID = " << GetPlayer()->GetUserUID() << " order by billID desc limit 10 ;" ;
+	Json::Value jsReadBillIDs ;
+	jsReadBillIDs["sql"] = ss.str() ;
+	pAsq->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReadBillIDs,[this]( uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData){
+		uint16_t nfact = retContent["afctRow"].asUInt() ;
+		auto jsData = retContent["data"] ;
+		for ( uint16_t nIdx = 0 ; nIdx < jsData.size() ; ++nIdx )
+		{
+			auto jsRow = jsData[nIdx] ;
+			uint32_t nBillID = jsRow["billID"].asUInt();
+			m_vVipBillIDs.push_back(nBillID) ;
+		}
+	}) ;
 }
 
 void CPlayerGameData::Init()
 {
 	IPlayerComponent::Init();
 	m_eType = ePlayerComponent_PlayerGameData ;
-	m_nStateInRoomID = 0;
-	m_ePlayerGameState = ePlayerGameState_NotIn;
-	memset(&m_vData,0,sizeof(m_vData));
-	m_bIsCreating = false ;
-	for (auto& r : m_vMyOwnRooms )
-	{
-		r.clear() ;
-	}
+	Reset();
 }
 
 bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort )
 {
 	switch ( nmsgType )
 	{
+	case MSG_REQ_VIP_ROOM_BILL_IDS:
+		{
+			Json::Value jsUIDs ;
+			for ( auto& ref : m_vVipBillIDs )
+			{
+				jsUIDs[jsUIDs.size()] = ref ;
+			}
+
+			Json::Value jsmsg ;
+			jsmsg["billIDs"] = jsUIDs ;
+			SendMsg(jsmsg,nmsgType) ;
+		}
+		break ;
+	case MSG_REQ_GAME_DATA:
+		{
+			eRoomType typer = (eRoomType)recvValue["gameType"].asUInt();
+			if ( typer >= eRoom_MJ_MAX )
+			{
+				recvValue["ret"] = 1 ;
+				SendMsg(recvValue,nmsgType) ;
+				break;
+			}
+
+			recvValue["maxFanXing"] = m_vData[typer].nMaxFangXingType;
+			recvValue["maxFanShu"] = m_vData[typer].nMaxFanShu;
+			recvValue["roundPlayed"] = m_vData[typer].nRoundsPlayed;
+			recvValue["ret"] = 0 ;
+			SendMsg(recvValue,nmsgType) ;
+		}
+		break;
 	case MSG_REQ_ENTER_ROOM:
 		{
 			//if ( isNotInAnyRoom() )
@@ -234,34 +300,38 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			m_nStateInRoomID = 0;
 			m_ePlayerGameState = ePlayerGameState_NotIn;
 			stMsgSvrDoLeaveRoom* pRet = (stMsgSvrDoLeaveRoom*)pMessage ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d leave room coin = %u , back coin = %lld, temp coin = %u",GetPlayer()->GetUserUID(),GetPlayer()->GetBaseData()->getCoin(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin() ) ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %d leave room coin = %u , back coin = %u, temp coin = %u",GetPlayer()->GetUserUID(),GetPlayer()->GetBaseData()->getCoin(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin() ) ;
 			GetPlayer()->GetBaseData()->setCoin(pRet->nCoin + GetPlayer()->GetBaseData()->getTempCoin()) ;
 			GetPlayer()->GetBaseData()->setTempCoin(0) ;
 			GetPlayer()->GetBaseData()->addTodayGameCoinOffset(pRet->nGameOffset);
 			
-			m_vData[pRet->nGameType].nPlayTimes += pRet->nPlayerTimes ;
-			m_vData[pRet->nGameType].nWinTimes += pRet->nWinTimes ;
-			if ( m_vData[pRet->nGameType].nSingleWinMost < pRet->nSingleWinMost )
+			m_vData[pRet->nGameType].nRoundsPlayed += pRet->nRoundsPlayed ;
+			if ( m_vData[pRet->nGameType].nMaxFangXingType < pRet->nMaxFangXingType )
 			{
-				m_vData[pRet->nGameType].nSingleWinMost = pRet->nSingleWinMost ;
+				m_vData[pRet->nGameType].nMaxFangXingType = pRet->nMaxFangXingType ;
 			}
 
-			if ( pRet->nPlayerTimes != 0 )
+			if ( m_vData[pRet->nGameType].nMaxFanShu < pRet->nMaxFanShu )
+			{
+				m_vData[pRet->nGameType].nMaxFanShu = pRet->nMaxFanShu ;
+			}
+
+			if ( pRet->nRoundsPlayed != 0 )
 			{
 				m_vData[pRet->nGameType].bDirty = true ;
 			}
 
 			// decrease halo weight 
-			if ( GetPlayer()->GetBaseData()->getNewPlayerHaloWeight() >= pRet->nPlayerTimes )
+			if ( GetPlayer()->GetBaseData()->getNewPlayerHaloWeight() >= pRet->nRoundsPlayed )
 			{
-				GetPlayer()->GetBaseData()->setNewPlayerHalo(GetPlayer()->GetBaseData()->getNewPlayerHaloWeight() - pRet->nPlayerTimes );
+				GetPlayer()->GetBaseData()->setNewPlayerHalo(GetPlayer()->GetBaseData()->getNewPlayerHaloWeight() - pRet->nRoundsPlayed );
 			}
 			else
 			{
 				GetPlayer()->GetBaseData()->setNewPlayerHalo(0);
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d do leave room final coin = %u, playertimes = %u , wintimes = %u ,offset = %d",GetPlayer()->GetUserUID(), GetPlayer()->GetBaseData()->getCoin(),pRet->nPlayerTimes,pRet->nWinTimes,pRet->nGameOffset) ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %d do leave room final coin = %u, playertimes = %u , wintimes = %u ,offset = %d",GetPlayer()->GetUserUID(), GetPlayer()->GetBaseData()->getCoin(),pRet->nRoundsPlayed,pRet->nMaxFanShu,pRet->nGameOffset) ;
 			stMsg msg ;
 			msg.usMsgType = MSG_PLAYER_UPDATE_MONEY ;
 			GetPlayer()->GetBaseData()->OnMessage(&msg,ID_MSG_PORT_CLIENT) ;
@@ -273,24 +343,28 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			if ( isNotInAnyRoom() )
 			{
 				GetPlayer()->GetBaseData()->setCoin( pRet->nCoin + GetPlayer()->GetBaseData()->getCoin() ) ;
-				CLogMgr::SharedLogMgr()->PrintLog("player not enter other room just uid = %d add coin = %lld, final = %u,",GetPlayer()->GetUserUID(),pRet->nCoin,GetPlayer()->GetBaseData()->getCoin()) ;
+				CLogMgr::SharedLogMgr()->PrintLog("player not enter other room just uid = %d add coin = %u, final = %u,",GetPlayer()->GetUserUID(),pRet->nCoin,GetPlayer()->GetBaseData()->getCoin()) ;
 			}
 			else
 			{
 				GetPlayer()->GetBaseData()->setTempCoin(GetPlayer()->GetBaseData()->getTempCoin() + pRet->nCoin) ;
-				CLogMgr::SharedLogMgr()->PrintLog("player enter other room so uid = %d add temp = %lld, final = %u,",GetPlayer()->GetUserUID(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin(),GetPlayer()->GetBaseData()->getCoin() ) ;
+				CLogMgr::SharedLogMgr()->PrintLog("player enter other room so uid = %d add temp = %u, final = %u,",GetPlayer()->GetUserUID(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin(),GetPlayer()->GetBaseData()->getCoin() ) ;
 			}
 
 			GetPlayer()->GetBaseData()->addTodayGameCoinOffset(pRet->nGameOffset);
 
-			m_vData[pRet->nGameType].nPlayTimes += pRet->nPlayerTimes ;
-			m_vData[pRet->nGameType].nWinTimes += pRet->nWinTimes ;
-			if ( m_vData[pRet->nGameType].nSingleWinMost < pRet->nSingleWinMost )
+			m_vData[pRet->nGameType].nRoundsPlayed += pRet->nRoundsPlayed ;
+			if ( m_vData[pRet->nGameType].nMaxFangXingType < pRet->nMaxFangXingType )
 			{
-				m_vData[pRet->nGameType].nSingleWinMost = pRet->nSingleWinMost ;
+				m_vData[pRet->nGameType].nMaxFangXingType = pRet->nMaxFangXingType ;
 			}
 
-			if ( pRet->nPlayerTimes != 0 )
+			if ( m_vData[pRet->nGameType].nMaxFanShu < pRet->nMaxFanShu )
+			{
+				m_vData[pRet->nGameType].nMaxFanShu = pRet->nMaxFanShu ;
+			}
+
+			if ( pRet->nRoundsPlayed != 0 )
 			{
 				m_vData[pRet->nGameType].bDirty = true ;
 			}
@@ -653,6 +727,8 @@ void CPlayerGameData::OnOtherWillLogined()
 
 void CPlayerGameData::TimerSave()
 {
+	char pBuffer[255] = { 0 } ;
+	auto asyQ = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
 	for ( uint8_t nIdx = eRoom_None; nIdx < eRoom_Max ; ++nIdx )
 	{
 		auto& gameData = m_vData[nIdx] ;
@@ -663,11 +739,19 @@ void CPlayerGameData::TimerSave()
 
 		gameData.bDirty = false ;
 		
-		stMsgSavePlayerGameData msgSave ;
-		msgSave.nGameType = nIdx ;
-		msgSave.nUserUID = GetPlayer()->GetUserUID() ;
-		memcpy((char*)&msgSave.tData,&gameData,sizeof(msgSave.tData));
-		SendMsg(&msgSave,sizeof(msgSave)) ;
+		//stMsgSavePlayerGameData msgSave ;
+		//msgSave.nGameType = nIdx ;
+		//msgSave.nUserUID = GetPlayer()->GetUserUID() ;
+		//memcpy((char*)&msgSave.tData,&gameData,sizeof(msgSave.tData));
+		//SendMsg(&msgSave,sizeof(msgSave)) ;
+
+		Json::Value jsReq ;
+		memset(pBuffer,0,sizeof(pBuffer)) ;
+		sprintf_s(pBuffer,sizeof(pBuffer),"INSERT INTO playergamerecoder ( userUID,gameType,roundsPlayed,maxWinTimes,maxWinCardType) VALUES ( %u ,%u,%u,%u,%u) ON DUPLICATE KEY UPDATE \
+			roundsPlayed = %u ,maxWinTimes = %u,maxWinCardType = %u ",GetPlayer()->GetUserUID(),gameData.nGameType,gameData.nRoundsPlayed,gameData.nMaxFanShu,gameData.nMaxFangXingType
+			,gameData.nRoundsPlayed,gameData.nMaxFanShu,gameData.nMaxFangXingType );
+		jsReq["sql"] = jsReq ;
+		asyQ->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsReq);
 	}
 }
 
@@ -749,4 +833,27 @@ void CPlayerGameData::sendGameDataToClient()
 	stMsgPlayerBaseDataTaxas msgT ;
 	memcpy(&msgT.tTaxasData,&m_vData[eRoom_TexasPoker],sizeof(msgT.tTaxasData));
 	SendMsg(&msgT,sizeof(msgT)) ;
+}
+
+void CPlayerGameData::addNewBillIDs(uint32_t nBillID )
+{
+	auto iter = std::find(m_vVipBillIDs.begin(),m_vVipBillIDs.end(),nBillID) ;
+	if ( iter != m_vVipBillIDs.end() )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("already added the bill id = %u",nBillID) ;
+		return ;
+	}
+
+	m_vVipBillIDs.push_front(nBillID);
+	if ( m_vVipBillIDs.size() > 10 )
+	{
+		m_vVipBillIDs.pop_back();
+	}
+
+	// save to db 
+	Json::Value jsReq ;
+	std::ostringstream ss ;
+	ss << "insert into playerbillids (userUID,billID) values ( " << GetPlayer()->GetUserUID() << "," << nBillID << " ) ; " ;
+	jsReq["sql"] = ss.str();
+	CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsReq) ;
 }

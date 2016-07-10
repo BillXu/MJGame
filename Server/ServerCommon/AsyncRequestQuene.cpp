@@ -60,13 +60,13 @@ bool CAsyncRequestQuene::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 
 CAsyncRequestQuene::~CAsyncRequestQuene()
 {
-	for ( auto pp : m_vReserverReqObject )
+	for ( auto& pp : m_vReserverReqObject )
 	{
 		delete pp ;
 		pp = nullptr ;
 	}
 
-	for (  auto iter : m_mapRunningRequest )
+	for (  auto& iter : m_mapRunningRequest )
 	{
 		delete iter.second ;
 		iter.second ;
@@ -159,7 +159,7 @@ void CAsyncRequestQuene::timerCheckReqState(CTimer* pTimer, float fTick )
 	}
 
 	time_t tNow = time(nullptr) ;
-	for ( auto pairReq : m_mapRunningRequest )
+	for ( auto& pairReq : m_mapRunningRequest )
 	{
 		auto pReq = pairReq.second ;
 		if ( pReq->tLastSend + TIME_CHECK_REQ_STATE <= tNow )

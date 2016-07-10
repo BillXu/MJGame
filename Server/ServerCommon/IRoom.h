@@ -23,9 +23,9 @@ public:
 	struct stStandPlayer
 		:public stEnterRoomData
 	{
-		uint32_t nWinTimes ;
-		uint32_t nPlayerTimes ;
-		uint32_t nSingleWinMost ;
+		uint32_t nRoundsPlayed ;
+		uint32_t nMaxFanShu ;
+		uint32_t nMaxFangXingType ;
 		int32_t nGameOffset ;
 		bool isWillLeave ;
 	};

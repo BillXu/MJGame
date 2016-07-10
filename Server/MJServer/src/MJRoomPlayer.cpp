@@ -27,7 +27,7 @@ void CMJRoomPlayer::onGameEnd()
 	m_nGameOffset = 0 ;
 	m_tPeerCard.reset();
 
-	for ( auto ref : m_vecBill )
+	for ( auto& ref : m_vecBill )
 	{
 		delete ref ;
 		ref = nullptr ;
@@ -95,7 +95,7 @@ bool CMJRoomPlayer::canHuPai( uint8_t nCard ) // 0 means , self hu ;
 {
 	if ( nCard == 0 )
 	{
-		for ( auto refHu : m_listSelfOperateCard )
+		for ( auto& refHu : m_listSelfOperateCard )
 		{
 			if ( refHu.eCanInvokeAct == eMJAct_Hu )
 			{
@@ -106,7 +106,7 @@ bool CMJRoomPlayer::canHuPai( uint8_t nCard ) // 0 means , self hu ;
 	}
 
 	updateWantedCardList();
-	for ( auto refWanted : m_listWantedCard )
+	for ( auto& refWanted : m_listWantedCard )
 	{
 		if ( refWanted.eCanInvokeAct != eMJAct_Hu )
 		{
@@ -125,7 +125,7 @@ bool CMJRoomPlayer::canGangWithCard( uint8_t nCard, bool bCardFromSelf )
 {
 	if ( bCardFromSelf )
 	{
-		for ( auto refCard : m_listSelfOperateCard )
+		for ( auto& refCard : m_listSelfOperateCard )
 		{
 			if ( nCard == refCard.nNumber && ( refCard.eCanInvokeAct == eMJAct_BuGang || eMJAct_AnGang == refCard.eCanInvokeAct ) )
 			{
@@ -136,7 +136,7 @@ bool CMJRoomPlayer::canGangWithCard( uint8_t nCard, bool bCardFromSelf )
 	}
 
 	updateWantedCardList();
-	for ( auto refWanted : m_listWantedCard )
+	for ( auto& refWanted : m_listWantedCard )
 	{
 		if ( refWanted.eCanInvokeAct == eMJAct_MingGang )
 		{
@@ -153,7 +153,7 @@ bool CMJRoomPlayer::canGangWithCard( uint8_t nCard, bool bCardFromSelf )
 bool CMJRoomPlayer::canPengWithCard(uint8_t nCard)
 {
 	updateWantedCardList();
-	for ( auto refWanted : m_listWantedCard )
+	for ( auto& refWanted : m_listWantedCard )
 	{
 		if ( refWanted.eCanInvokeAct != eMJAct_Peng )
 		{
@@ -204,6 +204,13 @@ uint8_t CMJRoomPlayer::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu )  
 	{
 		addHuPai(nCardNumber);
 	}
+
+	// update max win card type 
+	if ( m_eHuType > getMaxWinCardType() )
+	{
+		setMaxWinCardType(m_eHuType) ;
+	}
+
 	return nFan ;
 }
 
@@ -218,7 +225,7 @@ bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , uint8_t& nActType , boo
 	updateWantedCardList();
 
 	nActType = 0 ;
-	for ( auto refWanted : m_listWantedCard )
+	for ( auto& refWanted : m_listWantedCard )
 	{
 		if ( refWanted.nNumber == nCardNumber )
 		{
@@ -271,7 +278,7 @@ bool CMJRoomPlayer::isHuaZhu()
 
 bool CMJRoomPlayer::isTingPai()
 {
-	for ( auto refWanted : m_listWantedCard )
+	for ( auto& refWanted : m_listWantedCard )
 	{
 		if ( refWanted.eCanInvokeAct == eMJAct_Hu )
 		{
@@ -326,7 +333,7 @@ void CMJRoomPlayer::beRobotGang( uint8_t nCardNumber )
 
 void CMJRoomPlayer::getGangWinBill( std::vector<stBill*>& vecGangWin )
 {
-	for ( auto refBill : m_vecBill )
+	for ( auto& refBill : m_vecBill )
 	{
 		if ( refBill->eType == stBill::eBill_GangWin )
 		{

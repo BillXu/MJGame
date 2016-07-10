@@ -57,6 +57,7 @@ public:
 	void Update(float fDeta );
 	CPlayer* GetFirstActivePlayer();
 	void onExit();
+	bool onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult );
 protected:
 	void OnPlayerOffline(CPlayer* pOfflinePlayer);
 	bool ProcessPublicMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID );

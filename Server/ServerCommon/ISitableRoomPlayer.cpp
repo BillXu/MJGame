@@ -7,8 +7,8 @@ void ISitableRoomPlayer::reset(IRoom::stStandPlayer* pPlayer)
 	nUserUID = pPlayer->nUserUID ;
 	nSessionID = pPlayer->nUserSessionID ;
 	nNewPlayerHaloWeight = pPlayer->nNewPlayerHaloWeight ;
-	nPlayTimes = nWinTimes = 0 ;
-	nSingleWinMost = 0 ;
+	nPlayTimes = nMaxFanShu = 0 ;
+	nMaxFangXingType = 0 ;
 	m_nHaloState = 0 ;
 	nCoin = 0 ;
 	m_nIdx = 0 ;
@@ -30,7 +30,7 @@ void ISitableRoomPlayer::onGameEnd()
 
 	if ( getGameOffset() > (int32_t)0 )
 	{
-		increaseWinTimes() ;
+		//increaseWinTimes() ;
 	}
 }
 

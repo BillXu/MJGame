@@ -8,8 +8,11 @@
 #include "IRoomState.h"
 #include "RoomConfig.h"
 #include "ISeverApp.h"
+#include "AsyncRequestQuene.h"
+#include <sstream>
 #define ROOM_LIST_ITEM_CNT_PER_PAGE 5 
 #define TIME_SAVE_ROOM_INFO 60*10
+uint32_t IRoomManager::s_MaxBillID = 0 ;
 IRoomManager::IRoomManager(CRoomConfigMgr* pConfigMgr)
 {
 	m_pConfigMgr = pConfigMgr ;
@@ -17,7 +20,7 @@ IRoomManager::IRoomManager(CRoomConfigMgr* pConfigMgr)
 
 IRoomManager::~IRoomManager()
 {
-	for ( auto ref : m_vRooms )
+	for ( auto& ref : m_vRooms )
 	{
 		delete ref.second ;
 		ref.second = nullptr ;
@@ -31,6 +34,7 @@ void IRoomManager::init(IServerApp* svrApp)
 {
 	IGlobalModule::init(svrApp);
 
+	m_vReqingBillInfoPlayers.clear();
 	m_nMaxRoomID = 1 ;
 	m_vRooms.clear();
 	m_mapPrivateRooms.clear() ;
@@ -130,6 +134,77 @@ bool IRoomManager::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSen
 		return true ;
 	}
 
+	if ( MSG_REQ_VIP_ROOM_BILL_INFO == nMsgType )
+	{
+		uint32_t nBillID = prealMsg["billID"].asUInt();
+		if ( isHaveVipRoomBill(nBillID) )
+		{
+			sendVipRoomBillToPlayer(nBillID,nSessionID) ;
+			return true ;
+		}
+
+		// add to requesting queue ;
+		auto iter = m_vReqingBillInfoPlayers.find(nBillID) ;
+		if ( iter == m_vReqingBillInfoPlayers.end() )
+		{
+			auto p = std::shared_ptr<stReqVipRoomBillPlayers>(new stReqVipRoomBillPlayers());
+			p->nReqBillID = nBillID ;
+			p->vReqPlayers.insert(nSessionID);
+			m_vReqingBillInfoPlayers[nBillID] = p ;
+		}
+		else
+		{
+			auto p = iter->second ;
+			p->vReqPlayers.insert(nSessionID);
+		}
+		// read from db ;
+		auto async = getSvrApp()->getAsynReqQueue();
+		Json::Value jsReq ;
+		std::ostringstream ss ;
+		ss << "select roomID,roomType,createUID,unix_timestamp(billTime) as bTime,detail,roomInitCoin,circleCnt from viproombills where billID = " << nBillID << " ;" ;
+		jsReq["sql"] = ss.str();
+		Json::Value jsUserData ;
+		jsUserData["billID"] = nBillID ;
+		async->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReq,[this](uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData){
+			uint8_t nAfcRow = retContent["afctRow"].asUInt() ;
+			uint32_t nBillID = jsUserData["billID"].asUInt() ;
+			if ( nAfcRow == 1 )
+			{
+				auto jsRow = retContent["data"][(uint32_t)0] ;
+				auto pBill = createVipRoomBill();
+				--s_MaxBillID;
+				pBill->nBillID = nBillID ;
+				pBill->nBillTime = jsRow["bTime"].asUInt();
+				pBill->nCircleCnt = jsRow["circleCnt"].asUInt();
+				pBill->nCreateUID = jsRow["createUID"].asUInt();
+				pBill->nRoomID = jsRow["roomID"].asUInt();
+				pBill->nRoomInitCoin = jsRow["roomInitCoin"].asUInt();
+				pBill->nRoomType = jsRow["roomType"].asUInt();
+
+				Json::Reader jsRead ;
+				jsRead.parse(jsRow["detail"].asString(),pBill->jsDetail,false) ;
+				addVipRoomBill(pBill,false) ;
+			}
+
+			// send all req players ;
+			auto iter = m_vReqingBillInfoPlayers.find(nBillID) ;
+			if ( iter == m_vReqingBillInfoPlayers.end() )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("here must error , must have players waiting the result") ;
+				return ;
+			}
+
+			for ( auto& nSessionID : iter->second->vReqPlayers )
+			{
+				sendVipRoomBillToPlayer(nBillID,nSessionID) ;
+			}
+			m_vReqingBillInfoPlayers.erase(iter) ;
+			
+		},jsUserData) ;
+
+		return true;
+	}
+
 	// msg give to room process 
 	if ( prealMsg["dstRoomID"].isNull() )
 	{
@@ -180,7 +255,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			CAutoBuffer auBuffer(msgRead.nCnt * sizeof(stMyOwnRoom) + sizeof(msgRead));
 			auBuffer.addContent(&msgRead,sizeof(msgRead)) ;
 			stMyOwnRoom info ;
-			for ( auto nRoomIDs : vRL )
+			for ( auto& nRoomIDs : vRL )
 			{
 				info.nRoomID = nRoomIDs ;
 				auBuffer.addContent(&info,sizeof(info)) ;
@@ -291,7 +366,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				VEC_INT vSysRooms  ;
 				getSystemRooms(pRet->nTargetID,vSysRooms) ;
 				std::vector<IRoomInterface*> vCanEnterRoom ;
-				for ( auto nRoomID : vSysRooms )
+				for ( auto& nRoomID : vSysRooms )
 				{
 					IRoomInterface* pCheckRoom = GetRoomByID(nRoomID) ;
 					if ( pCheckRoom->canPlayerEnterRoom(&pRet->tPlayerData) == 0 )
@@ -303,7 +378,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				if ( vCanEnterRoom.empty() )
 				{
 					Json::Value vDefault ;
-					IRoomInterface* pNewRoom = doCreateInitedRoomObject(++m_nMaxRoomID,true,pRet->nTargetID,eRoom_MJ,vDefault);
+					IRoomInterface* pNewRoom = doCreateInitedRoomObject(++m_nMaxRoomID,false,pRet->nTargetID,(eRoomType)pConfig->nGameType,vDefault);
 					addRoomToSystem(pNewRoom) ;
 					vCanEnterRoom.push_back(pNewRoom) ;
 					CLogMgr::SharedLogMgr()->PrintLog("create a new for player to enter , config id = %u",pRet->nTargetID) ;
@@ -344,7 +419,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			msgRet.nRoomType = getMgrRoomType();
 			CAutoBuffer auBuffer(sizeof(msgRet) + sizeof(uint32_t) * msgRet.nRoomCnt );
 			auBuffer.addContent((char*)&msgRet,sizeof(msgRet)) ;
-			for ( auto pRoom : vRL )
+			for ( auto& pRoom : vRL )
 			{
 				uint32_t nid = pRoom;
 				auBuffer.addContent(&nid,sizeof(nid)) ;
@@ -609,6 +684,24 @@ void IRoomManager::onConnectedSvr()
 		//CLogMgr::SharedLogMgr()->ErrorLog("test stage do not read room info");
 		CLogMgr::SharedLogMgr()->PrintLog("read room info ") ;
 	}
+
+
+	auto asyq = getSvrApp()->getAsynReqQueue();
+	Json::Value jsReq ;
+	jsReq["sql"] = "SELECT max(billID) as maxBillID FROM viproombills ;" ;
+	asyq->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Select,jsReq,[](uint16_t nReqType ,const Json::Value& retContent,Json::Value& jsUserData){
+		uint32_t nAft = retContent["afctRow"].asUInt() ;
+		auto jsData = retContent["data"] ;
+		if ( nAft == 0 || jsData.isNull() )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("read max bill id error ") ;
+			return ;
+		}
+
+		auto jsRow = jsData[(uint32_t)0] ;
+		s_MaxBillID = jsRow["maxBillID"].asUInt();
+		CLogMgr::SharedLogMgr()->PrintLog("max bill id  = %u",s_MaxBillID ) ;
+	}) ;
 }
 
 void IRoomManager::addRoomToPrivate(uint32_t nOwnerUID ,IRoomInterface* pRoom)
@@ -632,7 +725,6 @@ void IRoomManager::addRoomToPrivate(uint32_t nOwnerUID ,IRoomInterface* pRoom)
 	m_vRooms[pRoom->getRoomID()] = pRoom ;
 	CLogMgr::SharedLogMgr()->PrintLog("room id = %u add to system room",pRoom->getRoomID()) ;
 }
-
 
 void IRoomManager::addRoomToSystem(IRoomInterface* pRoom)
 {
@@ -673,6 +765,67 @@ bool IRoomManager::getSystemRooms(uint32_t nconfigID,VEC_INT& vRoomIDsInfo )
 	}
 	vRoomIDsInfo = iter->second.vRoomIDs ;
 	return true ;
+}
+
+void IRoomManager::sendVipRoomBillToPlayer( uint32_t nBillID , uint32_t nTargetSessionD )
+{
+	Json::Value jsMsg ;
+	jsMsg["ret"] = 0 ;
+	jsMsg["billID"] = nBillID ;
+
+	if ( !isHaveVipRoomBill(nBillID) )
+	{
+		jsMsg["ret"] = 1 ;
+		sendMsg(jsMsg,MSG_REQ_VIP_ROOM_BILL_INFO,nTargetSessionD) ;
+		return ;
+	}
+
+	auto pBill = m_vVipRoomBills.find(nBillID)->second ;
+	jsMsg["billTime"] = pBill->nBillTime;
+	jsMsg["circle"] = pBill->nCircleCnt ;
+	jsMsg["creatorUID"] = pBill->nCreateUID ;
+	jsMsg["roomID"] = pBill->nRoomID ;
+	jsMsg["initCoin"] = pBill->nRoomInitCoin ;
+	jsMsg["roomType"] = pBill->nRoomType ;
+	jsMsg["detail"] = pBill->jsDetail ;
+	sendMsg(jsMsg,MSG_REQ_VIP_ROOM_BILL_INFO,nTargetSessionD) ;
+}
+
+void IRoomManager::addVipRoomBill(std::shared_ptr<stVipRoomBill>& pBill, bool isAddtoDB )
+{
+	if ( isHaveVipRoomBill(pBill->nBillID) )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("already have this bill id = %u",pBill->nBillID) ;
+		return ;
+	}
+
+	m_vVipRoomBills[pBill->nBillID] = pBill ;
+
+	if ( isAddtoDB )
+	{
+		auto asy = getSvrApp()->getAsynReqQueue();
+		Json::Value jsReq ;
+		char pBuffer[500] = { 0 } ;
+		Json::StyledWriter jsWrite ;
+		auto str = jsWrite.write(pBill->jsDetail) ;
+		sprintf_s(pBuffer,sizeof(pBuffer),"insert into viproombills (billID,roomID,roomType,createUID,billTime,detail,roomInitCoin ,circleCnt ) values( %u,%u,%u,%u,now(),'%s',%u;"
+			,pBill->nBillID,pBill->nRoomID,pBill->nRoomType,pBill->nCreateUID,str.c_str(),pBill->nRoomInitCoin,pBill->nCircleCnt ) ;
+		jsReq["sql"] = pBuffer ;
+		asy->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsReq) ;
+	}
+}
+
+bool IRoomManager::isHaveVipRoomBill(uint32_t nVipBillID )
+{
+	auto iter = m_vVipRoomBills.find(nVipBillID);
+	return iter != m_vVipRoomBills.end();
+}
+
+IRoomManager::VIP_ROOM_BILL_SHARED_PTR IRoomManager::createVipRoomBill()
+{
+	auto p = VIP_ROOM_BILL_SHARED_PTR(new stVipRoomBill() );
+	p->nBillID = ++s_MaxBillID ;
+	return p ;
 }
 
 void IRoomManager::onTimeSave()

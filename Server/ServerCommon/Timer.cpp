@@ -145,7 +145,7 @@ void CTimerManager::startTimer(CTimer* pTimer )
 void CTimerManager::Update( float fDelta )
 {
 	m_isLocked = true ;
-	for ( auto iter : m_vRunningTimers )
+	for ( auto& iter : m_vRunningTimers )
 	{
 		if ( iter.second )
 		{
@@ -155,7 +155,7 @@ void CTimerManager::Update( float fDelta )
 	m_isLocked = false ;
 
 	// do remove timers ;
-	for ( auto pCanneclID : m_vWillCanncelTimer )
+	for ( auto& pCanneclID : m_vWillCanncelTimer )
 	{
 		auto iter = m_vRunningTimers.find(pCanneclID) ;
 		assert(iter != m_vRunningTimers.end() && "not running why , canncel");
@@ -167,7 +167,7 @@ void CTimerManager::Update( float fDelta )
 	m_vWillCanncelTimer.clear() ;
 
 	// do add running 
-	for ( auto prun : m_vWillRunningTimers )
+	for ( auto& prun : m_vWillRunningTimers )
 	{
 		auto iter = m_vRunningTimers.find(prun->getTimerID()) ;
 		assert(iter == m_vRunningTimers.end() && "already running , why run it again");

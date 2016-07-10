@@ -305,6 +305,31 @@ void CPlayerManager::onExit()
 	}
 }
 
+bool CPlayerManager::onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult )
+{
+	if ( eAsync_SyncVipRoomBillID == nRequestType )
+	{
+		uint32_t nBillID = jsReqContent["billID"].asUInt();
+		auto jsPlayers = jsReqContent["useUIDs"];
+		CLogMgr::SharedLogMgr()->PrintLog("received bill id = %u ",nBillID) ;
+		for ( uint8_t nIdx = 0 ; nIdx < jsPlayers.size() ; ++nIdx )
+		{
+			uint32_t nUID = jsPlayers[nIdx].asUInt();
+			auto pPlayer = GetPlayerByUserUID(nUID) ;
+			if ( !pPlayer )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("uid = %u not online so ,may lose this bill id ?",nUID) ;
+				continue;
+			}
+
+			auto pGameData = (CPlayerGameData*)pPlayer->GetComponent(ePlayerComponent_PlayerGameData) ;
+			pGameData->addNewBillIDs(nBillID);
+		}
+		return true ;
+	}
+	return false ;
+}
+
 bool CPlayerManager::OnMessage( stMsg* pMessage , eMsgPort eSenderPort , uint32_t nSessionID )
 {
 	if ( ProcessPublicMessage(pMessage,eSenderPort,nSessionID) )

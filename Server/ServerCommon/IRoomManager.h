@@ -5,6 +5,8 @@
 #include "httpRequest.h"
 #include "IGlobalModule.h"
 #include <list>
+#include <memory>
+#include <set>
 class CRoomConfigMgr ;
 class IRoomInterface ;
 class IRoom ;
@@ -28,8 +30,29 @@ public:
 		VEC_INT vRoomIDs ; 
 	};
 
+	struct stVipRoomBill
+	{
+		uint32_t nBillID ;
+		uint32_t nRoomID ;
+		uint32_t nCreateUID ;
+		uint32_t nRoomType ;
+		uint32_t nRoomInitCoin ;
+		uint16_t nCircleCnt ; 
+		uint32_t nBillTime ;
+		Json::Value jsDetail ;
+	};
+
+	struct stReqVipRoomBillPlayers 
+	{
+		uint32_t nReqBillID ;
+		std::set<uint32_t> vReqPlayers ;
+	};
+
+	typedef std::shared_ptr<stVipRoomBill> VIP_ROOM_BILL_SHARED_PTR ;
+
 	typedef std::map<uint32_t,stRoomCreatorInfo> MAP_UID_CR;
 	typedef std::map<uint32_t, stSystemRoomInfo>  MAP_CONFIG_ID_SYS_ROOM ;
+	typedef std::map<uint32_t , std::shared_ptr<stVipRoomBill>> MAP_VIP_BILL ;
 public:
 	IRoomManager(CRoomConfigMgr* pConfigMgr);
 	~IRoomManager();
@@ -59,6 +82,11 @@ protected:
 	bool getPrivateRooms(uint32_t nCreatorUID,VEC_INT& vRoomIDsInfo );
 	bool getSystemRooms(uint32_t nCreatorUID,VEC_INT& vRoomIDsInfo );
 	virtual eRoomType getMgrRoomType() = 0 ;
+	void sendVipRoomBillToPlayer( uint32_t nBillID , uint32_t nTargetSessionD );
+public:
+	void addVipRoomBill(std::shared_ptr<stVipRoomBill>& pBill, bool isAddtoDB );
+	bool isHaveVipRoomBill(uint32_t nVipBillID );
+	std::shared_ptr<stVipRoomBill> createVipRoomBill();
 protected:
 	MAP_ID_ROOM m_vRooms ;
 
@@ -70,4 +98,9 @@ protected:
 	MAP_CONFIG_ID_SYS_ROOM m_vSystemRooms ;
 
 	CRoomConfigMgr* m_pConfigMgr ;
+	std::map<uint32_t,std::shared_ptr<stReqVipRoomBillPlayers>> m_vReqingBillInfoPlayers ;
+protected:
+	MAP_VIP_BILL m_vVipRoomBills ;
+public:
+	static uint32_t s_MaxBillID ;
 };

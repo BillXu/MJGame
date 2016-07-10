@@ -32,7 +32,7 @@ uint8_t CPeerCardSubCollect::getGenCount()
 	vAllCard.insert(vAllCard.begin(),m_vMingCards.begin(),m_vMingCards.end()) ;
 	
 	std::map<uint8_t,uint8_t> vCardCnt ;
-	for ( auto ref : vAllCard )
+	for ( auto& ref : vAllCard )
 	{
 		auto iter = vCardCnt.find(ref.nCardNumber) ;
 		if ( iter == vCardCnt.end() )
@@ -46,7 +46,7 @@ uint8_t CPeerCardSubCollect::getGenCount()
 	}
 
 	uint8_t nCnt = 0 ;
-	for ( auto refIter : vCardCnt )
+	for ( auto& refIter : vCardCnt )
 	{
 		if ( refIter.second == 4 )
 		{
@@ -261,7 +261,7 @@ void CPeerCardSubCollect::getWantedCardList(LIST_WANTED_CARD& vOutList,bool bOmi
 		}
 	}
 
-	for ( auto checkCard : mapCardCount )
+	for ( auto& checkCard : mapCardCount )
 	{
 		auto cnt = checkCard.second ;
 		auto nCard = checkCard.first ;
@@ -310,7 +310,7 @@ void CPeerCardSubCollect::getSelfOperateCardList(LIST_WANTED_CARD& vOutList)
 	}
 
 	std::vector<uint8_t> vMayBeBuGang ;
-	for ( auto checkCard : mapCardCount )
+	for ( auto& checkCard : mapCardCount )
 	{
 		auto cnt = checkCard.second ;
 		auto nCard = checkCard.first ;
@@ -345,7 +345,7 @@ void CPeerCardSubCollect::getSelfOperateCardList(LIST_WANTED_CARD& vOutList)
 
 			lastCheck = (*iterBu).nCardNumber ;
 
-			for ( auto bu : vMayBeBuGang )
+			for ( auto& bu : vMayBeBuGang )
 			{
 				if ( bu == (*iterBu).nCardNumber )
 				{
@@ -402,7 +402,7 @@ void CMJPeerCard::doAction(eMJActType eType, uint8_t nNumber )
 
 void CMJPeerCard::updateWantedCard(LIST_WANTED_CARD& vWantList)
 {
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
 		if ( ref.first == getMustQueType() )
 		{
@@ -420,7 +420,7 @@ void CMJPeerCard::updateWantedCard(LIST_WANTED_CARD& vWantList)
 
 void CMJPeerCard::updateSelfOperateCard( LIST_WANTED_CARD& vOperateList, uint8_t nNewCard )
 {
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
 		if ( ref.first == getMustQueType() )
 		{
@@ -509,7 +509,7 @@ uint8_t CMJPeerCard::getMaxHuPaiFanShu( uint8_t& nGenShu )
 	uint8_t nMaxFan = 0 ;
 	eFanxingType eMaxFtype ;
 	
-	for ( auto ref : vList )
+	for ( auto& ref : vList )
 	{
 		addCard(ref.nNumber) ;
 
@@ -542,7 +542,7 @@ uint8_t CMJPeerCard::getMaxHuPaiFanShu( uint8_t& nGenShu )
 uint8_t CMJPeerCard::getGenShu()
 {
 	uint8_t nGen = 0 ;
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
 		nGen += ref.second.getGenCount() ;
 	}
@@ -560,7 +560,7 @@ uint8_t CMJPeerCard::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
 
 	eMJCardType type = eMJCardType::eCT_Max ;
 	uint8_t nCnt = 0 ;
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
 		if ( ref.second.getAnPaiCount() >= nLestCnt )
 		{
@@ -575,7 +575,7 @@ uint8_t CMJPeerCard::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
 	auto iter = m_vSubCollectionCards.find(type) ;
 	assert(iter != m_vSubCollectionCards.end() && "why have no card?" );
 	
-	for ( auto ref : iter->second.m_vAnCards )
+	for ( auto& ref : iter->second.m_vAnCards )
 	{
 		if ( nCardIdx == 0 )
 		{
@@ -590,9 +590,9 @@ uint8_t CMJPeerCard::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
 
 bool CMJPeerCard::isHaveAnCard(uint8_t nCardNumber)
 {
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
-		for ( auto refValue : ref.second.m_vAnCards )
+		for ( auto& refValue : ref.second.m_vAnCards )
 		{
 			if ( refValue.nCardNumber == nCardNumber )
 			{
@@ -606,9 +606,9 @@ bool CMJPeerCard::isHaveAnCard(uint8_t nCardNumber)
 
 void CMJPeerCard::getAnPai(Json::Value& vAnPia )
 {
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
-		for ( auto refValue : ref.second.m_vAnCards )
+		for ( auto& refValue : ref.second.m_vAnCards )
 		{
 			vAnPia[vAnPia.size()] = refValue.nCardNumber ;
 		}
@@ -617,9 +617,9 @@ void CMJPeerCard::getAnPai(Json::Value& vAnPia )
 
 void CMJPeerCard::getMingPai( Json::Value& vMingPia )
 {
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
-		for ( auto refValue : ref.second.m_vMingCards )
+		for ( auto& refValue : ref.second.m_vMingCards )
 		{
 			vMingPia[vMingPia.size()] = refValue.nCardNumber ;
 		}
@@ -629,11 +629,11 @@ void CMJPeerCard::getMingPai( Json::Value& vMingPia )
 void  CMJPeerCard::debugAnpaiCount()
 {
 	uint8_t nTotal = 0 ;
-	for ( auto ref : m_vSubCollectionCards )
+	for ( auto& ref : m_vSubCollectionCards )
 	{
 		nTotal += ref.second.getAnPaiCount() ;
 		//CLogMgr::SharedLogMgr()->PrintLog("An pai type = %u, cnt = %u\n",ref.first,ref.second.getAnPaiCount()) ;
-		for ( auto refValue : ref.second.m_vAnCards )
+		for ( auto& refValue : ref.second.m_vAnCards )
 		{
 			//CLogMgr::SharedLogMgr()->PrintLog("An pai Number = %u\n",refValue.nCardNumber) ;
 		}

@@ -32,18 +32,18 @@ public:
 	void switchPeerCard(ISitableRoomPlayer* pPlayer );
 	bool isDelayStandUp(){ return m_isDelayStandUp ;}
 	void delayStandUp(){ m_isDelayStandUp = true ; }
-	uint32_t getWinTimes(){ return nWinTimes ; }
+	uint32_t getMaxWinTimes(){ return nMaxFanShu ; }
 	uint32_t getPlayTimes(){ return nPlayTimes ;}
-	uint32_t getSingleWinMost(){ return nSingleWinMost ;}
+	uint32_t getMaxWinCardType(){ return nMaxFangXingType ;}
 	void setTempHaloWeight( uint16_t nTempHalo ){ nTempHaloWeight = nTempHalo ; }
 	uint8_t getHaloWeight(){ return nNewPlayerHaloWeight; }
 	virtual int32_t getGameOffset() = 0 ;
 	virtual IPeerCard* getPeerCard() = 0 ;
 	int32_t getTotalGameOffset(){ return nTotalGameOffset ;}
 	void setSessionID( uint32_t nNewSessionID ){ nSessionID = nNewSessionID ; m_isDelayStandUp = false ;}
-private:
 	uint16_t getTotalHaloWeight(){ return nNewPlayerHaloWeight + nTempHaloWeight; }
-	void increaseWinTimes(){ ++nWinTimes ;}
+	void setMaxWinTimes(uint32_t nWinTimesFan ){ nMaxFanShu = nWinTimesFan; }
+	void setMaxWinCardType( uint32_t ncardType) { nMaxFangXingType = ncardType ; } 
 private:
 	bool m_isDelayStandUp;
 	uint8_t m_nIdx ;
@@ -56,7 +56,7 @@ private:
 	uint8_t nNewPlayerHaloWeight;
 	uint16_t nTempHaloWeight ;
 	uint32_t nPlayTimes ;
-	uint32_t nWinTimes ;
-	uint32_t nSingleWinMost ;
+	uint32_t nMaxFanShu ;
+	uint32_t nMaxFangXingType ;
 	int32_t nTotalGameOffset ;
 };
