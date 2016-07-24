@@ -459,6 +459,40 @@ bool ISitableRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t 
 			CLogMgr::SharedLogMgr()->PrintLog("a player sit down uid = %u",sitDownPlayer->getUserUID()) ;
 		}
 		break;
+	case MSG_SYNC_IN_GAME_ADD_COIN:
+		{
+			stMsgSyncInGameCoin* pRet = (stMsgSyncInGameCoin*)prealMsg ;
+			stMsgSyncInGameCoinRet msgback ;
+			msgback.nRet = 0 ;
+			msgback.nAddCoin = pRet->nAddCoin ;
+			msgback.nRoomID = pRet->nRoomID ;
+			msgback.nUserUID = pRet->nUserUID ;
+			auto pSitPlayer = getSitdownPlayerByUID(pRet->nUserUID) ;
+			do 
+			{
+				if ( pSitPlayer )
+				{
+					pSitPlayer->setCoin(pSitPlayer->getCoin() + pRet->nAddCoin) ;
+					// send update coin msg to client ;
+					Json::Value jsmsg ;
+					jsmsg["idx"] = pSitPlayer->getIdx() ;
+					jsmsg["coin"] = pSitPlayer->getCoin() ;
+					sendRoomMsg(jsmsg,MSG_ROOM_PLAYER_COIN_UPDATE);
+					break;
+				}
+
+				auto pStand = getPlayerByUserUID(pRet->nUserUID) ;
+				if ( pStand )
+				{
+					pStand->nCoin += pRet->nAddCoin ;
+					break;
+				}
+				msgback.nRet = 1 ;
+			} while (0);
+			sendMsgToPlayer(&msgback,sizeof(msgback),nPlayerSessionID) ;
+			CLogMgr::SharedLogMgr()->PrintLog("update in room player uid = %u, offset coin = %d",pRet->nUserUID,pRet->nAddCoin);
+		}
+		break ;
 	default:
 		return false;
 	}

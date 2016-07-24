@@ -13,6 +13,7 @@
 #include "MJExchangeCardState.h"
 #include "MJGameStartState.h"
 #include "RobotDispatchStrategy.h"
+#include "MJWaitSupplyCoinState.h"
 CMJRoom::CMJRoom()
 {
 	
@@ -34,7 +35,7 @@ void CMJRoom::prepareState()
 	IRoomState* vState[] = {
 		new IRoomStateWaitPlayerReady(),new CMJGameStartState(),new CMJWaitExchangeCardState(),new CMJDoExchangeCardState()
 		,new CMJWaitDecideQueState(),new CMJDoDecideQueState(),new CMJWaitPlayerActState(),new CMJDoPlayerActState()
-		,new CMJWaitOtherActState(),new CMJDoOtherPlayerActState(), new IRoomStateGameEnd()
+		,new CMJWaitOtherActState(),new CMJDoOtherPlayerActState(), new IRoomStateGameEnd(),new CMJWaitSupplyCoinState()
 	};
 	for ( uint8_t nIdx = 0 ; nIdx < sizeof(vState) / sizeof(IRoomState*); ++nIdx )
 	{
@@ -873,7 +874,6 @@ bool CMJRoom::isGameOver()
 	return false ;
 }
 
-
 void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )
 {
 	bool bNewEnter = false ;
@@ -915,5 +915,19 @@ void CMJRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubId
 	{
 		getRobotDispatchStrage()->onPlayerJoin(pEnterRoomPlayer->nUserSessionID,pEnterRoomPlayer->nPlayerType == ePlayer_Robot );
 	}
+}
+
+bool CMJRoom::getPlayersNeedSupplyCoin(std::vector<uint8_t>& vNeedPlayersIdx)
+{
+	vNeedPlayersIdx.clear() ;
+	for ( uint8_t nidx = 0 ; nidx < getSeatCount(); ++nidx )
+	{
+		auto pp = (CMJRoomPlayer*)getPlayerByIdx(nidx);
+		if ( pp && pp->getCoin() < coinNeededToSitDown() )
+		{
+			vNeedPlayersIdx.push_back(nidx) ;
+		}
+	}
+	return vNeedPlayersIdx.empty() == false ;
 }
 

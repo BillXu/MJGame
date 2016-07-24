@@ -75,7 +75,7 @@ void CMJCard::initAllCard( eMJGameType eType )
 
 			for ( uint8_t nValue = 1 ; nValue <= 3 ; ++nValue )
 			{
-				m_vAllCards.push_back(makeCardNumber(eCT_ZFB,nValue)) ;
+				m_vAllCards.push_back(makeCardNumber(eCT_Jian,nValue)) ;
 			}
 		}
 	}
@@ -135,4 +135,67 @@ void CMJCard::parseCardTypeValue(uint8_t nCardNum, eMJCardType& eType,uint8_t& n
 
 	assert(eType < eCT_Max && eType > eCT_None && "invalid card type" );
 	assert(nValue <= 9 && nValue >= 1 && "invalid card value" );
+}
+
+void CMJCard::debugSinglCard(uint8_t nCard )
+{
+	auto cardType = parseCardType(nCard) ;
+	auto cardValue = parseCardValue(nCard) ;
+
+	switch (cardType)
+	{
+	case eCT_None:
+		break;
+	case eCT_Wan:
+		printf("%u 万 \n",cardValue) ;
+		break;
+	case eCT_Tong:
+		printf("%u 筒 \n",cardValue) ;
+		break;
+	case eCT_Tiao:
+		printf("%u 条 \n",cardValue) ;
+		break;
+	case eCT_Feng:
+		switch ( cardValue )
+		{
+		case 1 :
+			printf("东 风\n") ;
+			break;
+		case 2:
+			printf("南 风\n") ;
+			break;
+		case 3:
+			printf("西 风\n") ;
+			break;
+		case 4:
+			printf("北 风\n") ;
+			break ;
+		default:
+			printf("unknown 风 card = %u \n",nCard ) ;
+			break;
+		}
+		break;
+	case eCT_Jian:
+		switch ( cardValue )
+		{
+		case 1 :
+			printf("中 \n") ;
+			break;
+		case 2:
+			printf("发 \n") ;
+			break;
+		case 3:
+			printf("白\n") ;
+			break;
+		default:
+			printf("unknown 箭牌 card = %u \n",nCard ) ;
+			break;
+		}
+		break;
+	case eCT_Max:
+		printf("unknown card = %u \n",nCard) ;
+		break;
+	default:
+		break;
+	}
 }

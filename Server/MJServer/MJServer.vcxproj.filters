@@ -183,6 +183,12 @@
     <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h">
       <Filter>SvrCommon</Filter>
     </ClInclude>
+    <ClInclude Include="src\MJWaitSupplyCoinState.h">
+      <Filter>src\Room\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJPeerCardNew.h">
+      <Filter>src\Card</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -295,6 +301,12 @@
     </ClCompile>
     <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp">
       <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJWaitSupplyCoinState.cpp">
+      <Filter>src\Room\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJPeerCardNew.cpp">
+      <Filter>src\Card</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -340,6 +340,7 @@ void CPlayer::OnAnotherClientLoginThisPeer(unsigned int nSessionID )
 	}
 	// bind new client ;
 	m_nSessionID = nSessionID ;
+	CLogMgr::SharedLogMgr()->SystemLog("send what msg----------");
 	for ( int i = ePlayerComponent_None; i < ePlayerComponent_Max ; ++i )
 	{
 		IPlayerComponent* p = m_vAllComponents[i] ;

@@ -2,6 +2,7 @@
 #include "MJDefine.h"
 #include "LogManager.h"
 #include <algorithm>
+#include "MJWaitSupplyCoinState.h"
 // wait player act 
 void CMJWaitPlayerActState::enterState(IRoom* ptRoom)
 {
@@ -250,6 +251,20 @@ void CMJDoPlayerActState::onExecuteOver()
 				return ;
 			}
 
+			std::vector<uint8_t> vNeedPlayersIdx ;
+			if ( m_edoAct != eMJAct_Mo && pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
+			{
+				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				for (auto& ref : vNeedPlayersIdx )
+				{
+					pTargeState->addWaitIdx(ref) ;
+				}
+				pTargeState->setInvokeInfo(m_nCurIdx,0);
+				m_pRoom->goToState(pTargeState) ;
+				return ;
+			}
+
 			auto ppPlayer = (CMJRoomPlayer*)pRoom->getPlayerByIdx(m_nCurIdx) ;
 			auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
 
@@ -319,6 +334,20 @@ void CMJDoPlayerActState::onExecuteOver()
 			if ( pRoom->isGameOver() )
 			{
 				pRoom->goToState(eRoomState_GameEnd) ;
+				return ;
+			}
+
+			std::vector<uint8_t> vNeedPlayersIdx ;
+			if ( pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
+			{
+				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				for (auto& ref : vNeedPlayersIdx )
+				{
+					pTargeState->addWaitIdx(ref) ;
+				}
+				pTargeState->setInvokeInfo(m_nCurIdx,1);
+				m_pRoom->goToState(pTargeState) ;
 				return ;
 			}
 
@@ -606,6 +635,20 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 				return ;
 			}
 
+			std::vector<uint8_t> vNeedPlayersIdx ;
+			if ( pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
+			{
+				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				for (auto& ref : vNeedPlayersIdx )
+				{
+					pTargeState->addWaitIdx(ref) ;
+				}
+				pTargeState->setInvokeInfo(m_nCurIdx,1);
+				m_pRoom->goToState(pTargeState) ;
+				return ;
+			}
+
 			auto pTargeState = (IExecuingState*)m_pRoom->getRoomStateByID(eRoomState_DoPlayerAct) ;
 			pTargeState->setExecuteTime(eTime_DoPlayerMoPai) ;
 
@@ -626,6 +669,20 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			if ( m_edoAct == eMJAct_MingGang && pRoom->isGameOver() )
 			{
 				pRoom->goToState(eRoomState_GameEnd) ;
+				return ;
+			}
+
+			std::vector<uint8_t> vNeedPlayersIdx ;
+			if ( m_edoAct == eMJAct_MingGang && pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
+			{
+				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				for (auto& ref : vNeedPlayersIdx )
+				{
+					pTargeState->addWaitIdx(ref) ;
+				}
+				pTargeState->setInvokeInfo(m_nCurIdx,0);
+				m_pRoom->goToState(pTargeState) ;
 				return ;
 			}
 

@@ -754,6 +754,24 @@ struct  stMsgSavePlayerAdvice
 	PLACE_HOLDER(char* pContent);
 };
 
+struct stMsgSyncInGameCoin
+	:public stMsgToRoom
+{
+	stMsgSyncInGameCoin(){ cSysIdentifer = ID_MSG_PORT_MJ; usMsgType = MSG_SYNC_IN_GAME_ADD_COIN ; }
+	int32_t nAddCoin ;
+	uint32_t nUserUID ;
+};
+
+struct stMsgSyncInGameCoinRet
+	:public stMsg
+{
+	stMsgSyncInGameCoinRet(){ cSysIdentifer = ID_MSG_PORT_DATA; usMsgType = MSG_SYNC_IN_GAME_ADD_COIN ; }
+	uint8_t nRet ; // 0 success , 1 error ;
+	int32_t nAddCoin ;
+	uint32_t nRoomID ;
+	uint32_t nUserUID ;
+};
+
 // poker circle 
 struct stCircleTopicItem
 {

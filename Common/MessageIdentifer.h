@@ -126,9 +126,9 @@ enum eRoomState  // 玩家的状态
 	eRoomState_DoPlayerAct,  // 玩家操作
 	eRoomState_WaitOtherPlayerAct,  // 等待玩家操作，有人出牌了
 	eRoomState_DoOtherPlayerAct,  // 其他玩家操作了。
-	eRoomState_WaitPlayerRecharge,  //  等待玩家充值
+	eRoomState_WaitSupplyCoin , // 等待玩家补充金币
+	eRoomState_WaitPlayerRecharge = eRoomState_WaitSupplyCoin,  //  等待玩家充值
 	eRoomState_GameEnd, // 游戏结束
-
 	eRoomState_Max,
 };
 
@@ -223,11 +223,21 @@ enum eMsgType
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 
 	// modify name and sigure
-	MSG_PLAYER_MODIFY_NAME,
+	MSG_PLAYER_MODIFY_NAME, // 玩家修改昵称
+	// client : { newName : helloWorld }
+	// svr : { ret : 0 , newName : helloWorld}
+	// newName : 玩家新设置的姓名
+	// ret : 0 成功，1 名字长度太长
+
 	MSG_PLAYER_MODIFY_SIGURE,
 	MSG_PLAYER_MODIFY_PHOTO,
 	MSG_PLAYER_UPDATE_MONEY,  // USE WHEN OTHER MAIL A GITF  ;
-	MSG_PLAYER_MODIFY_SEX,
+	
+	MSG_PLAYER_MODIFY_SEX, // 修改玩家的性别
+	// client : { newSex : eSex }
+	// svr : { newSex : eSex }
+	// newSex ,新设置的性别 ，参考eSex 枚举值
+
 	MSG_RESET_PASSWORD,
 	MSG_REQUEST_PLAYER_INFO,
 	
@@ -458,6 +468,7 @@ enum eMsgType
 	// svr : { ret : 0 , gameType : eRoomType , roundPlayed : 2345 ,maxFanShu : 345 , maxFanXing : eFanxingType  }
 	// ret : 0 成功返回，1 参数错误
 	// gameType 场次类型，取值参考eRoomType，roundPlayed， 总共玩的局数， maxFanShu 最大番数， maxFanXing 最大番数牌型 ， 取值参考eFanxingType；
+	
 	MSG_REQ_VIP_ROOM_BILL_INFO,  // 请求vip 房间的账单, 此消息发往游戏服务器；
 	// client : { billID : 2345 }
 	// svr : { ret : 0 , billID : 234, billTime : 23453, roomID : 235, roomType : eRoomType , creatorUID : 345 , circle： 8 ，initCoin : 2345 , detail : [ { uid : 2345 , curCoin : 234 }, ....]  } 
@@ -468,4 +479,20 @@ enum eMsgType
 	// client : null
 	// svr : { billIDs : [234,234,2345 ] }
 	// billIDs 账单id的数组，通过id 可以通过 MSG_REQ_VIP_ROOM_BILL_INFO 这个消息，获取账单详情
+
+	MSG_ROOM_PLAYER_COIN_UPDATE, // 房间内玩家的金币更新，比如充值了，领救济金啊。。等等之类的。
+	// svr : { idx : 23 , coin : 2345 }
+	// coin 为玩家最终的金币数量
+
+	MSG_ROOM_INFORM_SUPPLY_COIN, // 通知玩家补充金币，
+	// svr: { players : [2,3,1] } 
+	// players ： 需要补充金币的玩家索引，数组
+
+	MSG_PLAYER_DECIDE_LOSE, // 玩家认输，放弃补充金币, 这个消息发给游戏服务器
+	// client : { dstRoomID : 356 } ,
+	
+	MSG_ROOM_PLAYER_SUPPLY_COIN_RESULT, // 通知玩家补充金币的结果，房间内所有的玩家都可以收到这条消息
+	// svr : { playerIdx : 2 , result : 0 }
+	// playerIdx 操作的玩家索引
+	// result : 0 补充金币成功，1 放弃补充金币，认输;
 };

@@ -489,6 +489,20 @@ bool CPlayerManager::ProcessPublicMessage( stMsg* prealMsg , eMsgPort eSenderPor
 			}
 		}
 		break;
+	case MSG_SYNC_IN_GAME_ADD_COIN:
+		{
+			stMsgSyncInGameCoinRet* pRet = (stMsgSyncInGameCoinRet*)prealMsg ;
+			CPlayer* p = GetPlayerByUserUID(pRet->nUserUID);
+			if ( !p )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("uid = %u can not find so can tell sync in game coin result = %u",pRet->nRet);
+			}
+			else
+			{
+				p->OnMessage(prealMsg,eSenderPort) ;
+			}
+		}
+		break;
 	case MSG_REQUEST_PLAYER_INFO:
 		{
 			stMsgRequestPlayerData* pRet = (stMsgRequestPlayerData*)prealMsg ;

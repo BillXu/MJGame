@@ -851,6 +851,12 @@ bool CDBManager::onAsyncRequest(uint32_t nReqType ,uint32_t nSerialNum, uint8_t 
 		CLogMgr::SharedLogMgr()->ErrorLog("sql is null reqType = %u, from srcPort = %u, serialNum = %u",nReqType,nSrcPort,nSerialNum) ;
 		return false ;
 	}
+
+	if ( jsReqContent["sql"].isString() == false )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("sql is not string reqType = %u, from srcPort = %u, serialNum = %u",nReqType,nSrcPort,nSerialNum) ;
+		return false ;
+	}
 #ifdef _DEBUG
 	std::string strSql = jsReqContent["sql"].asString() ;
 	std::transform(strSql.begin(), strSql.end(),strSql.begin(), ::tolower);

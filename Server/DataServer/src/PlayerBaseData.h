@@ -30,7 +30,7 @@ public:
 	uint32_t GetAllCoin(){ return m_stBaseData.nCoin;}
 	uint32_t getCoin(){ return m_stBaseData.nCoin ; }
 	uint32_t GetAllDiamoned(){ return m_stBaseData.nDiamoned;}
-	void setCoin(int64_t nCoin );
+	void setCoin(int32_t nCoin );
 	bool AddMoney(int32_t nOffset,bool bDiamond = false );
 	void addInvitePrize(uint32_t nCoinPrize );
 	bool decressMoney(int64_t nOffset,bool bDiamond = false );
@@ -49,8 +49,8 @@ public:
 	bool isPlayerRegistered();
 	uint8_t getNewPlayerHaloWeight();
 	void setNewPlayerHalo(uint8_t nPlayHalo );
-	uint32_t getTempCoin(){ return m_nTempCoin ; }
-	void setTempCoin( uint32_t nTempCoin );
+	//uint32_t getTempCoin(){ return m_nTempCoin ; }
+	//void setTempCoin( uint32_t nTempCoin );
 	void onGetReward( uint8_t nIdx ,uint16_t nRewardID, uint16_t nGameType , const char* nRoomName );
 	ePlayerType getPlayerType(){ return m_ePlayerType ;}
 	void addTodayGameCoinOffset(int32_t nOffset );
@@ -66,7 +66,7 @@ protected:
 private:
 	stServerBaseData m_stBaseData ;
 	ePlayerType m_ePlayerType ; 
-	uint32_t m_nTempCoin ;
+	//uint32_t m_nTempCoin ;
 
 	uint8_t nReadingDataFromDB ; // 0 not read , 1 reading , 2 already read ;
 

@@ -300,9 +300,8 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			m_nStateInRoomID = 0;
 			m_ePlayerGameState = ePlayerGameState_NotIn;
 			stMsgSvrDoLeaveRoom* pRet = (stMsgSvrDoLeaveRoom*)pMessage ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d leave room coin = %u , back coin = %u, temp coin = %u",GetPlayer()->GetUserUID(),GetPlayer()->GetBaseData()->getCoin(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin() ) ;
-			GetPlayer()->GetBaseData()->setCoin(pRet->nCoin + GetPlayer()->GetBaseData()->getTempCoin()) ;
-			GetPlayer()->GetBaseData()->setTempCoin(0) ;
+			CLogMgr::SharedLogMgr()->PrintLog("uid = %d leave room coin = %u , back coin = %u, temp coin = %u",GetPlayer()->GetUserUID(),GetPlayer()->GetBaseData()->getCoin(),pRet->nCoin ) ;
+			GetPlayer()->GetBaseData()->setCoin(pRet->nCoin) ;
 			GetPlayer()->GetBaseData()->addTodayGameCoinOffset(pRet->nGameOffset);
 			
 			m_vData[pRet->nGameType].nRoundsPlayed += pRet->nRoundsPlayed ;
@@ -347,8 +346,8 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			}
 			else
 			{
-				GetPlayer()->GetBaseData()->setTempCoin(GetPlayer()->GetBaseData()->getTempCoin() + pRet->nCoin) ;
-				CLogMgr::SharedLogMgr()->PrintLog("player enter other room so uid = %d add temp = %u, final = %u,",GetPlayer()->GetUserUID(),pRet->nCoin,GetPlayer()->GetBaseData()->getTempCoin(),GetPlayer()->GetBaseData()->getCoin() ) ;
+				GetPlayer()->GetBaseData()->AddMoney(pRet->nCoin) ;
+				CLogMgr::SharedLogMgr()->PrintLog("player enter other room so uid = %d  final = %u,",GetPlayer()->GetUserUID(),pRet->nCoin,GetPlayer()->GetBaseData()->getCoin() ) ;
 			}
 
 			GetPlayer()->GetBaseData()->addTodayGameCoinOffset(pRet->nGameOffset);
@@ -587,8 +586,6 @@ bool CPlayerGameData::onCrossServerRequest(stMsgCrossServerRequest* pRequest , e
 		{
 			m_ePlayerGameState = ePlayerGameState_NotIn;
 			m_nStateInRoomID = 0 ;
-			GetPlayer()->GetBaseData()->setCoin(GetPlayer()->GetBaseData()->getTempCoin() + GetPlayer()->GetBaseData()->getCoin()) ;
-			GetPlayer()->GetBaseData()->setTempCoin(0) ;
 			CLogMgr::SharedLogMgr()->ErrorLog("uid = %d leave room state error ",GetPlayer()->GetUserUID() ) ;
 		}
 		break;
@@ -750,7 +747,7 @@ void CPlayerGameData::TimerSave()
 		sprintf_s(pBuffer,sizeof(pBuffer),"INSERT INTO playergamerecoder ( userUID,gameType,roundsPlayed,maxWinTimes,maxWinCardType) VALUES ( %u ,%u,%u,%u,%u) ON DUPLICATE KEY UPDATE \
 			roundsPlayed = %u ,maxWinTimes = %u,maxWinCardType = %u ",GetPlayer()->GetUserUID(),gameData.nGameType,gameData.nRoundsPlayed,gameData.nMaxFanShu,gameData.nMaxFangXingType
 			,gameData.nRoundsPlayed,gameData.nMaxFanShu,gameData.nMaxFangXingType );
-		jsReq["sql"] = jsReq ;
+		jsReq["sql"] = pBuffer ;
 		asyQ->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsReq);
 	}
 }
@@ -825,14 +822,14 @@ bool CPlayerGameData::isRoomIDMyOwn(eRoomType eType , uint32_t nRoomID)
 void CPlayerGameData::sendGameDataToClient()
 {
 	// send niuniu data ;
-	stMsgPlayerBaseDataNiuNiu msg ;
-	memcpy(&msg.tNiuNiuData,&m_vData[eRoom_NiuNiu],sizeof(msg.tNiuNiuData));
-	SendMsg(&msg,sizeof(msg)) ;
+	//stMsgPlayerBaseDataNiuNiu msg ;
+	//memcpy(&msg.tNiuNiuData,&m_vData[eRoom_NiuNiu],sizeof(msg.tNiuNiuData));
+	//SendMsg(&msg,sizeof(msg)) ;
 
-	// send taxas data 
-	stMsgPlayerBaseDataTaxas msgT ;
-	memcpy(&msgT.tTaxasData,&m_vData[eRoom_TexasPoker],sizeof(msgT.tTaxasData));
-	SendMsg(&msgT,sizeof(msgT)) ;
+	//// send taxas data 
+	//stMsgPlayerBaseDataTaxas msgT ;
+	//memcpy(&msgT.tTaxasData,&m_vData[eRoom_TexasPoker],sizeof(msgT.tTaxasData));
+	//SendMsg(&msgT,sizeof(msgT)) ;
 }
 
 void CPlayerGameData::addNewBillIDs(uint32_t nBillID )

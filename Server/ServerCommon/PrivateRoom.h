@@ -477,6 +477,18 @@ bool CPrivateRoom<T>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			sendRoomInfo(nPlayerSessionID);
 		}
 		break;
+	case MSG_SYNC_IN_GAME_ADD_COIN:
+		{
+			stMsgSyncInGameCoin* pRet = (stMsgSyncInGameCoin*)prealMsg ;
+			stMsgSyncInGameCoinRet msgback ;
+			msgback.nRet = 1 ;
+			msgback.nAddCoin = pRet->nAddCoin ;
+			msgback.nRoomID = pRet->nRoomID ;
+			msgback.nUserUID = pRet->nUserUID ;
+			m_pRoom->sendMsgToPlayer(&msgback,sizeof(msgback),nPlayerSessionID) ;
+			CLogMgr::SharedLogMgr()->PrintLog("private room should not process this message syn in game coin  uid = %u",msgback.nUserUID) ;
+		}
+		break;
 	default:
 		{
 			if ( m_pRoom )

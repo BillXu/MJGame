@@ -19,6 +19,7 @@ public:
 	static uint8_t parseCardValue(uint8_t nNum );
 	static uint8_t makeCardNumber(eMJCardType eType,uint8_t nValue );
 	static void parseCardTypeValue(uint8_t nCardNum, eMJCardType& eType,uint8_t& nValue );
+	static void debugSinglCard(uint8_t nCard );
 protected:
 	eMJGameType m_eMJGameType;
 	VEC_UINT8 m_vAllCards ;

@@ -37,8 +37,6 @@ CPlayerBaseData::CPlayerBaseData(CPlayer* player )
 	memset(&m_stBaseData,0,sizeof(m_stBaseData)) ;
 	m_bGivedLoginReward = false ;
 	m_strCurIP = "" ;
-	m_nTempCoin = 0 ;
-	setTempCoin(0);
 }
 
 CPlayerBaseData::~CPlayerBaseData()
@@ -50,7 +48,6 @@ void CPlayerBaseData::Init()
 {
 	memset(&m_stBaseData,0,sizeof(m_stBaseData)) ;
 	m_stBaseData.nUserUID = GetPlayer()->GetUserUID() ;
-	m_nTempCoin = 0 ;
 	m_bGivedLoginReward = false ;
 
 	m_bMoneyDataDirty = false;
@@ -66,8 +63,6 @@ void CPlayerBaseData::Init()
 void CPlayerBaseData::Reset()
 {
 	m_ePlayerType = ePlayer_Normal ;
-	m_nTempCoin = 0 ;
-	setTempCoin(0);
 	m_strCurIP = "" ;
 	m_bGivedLoginReward = false ;
 	nReadingDataFromDB = 0 ;
@@ -476,6 +471,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			}
 			memcpy(&m_stBaseData,&pBaseData->stBaseData,sizeof(m_stBaseData));
 			CLogMgr::SharedLogMgr()->PrintLog("recived base data uid = %d",pBaseData->stBaseData.nUserUID);
+			CLogMgr::SharedLogMgr()->PrintLog("received clothe uid = %u close 0 = %u,close 1 = %u,close2 = %u ",GetPlayer()->GetUserUID() ,m_stBaseData.vJoinedClubID[0],m_stBaseData.vJoinedClubID[1],m_stBaseData.vJoinedClubID[2] );
 			nReadingDataFromDB = 2 ;
 			SendBaseDatToClient();
 			CGameServerApp::SharedGameServerApp()->GetPlayerMgr()->getPlayerDataCaher().removePlayerDataCache(pBaseData->stBaseData.nUserUID) ;
@@ -499,25 +495,6 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			m_bPlayerInfoDataDirty = true ;
 		}
 		break;
-	case MSG_PLAYER_MODIFY_NAME:
-		{
-			stMsgPLayerModifyName* pMsgRet = (stMsgPLayerModifyName*)pMsg ;
-			stMsgPlayerModifyNameRet ret ;
-			ret.nRet = 0 ;
-			memcpy(ret.pName,pMsgRet->pNewName,sizeof(ret.pName));
-			if ( pMsgRet->pNewName[sizeof(pMsgRet->pNewName) -1 ] != 0 )
-			{
-				ret.nRet = 1 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("name is too long uid = %d",GetPlayer()->GetUserUID());
-			}
-			else
-			{
-				memcpy(m_stBaseData.cName,pMsgRet->pNewName,sizeof(m_stBaseData.cName)) ;
-				m_bPlayerInfoDataDirty = true ;
-			}
-			SendMsg(&ret,sizeof(ret)) ;
-		}
-		break;
 	case MSG_PLAYER_MODIFY_PHOTO:
 		{
 			stMsgPlayerModifyPhoto* pPhoto = (stMsgPlayerModifyPhoto*)pMsg ;
@@ -528,17 +505,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			m_bPlayerInfoDataDirty = true ;
 		}
 		break;
-	case MSG_PLAYER_MODIFY_SEX:
-		{
-			stMsgPlayerModifySex* pRet = (stMsgPlayerModifySex*)pMsg ;
-			m_stBaseData.nSex = pRet->nNewSex ;
-			stMsgPlayerModifySexRet msgback ;
-			msgback.nRet = 0 ;
-			SendMsg(&msgback,sizeof(msgback)) ;
-			m_bPlayerInfoDataDirty = true ;
-			CLogMgr::SharedLogMgr()->SystemLog("change sex uid = %d , new sex = %d",GetPlayer()->GetUserUID(),pRet->nNewSex) ;
-		}
-		break;
+
 	case MSG_PLAYER_UPDATE_MONEY:
 		{
  			stMsgPlayerUpdateMoney msgUpdate ;
@@ -712,6 +679,26 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
  			SendMsg(&msgBack,sizeof(msgBack)) ;
 		}
 		break;
+	case MSG_SYNC_IN_GAME_ADD_COIN:
+		{
+			stMsgSyncInGameCoinRet* pRet = (stMsgSyncInGameCoinRet*)pMsg ;
+			if ( pRet->nRet )
+			{
+				auto pcom = (CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData); 
+				if ( pcom->isNotInAnyRoom() == false && pcom->getCurRoomID() != pRet->nRoomID )
+				{
+					CLogMgr::SharedLogMgr()->PrintLog("when sync in game coin player enter a new room so add coin again , uid = %u",GetPlayer()->GetUserUID()) ;
+					AddMoney(pRet->nAddCoin) ;
+				}
+				else
+				{
+					//assert(0&&"still in room , why failed to sync coin");
+					CLogMgr::SharedLogMgr()->PrintLog(" game svr can not sync in game coin , so just it to coin uid = %u",GetPlayer()->GetUserUID());
+					m_stBaseData.nCoin += pRet->nAddCoin ;
+				}
+			}
+		}
+		break;
 	default:
 		{
 			return false ;
@@ -725,6 +712,30 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 {
 	switch (nmsgType)
 	{
+	case MSG_PLAYER_MODIFY_SEX:
+		{
+			uint32_t nSex = recvValue["newSex"].asUInt();
+			m_stBaseData.nSex = nSex;
+			SendMsg(recvValue,nmsgType);
+			m_bPlayerInfoDataDirty = true ;
+			CLogMgr::SharedLogMgr()->SystemLog("change sex uid = %d , new sex = %d",GetPlayer()->GetUserUID(),nSex) ;
+		}
+		break;
+	case MSG_PLAYER_MODIFY_NAME:
+		{
+			
+			recvValue["ret"] = 0 ;
+			auto pname = recvValue["newName"].asCString();
+			if ( strlen(pname) >= sizeof(m_stBaseData.cName) )
+			{
+				recvValue["ret"] = 1;
+				SendMsg(recvValue,nmsgType) ;
+				return true;
+			}
+			memcpy(m_stBaseData.cName,pname,sizeof(m_stBaseData.cName)) ;
+			m_bPlayerInfoDataDirty = true ;
+		}
+		break;
 	case MSG_PLAYER_WEAR_CLOTHE:
 		{
 			uint32_t nWearItemID = recvValue["itemID"].asUInt();
@@ -755,6 +766,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				}
 
 				m_stBaseData.vJoinedClubID[pItem->nType] = pItem->nItemID ;
+				CLogMgr::SharedLogMgr()->PrintLog("ware new cloth idx = %u, uid = %u close 0 = %u,close 1 = %u,close2 = %u ",pItem->nType,GetPlayer()->GetUserUID() ,m_stBaseData.vJoinedClubID[0],m_stBaseData.vJoinedClubID[1],m_stBaseData.vJoinedClubID[2] );
 
 			} while (0);
 			recvValue["ret"] = nRet ;
@@ -1199,7 +1211,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["clothe"] = jsclothe ;
 
 		SendMsg(jValue,MSG_PLAYER_BASE_DATA);
-		CLogMgr::SharedLogMgr()->PrintLog("send base data to session id = %d ",GetPlayer()->GetSessionID() );
+		CLogMgr::SharedLogMgr()->PrintLog("send base data to session id = %d close 0 = %u,close 1 = %u,close2 = %u ",GetPlayer()->GetSessionID() ,m_stBaseData.vJoinedClubID[0],m_stBaseData.vJoinedClubID[1],m_stBaseData.vJoinedClubID[2] );
 		CLogMgr::SharedLogMgr()->SystemLog("send data uid = %d , final coin = %d, sex = %d",GetPlayer()->GetUserUID(),GetAllCoin(),m_stBaseData.nSex);
 	}
 	else
@@ -1299,13 +1311,13 @@ void CPlayerBaseData::TimerSave()
 	{
 		m_bMoneyDataDirty = false ;
 		stMsgSavePlayerMoney msgSaveMoney ;
-		msgSaveMoney.nCoin = m_stBaseData.nCoin + m_nTempCoin;
+		msgSaveMoney.nCoin = m_stBaseData.nCoin;
 		msgSaveMoney.nDiamoned = m_stBaseData.nDiamoned;
 		msgSaveMoney.nUserUID = GetPlayer()->GetUserUID() ;
 		msgSaveMoney.nCupCnt = m_stBaseData.nCupCnt ;
 		msgSaveMoney.nVipRoomCardCnt = m_stBaseData.nVipRoomCardCnt ;
 		SendMsg((stMsgSavePlayerMoney*)&msgSaveMoney,sizeof(msgSaveMoney)) ;
-		CLogMgr::SharedLogMgr()->SystemLog("player do time save coin uid = %d coin = %I64d",msgSaveMoney.nUserUID,msgSaveMoney.nCoin + m_nTempCoin );
+		CLogMgr::SharedLogMgr()->SystemLog("player do time save coin uid = %d coin = %I64d",msgSaveMoney.nUserUID,msgSaveMoney.nCoin );
 	}
 
 	if ( m_bCommonLogicDataDirty )
@@ -1336,6 +1348,7 @@ void CPlayerBaseData::TimerSave()
 		msgLogicData.nRolledPlateTimes = m_stBaseData.nRolledPlateTimes ;
 		msgLogicData.tLastRollPlateTime = m_stBaseData.tLastRollPlateTime ;
 		memcpy(msgLogicData.vJoinedClubID,m_stBaseData.vJoinedClubID,sizeof(msgLogicData.vJoinedClubID));
+		CLogMgr::SharedLogMgr()->PrintLog("save clothe uid = %u close 0 = %u,close 1 = %u,close2 = %u ",GetPlayer()->GetUserUID() ,m_stBaseData.vJoinedClubID[0],m_stBaseData.vJoinedClubID[1],m_stBaseData.vJoinedClubID[2] );
 		SendMsg((stMsgSavePlayerCommonLoginData*)&msgLogicData,sizeof(msgLogicData)) ;
 	}
 
@@ -1398,6 +1411,7 @@ bool CPlayerBaseData::onPlayerRequestMoney(uint64_t& nCoinOffset,uint64_t nAtLea
 
 bool CPlayerBaseData::AddMoney(int32_t nOffset,bool bDiamond  )
 {
+	m_bMoneyDataDirty = true ;
 	if ( bDiamond )
 	{
 		m_stBaseData.nDiamoned += (int)nOffset ;
@@ -1411,7 +1425,13 @@ bool CPlayerBaseData::AddMoney(int32_t nOffset,bool bDiamond  )
 		}
 		else
 		{
-			m_nTempCoin += nOffset ;
+			stMsgSyncInGameCoin msgS ;
+			msgS.nAddCoin = nOffset ;
+			msgS.nRoomID = pcom->getCurRoomID();
+			msgS.nUserUID = GetPlayer()->GetUserUID() ;
+			SendMsg(&msgS,sizeof(msgS));
+			CLogMgr::SharedLogMgr()->PrintLog("player uid = %u in game so sync coin offset = %d , to game svr",msgS.nUserUID,nOffset) ;
+			m_bMoneyDataDirty = false ;
 		}
 
 		if ( m_stBaseData.nCoin > m_stBaseData.nMostCoinEver )
@@ -1420,7 +1440,6 @@ bool CPlayerBaseData::AddMoney(int32_t nOffset,bool bDiamond  )
 			m_bCommonLogicDataDirty = true ;
 		}
 	}
-	m_bMoneyDataDirty = true ;
 	return true ;
 }
 
@@ -1623,7 +1642,7 @@ void CPlayerBaseData::onGetReward( uint8_t nIdx ,uint16_t nRewardID, uint16_t nG
 	CPlayerMailComponent::PostMailToPlayer(eMail_WinMatch,strContent.c_str(),strContent.size(),GetPlayer()->GetUserUID()) ;
 }
 
-void CPlayerBaseData::setCoin(int64_t nCoin )
+void CPlayerBaseData::setCoin(int32_t nCoin )
 { 
 	if (m_stBaseData.nCoin != nCoin)
 	{
@@ -1632,14 +1651,14 @@ void CPlayerBaseData::setCoin(int64_t nCoin )
 	m_stBaseData.nCoin = nCoin ; 
 }
 
-void CPlayerBaseData::setTempCoin( uint32_t nTempCoin )
-{ 
-	if ( m_nTempCoin != nTempCoin )
-	{
-		m_bMoneyDataDirty = true ;
-	}
-	m_nTempCoin = nTempCoin ;
-}
+//void CPlayerBaseData::setTempCoin( uint32_t nTempCoin )
+//{ 
+//	if ( m_nTempCoin != nTempCoin )
+//	{
+//		m_bMoneyDataDirty = true ;
+//	}
+//	m_nTempCoin = nTempCoin ;
+//}
 
 void CPlayerBaseData::addTodayGameCoinOffset(int32_t nOffset )
 {
