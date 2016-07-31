@@ -126,6 +126,7 @@
     <ClInclude Include="..\ServerCommon\ISitableRoom.h" />
     <ClInclude Include="..\ServerCommon\SystemRoom.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
+    <ClInclude Include="src\GameOverState.h" />
     <ClInclude Include="src\MJPeerCardNew.h" />
     <ClInclude Include="src\MJRoomBattleEnd.h" />
     <ClInclude Include="src\MJWaitDecideQueState.h" />
@@ -142,6 +143,12 @@
     <ClInclude Include="src\MJServer.h" />
     <ClInclude Include="src\MJWaitPlayerActState.h" />
     <ClInclude Include="src\MJWaitSupplyCoinState.h" />
+    <ClInclude Include="src\NewMJRoom.h" />
+    <ClInclude Include="src\NewMJRoomPlayer.h" />
+    <ClInclude Include="src\StartGameState.h" />
+    <ClInclude Include="src\WaitActWithChuedCard.h" />
+    <ClInclude Include="src\WaitPlayerActState.h" />
+    <ClInclude Include="src\WaitStartState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\ConfigReader.cpp" />
@@ -168,6 +175,7 @@
     <ClCompile Include="..\ServerCommon\SeverUtility.cpp" />
     <ClCompile Include="..\ServerCommon\SystemRoom.cpp" />
     <ClCompile Include="..\ServerCommon\Timer.cpp" />
+    <ClCompile Include="src\GameOverState.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MJBloodFanxing.cpp" />
     <ClCompile Include="src\MJCard.cpp" />
@@ -183,6 +191,12 @@
     <ClCompile Include="src\MJWaitDecideQueState.cpp" />
     <ClCompile Include="src\MJWaitPlayerActState.cpp" />
     <ClCompile Include="src\MJWaitSupplyCoinState.cpp" />
+    <ClCompile Include="src\NewMJRoom.cpp" />
+    <ClCompile Include="src\NewMJRoomPlayer.cpp" />
+    <ClCompile Include="src\StartGameState.cpp" />
+    <ClCompile Include="src\WaitActWithChuedCard.cpp" />
+    <ClCompile Include="src\WaitPlayerActState.cpp" />
+    <ClCompile Include="src\WaitStartState.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

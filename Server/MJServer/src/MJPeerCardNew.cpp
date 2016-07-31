@@ -126,12 +126,12 @@ bool CMJPeerCardNew::isHaveAnGangCards( std::vector<uint8_t>& vAnGangCards )
 
 bool CMJPeerCardNew::isCardCanHu( uint8_t nCard )
 {
-	return true ;
+	return false ;
 }
 
-bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, std::vector<stEatPair>& vEatPairs )
+bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, VEC_EAT_PAIR& vEatPairs )
 {
-	std::vector<stEatPair> vecCandinate ;
+	VEC_EAT_PAIR vecCandinate ;
 	// AB X
 	stEatPair p ;
 	p.nCard[0] = nCard - 2 ;
@@ -286,6 +286,25 @@ bool CMJPeerCardNew::onEat(uint8_t nCard , stEatPair& refWithPair )
 	return true ;
 }
 
+bool CMJPeerCardNew::onCardBeRobted( uint8_t nCard )
+{
+	auto iter = std::find(vecChuCard.begin(),vecChuCard.end(),nCard) ;
+	if ( iter == vecChuCard.end() )
+	{
+		printf("you don't chu card = %u , how can be robot",nCard );
+		return false ;
+	}
+	vecChuCard.erase(iter) ;
+	return true ;
+}
+
+bool CMJPeerCardNew::onHu(uint8_t nCard,uint8_t& eFanType , uint16_t& nFanShu )
+{
+	nFanShu = 0 ;
+	eFanType = 0 ;
+	return false ;
+}
+
 //  get function 
 bool CMJPeerCardNew::addNumberToVecWithAsc(std::vector<uint8_t>& vecCards, uint8_t& nAddCard )
 {
@@ -340,4 +359,10 @@ void CMJPeerCardNew::debugVecCardInfo(std::vector<uint8_t>&vecCards )
 	{
 		CMJCard::debugSinglCard(ref) ;
 	}
+}
+
+bool CMJPeerCardNew::isHoldCardExist(uint8_t nCard )
+{
+	auto iter = std::find(vecHoldCard.begin(),vecHoldCard.end(),nCard) ;
+	return iter != vecHoldCard.end() ;
 }

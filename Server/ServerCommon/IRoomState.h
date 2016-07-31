@@ -6,6 +6,7 @@
 #include "IRoom.h"
 #include "IRoomDelegate.h"
 #include <cassert>
+#include "json/json.h"
 class IRoom ;
 class ISitableRoom ;
 struct stMsg ;
@@ -14,7 +15,8 @@ class IRoomState
 public:
 	IRoomState(){ m_fStateDuring = 0 ; }
 	virtual ~IRoomState(){}
-	virtual void enterState(IRoom* pRoom){ m_pRoom = (ISitableRoom*)pRoom ;} 
+	virtual void enterState(IRoom* pRoom,Json::Value& jsTransferData ){ m_pRoom = (ISitableRoom*)pRoom ;} 
+	virtual void enterState(IRoom* pRoom ){ Json::Value jsNull ; enterState(pRoom,jsNull);} 
 	virtual void leaveState(){}
 	virtual void update(float fDeta);
 	virtual bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID){ return false ;}

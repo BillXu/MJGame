@@ -28,6 +28,12 @@
     <Filter Include="src\RoomBattleEnd">
       <UniqueIdentifier>{7467e420-fea2-4556-983a-ce238cbf0ab1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\NewRoom">
+      <UniqueIdentifier>{bb6af8ee-21de-4184-807f-8d10a0fc6667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\NewRoom\state">
+      <UniqueIdentifier>{0e8e1063-c489-4154-9eca-a19641c5c561}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -189,6 +195,27 @@
     <ClInclude Include="src\MJPeerCardNew.h">
       <Filter>src\Card</Filter>
     </ClInclude>
+    <ClInclude Include="src\NewMJRoom.h">
+      <Filter>src\NewRoom</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WaitStartState.h">
+      <Filter>src\NewRoom\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\StartGameState.h">
+      <Filter>src\NewRoom\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WaitPlayerActState.h">
+      <Filter>src\NewRoom\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WaitActWithChuedCard.h">
+      <Filter>src\NewRoom\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameOverState.h">
+      <Filter>src\NewRoom\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NewMJRoomPlayer.h">
+      <Filter>src\NewRoom</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -307,6 +334,27 @@
     </ClCompile>
     <ClCompile Include="src\MJPeerCardNew.cpp">
       <Filter>src\Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NewMJRoom.cpp">
+      <Filter>src\NewRoom</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WaitStartState.cpp">
+      <Filter>src\NewRoom\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StartGameState.cpp">
+      <Filter>src\NewRoom\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WaitPlayerActState.cpp">
+      <Filter>src\NewRoom\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WaitActWithChuedCard.cpp">
+      <Filter>src\NewRoom\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameOverState.cpp">
+      <Filter>src\NewRoom\state</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NewMJRoomPlayer.cpp">
+      <Filter>src\NewRoom</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

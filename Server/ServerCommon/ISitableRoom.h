@@ -17,7 +17,7 @@ public:
 	void roomItemDetailVisitor(Json::Value& vOutJsValue)override;
 	bool canStartGame()override ;
 	void update(float fDelta)override;
-	uint8_t canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer ) ;
+	uint8_t canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer ) override;
 	// event function 
 	void playerDoStandUp( ISitableRoomPlayer* pPlayer );
 
@@ -37,6 +37,7 @@ public:
 	void onGameWillBegin()override ;
 	CRobotDispatchStrategy* getRobotDispatchStrage(){ return m_pRobotDispatchStrage ;}
 	bool checkHavePlayerLoseOver(std::vector<uint8_t>& vLoseOverPlayerIdxs);
+	uint8_t getIdxBySessionID(uint32_t nSessionID );
 protected:
 	uint8_t GetFirstInvalidIdxWithState( uint8_t nIdxFromInclude , eRoomPeerState estate );
 private:

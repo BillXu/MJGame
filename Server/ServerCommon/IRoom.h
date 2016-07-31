@@ -84,11 +84,13 @@ public:
 	virtual void roomInfoVisitor(Json::Value& vOutJsValue) = 0 ;
 	virtual void sendRoomPlayersCardInfo(uint32_t nSessionID) = 0 ;
 	virtual void onGameWillBegin(){}
+	virtual void onGameOver(){}
 	virtual void onGameDidEnd();
+	virtual void doStartGame(){};
 
 	void onTimeSave()override;;
-	void goToState(IRoomState* pTargetState );
-	void goToState( uint16_t nStateID );
+	void goToState(IRoomState* pTargetState,Json::Value* jsValue = nullptr );
+	void goToState( uint16_t nStateID ,Json::Value* jsValue = nullptr );
 	void setInitState(IRoomState* pDefaultState );
 	IRoomState* getCurRoomState();
 	IRoomState* getRoomStateByID(uint16_t nStateID );

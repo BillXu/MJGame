@@ -5,15 +5,17 @@ public
 #endif
 enum eMJActType
 {
-	eMJAct_Mo, // 摸牌
+	eMJAct_None,
+	eMJAct_Mo = eMJAct_None, // 摸牌
+	eMJAct_Chi, // 吃
 	eMJAct_Peng,  // 碰牌
 	eMJAct_MingGang,  // 明杠
 	eMJAct_AnGang, // 暗杠
 	eMJAct_BuGang,  // 补杠 
 	eMJAct_BuGang_Pre, // 补杠第一阶段
+	eMJAct_BuGang_Declare = eMJAct_BuGang_Pre, // 声称要补杠 
 	eMJAct_BuGang_Done, //  补杠第二阶段，执行杠牌
 	eMJAct_Hu,  //  胡牌
-	eMJAct_Chi, // 吃
 	eMJAct_Chu, // 出牌
 	eMJAct_Pass, //  过 
 	eMJAct_Max,
@@ -73,10 +75,13 @@ enum eTime
 	eTime_WaitDecideQue = 10, // 等待玩家定缺
 	eTime_DoDecideQue = 2, // 定缺时间
 	eTime_WaitPlayerAct = 80000,  // 等待玩家操作的时间
+	eTime_WaitPlayerChoseAct = eTime_WaitPlayerAct,
 	eTime_DoPlayerMoPai = 1 ,  //  玩家摸牌时间
 	eTime_DoPlayerActChuPai = 2,  // 玩家出牌的时间
 	eTime_DoPlayerAct_Gang = 2, // 玩家杠牌时间
 	eTime_DoPlayerAct_Hu = 3,  // 玩家胡牌的时间
+	eTime_DoPlayerAct_Peng = 2, // 玩家碰牌时间
+	eTime_GameOver = 1, // 游戏结束状态持续时间
 };
 
 #if (C_SHARP)  
@@ -122,9 +127,9 @@ enum eRoomState  // 玩家的状态
 	eRoomState_WaitDecideQue,  // 等待玩家定缺
 	eRoomState_DoDecideQue,  //  玩家定缺
 	eRoomState_DoFetchCard, // 玩家摸牌
-	eRoomState_WaitPlayerAct,  // 等待玩家操作
+	eRoomState_WaitPlayerAct,  // 等待玩家操作 { idx : 0 , exeAct : eMJActType , isWaitChoseAct : 0 , actCard : 23  }
 	eRoomState_DoPlayerAct,  // 玩家操作
-	eRoomState_WaitOtherPlayerAct,  // 等待玩家操作，有人出牌了
+	eRoomState_WaitOtherPlayerAct,  // 等待玩家操作，有人出牌了 { invokerIdx : 0 , card : 0 ,cardFrom : eMJActType , arrNeedIdxs : [2,0,1] } 
 	eRoomState_DoOtherPlayerAct,  // 其他玩家操作了。
 	eRoomState_WaitSupplyCoin , // 等待玩家补充金币
 	eRoomState_WaitPlayerRecharge = eRoomState_WaitSupplyCoin,  //  等待玩家充值

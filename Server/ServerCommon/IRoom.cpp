@@ -415,7 +415,7 @@ void IRoom::onTimeSave( )
 	//}
 }
 
-void IRoom::goToState(IRoomState* pTargetState )
+void IRoom::goToState(IRoomState* pTargetState ,Json::Value* jsValue )
 {
 	//assert(pTargetState != m_pCurRoomState && "go to the same state ? " );
 	if ( pTargetState == m_pCurRoomState)
@@ -425,7 +425,14 @@ void IRoom::goToState(IRoomState* pTargetState )
 	
 	m_pCurRoomState->leaveState() ;
 	m_pCurRoomState = pTargetState ;
-	m_pCurRoomState->enterState(this) ;
+	if ( jsValue )
+	{
+		m_pCurRoomState->enterState(this,*jsValue) ;
+	}
+	else
+	{
+		m_pCurRoomState->enterState(this) ;
+	}
 
 	stMsgRoomEnterNewState msgNewState ;
 	msgNewState.m_fStateDuring = m_pCurRoomState->getStateDuring();
@@ -433,9 +440,9 @@ void IRoom::goToState(IRoomState* pTargetState )
 	//sendRoomMsg(&msgNewState,sizeof(msgNewState)) ;
 }
 
-void IRoom::goToState( uint16_t nStateID )
+void IRoom::goToState( uint16_t nStateID, Json::Value* jsValue )
 {
-	goToState(getRoomStateByID(nStateID)) ;
+	goToState(getRoomStateByID(nStateID),jsValue ) ;
 }
 
 void IRoom::setInitState(IRoomState* pDefaultState )

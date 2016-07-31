@@ -583,3 +583,14 @@ bool ISitableRoom::checkHavePlayerLoseOver(std::vector<uint8_t>& vLoseOverPlayer
 
 	return vLoseOverPlayerIdxs.empty() == false ;
 }
+
+uint8_t ISitableRoom::getIdxBySessionID(uint32_t nSessionID )
+{
+	auto p = getSitdownPlayerBySessionID(nSessionID) ;
+	if ( !p )
+	{
+		return -1 ;
+	}
+
+	return p->getIdx() ;
+}
