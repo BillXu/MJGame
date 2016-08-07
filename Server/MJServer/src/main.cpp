@@ -69,20 +69,66 @@ void RunFunc ( IServerApp* pApp )
 #include "MJRoomPlayer.h"
 #include "MJPeerCardNew.h"
 #include "MJCard.h"
+#include "MJHuPaiInfo.h"
 int main()
 {
-	CMJPeerCardNew tPeer ;
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
+	//CMJHuPaiInfo tInfo ;
+	//std::vector<uint8_t> vCards ;
+	//uint8_t nValue ;
 
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,5);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,1);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,1);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,9);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,4);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,4);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,4);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Feng,1);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Feng,1);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Feng,2);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Feng,3);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Feng,4);
+	//vCards.push_back(nValue);
+
+	//bool b = tInfo.parseHuPaiInfo(vCards);
+	//if ( b )
+	//{
+	//	printf("real hu \n") ;
+	//}
+	//return 0 ;
+	//CMJPeerCardNew tPeer ;
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
+
 	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,3));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,3));
-	tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,3));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
+	////tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,3));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,3));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,3));
 
 	//std::vector<CMJPeerCardNew::stEatPair> vec ;
 	//bool b = tPeer.isCardCanEat(CMJCard::makeCardNumber(eCT_Feng,2),vec) ;
@@ -93,31 +139,31 @@ int main()
 	//	CMJCard::debugSinglCard(ref.nCard[1]);
 	//}
 
-	auto bokt = tPeer.isCardCanAnGang(CMJCard::makeCardNumber(eCT_Feng,2));
-	if ( bokt )
-	{
-		printf("ok \n");
-	}
-	else
-	{
-		printf(" not ok \n");
-	}
+	//auto bokt = tPeer.isCardCanAnGang(CMJCard::makeCardNumber(eCT_Feng,2));
+	//if ( bokt )
+	//{
+	//	printf("ok \n");
+	//}
+	//else
+	//{
+	//	printf(" not ok \n");
+	//}
 
-	tPeer.onPeng(CMJCard::makeCardNumber(eCT_Feng,2));
-	tPeer.debugPeerCardInfo();
+	//tPeer.onPeng(CMJCard::makeCardNumber(eCT_Feng,2));
+	//tPeer.debugPeerCardInfo();
 
-	tPeer.onBuGang(CMJCard::makeCardNumber(eCT_Feng,2),CMJCard::makeCardNumber(eCT_Feng,3));
-	tPeer.debugPeerCardInfo();
+	//tPeer.onBuGang(CMJCard::makeCardNumber(eCT_Feng,2),CMJCard::makeCardNumber(eCT_Feng,3));
+	//tPeer.debugPeerCardInfo();
 
-	std::vector<uint8_t> vec ;
-	tPeer.isHaveAnGangCards(vec) ;
-	printf("ttt-\n");
-	for ( auto& ref : vec )
-	{
-		CMJCard::debugSinglCard(ref) ;
-	}
+	//std::vector<uint8_t> vec ;
+	//tPeer.isHaveAnGangCards(vec) ;
+	//printf("ttt-\n");
+	//for ( auto& ref : vec )
+	//{
+	//	CMJCard::debugSinglCard(ref) ;
+	//}
 
-	tPeer.onAnGang(CMJCard::makeCardNumber(eCT_Feng,3),CMJCard::makeCardNumber(eCT_Wan,8));
+	//tPeer.onAnGang(CMJCard::makeCardNumber(eCT_Feng,3),CMJCard::makeCardNumber(eCT_Wan,8));
 
 	//return 0;
 	//CMJRoomPlayer m_tRoomPlayer ;

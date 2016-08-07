@@ -10,6 +10,7 @@ bool CRoomConfigMgr::OnPaser(CReaderRow& refReaderRow )
 	{
 	case eRoom_MJ_Blood_End:
 	case eRoom_MJ_Blood_River:
+	case eRoom_MJ_Two_Bird_God:
 		{
 			pRoomConfig = new stMJRoomConfig ;
 			((stMJRoomConfig*)pRoomConfig)->nBaseBet = refReaderRow["baseBet"]->IntValue() ;

@@ -18,12 +18,12 @@ public:
 	void prepareState()override ;
 	void roomInfoVisitor(Json::Value& vOutJsValue)override ;
 	void sendRoomPlayersCardInfo(uint32_t nSessionID)override ;
+	void sendRoomInfo(uint32_t nSessionID )override;
 	void setBankerIdx(uint8_t nIdx ){ m_nBankerIdx = nIdx ;}
 	uint8_t getBankerIdx(){ return m_nBankerIdx ;}
 	uint32_t getBaseBet(); // ji chu di zhu ;
 	uint32_t getConfigID()override{ return m_pRoomConfig->nConfigID ;}
-	void sendRoomInfo(uint32_t nSessionID );
-	void onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t& nSubIdx )override ;
+	
 	
 	void onGameWillBegin()override ;
 	void onGameDidEnd()override ;
@@ -50,7 +50,7 @@ public:
 	bool onInformActAboutCard(uint8_t nPlayerIdx , uint8_t nCardNum, uint8_t cardProviderIdx );
 	bool onInformSelfCanActWithCard( uint8_t nPlayerIdx );
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
-	bool onPlayerApplyLeaveRoom(uint32_t nUserUID )override ;
+	bool canPlayerDirectLeave( uint32_t nUID )override ;
 	uint32_t getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime );
 	virtual bool isGameOver();
 	bool getPlayersNeedSupplyCoin(std::vector<uint8_t>& vNeedPlayersIdx);

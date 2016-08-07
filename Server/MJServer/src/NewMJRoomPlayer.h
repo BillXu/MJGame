@@ -17,6 +17,7 @@ public:
 	void onRecievedCard(eMJActType eCardFrom , uint8_t nCard );
 	uint8_t getNewRecievedCard();
 	uint8_t getNewRecievedCardFrom();
+	void getCardInfo( Json::Value& vCardInFoValue );
 protected:
 	CMJPeerCardNew m_tPeerCard ;
 	int32_t m_nGameOffset ;

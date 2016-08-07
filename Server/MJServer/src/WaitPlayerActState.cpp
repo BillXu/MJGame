@@ -9,7 +9,8 @@ void CWaitPlayerAct::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 
 	if ( this->m_isWaitingChoseAct )
 	{
-		startWaitChoseAct(m_nCurPlayerIdx) ;
+		bool isOnlyChu = !(jsTransferData["onlyChu"].isNull() || jsTransferData["onlyChu"].asUInt() == 0) ;
+		startWaitChoseAct(m_nCurPlayerIdx,isOnlyChu) ;
 		return ;
 	}
 	
@@ -192,32 +193,58 @@ bool CWaitPlayerAct::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eS
 		nReqActCard = prealMsg["card"].asUInt();
 	}
 
-	if ( this->m_isWaitingChoseAct == false )
+	uint8_t nRet = 0 ;
+	do 
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
-		return false ;
-	}
+		if ( this->m_isWaitingChoseAct == false )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
+			nRet = 4 ;
+			break;
+		}
 
-	// check the player is valid 
-	auto pRoom = (CNewMJRoom*)m_pRoom ;
-	if ( pRoom->getIdxBySessionID(nSessionID) != m_nCurPlayerIdx )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you are not in room or not the turn you act , curActIdx = %u,so can not respone your act = %u, session id = %u",m_nCurPlayerIdx,nReqActType,nReqActCard) ;
-		return false ;
-	}
-	
-	auto fLeftDuring = getStateDuring();
-	if ( !doExcutingAct((eMJActType)nReqActType,nReqActCard) )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("this act error = %u , card = %u, go on waiting chose, but do not reset time " ,nReqActType,nReqActCard ) ;
-		setStateDuringTime(fLeftDuring) ;
-	}
+		// check the player is valid 
+		auto pRoom = (CNewMJRoom*)m_pRoom ;
+		if ( pRoom->getIdxBySessionID(nSessionID) != m_nCurPlayerIdx )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you are not in room or not the turn you act , curActIdx = %u,so can not respone your act = %u, session id = %u",m_nCurPlayerIdx,nReqActType,nReqActCard) ;
+			nRet = 1 ;
+			break;
+		}
+
+		if ( eMJAct_Pass == nReqActType )
+		{
+			CLogMgr::SharedLogMgr()->PrintLog("player chose pass ,so start waiting agian") ;
+			startWaitChoseAct(m_nCurPlayerIdx,true) ;
+			break;
+		}
+
+		auto fLeftDuring = getStateDuring();
+		if ( !doExcutingAct((eMJActType)nReqActType,nReqActCard) )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("this act error = %u , card = %u, go on waiting chose, but do not reset time " ,nReqActType,nReqActCard ) ;
+			setStateDuringTime(fLeftDuring) ;
+			this->m_isWaitingChoseAct = true ;
+			nRet = 2 ;
+			break;
+		}
+	} while (0);
+
+	Json::Value jsmsback ;
+	jsmsback["ret"] = nRet ;
+	m_pRoom->sendMsgToPlayer(jsmsback,nMsgType,nSessionID) ;
 	return true ;
 }
 
-void CWaitPlayerAct::startWaitChoseAct( uint8_t nPlayerIdx )
+void CWaitPlayerAct::startWaitChoseAct( uint8_t nPlayerIdx , bool isOnlyCanChu )
 {
 	m_nCurPlayerIdx = nPlayerIdx ;
 	this->m_isWaitingChoseAct = true ;
+	this->m_isOnlyCanChu = isOnlyCanChu ;
 	setStateDuringTime(eTime_WaitPlayerChoseAct);
+	if ( !isOnlyCanChu )
+	{
+		auto pRoom = (CNewMJRoom*)m_pRoom ;
+		pRoom->sendPlayerActListOnRecievedCard(m_nCurPlayerIdx);
+	}
 }

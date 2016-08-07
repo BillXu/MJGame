@@ -6,24 +6,22 @@ void CMJPeerCardNew::reset()
 {
 	vecHoldCard.clear();
 	vecPengedCard.clear();
-	vecGangCard.clear();
+	vecMingGangCard.clear();
+	vecAnGangCard.clear();
 	vecEatedCard.clear();
 	vecChuCard.clear();
 }
 
 bool CMJPeerCardNew::init()
 {
-	vecHoldCard.clear();
-	vecPengedCard.clear();
-	vecGangCard.clear();
-	vecEatedCard.clear();
-	vecChuCard.clear();
+	reset();
 	return true ;
 }
 
 void CMJPeerCardNew::addHoldCard(uint8_t nCard )
 {
 	addNumberToVecWithAsc(vecHoldCard,nCard) ;
+	m_isHuPaiInfoDirty = true ;
 }
 
 // check function 
@@ -111,6 +109,7 @@ bool CMJPeerCardNew::isHaveAnGangCards( std::vector<uint8_t>& vAnGangCards )
 		{
 			nFind = 1 ;
 			nCheckCard = ref ;
+			continue;
 		}
 
 		if ( nFind == 4 )
@@ -124,9 +123,36 @@ bool CMJPeerCardNew::isHaveAnGangCards( std::vector<uint8_t>& vAnGangCards )
 	return vAnGangCards.empty() == false ;
 }
 
+bool CMJPeerCardNew::isHaveBuGang( std::vector<uint8_t>& vAnGangCards )
+{
+	for ( auto& ref : vecPengedCard )
+	{
+		auto iter = std::find(vecHoldCard.begin(),vecHoldCard.end(),ref ) ;
+		if ( iter != vecHoldCard.end() )
+		{
+			vAnGangCards.push_back(ref);
+		}
+	}
+	return vAnGangCards.empty() == false ;
+}
+
 bool CMJPeerCardNew::isCardCanHu( uint8_t nCard )
 {
-	return false ;
+	if ( nCard )
+	{
+		addNumberToVecWithAsc(vecHoldCard,nCard) ;
+		auto isHu = ptrHupaiInfo->parseHuPaiInfo(vecHoldCard) ;
+		removeNumberFromVec(vecHoldCard,nCard) ;
+		return isHu ;
+	}
+
+	if ( this->m_isHuPaiInfoDirty )
+	{
+		ptrHupaiInfo->parseHuPaiInfo(vecHoldCard) ;
+		this->m_isHuPaiInfoDirty = false ;
+	}
+	
+	return ptrHupaiInfo->isHu() ;
 }
 
 bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, VEC_EAT_PAIR& vEatPairs )
@@ -207,10 +233,12 @@ bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, VEC_EAT_PAIR& vEatPairs )
 void CMJPeerCardNew::onMoCard( uint8_t nCard )
 {
 	addNumberToVecWithAsc(vecHoldCard,nCard) ;
+	m_isHuPaiInfoDirty = true ;
 }
 
 bool CMJPeerCardNew::onChuCard(uint8_t nCard )
 {
+	m_isHuPaiInfoDirty = true ;
 	return removeNumberFromVec(vecHoldCard,nCard) ;
 }
 
@@ -222,6 +250,7 @@ bool CMJPeerCardNew::onPeng( uint8_t nCard )
 	removeNumberFromVec(vecHoldCard,nCard) ;
 
 	addNumberToVecWithAsc(vecPengedCard,nCard);
+	m_isHuPaiInfoDirty = true ;
 	return true ;
 }
 
@@ -232,9 +261,10 @@ bool CMJPeerCardNew::onMingGang( uint8_t nCard , uint8_t nGangNewCard )
 	removeNumberFromVec(vecHoldCard,nCard) ;
 	removeNumberFromVec(vecHoldCard,nCard) ;
 
-	addNumberToVecWithAsc(vecGangCard,nCard);
+	addNumberToVecWithAsc(vecMingGangCard,nCard);
 
 	addNumberToVecWithAsc(vecHoldCard,nGangNewCard) ;
+	m_isHuPaiInfoDirty = true ;
 	return true ;
 }
 
@@ -243,8 +273,9 @@ bool CMJPeerCardNew::onBuGang( uint8_t nCard , uint8_t nGangNewCard )
 	assert(isCardCanBuGang(nCard) && "you can not Bu gang this card ");
 
 	removeNumberFromVec(vecPengedCard,nCard) ;
-	addNumberToVecWithAsc(vecGangCard,nCard);
+	addNumberToVecWithAsc(vecMingGangCard,nCard);
 	addNumberToVecWithAsc(vecHoldCard,nGangNewCard) ;
+	m_isHuPaiInfoDirty = true ;
 	return true ;
 }
 
@@ -262,9 +293,10 @@ bool CMJPeerCardNew::onAnGang( uint8_t nCard , uint8_t nGangNewCard )
 		}
 	}
 
-	addNumberToVecWithAsc(vecGangCard,nCard);
+	addNumberToVecWithAsc(vecAnGangCard,nCard);
 
 	addNumberToVecWithAsc(vecHoldCard,nGangNewCard) ;
+	m_isHuPaiInfoDirty = true ;
 	return true ;
 }
 
@@ -283,6 +315,7 @@ bool CMJPeerCardNew::onEat(uint8_t nCard , stEatPair& refWithPair )
 	addNumberToVecWithAsc(vecEatedCard,nCard);
 	addNumberToVecWithAsc(vecEatedCard,refWithPair.nCard[0]);
 	addNumberToVecWithAsc(vecEatedCard,refWithPair.nCard[1]);
+	m_isHuPaiInfoDirty = true ;
 	return true ;
 }
 
@@ -298,14 +331,94 @@ bool CMJPeerCardNew::onCardBeRobted( uint8_t nCard )
 	return true ;
 }
 
-bool CMJPeerCardNew::onHu(uint8_t nCard,uint8_t& eFanType , uint16_t& nFanShu )
+bool CMJPeerCardNew::onHu(uint8_t nCard,bool isSelf )
 {
-	nFanShu = 0 ;
-	eFanType = 0 ;
-	return false ;
+	if ( !this->m_isHuPaiInfoDirty && isSelf )
+	{
+		return ptrHupaiInfo->isHu();
+	}
+
+	if ( isSelf )
+	{
+		ptrHupaiInfo->parseHuPaiInfo(vecHoldCard) ;
+	}
+	else
+	{
+		addNumberToVecWithAsc(vecHoldCard,nCard) ;
+		ptrHupaiInfo->parseHuPaiInfo(vecHoldCard) ;
+		if ( ptrHupaiInfo->isHu() == false )
+		{
+			removeNumberFromVec(vecHoldCard,nCard) ;
+		}
+	}
+	return ptrHupaiInfo->isHu();
 }
 
 //  get function 
+void CMJPeerCardNew::getHoldCard(std::vector<uint8_t>& vCards )
+{
+	vCards.assign(vecHoldCard.begin(),vecHoldCard.end()) ;
+}
+
+void CMJPeerCardNew::getShowedCard(std::vector<uint8_t>& vCards )
+{
+	vCards.assign(vecEatedCard.begin(),vecEatedCard.end());
+	// add peng 
+	for ( auto& ref : vecPengedCard )
+	{
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+	}
+
+	// add gang 
+	for ( auto& ref : vecAnGangCard )
+	{
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+	}
+
+	// add gang 
+	for ( auto& ref : vecMingGangCard )
+	{
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+		vCards.push_back(ref);
+	}
+}
+
+void CMJPeerCardNew::getChuedCard(std::vector<uint8_t>& vCards )
+{
+	vCards.assign(vecChuCard.begin(),vecChuCard.end()) ;
+}
+
+void CMJPeerCardNew::getPengedCard(std::vector<uint8_t>& vCards )
+{
+	vCards.assign(vecPengedCard.begin(),vecPengedCard.end()) ;
+}
+
+void CMJPeerCardNew::getGangCard( std::vector<uint8_t>& vCards )
+{
+	std::vector<uint8_t> vecTemp ;
+	getAnGang(vecTemp) ;
+	getMingGang(vCards) ;
+	vCards.insert(vCards.end(),vecTemp.begin(),vecTemp.end()) ;
+	std::sort(vCards.begin(),vCards.end());
+}
+
+void CMJPeerCardNew::getMingGang( std::vector<uint8_t>& vCards )
+{
+	vCards.assign(vecMingGangCard.begin(),vecMingGangCard.end());
+}
+
+void CMJPeerCardNew::getAnGang(std::vector<uint8_t>& vCards)
+{
+	vCards.assign(vecAnGangCard.begin(),vecAnGangCard.end());
+}
+
 bool CMJPeerCardNew::addNumberToVecWithAsc(std::vector<uint8_t>& vecCards, uint8_t& nAddCard )
 {
 	auto iter = std::find_if(vecCards.begin(),vecCards.end(),[nAddCard]( uint8_t& ref ){ if ( ref >= nAddCard ) return true ; return false ; } );
@@ -342,8 +455,11 @@ void CMJPeerCardNew::debugPeerCardInfo()
 	printf("≈ˆ≈∆£∫----------------\n");
 	debugVecCardInfo(vecPengedCard) ;
 
-	printf("∏‹≈∆£∫-------------\n") ;
-	debugVecCardInfo(vecGangCard) ;
+	printf("∏‹≈∆ ming£∫-------------\n") ;
+	debugVecCardInfo(vecMingGangCard) ;
+
+	printf("∏‹≈∆ An£∫-------------\n") ;
+	debugVecCardInfo(vecAnGangCard) ;
 
 	printf("≥‘≈∆£∫------------\n");
 	debugVecCardInfo(vecEatedCard) ;
@@ -366,3 +482,4 @@ bool CMJPeerCardNew::isHoldCardExist(uint8_t nCard )
 	auto iter = std::find(vecHoldCard.begin(),vecHoldCard.end(),nCard) ;
 	return iter != vecHoldCard.end() ;
 }
+

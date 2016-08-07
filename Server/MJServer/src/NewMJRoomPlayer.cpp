@@ -41,3 +41,43 @@ uint8_t CNewMJRoomPlayer::getNewRecievedCardFrom()
 {
 	return m_eNewRecivedCardFrom ;
 }
+
+void CNewMJRoomPlayer::getCardInfo( Json::Value& vCardInFoValue )
+{
+	Json::Value vAnPai ;
+	Json::Value vMingPai ;
+	Json::Value vHuPai ;
+	Json::Value vChuPai ;
+
+	std::vector<uint8_t> vCards ;
+
+	// hold card
+	m_tPeerCard.getHoldCard(vCards);
+	for (auto& ref : vCards )
+	{
+		vAnPai[vAnPai.size()] = ref ;
+	}
+
+	// showed card ;
+	vCards.clear() ;
+	m_tPeerCard.getShowedCard(vCards);
+	for (auto& ref : vCards )
+	{
+		vMingPai[vAnPai.size()] = ref ;
+	}
+
+	// chu card ;
+	vCards.clear() ;
+	m_tPeerCard.getChuedCard(vCards);
+	for (auto& ref : vCards )
+	{
+		vChuPai[vAnPai.size()] = ref ;
+	}
+
+	vCardInFoValue["idx"] = getIdx() ;
+	vCardInFoValue["anPai"] = vAnPai ;
+	vCardInFoValue["mingPai"] = vMingPai ;
+	vCardInFoValue["huPai"] = vHuPai ;
+	vCardInFoValue["chuPai"] = vChuPai ;
+	vCardInFoValue["queType"] = eCT_None;
+}

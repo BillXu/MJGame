@@ -216,6 +216,15 @@
     <ClInclude Include="src\NewMJRoomPlayer.h">
       <Filter>src\NewRoom</Filter>
     </ClInclude>
+    <ClInclude Include="src\MJHuPaiInfo.h">
+      <Filter>src\Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJNewCheckFanXing.h">
+      <Filter>src\Card</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TwoBirdGodFanxing.h">
+      <Filter>src\Card</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -355,6 +364,15 @@
     </ClCompile>
     <ClCompile Include="src\NewMJRoomPlayer.cpp">
       <Filter>src\NewRoom</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJHuPaiInfo.cpp">
+      <Filter>src\Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TwoBirdGodFanxing.cpp">
+      <Filter>src\Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJNewCheckFanXing.cpp">
+      <Filter>src\Card</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

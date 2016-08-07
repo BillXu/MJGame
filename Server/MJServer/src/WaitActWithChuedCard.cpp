@@ -127,6 +127,7 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 			jsTran["exeAct"] = eMJAct_Mo ; 
 			jsTran["isWaitChoseAct"] = false ;
 			jsTran["actCard"] = 0 ;
+			jsTran["onlyChu"] = 0 ;
 			pRoom->goToState(eRoomState_WaitPlayerAct,&jsTran);
 			return ;
 		}
@@ -147,6 +148,7 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 			jsTran["exeAct"] = eMJAct_Chu ; 
 			jsTran["isWaitChoseAct"] = true ;
 			jsTran["actCard"] = 0 ;
+			jsTran["onlyChu"] = 1 ;
 			pRoom->goToState(eRoomState_WaitPlayerAct,&jsTran);
 			return  ;
 		}
@@ -190,54 +192,82 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		nReqActCard = prealMsg["card"].asUInt();
 	}
 
-	if ( this->m_isWaitingChoseAct == false )
+	uint8_t nRet = 0 ;
+	do 
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
-		return false ;
-	}
+		if ( this->m_isWaitingChoseAct == false )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
+			nRet = 4 ;
+			break;
+		}
 
-	auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
-	if ( idx > m_pRoom->getSeatCount() )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you may not in this room , so can not do this act, sessionid = %u , act = %u",nSessionID,nReqActType) ;
-		return false ;
-	}
+		auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
+		if ( idx > m_pRoom->getSeatCount() )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you may not in this room , so can not do this act, sessionid = %u , act = %u",nSessionID,nReqActType) ;
+			nRet = 1 ;
+			break;
+		}
 
-	if ( nReqActCard != m_nTargetCard )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you req card is invalid , so can not do this act, sessionid = %u , card = %u, targetCard = %u",nSessionID,nReqActCard,m_nTargetCard);
-		return false ;
-	}
+		if ( nReqActCard != m_nTargetCard )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you req card is invalid , so can not do this act, sessionid = %u , card = %u, targetCard = %u",nSessionID,nReqActCard,m_nTargetCard);
+			nRet = 3 ;
+			break;
+		}
 
-	auto iter = std::find_if(m_vWaitingObject.begin(),m_vWaitingObject.end(),[idx](WAIT_PEER_INFO_PTR& peer){ return peer->nIdx == idx ;} ) ;
-	if ( iter == m_vWaitingObject.end() )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you are not in the wait list") ;
-		return false;
-	}
+		auto iter = std::find_if(m_vWaitingObject.begin(),m_vWaitingObject.end(),[idx](WAIT_PEER_INFO_PTR& peer){ return peer->nIdx == idx ;} ) ;
+		if ( iter == m_vWaitingObject.end() )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you are not in the wait list") ;
+			nRet = 1 ;
+			break;
+		}
 
-	if ( (*iter)->isCanDoAct((eMJActType)nReqActType) == false )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you can not do this act , act type = %u, idx = %u",nReqActType,idx) ;
-		return false ;
-	}
+		if ( (*iter)->isCanDoAct((eMJActType)nReqActType) == false )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you can not do this act , act type = %u, idx = %u",nReqActType,idx) ;
+			nRet = 2 ;
+			break;
+		}
 
-	if ( (*iter)->nChosedAct != eMJAct_Max )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you already chosed act = %u , can not chose twice , now = %u",(*iter)->nChosedAct,nReqActType) ;
-		return false ;
-	}
+		if ( (*iter)->nChosedAct != eMJAct_Max )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you already chosed act = %u , can not chose twice , now = %u",(*iter)->nChosedAct,nReqActType) ;
+			nRet = 4 ;
+			break;
+		}
 
-	(*iter)->nChosedAct = (eMJActType)nReqActType ;
-	if ( m_nCurMaxChosedActPriority < nReqActType )
-	{
-		m_nCurMaxChosedActPriority = (eMJActType)nReqActType ;
-	}
+		if ( eMJAct_Chi == nReqActType )
+		{
+			auto jsEatWith = prealMsg["eatWith"];
+			if ( jsEatWith.isArray() == false || jsEatWith.size() != 2 )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("you do eat act ,but do not send 2 eat with card session id =%u",nSessionID) ;
+				nRet = 3 ;
+				break;
+			}
 
-	if ( isWaitingEnd() )
-	{
-		doExcutingAct();
-	}
+			(*iter)->nWithCardA = jsEatWith[0u].asUInt();
+			(*iter)->nWithCardB = jsEatWith[1u].asUInt();
+		}
+
+		(*iter)->nChosedAct = (eMJActType)nReqActType ;
+		if ( m_nCurMaxChosedActPriority < nReqActType )
+		{
+			m_nCurMaxChosedActPriority = (eMJActType)nReqActType ;
+		}
+
+		if ( isWaitingEnd() )
+		{
+			doExcutingAct();
+		}
+	} while (0);
+	
+	Json::Value jsmsgBack ;
+	jsmsgBack["ret"] = nRet ;
+	m_pRoom->sendMsgToPlayer(jsmsgBack,nMsgType,nSessionID) ;
 	// omit the msg which is not player act ;
 	// check the player is in waiting list ;
 	// check the player is already chosed act ;

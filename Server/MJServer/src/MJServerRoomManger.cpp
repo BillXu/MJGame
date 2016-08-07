@@ -7,7 +7,7 @@
 #include "PrivateRoom.h"
 #include "MJRoom.h"
 #include "MJRoomBattleEnd.h"
-
+#include "NewMJRoom.h"
 void CMJRoomManager::init(IServerApp* svrApp)
 {
 	IRoomManager::init(svrApp);
@@ -41,13 +41,15 @@ IRoomInterface* CMJRoomManager::doCreateInitedRoomObject(uint32_t nRoomID,bool i
 IRoomInterface* CMJRoomManager::doCreateRoomObject(eRoomType reqSubRoomType,bool isPrivateRoom)
 {
 	IRoomInterface* pRoom = nullptr ;
+	//CLogMgr::SharedLogMgr()->ErrorLog("always create er ren queshen , temp") ;
+	//return pRoom = new CNewMJRoom() ;
 	switch (reqSubRoomType)
 	{
 	case eRoom_MJ_Blood_River:
 		if ( !isPrivateRoom )
 		{
 
-			pRoom = new CMJRoom ;
+			pRoom = new CMJRoom() ;
 		}
 		else
 		{
@@ -58,11 +60,22 @@ IRoomInterface* CMJRoomManager::doCreateRoomObject(eRoomType reqSubRoomType,bool
 		if ( !isPrivateRoom )
 		{
 
-			pRoom = new CMJRoomBattleEnd ;
+			pRoom = new CMJRoomBattleEnd() ;
 		}
 		else
 		{
 			pRoom = new CPrivateRoom<CMJRoomBattleEnd> ;
+		}
+		break;
+	case eRoom_MJ_Two_Bird_God:
+		if ( !isPrivateRoom )
+		{
+
+			pRoom = new CNewMJRoom() ;
+		}
+		else
+		{
+			pRoom = new CPrivateRoom<CNewMJRoom> ;
 		}
 		break;
 	default:

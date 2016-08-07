@@ -26,7 +26,11 @@ void ISitableRoomPlayer::onGameEnd()
 	{
 		--nNewPlayerHaloWeight;
 	}
-	setState(eRoomPeer_WaitNextGame) ;
+
+	if ( eRoomPeer_Ready != getState() )
+	{
+		setState(eRoomPeer_WaitNextGame) ;
+	}
 
 	if ( getGameOffset() > (int32_t)0 )
 	{

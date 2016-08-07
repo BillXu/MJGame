@@ -341,11 +341,14 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			}
 			else
 			{
+				//CLogMgr::SharedLogMgr()->ErrorLog("temp set enter er ren que shen %s",__FUNCTION__);
+				//pRet->nTargetID = 7 ;
 				auto pConfig = m_pConfigMgr->GetConfigByConfigID(pRet->nTargetID) ;
 				if ( pConfig == nullptr )
 				{
 					msgBack.nRet = 2 ;
 					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+					CLogMgr::SharedLogMgr()->ErrorLog("svr do not have room config with id = %u",pRet->nTargetID );
 					break; 
 				}
 

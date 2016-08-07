@@ -1,7 +1,9 @@
 #pragma once
 #include "ISitableRoom.h"
 #include "MJCard.h"
+#include "TwoBirdGodFanxing.h"
 struct stMJRoomConfig ;
+class CNewMJRoomPlayer ;
 class CNewMJRoom
 	:public ISitableRoom
 {
@@ -9,17 +11,23 @@ public:
 	CNewMJRoom();
 	bool onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig, uint32_t nRoomID , Json::Value& vJsValue) override;
 	void serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig,uint32_t nRoomID , Json::Value& vJsValue )override;
+	uint32_t getConfigID()override;
 	void prepareState()override ;
+	void roomInfoVisitor(Json::Value& vOutJsValue)override;
+	void sendRoomInfo(uint32_t nSessionID )override;
+	void sendRoomPlayersCardInfo(uint32_t nSessionID)override ;
 	bool canStartGame()override ;
 	uint32_t coinNeededToSitDown()override ;
 	ISitableRoomPlayer* doCreateSitableRoomPlayer()override;
+	bool canPlayerDirectLeave( uint32_t nUID )override;
 
 	uint32_t getBaseBet(); // ji chu di zhu ;
 	void doStartGame()override ;
 	void onGameOver()override ;
 	void onGameWillBegin()override ;
 	void onGameDidEnd()override ;
-	uint8_t getRoomType()override{ return eRoom_MJ ;}
+	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override;
+	uint8_t getRoomType()override{ return eRoom_MJ_Two_Bird_God ;}
 
 	uint8_t getBankerIdx();
 	bool isAnyOneNeedTheCard( uint8_t nCardOwner , uint8_t nCard, eMJActType eCardFrom ,Json::Value& jsArrayNeedIdx );
@@ -27,6 +35,7 @@ public:
 	uint8_t getNextActIdx( uint8_t nCurActIdx );
 	bool isGameOver();
 	void sendActListToPlayerAboutCard(uint8_t nPlayerIdx , std::list<eMJActType>& vList , uint8_t nCard );
+	void sendPlayerActListOnRecievedCard( uint8_t nCurPlayerIdx );
 
 	// mj room function 
 	bool onPlayerEat( uint8_t nActPlayerIdx  , uint8_t nInvokePlayerIdx ,uint8_t nTargetCard , uint8_t nWithCardA , uint8_t nWithCardB );
@@ -46,9 +55,15 @@ public:
 	bool canPlayerHu(uint8_t nActPlayerIdx , uint8_t nCard );
 	bool canPlayerEat(uint8_t nActPlayerIdx , uint8_t nCard );
 protected:
+	bool getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvoker, uint8_t nTargetCard, uint8_t& nFanxing, uint8_t& nFanshu );
+protected:
 	uint32_t getHuWinCoin(uint8_t nFanXing,uint16_t nFanshu ,bool isSelfHu );
+	void prepareCards()override;
 protected:
 	CMJCard m_tPoker ;
 	stMJRoomConfig* m_pRoomConfig ;
 	uint8_t m_nBankerIdx ;
+	uint8_t m_nCurIdx ;
+private:
+	static CTwoBirdFanxingChecker m_tTowBirdFanxingChecker ;
 };

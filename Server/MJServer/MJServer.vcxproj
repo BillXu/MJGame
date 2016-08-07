@@ -127,6 +127,8 @@
     <ClInclude Include="..\ServerCommon\SystemRoom.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
     <ClInclude Include="src\GameOverState.h" />
+    <ClInclude Include="src\MJHuPaiInfo.h" />
+    <ClInclude Include="src\MJNewCheckFanXing.h" />
     <ClInclude Include="src\MJPeerCardNew.h" />
     <ClInclude Include="src\MJRoomBattleEnd.h" />
     <ClInclude Include="src\MJWaitDecideQueState.h" />
@@ -146,6 +148,7 @@
     <ClInclude Include="src\NewMJRoom.h" />
     <ClInclude Include="src\NewMJRoomPlayer.h" />
     <ClInclude Include="src\StartGameState.h" />
+    <ClInclude Include="src\TwoBirdGodFanxing.h" />
     <ClInclude Include="src\WaitActWithChuedCard.h" />
     <ClInclude Include="src\WaitPlayerActState.h" />
     <ClInclude Include="src\WaitStartState.h" />
@@ -181,6 +184,8 @@
     <ClCompile Include="src\MJCard.cpp" />
     <ClCompile Include="src\MJExchangeCardState.cpp" />
     <ClCompile Include="src\MJGameStartState.cpp" />
+    <ClCompile Include="src\MJHuPaiInfo.cpp" />
+    <ClCompile Include="src\MJNewCheckFanXing.cpp" />
     <ClCompile Include="src\MJPeerCard.cpp" />
     <ClCompile Include="src\MJPeerCardNew.cpp" />
     <ClCompile Include="src\MJRoom.cpp" />
@@ -194,6 +199,7 @@
     <ClCompile Include="src\NewMJRoom.cpp" />
     <ClCompile Include="src\NewMJRoomPlayer.cpp" />
     <ClCompile Include="src\StartGameState.cpp" />
+    <ClCompile Include="src\TwoBirdGodFanxing.cpp" />
     <ClCompile Include="src\WaitActWithChuedCard.cpp" />
     <ClCompile Include="src\WaitPlayerActState.cpp" />
     <ClCompile Include="src\WaitStartState.cpp" />
