@@ -11,11 +11,13 @@ void CMJWaitPlayerActState::enterState(IRoom* ptRoom)
 	auto ppPlayer = (CMJRoomPlayer*)pRoom->getPlayerByIdx(m_vWaitIdxs.front().nIdx) ;
 	uint8_t nNewCard = ppPlayer->getNewFetchCard() ;
 	auto firt = m_vWaitIdxs.front();
-	if ( firt.nMaxActExePrio != eMJAct_Chu && ppPlayer->updateSelfOperateCards() )
-	{
-		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , self need the card = %u" , m_vWaitIdxs.front().nIdx,nNewCard) ;
-		pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
-	}
+	//if ( firt.nMaxActExePrio != eMJAct_Chu && ppPlayer->updateSelfOperateCards() )
+	//{
+	//	CLogMgr::SharedLogMgr()->PrintLog("idx = %u , self need the card = %u" , m_vWaitIdxs.front().nIdx,nNewCard) ;
+	//	pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
+	//}
+	ppPlayer->updateSelfOperateCards();
+	pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
 } 
 
 bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)

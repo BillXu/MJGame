@@ -54,6 +54,7 @@ public:
 	bool canPlayerMingGang(uint8_t nActlayerIdx ,uint8_t nCard );
 	bool canPlayerHu(uint8_t nActPlayerIdx , uint8_t nCard );
 	bool canPlayerEat(uint8_t nActPlayerIdx , uint8_t nCard );
+	bool canPlayerEatWith(uint8_t nActPlayerIdx , uint8_t ACard, uint8_t nWithB );
 protected:
 	bool getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvoker, uint8_t nTargetCard, uint8_t& nFanxing, uint8_t& nFanshu );
 protected:

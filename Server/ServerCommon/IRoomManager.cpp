@@ -352,19 +352,28 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 					break; 
 				}
 
-				if ( pRet->tPlayerData.nCoin < pConfig->nEnterLowLimit && pConfig->nEnterLowLimit != 0 )
+
+				if ( pRet->tPlayerData.nPlayerType == ePlayer_Robot )
 				{
-					msgBack.nRet = 3 ;
-					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
-					break; 
+					CLogMgr::SharedLogMgr()->ErrorLog("robot can enter any room, don't check limit");
+				}
+				else
+				{
+					if ( pRet->tPlayerData.nCoin < pConfig->nEnterLowLimit && pConfig->nEnterLowLimit != 0 )
+					{
+						msgBack.nRet = 3 ;
+						sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+						break; 
+					}
+
+					if ( pRet->tPlayerData.nCoin > pConfig->nEnterTopLimit && pConfig->nEnterTopLimit != 0 )
+					{
+						msgBack.nRet = 4 ;
+						sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+						break; 
+					}
 				}
 
-				if ( pRet->tPlayerData.nCoin > pConfig->nEnterTopLimit && pConfig->nEnterTopLimit != 0 )
-				{
-					msgBack.nRet = 4 ;
-					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
-					break; 
-				}
 
 				VEC_INT vSysRooms  ;
 				getSystemRooms(pRet->nTargetID,vSysRooms) ;

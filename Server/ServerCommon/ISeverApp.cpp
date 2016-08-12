@@ -124,7 +124,7 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		//#ifdef __DEBUG
 		char pLog[1024] = { 0 };
 		memcpy(pLog,pBuffer,pRet->nJsLen);
-		printf("rec : %s\n",pLog);
+		CLogMgr::SharedLogMgr()->PrintLog("sessionID = %u rec : %s",pData->nSessionID,pLog);
 		//#endif // __DEBUG
 
 		Json::Reader reader ;

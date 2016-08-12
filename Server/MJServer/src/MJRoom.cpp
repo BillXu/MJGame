@@ -746,16 +746,27 @@ bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8
 bool CMJRoom::onInformSelfCanActWithCard( uint8_t nPlayerIdx )
 {
 	auto pp = (CMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
-	Json::Value jsActArray ;
-	if ( !pp->getOperateListJoson(jsActArray) )
+	if ( pp == nullptr )
 	{
+		printf( "idx = %u player is null , on inform selfAct \n ",nPlayerIdx );
 		return false ;
 	}
 
-	Json::Value passAct ;
-	passAct["act"] = eMJAct_Pass ;
-	passAct["cardNum"] = pp->getNewFetchCard();
-	jsActArray[jsActArray.size()] = passAct ;
+	Json::Value jsActArray ;
+	if ( !pp->getOperateListJoson(jsActArray) )
+	{
+		Json::Value passAct ;
+		passAct["act"] = eMJAct_Chu ;
+		passAct["cardNum"] = pp->getNewFetchCard();
+		jsActArray[jsActArray.size()] = passAct ;
+	}
+	else 
+	{
+		Json::Value passAct ;
+		passAct["act"] = eMJAct_Pass ;
+		passAct["cardNum"] = pp->getNewFetchCard();
+		jsActArray[jsActArray.size()] = passAct ;
+	}
 
 	Json::Value jsmsg ;
 	jsmsg["acts"] = jsActArray ;

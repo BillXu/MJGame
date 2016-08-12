@@ -212,7 +212,7 @@ void CNewMJRoom::prepareCards()
 
 	uint8_t nDice = rand() % getSeatCount() ;
 	m_tPoker.shuffle();
-#define __test 
+//#define __test 
 #ifndef __test
 	for ( uint8_t nIdx = 0; nIdx < getSeatCount() ; ++nIdx,++nDice )
 	{
@@ -295,7 +295,7 @@ void CNewMJRoom::onGameOver()
 	}
 	msg["players"] = msgArray ;
 	sendRoomMsg(msg,MSG_ROOM_GAME_OVER);
-
+	CLogMgr::SharedLogMgr()->PrintLog("send game over msg , %u ", MSG_ROOM_GAME_OVER);
 	ISitableRoom::onGameOver() ;
 }
 
@@ -543,6 +543,11 @@ bool CNewMJRoom::onPlayerEat( uint8_t nActPlayerIdx  , uint8_t nInvokePlayerIdx 
 		jseatwith[jseatwith.size()] = nWithCardB;
 		jsmsg["eatWith"] = jseatwith ;
 		sendRoomMsg(jsmsg,MSG_ROOM_ACT);
+		CLogMgr::SharedLogMgr()->PrintLog("do send ³Ô invoke idx = %u ",nInvokePlayerIdx);
+	}
+	else
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("do eat act error invoke idx = %u ",nInvokePlayerIdx);
 	}
 	return bRet ;
 }
@@ -905,6 +910,31 @@ bool CNewMJRoom::canPlayerEat(uint8_t nActlayerIdx , uint8_t nCard )
 	}
 	CMJPeerCardNew::VEC_EAT_PAIR vPair ;
 	return pp->getMJPeerCard()->isCardCanEat(nCard,vPair);
+}
+
+bool CNewMJRoom::canPlayerEatWith(uint8_t nActPlayerIdx , uint8_t ACard, uint8_t nWithB )
+{
+	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
+	if ( !pp )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to check Eat with ?",nActPlayerIdx );
+		return false ;
+	}
+	std::vector<uint8_t> vecHold ;
+	pp->getMJPeerCard()->getHoldCard(vecHold);
+	auto iter = std::find(vecHold.begin(),vecHold.end(),ACard );
+	if ( iter == vecHold.end() )
+	{
+		return false ;
+	}
+
+	iter = std::find(vecHold.begin(),vecHold.end(),nWithB );
+	if ( iter == vecHold.end() )
+	{
+		return false ;
+	}
+
+	return true ;
 }
 
 uint32_t CNewMJRoom::getHuWinCoin(uint8_t nFanXing,uint16_t nFanshu ,bool isSelfHu )

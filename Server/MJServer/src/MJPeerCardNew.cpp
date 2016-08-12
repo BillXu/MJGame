@@ -157,6 +157,12 @@ bool CMJPeerCardNew::isCardCanHu( uint8_t nCard )
 
 bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, VEC_EAT_PAIR& vEatPairs )
 {
+	auto carType = CMJCard::parseCardType(nCard);
+	if ( carType == eCT_Feng || eCT_Jian == carType )
+	{
+		return false ;
+	}
+
 	VEC_EAT_PAIR vecCandinate ;
 	// AB X
 	stEatPair p ;
@@ -174,7 +180,7 @@ bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, VEC_EAT_PAIR& vEatPairs )
 	p.nCard[1] = nCard + 2 ;
 	vecCandinate.push_back(p) ;
 
-	auto carType = CMJCard::parseCardType(nCard);
+	/*auto carType = CMJCard::parseCardType(nCard);
 	if ( carType == eCT_Feng )
 	{
 		auto faceNu = CMJCard::parseCardValue(nCard) ;
@@ -206,7 +212,7 @@ bool CMJPeerCardNew::isCardCanEat( uint8_t nCard, VEC_EAT_PAIR& vEatPairs )
 			p.nCard[1] = CMJCard::makeCardNumber(eCT_Feng,2); ;
 			vecCandinate.push_back(p) ;
 		}
-	}
+	}*/
 
 	// check invalid 
 	for ( auto& ref : vecCandinate )
@@ -239,6 +245,7 @@ void CMJPeerCardNew::onMoCard( uint8_t nCard )
 bool CMJPeerCardNew::onChuCard(uint8_t nCard )
 {
 	m_isHuPaiInfoDirty = true ;
+	vecChuCard.push_back(nCard) ; // must not sort , it deponed on time , player chu  ;
 	return removeNumberFromVec(vecHoldCard,nCard) ;
 }
 
@@ -310,6 +317,7 @@ bool CMJPeerCardNew::onEat(uint8_t nCard , stEatPair& refWithPair )
 		return false ;
 	}
 	vecHoldCard.erase(iter0) ;
+	iter1 = std::find(vecHoldCard.begin(),vecHoldCard.end(),refWithPair.nCard[1]) ;
 	vecHoldCard.erase(iter1) ;
 
 	addNumberToVecWithAsc(vecEatedCard,nCard);
@@ -324,7 +332,7 @@ bool CMJPeerCardNew::onCardBeRobted( uint8_t nCard )
 	auto iter = std::find(vecChuCard.begin(),vecChuCard.end(),nCard) ;
 	if ( iter == vecChuCard.end() )
 	{
-		printf("you don't chu card = %u , how can be robot",nCard );
+		printf("you don't chu card = %u , how can be robot\n",nCard );
 		return false ;
 	}
 	vecChuCard.erase(iter) ;

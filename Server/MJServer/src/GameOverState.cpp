@@ -4,6 +4,7 @@
 void CGameOverState::enterState(IRoom* pRoom )
 {
 	IRoomState::enterState(pRoom) ;
+	CLogMgr::SharedLogMgr()->SystemLog("进入游戏结束状态 ") ;
 	pRoom->onGameOver();
 	setStateDuringTime(eTime_GameOver);
 }

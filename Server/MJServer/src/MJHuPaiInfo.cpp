@@ -107,12 +107,17 @@ bool CMJHuPaiInfo::getAnZiFromCards( VEC_CARD& vCards, VEC_CARD& vOutAnZi )
 	
 bool CMJHuPaiInfo::getShunZiFromCards( VEC_CARD& vCards, VEC_SHUN& vOutShunZi )
 {
-	getFengShunZiFromCards(vCards,vOutShunZi);
+	//getFengShunZiFromCards(vCards,vOutShunZi);
 
 	for ( uint8_t nIdx = 0 ; (uint8_t)(nIdx + 2) < vCards.size() ; ++nIdx )
 	{
 		uint8_t nV0 = vCards[nIdx] ;
 		if ( nV0 == 0 )
+		{
+			continue;
+		}
+
+		if ( CMJCard::parseCardType(nV0) == eCT_Feng || CMJCard::parseCardType(nV0) == eCT_Jian )
 		{
 			continue;
 		}

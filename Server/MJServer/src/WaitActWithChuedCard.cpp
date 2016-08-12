@@ -34,6 +34,7 @@ void CWaitActWithChuedCard::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 		m_vWaitingObject.push_back(peer) ;
 		peer->nIdx = pPlayerIdx ;
 		peer->vCanActList.push_back(eMJAct_Pass) ;
+		peer->nExpectedMaxAct = eMJAct_None ;
 		if ( eMJAct_BuGang_Declare == m_eCardFrom )
 		{
 			peer->nExpectedMaxAct = eMJAct_Hu ;
@@ -49,6 +50,7 @@ void CWaitActWithChuedCard::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 			// check ming gang ;
 			if ( mjRoom->canPlayerMingGang(pPlayerIdx,m_nTargetCard) )
 			{
+				peer->nExpectedMaxAct = eMJAct_MingGang ;
 				peer->vCanActList.push_back(eMJAct_MingGang) ;
 			}
 		}
@@ -63,6 +65,10 @@ void CWaitActWithChuedCard::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 		// check chi ;
 		if ( mayEatIdx == pPlayerIdx && mjRoom->canPlayerEat(pPlayerIdx,m_nTargetCard) )
 		{
+			if ( peer->nExpectedMaxAct < eMJAct_Chi )
+			{
+				peer->nExpectedMaxAct = eMJAct_Chi ;
+			}
 			peer->vCanActList.push_back(eMJAct_Chi) ;
 		}
 	}
@@ -120,6 +126,11 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 				return  ;
 			}
 
+			if ( pRoom->isGameOver() )
+			{
+				pRoom->goToState(eRoomState_GameEnd);
+				return ;;
+			}
 			// common chu pai , direct go to next player act ;
 			auto nNextIdx = pRoom->getNextActIdx(m_nInvokeIdx);
 			Json::Value jsTran ;
@@ -141,7 +152,7 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 		}
 
 		// actor not chose hu , so then must go to chu pai state 
-		if ( eMJAct_Chu == m_eCardFrom && m_vWaitingObject.size() == 1 && m_vWaitingObject.front()->nChosedAct != eMJAct_Hu )
+		if ( m_vWaitingObject.size() >= 1 && m_vWaitingObject.front()->nChosedAct != eMJAct_Hu )
 		{
 			Json::Value jsTran ;
 			jsTran["idx"] = m_vWaitingObject.front()->nIdx ;
@@ -163,6 +174,12 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 				m_nMaxActedIdx = nNextIdx ;
 				CLogMgr::SharedLogMgr()->PrintLog("already in wait list idx = %u , gon find",nNextIdx) ;
 				continue;
+			}
+
+			if ( pRoom->isGameOver() )
+			{
+				pRoom->goToState(eRoomState_GameEnd);
+				return ;;
 			}
 
 			Json::Value jsTran ;
@@ -249,6 +266,14 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 				break;
 			}
 
+			auto pMJRoom = (CNewMJRoom*)m_pRoom ;
+			if ( !pMJRoom->canPlayerEatWith(idx,jsEatWith[0u].asUInt(),jsEatWith[1u].asUInt()) )
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("you do eat act ,but do not have this two card eat with card session id =%u",nSessionID) ;
+				nRet = 3 ;
+				break;
+			}
+
 			(*iter)->nWithCardA = jsEatWith[0u].asUInt();
 			(*iter)->nWithCardB = jsEatWith[1u].asUInt();
 		}
@@ -303,6 +328,7 @@ bool CWaitActWithChuedCard::doExcutingAct()
 	{
 		m_nMaxActedIdx = m_nInvokeIdx ;
 		setStateDuringTime(0.01f) ;
+		CLogMgr::SharedLogMgr()->PrintLog("all body give up about this card operation") ;
 		return true ;
 	}
 	
@@ -318,7 +344,12 @@ bool CWaitActWithChuedCard::doExcutingAct()
 		{
 		case eMJAct_Chi:
 			{
-				pRoom->onPlayerEat(ref->nIdx,m_nInvokeIdx,m_nTargetCard,ref->nWithCardA,ref->nWithCardB);
+				auto Ret = pRoom->onPlayerEat(ref->nIdx,m_nInvokeIdx,m_nTargetCard,ref->nWithCardA,ref->nWithCardB);
+				if ( Ret == false )
+				{
+					CLogMgr::SharedLogMgr()->ErrorLog("you do eat act ,but can not eat with card = %u , = %u",ref->nWithCardA,ref->nWithCardB) ;
+					return false ;
+				}
 				setStateDuringTime(eTime_DoPlayerAct_Peng);
 			}
 			break ;

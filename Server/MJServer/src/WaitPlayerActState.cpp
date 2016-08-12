@@ -6,7 +6,7 @@ void CWaitPlayerAct::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 	IRoomState::enterState(pRoom,jsTransferData) ;
 	m_isWaitingChoseAct = jsTransferData["isWaitChoseAct"].asBool();
 	m_nCurPlayerIdx = jsTransferData["idx"].asUInt();
-
+	m_nActCard = 0 ;
 	if ( this->m_isWaitingChoseAct )
 	{
 		bool isOnlyChu = !(jsTransferData["onlyChu"].isNull() || jsTransferData["onlyChu"].asUInt() == 0) ;
@@ -209,6 +209,13 @@ bool CWaitPlayerAct::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eS
 		{
 			CLogMgr::SharedLogMgr()->ErrorLog("you are not in room or not the turn you act , curActIdx = %u,so can not respone your act = %u, session id = %u",m_nCurPlayerIdx,nReqActType,nReqActCard) ;
 			nRet = 1 ;
+			break;
+		}
+
+		if ( m_isOnlyCanChu && nReqActType != eMJAct_Chu )
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you can only do chu act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
+			nRet = 2 ;
 			break;
 		}
 
