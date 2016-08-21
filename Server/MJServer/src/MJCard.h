@@ -21,6 +21,8 @@ public:
 	static void parseCardTypeValue(uint8_t nCardNum, eMJCardType& eType,uint8_t& nValue );
 	static void debugSinglCard(uint8_t nCard );
 protected:
+	void initTwoBirdCard();
+protected:
 	eMJGameType m_eMJGameType;
 	VEC_UINT8 m_vAllCards ;
 	uint8_t m_nCurCardIdx ;

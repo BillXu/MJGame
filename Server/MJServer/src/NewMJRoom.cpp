@@ -18,7 +18,7 @@ bool CNewMJRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pConf
 {
 	m_pRoomConfig = (stMJRoomConfig*)pConfig ;
 	ISitableRoom::onFirstBeCreated(pRoomMgr,pConfig,nRoomID,vJsValue) ;
-	m_tPoker.initAllCard(eMJ_COMMON);
+	m_tPoker.initAllCard(eMJ_TwoBird);
 	m_nBankerIdx = 0 ;
 	return true ;
 }
@@ -585,7 +585,7 @@ bool CNewMJRoom::onPlayerPeng( uint8_t nActPlayerIdx , uint8_t nInvokePlayrIdx ,
 	return bRet ;
 }
 
-bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , uint8_t nTargetCard )
+bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , uint8_t nTargetCard,bool isRbotGang )
 {
 	bool bIsSelf = nActPlayerIdx == nInvokerPlayerIdx ;
 	auto ppHu = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
@@ -620,7 +620,7 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 		return false ;
 	}
 
-	if ( !getHuFanxing(ppHu,ppInvoker,nTargetCard,nFanType,nFanShu) )
+	if ( !getHuFanxing(ppHu,ppInvoker,nTargetCard,isRbotGang ,nFanType,nFanShu) )
 	{
 		CLogMgr::SharedLogMgr()->ErrorLog("why check fanxing return error ?") ;
 		return false ;
@@ -668,7 +668,7 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 
 	ppHu->setCoin(ppHu->getCoin() + nPlayerWin) ;
 	ppHu->setState(eRoomPeer_AlreadyHu) ;
-
+	CLogMgr::SharedLogMgr()->SystemLog("playerUID = %u fan shu = %u , winCoin = %u",ppHu->getUserUID(),nFanShu,nHuWinCoin);
 	// send msg 
 	Json::Value msg ;
 	msg["idx"] = nActPlayerIdx ;
@@ -942,14 +942,104 @@ uint32_t CNewMJRoom::getHuWinCoin(uint8_t nFanXing,uint16_t nFanshu ,bool isSelf
 	return nFanshu * getBaseBet() ;
 }
 
-bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvoker, uint8_t nTargetCard, uint8_t& nFanxing, uint8_t& nFanshu )
+bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvoker, uint8_t nTargetCard, bool isRobtGan , uint8_t& nFanxing, uint8_t& nFanshu )
 {
-	bool bRet = m_tTowBirdFanxingChecker.check(this,pActor->getMJPeerCard(),nTargetCard,nFanxing,nFanshu) ;
+	bool isZiMo = pInvoker == pActor ;
+	bool isMiaoShou = false ;
+	bool isLoaYue = false ;
+	bool isGangshangHua = false ;
+	bool isQiangGang = false ;
+	bool isJueZhang = false ;
+	if ( isZiMo )
+	{
+		isMiaoShou = m_tPoker.getLeftCardCount() == 0 ;
+		auto fRom = pActor->getNewRecievedCardFrom() ;
+		isGangshangHua = fRom != eMJAct_Mo ;
+	}
+	else 
+	{
+		isLoaYue = m_tPoker.getLeftCardCount() == 0 ;
+		isQiangGang = isRobtGan ;
+	}
+
+	// check juezhang 
+	std::vector<uint8_t> vShowAllCard ;
+	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
+	{
+		auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nIdx) ;
+		if ( !pp )
+		{
+			continue;
+		}
+		std::vector<uint8_t> vCard ;
+		pp->getMJPeerCard()->getShowedCard(vCard);
+		vShowAllCard.insert(vShowAllCard.begin(),vCard.begin(),vCard.end());
+	}
+	uint8_t nFindCnt = std::count(vShowAllCard.begin(),vShowAllCard.end(),nTargetCard) ;
+	if ( isZiMo )
+	{
+		isJueZhang = nFindCnt == 3 ;
+	}
+	else
+	{
+		isJueZhang = nFindCnt == 4 ;
+	}
+
+	// 天胡
+	if ( vShowAllCard.size() == 0 && pActor->getIdx() == getBankerIdx() )
+	{
+		CLogMgr::SharedLogMgr()->SystemLog("this is tian hu") ;
+		nFanxing = 1 ;
+		nFanshu = 48 ;
+		return true ;
+	}
+
+	//地胡
+	if ( isZiMo && pActor->getIdx() != getBankerIdx() )
+	{
+		std::vector<uint8_t> v ;
+		pActor->getMJPeerCard()->getShowedCard(v);
+		if ( v.empty() && pActor->getMJPeerCard()->isBeRobotEmpty() )
+		{
+			CLogMgr::SharedLogMgr()->SystemLog("this is di hu") ;
+			nFanxing = 1 ;
+			nFanshu = 32 ;
+			return true ;
+		}
+	}
+
+	//人胡
+	if ( isZiMo == false && pActor->getIdx() != getBankerIdx() && pInvoker->getIdx() == getBankerIdx() )
+	{
+		std::vector<uint8_t> v ;
+		pActor->getMJPeerCard()->getShowedCard(v);
+		if ( v.empty() && pActor->getMJPeerCard()->isBeRobotEmpty() )
+		{
+			CLogMgr::SharedLogMgr()->SystemLog("this is ren hu") ;
+			nFanxing = 1 ;
+			nFanshu = 24 ;
+			return true ;
+		}
+	}
+	//天听
+	
+	m_tCheckInfo.resetInfo( pActor->getMJPeerCard(),nTargetCard, isMiaoShou,isLoaYue,isGangshangHua,isQiangGang,isZiMo,isJueZhang ) ;
+	bool bRet = m_tTowBirdFanxingChecker.check(&m_tCheckInfo,nFanxing,nFanshu) ;
 	if ( !bRet )
 	{
 		return  false ;
 	}
 
+	if ( nFanshu < 16 )
+	{
+		if ( pActor->getIdx() != getBankerIdx() && pActor->isTianTing() )
+		{
+			nFanshu = 16 ;
+			nFanxing = 1 ;
+			CLogMgr::SharedLogMgr()->PrintLog("this is tian ting ");
+			return true ;
+		}
+	}
 	// check 大众番型（4种）
 	// check 其他加成
 	return true ;

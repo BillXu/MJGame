@@ -40,7 +40,7 @@ public:
 	// mj room function 
 	bool onPlayerEat( uint8_t nActPlayerIdx  , uint8_t nInvokePlayerIdx ,uint8_t nTargetCard , uint8_t nWithCardA , uint8_t nWithCardB );
 	bool onPlayerPeng( uint8_t nActPlayerIdx , uint8_t nInvokePlayrIdx , uint8_t nTargetCard );
-	bool onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , uint8_t nTargetCard );
+	bool onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , uint8_t nTargetCard, bool isRbotGang = false );
 	bool onPlayerMingGang( uint8_t nActPlayerIdx , uint8_t nInvokerIdx , uint8_t nTargetCard );
 	bool onPlayerDeclareBuGang(uint8_t nActPlayerIdx , uint8_t nTargetCard);
 	bool onPlayerBuGang(uint8_t nActPlayerIdx , uint8_t nTargetCard );
@@ -56,7 +56,7 @@ public:
 	bool canPlayerEat(uint8_t nActPlayerIdx , uint8_t nCard );
 	bool canPlayerEatWith(uint8_t nActPlayerIdx , uint8_t ACard, uint8_t nWithB );
 protected:
-	bool getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvoker, uint8_t nTargetCard, uint8_t& nFanxing, uint8_t& nFanshu );
+	bool getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvoker, uint8_t nTargetCard,bool isRobtGang, uint8_t& nFanxing, uint8_t& nFanshu );
 protected:
 	uint32_t getHuWinCoin(uint8_t nFanXing,uint16_t nFanshu ,bool isSelfHu );
 	void prepareCards()override;
@@ -65,6 +65,7 @@ protected:
 	stMJRoomConfig* m_pRoomConfig ;
 	uint8_t m_nBankerIdx ;
 	uint8_t m_nCurIdx ;
+	CTowBirdGodCheckFanxingInfo m_tCheckInfo ;
 private:
 	static CTwoBirdFanxingChecker m_tTowBirdFanxingChecker ;
 };

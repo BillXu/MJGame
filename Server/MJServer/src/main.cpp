@@ -76,18 +76,23 @@ int main()
 	//std::vector<uint8_t> vCards ;
 	//uint8_t nValue ;
 
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,5);
-	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,1);
-	//vCards.push_back(nValue);
-
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,1);
-	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
-	//vCards.push_back(nValue);
-
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,9);
 	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,9);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,1);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,2);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,2);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
+	//vCards.push_back(nValue);
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
 	//vCards.push_back(nValue);
 
@@ -96,19 +101,14 @@ int main()
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,4);
 	//vCards.push_back(nValue);
 
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,4);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,5);
 	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Feng,1);
-	//vCards.push_back(nValue);
-
-	//nValue = CMJCard::makeCardNumber(eCT_Feng,1);
-	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Feng,2);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,5);
 	//vCards.push_back(nValue);
 
-	//nValue = CMJCard::makeCardNumber(eCT_Feng,3);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,6);
 	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Feng,4);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,7);
 	//vCards.push_back(nValue);
 
 	//bool b = tInfo.parseHuPaiInfo(vCards);

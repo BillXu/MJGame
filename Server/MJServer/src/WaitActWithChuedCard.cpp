@@ -367,7 +367,7 @@ bool CWaitActWithChuedCard::doExcutingAct()
 			break ;
 		case eMJAct_Hu:
 			{
-				pRoom->onPlayerHu(ref->nIdx,m_nInvokeIdx,m_nTargetCard) ;
+				pRoom->onPlayerHu(ref->nIdx,m_nInvokeIdx,m_nTargetCard,m_eCardFrom == eMJAct_BuGang_Declare) ;
 				setStateDuringTime(eTime_DoPlayerAct_Hu);
 			}
 			break;

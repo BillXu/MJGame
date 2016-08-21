@@ -30,13 +30,14 @@ bool CMJHuPaiInfo::parseHuPaiInfo( const std::vector<uint8_t>& vHoldCard )
 	// check hu 
 	for ( auto& refJiang : vJiang )
 	{
-		VEC_CARD vCheckHu;
-		vCheckHu.assign(vCheckCards.begin(),vCheckCards.end()) ;
+		VEC_CARD vCheckHu , vCheckWithoutJiang;
+		vCheckWithoutJiang.assign(vCheckCards.begin(),vCheckCards.end()) ;
 		// remove jiang ;
-		auto iter = std::find(vCheckHu.begin(),vCheckHu.end(),refJiang);
-		vCheckHu.erase(iter);
-		iter = std::find(vCheckHu.begin(),vCheckHu.end(),refJiang);
-		vCheckHu.erase(iter);
+		auto iter = std::find(vCheckWithoutJiang.begin(),vCheckWithoutJiang.end(),refJiang);
+		vCheckWithoutJiang.erase(iter);
+		iter = std::find(vCheckWithoutJiang.begin(),vCheckWithoutJiang.end(),refJiang);
+		vCheckWithoutJiang.erase(iter);
+		vCheckHu.assign(vCheckWithoutJiang.begin(),vCheckWithoutJiang.end()) ;
 
 		// check shunzi ;
 		getAnZiFromCards(vCheckHu,m_vAnKeZi);
@@ -45,6 +46,59 @@ bool CMJHuPaiInfo::parseHuPaiInfo( const std::vector<uint8_t>& vHoldCard )
 		{
 			m_nJianPai = refJiang ;
 			return true ;
+		}
+		
+
+		// may be ke should represent shun , check this situation 
+		if ( m_vAnKeZi.size() == 1 || m_vAnKeZi.size() == 2)
+		{
+			vCheckHu.assign(vCheckWithoutJiang.begin(),vCheckWithoutJiang.end()) ;
+			if ( m_vAnKeZi.size() == 1 && vCheckHu.size() >= 9 )
+			{
+				clear();
+				getShunZiFromCards(vCheckHu,m_vAllShunzi);
+				if ( vCheckHu.empty() )
+				{
+					m_nJianPai = refJiang ;
+					return true ;
+				}
+			}
+			else if ( m_vAnKeZi.size() == 2 && vCheckHu.size() == 12 ) 
+			{
+				clear();
+				if ( vCheckHu[0] == vCheckHu[2] )
+				{
+					m_vAnKeZi.push_back(vCheckHu[0]);
+					auto n = 3 ;
+					while (n--)
+					{
+						auto iter = vCheckHu.begin();
+						vCheckHu.erase(iter);
+					}
+				}
+				else if ( vCheckHu[11] == vCheckHu[9] )
+				{
+					m_vAnKeZi.push_back(vCheckHu[11]);
+					auto n = 3 ;
+					while ( n-- )
+					{
+						auto iter = vCheckHu.end();
+						--iter;
+						vCheckHu.erase(iter);
+					}
+				}
+				
+				if ( m_vAnKeZi.empty() == false )
+				{
+					getShunZiFromCards(vCheckHu,m_vAllShunzi);
+					if ( vCheckHu.empty() )
+					{
+						m_nJianPai = refJiang ;
+						return true ;
+					}
+				}
+			}
+			
 		}
 		clear();
 	}

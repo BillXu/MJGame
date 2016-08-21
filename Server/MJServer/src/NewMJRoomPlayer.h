@@ -18,6 +18,7 @@ public:
 	uint8_t getNewRecievedCard();
 	uint8_t getNewRecievedCardFrom();
 	void getCardInfo( Json::Value& vCardInFoValue );
+	bool isTianTing(){ return false ;}
 protected:
 	CMJPeerCardNew m_tPeerCard ;
 	int32_t m_nGameOffset ;

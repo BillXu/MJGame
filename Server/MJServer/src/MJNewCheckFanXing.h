@@ -12,7 +12,7 @@ class IMJNewCheckFanXing
 {
 public:
 	virtual ~IMJNewCheckFanXing();
-	bool checkFanxing( ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing , uint8_t& nFanShu );
+	virtual bool checkFanxing( ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing , uint8_t& nFanShu );
 protected:
 	virtual bool checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, uint8_t& nFanShu ) = 0 ;
 	bool checkSubFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, uint8_t& nFanShu );

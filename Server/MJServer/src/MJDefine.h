@@ -6,6 +6,7 @@ enum eMJGameType
 	eMJ_BloodRiver = eMJ_None,
 	eMJ_BloodTheEnd,
 	eMJ_COMMON,
+	eMJ_TwoBird,
 	eMJ_Max,
 };
 

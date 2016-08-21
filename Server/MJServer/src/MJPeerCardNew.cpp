@@ -10,6 +10,7 @@ void CMJPeerCardNew::reset()
 	vecAnGangCard.clear();
 	vecEatedCard.clear();
 	vecChuCard.clear();
+	vecBeRobot.clear();
 }
 
 bool CMJPeerCardNew::init()
@@ -336,6 +337,7 @@ bool CMJPeerCardNew::onCardBeRobted( uint8_t nCard )
 		return false ;
 	}
 	vecChuCard.erase(iter) ;
+	vecBeRobot.push_back(nCard);
 	return true ;
 }
 
@@ -425,6 +427,11 @@ void CMJPeerCardNew::getMingGang( std::vector<uint8_t>& vCards )
 void CMJPeerCardNew::getAnGang(std::vector<uint8_t>& vCards)
 {
 	vCards.assign(vecAnGangCard.begin(),vecAnGangCard.end());
+}
+
+void CMJPeerCardNew::getEatCard(std::vector<uint8_t>& vCards )
+{
+	vCards.assign(vecEatedCard.begin(),vecEatedCard.end());
 }
 
 bool CMJPeerCardNew::addNumberToVecWithAsc(std::vector<uint8_t>& vecCards, uint8_t& nAddCard )

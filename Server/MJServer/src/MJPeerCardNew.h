@@ -56,6 +56,8 @@ public:
 	void getGangCard( std::vector<uint8_t>& vCards );
 	void getMingGang( std::vector<uint8_t>& vCards );
 	void getAnGang(std::vector<uint8_t>& vCards);
+	void getEatCard(std::vector<uint8_t>& vCards );
+	bool isBeRobotEmpty(){ return vecBeRobot.empty() ;}
 protected:
 	void debugVecCardInfo(std::vector<uint8_t>&vecCards );
 	bool addNumberToVecWithAsc(std::vector<uint8_t>& vecCards, uint8_t& nAddCard );
@@ -71,4 +73,5 @@ protected:
 	std::vector<uint8_t> vecAnGangCard ;
 	std::vector<uint8_t> vecEatedCard ;
 	std::vector<uint8_t> vecChuCard ;
+	std::vector<uint8_t> vecBeRobot ;
 };
