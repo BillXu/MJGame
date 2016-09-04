@@ -431,7 +431,7 @@ bool CNewMJRoom::isGameOver()
 	return false ;
 }
 
-void CNewMJRoom::sendActListToPlayerAboutCard( uint8_t nPlayerIdx , std::list<eMJActType>& vList , uint8_t nCard )
+void CNewMJRoom::sendActListToPlayerAboutCard( uint8_t nPlayerIdx , std::list<eMJActType>& vList , uint8_t nCard , uint8_t nInvokeIdx  )
 {
 	auto pp = getPlayerByIdx(nPlayerIdx) ;
 	if ( !pp )
@@ -442,7 +442,7 @@ void CNewMJRoom::sendActListToPlayerAboutCard( uint8_t nPlayerIdx , std::list<eM
 
 	Json::Value jsmsg ;
 	jsmsg["cardNum"] = nCard ;
-
+	jsmsg["invokerIdx"] = nInvokeIdx ;
 	Json::Value jsActList ;
 	for ( auto& ref : vList )
 	{

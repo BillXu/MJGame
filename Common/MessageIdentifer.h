@@ -301,7 +301,7 @@ enum eMsgType
 	// 数组对应玩家 定的缺门类型。
 
 	MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD,  // 有人出了一张牌，等待需要这张牌的玩家 操作，可以 碰，杠，胡
-	// svr : { cardNum : 32 , acts : [type0, type 1 , ..] }  ;
+	// svr : { invokerIdx : 2,cardNum : 32 , acts : [type0, type 1 , ..] }  ;
 	// 这个消息不会广播，只会发给需要这张牌的玩家，cardNum 待需要的牌，type 类型参照 eMJActType
 
 	MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD,  // 自己获得一张牌，杠或者摸，然后可以进行的操作 杠，胡
@@ -502,4 +502,9 @@ enum eMsgType
 	// svr : { playerIdx : 2 , result : 0 }
 	// playerIdx 操作的玩家索引
 	// result : 0 补充金币成功，1 放弃补充金币，认输;
+
+	MSG_REQ_ACT_LIST,   //玩家重新上线，断线重连 收到roomInfo 后，发送此消息请求玩家操作列表；
+	// client : { dstRoomID : 356 } ,
+	// svr : { ret : 0 } ;
+	// ret : 0 等待你出牌，只能出牌，1 此刻不是你该操作的时候。
 };

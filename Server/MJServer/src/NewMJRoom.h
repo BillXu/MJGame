@@ -34,7 +34,7 @@ public:
 	uint8_t getAutoChuCardWhenWaitTimeOut(uint8_t nPlayerIdx );
 	uint8_t getNextActIdx( uint8_t nCurActIdx );
 	bool isGameOver();
-	void sendActListToPlayerAboutCard(uint8_t nPlayerIdx , std::list<eMJActType>& vList , uint8_t nCard );
+	void sendActListToPlayerAboutCard(uint8_t nPlayerIdx , std::list<eMJActType>& vList , uint8_t nCard , uint8_t nInvokeIdx );
 	void sendPlayerActListOnRecievedCard( uint8_t nCurPlayerIdx );
 
 	// mj room function 

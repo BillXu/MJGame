@@ -22,6 +22,25 @@ void CMJWaitPlayerActState::enterState(IRoom* ptRoom)
 
 bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
 {
+	if ( MSG_REQ_ACT_LIST == nMsgType )
+	{
+		Json::Value jsmsgBack ;
+		jsmsgBack["ret"] = 1 ;
+
+		auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
+		auto ppPlayer = (CMJRoomPlayer*)m_pRoom->getPlayerByIdx(m_vWaitIdxs.front().nIdx) ;
+		if ( ppPlayer == nullptr || idx != ppPlayer->getIdx() )
+		{
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ;
+		}
+
+		auto mjRoom = (CMJRoom*)m_pRoom ;
+		ppPlayer->updateSelfOperateCards();
+		mjRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
+		return true ;
+	}
+
 	if ( nMsgType != MSG_PLAYER_ACT )
 	{
 		return false ;
@@ -406,6 +425,23 @@ void CMJWaitOtherActState::enterState(IRoom* pRoom)
 
 bool CMJWaitOtherActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
 {
+	if ( MSG_REQ_ACT_LIST == nMsgType )
+	{
+		Json::Value jsmsgBack ;
+		jsmsgBack["ret"] = 1 ;
+
+		auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
+		auto iter = std::find_if(m_vWaitIdxs.begin(),m_vWaitIdxs.end(),[idx](stWaitIdx& ptr ){  return (ptr.nIdx == idx);  });
+		if ( iter == m_vWaitIdxs.end() )
+		{
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ;
+		}
+		auto mjRoom = (CMJRoom*)m_pRoom ;
+		mjRoom->onInformActAboutCard(idx,m_tInfo.nCardNumber,m_tInfo.nCardProvideIdx);;
+		return true ;
+	}
+
 	if ( nMsgType != MSG_PLAYER_ACT )
 	{
 		return false ;

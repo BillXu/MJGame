@@ -63,7 +63,7 @@ void CNewMJRoomPlayer::getCardInfo( Json::Value& vCardInFoValue )
 	m_tPeerCard.getShowedCard(vCards);
 	for (auto& ref : vCards )
 	{
-		vMingPai[vAnPai.size()] = ref ;
+		vMingPai[vMingPai.size()] = ref ;
 	}
 
 	// chu card ;
@@ -71,7 +71,7 @@ void CNewMJRoomPlayer::getCardInfo( Json::Value& vCardInFoValue )
 	m_tPeerCard.getChuedCard(vCards);
 	for (auto& ref : vCards )
 	{
-		vChuPai[vAnPai.size()] = ref ;
+		vChuPai[vChuPai.size()] = ref ;
 	}
 
 	vCardInFoValue["idx"] = getIdx() ;

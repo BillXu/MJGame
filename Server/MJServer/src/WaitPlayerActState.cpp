@@ -181,6 +181,35 @@ void CWaitPlayerAct::onStateDuringTimeUp()
 
 bool CWaitPlayerAct::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
 {
+	if ( MSG_REQ_ACT_LIST == nMsgType )
+	{
+		Json::Value jsmsgBack ;
+		jsmsgBack["ret"] = 1 ;
+		if ( !m_isWaitingChoseAct )
+		{
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ; 
+		}
+
+		auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
+		if ( m_nCurPlayerIdx != idx )
+		{
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ;
+		}
+
+		if ( m_isOnlyCanChu )
+		{
+			jsmsgBack["ret"] = 0 ;
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ;
+		}
+
+		auto mjRoom = (CNewMJRoom*)m_pRoom ;
+		mjRoom->sendPlayerActListOnRecievedCard(m_nCurPlayerIdx);
+		return true ;
+	}
+
 	if ( nMsgType != MSG_PLAYER_ACT )
 	{
 		return false ;

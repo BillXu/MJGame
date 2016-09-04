@@ -710,6 +710,7 @@ bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8
 	auto pp = getPlayerByIdx(nPlayerIdx) ;
 	Json::Value jsmsg ;
 	jsmsg["cardNum"] = nCardNum ;
+	jsmsg["invokerIdx"] = cardProviderIdx ;
 
 	Json::Value actArray ;
 	if ( canPlayerHuPai(nPlayerIdx,nCardNum) )

@@ -76,7 +76,7 @@ void CWaitActWithChuedCard::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 	// send can act list to each player ;
 	for ( auto& pref : m_vWaitingObject )
 	{
-		mjRoom->sendActListToPlayerAboutCard(pref->nIdx,pref->vCanActList,m_nTargetCard) ;
+		mjRoom->sendActListToPlayerAboutCard(pref->nIdx,pref->vCanActList,m_nTargetCard,m_nInvokeIdx) ;
 	}
 }
 
@@ -197,6 +197,28 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 
 bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)
 {
+	if ( MSG_REQ_ACT_LIST == nMsgType )
+	{
+		Json::Value jsmsgBack ;
+		jsmsgBack["ret"] = 1 ;
+		if ( !m_isWaitingChoseAct )
+		{
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ; 
+		}
+
+		auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
+		auto iter = std::find_if(m_vWaitingObject.begin(),m_vWaitingObject.end(),[idx](WAIT_PEER_INFO_PTR& ptr ){  return (ptr->nIdx == idx);  });
+		if ( iter == m_vWaitingObject.end() )
+		{
+			m_pRoom->sendMsgToPlayer(jsmsgBack,MSG_REQ_ACT_LIST,nSessionID);
+			return true ;
+		}
+		auto mjRoom = (CNewMJRoom*)m_pRoom ;
+		mjRoom->sendActListToPlayerAboutCard(idx,(*iter)->vCanActList,m_nTargetCard,m_nInvokeIdx) ;
+		return true ;
+	}
+
 	if ( nMsgType != MSG_PLAYER_ACT )
 	{
 		return false ;

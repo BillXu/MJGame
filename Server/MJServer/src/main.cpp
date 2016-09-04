@@ -76,17 +76,17 @@ int main()
 	//std::vector<uint8_t> vCards ;
 	//uint8_t nValue ;
 
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,9);
-	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,9);
-	//vCards.push_back(nValue);
-
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,1);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,2);
 	//vCards.push_back(nValue);
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,2);
 	//vCards.push_back(nValue);
 
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,2);
+	//nValue = CMJCard::makeCardNumber(eCT_Jian,2);
+	//vCards.push_back(nValue);
+	//nValue = CMJCard::makeCardNumber(eCT_Jian,2);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Jian,2);
 	//vCards.push_back(nValue);
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
 	//vCards.push_back(nValue);
@@ -118,11 +118,18 @@ int main()
 	//}
 	//return 0 ;
 	//CMJPeerCardNew tPeer ;
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,1));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Jian,2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Jian,2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan,2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan,2));
 
+	//bool isP = tPeer.isCardCanPeng(CMJCard::makeCardNumber(eCT_Jian,2));
+	//bool isHu = tPeer.isCardCanHu(CMJCard::makeCardNumber(eCT_Jian,2));
+	//if ( isHu )
+	//{
+	//	printf("right") ;
+	//}
+	//return 0 ;
 	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
 	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
 	////tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Feng,2));
