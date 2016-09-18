@@ -331,9 +331,12 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			}
 
 			CLogMgr::SharedLogMgr()->PrintLog("uid = %d do leave room final coin = %u, playertimes = %u , wintimes = %u ,offset = %d",GetPlayer()->GetUserUID(), GetPlayer()->GetBaseData()->getCoin(),pRet->nRoundsPlayed,pRet->nMaxFanShu,pRet->nGameOffset) ;
-			stMsg msg ;
+			/*stMsg msg ;
 			msg.usMsgType = MSG_PLAYER_UPDATE_MONEY ;
-			GetPlayer()->GetBaseData()->OnMessage(&msg,ID_MSG_PORT_CLIENT) ;
+			GetPlayer()->GetBaseData()->OnMessage(&msg,ID_MSG_PORT_CLIENT) ;*/
+			Json::Value jsq ;
+			jsq[JS_KEY_MSG_TYPE] = MSG_REQ_UPDATE_COIN ;
+			GetPlayer()->GetBaseData()->OnMessage(jsq,MSG_REQ_UPDATE_COIN,ID_MSG_PORT_CLIENT ) ;
 		}
 		break;
 	case MSG_SVR_DELAYED_LEAVE_ROOM:
@@ -369,9 +372,12 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			}
 
 			CLogMgr::SharedLogMgr()->PrintLog("uid = %d delay leave room coin = %u",GetPlayer()->GetUserUID(), GetPlayer()->GetBaseData()->getCoin()) ;
-			stMsg msg ;
-			msg.usMsgType = MSG_PLAYER_UPDATE_MONEY ;
-			GetPlayer()->GetBaseData()->OnMessage(&msg,ID_MSG_PORT_CLIENT) ;
+			//stMsg msg ;
+			//msg.usMsgType = MSG_PLAYER_UPDATE_MONEY ;
+			//GetPlayer()->GetBaseData()->OnMessage(&msg,ID_MSG_PORT_CLIENT) ;
+			Json::Value jsq ;
+			jsq[JS_KEY_MSG_TYPE] = MSG_REQ_UPDATE_COIN ;
+			GetPlayer()->GetBaseData()->OnMessage(jsq,MSG_REQ_UPDATE_COIN,ID_MSG_PORT_CLIENT ) ;
 		}
 		break;
 	case MSG_READ_PLAYER_NIUNIU_DATA:

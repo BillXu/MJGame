@@ -47,7 +47,7 @@ bool CRobotDispatchStrategy::init(ISitableRoom* pRoom , uint8_t nReqRobotLevel, 
 		msgreq.nRoomType = m_pRoom->getRoomType() ;
 		msgreq.nSubRoomIdx = m_nSubRoomIdx ;
 		m_pRoom->sendMsgToPlayer(&msgreq,sizeof(msgreq),0) ;
-		printf("room id = %u timer req robot join \n ",m_pRoom->getRoomID());
+		//printf("room id = %u timer req robot join \n ",m_pRoom->getRoomID());
 	}
 
 	if ( m_pRoom->isHaveRealPlayer() == false )

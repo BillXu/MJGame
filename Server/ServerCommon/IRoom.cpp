@@ -325,6 +325,10 @@ void IRoom::sendRoomMsg( stMsg* pmsg , uint16_t nLen )
 
 void IRoom::sendMsgToPlayer( stMsg* pmsg , uint16_t nLen , uint32_t nSessionID )
 {
+	if ( nSessionID != 0 && pmsg->cSysIdentifer == ID_MSG_PORT_CLIENT )
+	{
+		printf("what msg \n") ;
+	}
 	m_pRoomMgr->sendMsg(pmsg,nLen,nSessionID);
 }
 
