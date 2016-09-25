@@ -1005,8 +1005,10 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			jsmsgBack["finalCoin"] = getCoin() ;
 			jsmsgBack["recievedCoin"] = 0 ;
 			jsmsgBack["leftTimes"] = 0 ;
-			if ( 0 && GetAllCoin() > COIN_CONDITION_TO_GET_CHARITY )  
+			if ( GetAllCoin() > COIN_CONDITION_TO_GET_CHARITY )  
 			{
+				jsmsgBack["ret"] = 2;
+				SendMsg(jsmsgBack, nmsgType);
 				break;
 			}
 
@@ -1017,7 +1019,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			pTimeCur = *localtime(&tNow);
 			time_t nLastTakeTime = m_stBaseData.tLastTakeCharityCoinTime;
 			pTimeLast = *localtime(&nLastTakeTime);
-			if ( pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_mon == pTimeLast.tm_mon && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
+			if (pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
 			{
 
 			}
@@ -1028,7 +1030,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 			if ( m_stBaseData.nTakeCharityTimes >= TIMES_GET_CHARITY_PER_DAY  )
 			{
-				jsmsgBack["ret"] = 1 ;
+				jsmsgBack["ret"] = 2 ;
 				SendMsg(jsmsgBack,nmsgType);
 				break;
 			}

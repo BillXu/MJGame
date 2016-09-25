@@ -129,7 +129,11 @@ bool IServerApp::OnMessage( Packet* pMsg )
 
 		Json::Reader reader ;
 		Json::Value rootValue ;
-		reader.parse(pBuffer,pBuffer + pRet->nJsLen,rootValue,false) ;
+		bool bret = reader.parse(pBuffer,pBuffer + pRet->nJsLen,rootValue,false) ;
+		if (!bret)
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("parse json error");
+		}
 		uint16_t nMsgType = rootValue[JS_KEY_MSG_TYPE].asUInt() ;
 		if ( onLogicMsg(rootValue,nMsgType,(eMsgPort)pData->nSenderPort,pData->nSessionID) )
 		{

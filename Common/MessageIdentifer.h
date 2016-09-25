@@ -200,10 +200,11 @@ enum eMsgType
 
 	// login 
 	MSG_PLAYER_REGISTER,     //玩家注册
-	// client : {acc: "account" , pwd : "password",regType : 1 , regChannel : 0  } 
+	// client : {acc: "account" , pwd : "password",regType : 1 , regChannel : 0 ，realName : "赵丽颖",IDCode : 360428199009275546 } 
 	// svr : { ret: 0  , acc: "account" , pwd : "password",regType : 1 , UID : 2345 }
-	// ret : 0 success , 1 account already exist
+	// ret : 0 success , 1 account already exist, 2 实名认证不通过
 	// regType : 注册类型。0 游客注册 , 1 正常注册 , 2 绑定账号 ;
+	// realName : 身份证上面的名字，IDCode ： 身份证号
 	// regChannel : 0 appstore  // 注册渠道
 
 	MSG_PLAYER_LOGIN,  // 玩家登陆 ; 

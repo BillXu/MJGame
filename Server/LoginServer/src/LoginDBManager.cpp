@@ -5,8 +5,10 @@
 #include "ServerMessageDefine.h"
 #include "LoginApp.h"
 #include "DataBaseThread.h"
+#include "IDVerifyTask.h"
 #define PLAYER_BRIF_DATA "playerName,userUID,sex,vipLevel,defaultPhotoID,isUploadPhoto,exp,coin,diamond"
 #define PLAYER_DETAIL_DATA "playerName,userUID,sex,vipLevel,defaultPhotoID,isUploadPhoto,exp,coin,diamond,signature,singleWinMost,winTimes,loseTimes,yesterdayPlayTimes,todayPlayTimes,longitude,latitude,offlineTime"
+#define TASK_VERIFY_REAL_NAME 2
 CDBManager::CDBManager()
 {
 	m_vReserverArgData.clear();
@@ -33,6 +35,23 @@ void CDBManager::init(IServerApp* pApp)
 	{
 		CLogMgr::SharedLogMgr()->ErrorLog("MAX_LEN_ACCOUNT must big than 18 , or guset login will crash ") ;
 	}
+	getTaskPool()->init(this, 2);
+}
+
+ITask::ITaskPrt CDBManager::createTask(uint32_t nTaskID)
+{
+	if (TASK_VERIFY_REAL_NAME == nTaskID)
+	{
+		std::shared_ptr<IDVerifyTask> pTask(new IDVerifyTask(nTaskID));
+		return pTask;
+	}
+	return nullptr;
+}
+
+void CDBManager::update(float fDeta)
+{
+	IGlobalModule::update(fDeta);
+	getTaskPool()->update();
 }
 
 bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID )
@@ -77,6 +96,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 				break; 
 			}
 
+
 			stDBRequest* pRequest = CDBRequestQueue::SharedDBRequestQueue()->GetReserveRequest();
 			pRequest->cOrder = eReq_Order_Super ;
 			pRequest->eType = eRequestType_Select ;
@@ -84,7 +104,48 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			pRequest->pUserData = pdata ;
 			// format sql String ;
 			pRequest->nSqlBufferLen = sprintf_s(pRequest->pSqlBuffer,"call RegisterAccount('%s','%s',%d,%d);",pV["acc"].asCString(),pV["pwd"].asCString(),nRegType,pV["regChannel"].asInt() ) ;
-			CDBRequestQueue::SharedDBRequestQueue()->PushRequest(pRequest) ;
+			
+			std::string strName = "";
+			std::string strID = "";
+			if (pV["realName"].isNull() || pV["IDCode"].isNull())
+			{
+				CDBRequestQueue::SharedDBRequestQueue()->PushRequest(pRequest);
+				CLogMgr::SharedLogMgr()->ErrorLog("old version ? lack of realName verify arg");
+				break;
+			}
+			
+			CLogMgr::SharedLogMgr()->SystemLog("do real name verify");
+			strName = pV["realName"].asString();
+			strID = pV["IDCode"].asString();
+			// asyn real name verify ;
+			auto ptr = getTaskPool()->getReuseTaskObjByID(TASK_VERIFY_REAL_NAME);
+			IDVerifyTask* p = (IDVerifyTask*)ptr.get();
+			p->setCallBack([this, pRequest](ITask::ITaskPrt ptr)
+			{
+				std::shared_ptr<IDVerifyTask> p = std::static_pointer_cast<IDVerifyTask>(ptr);
+				auto pdata = (stArgData*)pRequest->pUserData;
+				if (p->isVerifyOk() || 1 )
+				{
+					CLogMgr::SharedLogMgr()->SystemLog("real name verify ok temp let all ok real = %u",p->isVerifyOk());
+					CDBRequestQueue::SharedDBRequestQueue()->PushRequest(pRequest);
+				}
+				else
+				{
+					Json::Value jValue;
+					jValue["regType"] = (uint8_t)pdata->nExtenArg1;
+					jValue["UID"] = 0;
+					jValue["ret"] = 2;
+					getSvrApp()->sendMsg(pdata->nSessionID, jValue, MSG_PLAYER_REGISTER);
+
+					CLogMgr::SharedLogMgr()->SystemLog("real name verify failed");
+					m_vReserverArgData.push_back((stArgData*)pRequest->pUserData);
+					CDBRequestQueue::SharedDBRequestQueue()->PushReserveRequest(pRequest);
+					CLogMgr::SharedLogMgr()->SystemLog("do real name verify failed");
+				}
+				
+			});
+			p->setVerifyInfo(strName.c_str(),strID.c_str());
+			getTaskPool()->postTask(ptr);
 		}
 		break;
 	case MSG_PLAYER_LOGIN:

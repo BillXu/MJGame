@@ -4,10 +4,12 @@
 #include <map>
 #include <assert.h>
 #include "IGlobalModule.h"
+#include "TaskPool.h"
 struct stDBResult ;
 class CLoginApp;
 class CDBManager
 	:public IGlobalModule
+	, public ITaskFactory
 {
 public:
 	struct stArgData
@@ -33,6 +35,10 @@ public:
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	void OnDBResult(stDBResult* pResult);
 	stArgData* GetReserverArgData();
+	CTaskPool* getTaskPool(){ return &m_tPool; }
+	ITask::ITaskPrt createTask(uint32_t nTaskID);
+	void update(float fDeta);
 protected:
 	LIST_ARG_DATA m_vReserverArgData ;
+	CTaskPool m_tPool;
 };

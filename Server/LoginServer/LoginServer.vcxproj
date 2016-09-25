@@ -23,14 +23,19 @@
     <ClInclude Include="..\DBServer\src\DBRequestFlags.h" />
     <ClInclude Include="..\DBServer\src\MySqlData.h" />
     <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h" />
+    <ClInclude Include="..\ServerCommon\httpRequest.h" />
     <ClInclude Include="..\ServerCommon\IGlobalModule.h" />
     <ClInclude Include="..\ServerCommon\ISeverApp.h" />
+    <ClInclude Include="..\ServerCommon\ITask.h" />
     <ClInclude Include="..\ServerCommon\mutex.h" />
     <ClInclude Include="..\ServerCommon\Sem.h" />
     <ClInclude Include="..\ServerCommon\ServerConfig.h" />
     <ClInclude Include="..\ServerCommon\ServerMessageDefine.h" />
+    <ClInclude Include="..\ServerCommon\TaskPool.h" />
     <ClInclude Include="..\ServerCommon\ThreadMod.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
+    <ClInclude Include="..\ServerCommon\WorkThread.h" />
+    <ClInclude Include="src\IDVerifyTask.h" />
     <ClInclude Include="src\LoginDBManager.h" />
     <ClInclude Include="src\LoginApp.h" />
     <ClInclude Include="src\main.h" />
@@ -44,12 +49,16 @@
     <ClCompile Include="..\DBServer\src\DBRequest.cpp" />
     <ClCompile Include="..\DBServer\src\MySqlData.cpp" />
     <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp" />
+    <ClCompile Include="..\ServerCommon\httpRequest.cpp" />
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp" />
     <ClCompile Include="..\ServerCommon\mutex.cpp" />
     <ClCompile Include="..\ServerCommon\Sem.cpp" />
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp" />
+    <ClCompile Include="..\ServerCommon\TaskPool.cpp" />
     <ClCompile Include="..\ServerCommon\ThreadMod.cpp" />
     <ClCompile Include="..\ServerCommon\Timer.cpp" />
+    <ClCompile Include="..\ServerCommon\WorkThread.cpp" />
+    <ClCompile Include="src\IDVerifyTask.cpp" />
     <ClCompile Include="src\LoginDBManager.cpp" />
     <ClCompile Include="src\LoginApp.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -101,14 +110,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);SERVER;LOGIN_SERVER</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);SERVER;LOGIN_SERVER;JSON_DLL</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../NetworkUtility/src;../../Common;../ServerCommon;../DBServer/src;../DBServer/src/include;../ServerCommon/pthreadLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>NetworkUtilityD.lib;%(AdditionalDependencies);libmysql.lib;pthreadVC2.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../Bin/Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>NetworkUtilityD.lib;%(AdditionalDependencies);libmysql.lib;pthreadVC2.lib;libcurl_imp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Bin/Lib;C:\local\boost_1_61_0\lib32-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,7 +128,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);SERVER;LOGIN_SERVER</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);SERVER;LOGIN_SERVER;JSON_DLL</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../NetworkUtility/src;../../Common;../ServerCommon;../DBServer/src;../DBServer/src/include;../ServerCommon/pthreadLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -128,8 +137,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>NetworkUtility.lib;%(AdditionalDependencies);libmysql.lib;pthreadVC2.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../Bin/Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>NetworkUtility.lib;%(AdditionalDependencies);libmysql.lib;pthreadVC2.lib;libcurl_imp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../Bin/Lib;C:\local\boost_1_61_0\lib32-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

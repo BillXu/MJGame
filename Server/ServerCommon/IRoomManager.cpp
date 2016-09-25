@@ -324,7 +324,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				pRoomEnter = GetRoomByID(pRet->nTargetID) ;
 				if ( pRoomEnter == nullptr )
 				{
-					msgBack.nRet = 8 ;
+					msgBack.nRet = 5 ;
 					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 					CLogMgr::SharedLogMgr()->PrintLog("target room id = %u is null",pRet->nTargetID) ;
 					break;
