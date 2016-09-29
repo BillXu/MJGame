@@ -306,18 +306,15 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			stMsgSvrEnterRoom* pRet = (stMsgSvrEnterRoom*)prealMsg ;
 			msgBack.nGameType = getMgrRoomType() ;
 			msgBack.nRoomID = pRet->nTargetID ;
+			bool isRobot = pRet->tPlayerData.nPlayerType == ePlayer_Robot;
+			if (isRobot)
+			{
+				CLogMgr::SharedLogMgr()->SystemLog("收到机器人进入房间的请求 = %u",pRet->tPlayerData.nUserUID);
+			}
 			//// temp set 
 			//pRet->nType = 1 ;
 			//pRet->nTargetID = 2 ;
 			CLogMgr::SharedLogMgr()->PrintLog("session id = %u enter room type = %u , roomID = %u",nSessionID,pRet->nType,pRet->nTargetID) ;
-			if ( pRet->tPlayerData.nPlayerType == ePlayer_Robot )
-			{
-				if ( pRet->tPlayerData.nCoin < 8000 )
-				{
-					pRet->tPlayerData.nCoin = 8000 ;
-					CLogMgr::SharedLogMgr()->ErrorLog("temp set robot coin uid = %u",pRet->tPlayerData.nUserUID) ;
-				}
-			}
 			IRoomInterface* pRoomEnter = nullptr ;
 			if ( pRet->nType == 1 )
 			{
@@ -327,7 +324,56 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 					msgBack.nRet = 5 ;
 					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 					CLogMgr::SharedLogMgr()->PrintLog("target room id = %u is null",pRet->nTargetID) ;
+					if (isRobot)
+					{
+						CLogMgr::SharedLogMgr()->SystemLog("机器人进入房间失败 uid = %u",pRet->tPlayerData.nUserUID);
+					}
 					break;
+				}
+
+				// robot adjust coin deponed on room limit ;
+				if (pRet->tPlayerData.nPlayerType == ePlayer_Robot)
+				{
+					uint32_t nStandCoin = 8000 + rand() % 1000 ;
+					auto pConfig = m_pConfigMgr->GetConfigByConfigID(pRoomEnter->getConfigID());
+					if ( !pConfig)
+					{
+						CLogMgr::SharedLogMgr()->ErrorLog("why this room config id is null ? id = %u",pRoomEnter->getConfigID());
+						assert(0&&"room config is null");
+					}
+					else
+					{
+						uint32_t nLowLimit = 1000;
+						uint32_t nTopLimit = 3000;
+						if (pConfig->nEnterLowLimit != 0)
+						{
+							nLowLimit = pConfig->nEnterLowLimit;
+						}
+
+						if (0 != pConfig->nEnterTopLimit)
+						{
+							nTopLimit = pConfig->nEnterTopLimit;
+						}
+						else
+						{
+							nTopLimit = nLowLimit * 2;
+						}
+
+						if (nTopLimit <= nLowLimit)
+						{
+							nTopLimit = nLowLimit * 2;
+						}
+
+						nStandCoin = nLowLimit + rand() % (nTopLimit - nLowLimit);
+						nStandCoin = float(nStandCoin) * 1.1f;
+						CLogMgr::SharedLogMgr()->PrintLog("adjust robot coin to : %u" , nStandCoin );
+					}
+
+					if (pRet->tPlayerData.nCoin < nStandCoin)
+					{
+						pRet->tPlayerData.nCoin = nStandCoin;
+						CLogMgr::SharedLogMgr()->ErrorLog("temp set robot coin uid = %u", pRet->tPlayerData.nUserUID);
+					}
 				}
 
 				msgBack.nRet = pRoomEnter->canPlayerEnterRoom(&pRet->tPlayerData) ;
@@ -336,8 +382,19 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 				{
 					sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 					CLogMgr::SharedLogMgr()->PrintLog("you are not proper to enter this room target id = %u , ret = %d",pRet->nTargetID,msgBack.nRet) ;
+					if (isRobot)
+					{
+						CLogMgr::SharedLogMgr()->SystemLog("机器人进入房间失败 uid = %u", pRet->tPlayerData.nUserUID);
+					}
+					
 					break;
 				}
+
+				if (isRobot)
+				{
+					CLogMgr::SharedLogMgr()->SystemLog("机器人进入房间成功 ，会有room info 返回 uid = %u", pRet->tPlayerData.nUserUID);
+				}
+				
 			}
 			else
 			{
@@ -355,7 +412,7 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 
 				if ( pRet->tPlayerData.nPlayerType == ePlayer_Robot )
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("robot can enter any room, don't check limit");
+					CLogMgr::SharedLogMgr()->ErrorLog("机器人不应该走到这里");
 				}
 				else
 				{
@@ -405,6 +462,10 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			{
 				sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
 				CLogMgr::SharedLogMgr()->PrintLog("you are not proper to enter this room target id = %u , ret = %d",pRet->nTargetID,msgBack.nRet) ;
+				if (isRobot)
+				{
+					CLogMgr::SharedLogMgr()->SystemLog("机器人进入房间失败 uid = %u", pRet->tPlayerData.nUserUID);
+				}
 				break;
 			}
 
@@ -415,6 +476,12 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 			msgBack.nSubIdx = 0 ;
 			msgBack.nRet = 0 ;
 			sendMsg(&msgBack,sizeof(msgBack),nSessionID) ;
+
+			if (isRobot)
+			{
+				CLogMgr::SharedLogMgr()->SystemLog("机器人进入房间成功 ，会有room info 返回 , 进入房间成功消息也发 uid = %u", pRet->tPlayerData.nUserUID);
+			}
+			CLogMgr::SharedLogMgr()->SystemLog("有人进入房间成功 ，会有room info 返回 , 进入房间成功消息也发 uid = %u", pRet->tPlayerData.nUserUID);
 		}
 		break;
 	case MSG_REQUEST_ROOM_LIST:
