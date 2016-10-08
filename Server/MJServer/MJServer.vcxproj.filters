@@ -225,6 +225,9 @@
     <ClInclude Include="src\TwoBirdGodFanxing.h">
       <Filter>src\Card</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\MatchConfig.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -373,6 +376,9 @@
     </ClCompile>
     <ClCompile Include="src\MJNewCheckFanXing.cpp">
       <Filter>src\Card</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\MatchConfig.cpp">
+      <Filter>SvrCommon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
