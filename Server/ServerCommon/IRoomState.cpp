@@ -187,6 +187,7 @@ bool IRoomStateWaitPlayerReady::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, 
 			CLogMgr::SharedLogMgr()->ErrorLog("you are not sit down , can not ready session id = %u",nSessionID) ;
 			return true ;
 		}
+		CLogMgr::SharedLogMgr()->SystemLog("room id = %u , 玩家uid=%u 准备好了",m_pRoom->getRoomID(),pp->getUserUID());
 		pp->setState(eRoomPeer_Ready) ;
 
 		Json::Value jsMsg ;

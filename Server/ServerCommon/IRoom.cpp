@@ -426,6 +426,8 @@ void IRoom::goToState(IRoomState* pTargetState ,Json::Value* jsValue )
 	{
 		CLogMgr::SharedLogMgr()->SystemLog("go to the same state %d , room id = %d ? ",pTargetState->getStateID(), getRoomID() );
 	}
+
+	CLogMgr::SharedLogMgr()->SystemLog("roomID = %u 进入房间状态： %u",getRoomID(),pTargetState->getStateID());
 	
 	m_pCurRoomState->leaveState() ;
 	m_pCurRoomState = pTargetState ;

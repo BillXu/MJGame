@@ -278,7 +278,11 @@ bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t
 	CAutoBuffer bufferTemp(sizeof(msg) + msg.nJsLen);
 	bufferTemp.addContent(&msg,sizeof(msg)) ;
 	bufferTemp.addContent(strContent.c_str(),msg.nJsLen) ;
-	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, len = %u send : %s",nSessionID,nTargetPort,bufferTemp.getContentSize(),strContent.c_str());
+	if ( bufferTemp.getContentSize() > 900)
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("消息id = %u, 长度太大 = %u" , bufferTemp.getContentSize());
+	}
+	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, msgID = %u len = %u send : %s", nSessionID, nTargetPort, nMsgID,bufferTemp.getContentSize(), strContent.c_str());
 	return sendMsg(nSessionID,bufferTemp.getBufferPtr(),bufferTemp.getContentSize(),bBroadcast) ; 
 }
 

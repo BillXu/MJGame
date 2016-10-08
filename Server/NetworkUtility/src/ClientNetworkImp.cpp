@@ -133,10 +133,12 @@ bool CClientNetworkImp::sendMsg(const char* pData , size_t nLen )
 {
 	if ( nLen >= CInternalBuffer::max_body_length )
 	{
+		printf("msg too big len = %u\n",nLen);
 		return false ;
 	}
 	InternalBuffer_ptr msg (new CInternalBuffer());
 	msg->setData(pData,nLen) ;
+	printf("发送消息总长度 len = %u , 数据长度 len = %u \n",msg->length(),nLen);
 	m_io_service.post(boost::bind(&CClientNetworkImp::doWrite, this, msg)); //将消息主动投递给io_service  
 	return true ;
 }

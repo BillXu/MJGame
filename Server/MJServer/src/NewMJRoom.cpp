@@ -184,6 +184,8 @@ bool CNewMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSende
 				return true ;
 			}
 
+			CLogMgr::SharedLogMgr()->SystemLog("room id = %u 玩家uid=%u 准备好了。",getRoomID(),pp->getUserUID());
+
 			Json::Value jsMsg ;
 			jsMsg["idx"] = pp->getIdx() ;
 			sendRoomMsg(jsMsg,MSG_ROOM_PLAYER_READY) ;
