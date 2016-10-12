@@ -297,6 +297,12 @@ uint8_t CMJRoomPlayer::getMaxCanHuFanShu( uint8_t& nGenShu )
 void CMJRoomPlayer::addBill( stBill* pBill )
 {
 	m_vecBill.push_back(pBill) ;
+	if ((pBill->eType & eBill_Win) == eBill_Win)
+	{
+		m_nGameOffset += pBill->nOffset;
+		return;
+	}
+	m_nGameOffset -= pBill->nOffset;
 }
 
 void CMJRoomPlayer::gangPai( uint8_t nGangPai, eMJActType eGangType,uint8_t nNewCard  )
@@ -335,7 +341,7 @@ void CMJRoomPlayer::getGangWinBill( std::vector<stBill*>& vecGangWin )
 {
 	for ( auto& refBill : m_vecBill )
 	{
-		if ( refBill->eType == stBill::eBill_GangWin )
+		if ( refBill->eType == eBill_GangWin )
 		{
 			vecGangWin.push_back(refBill) ;
 		}
@@ -433,6 +439,43 @@ bool CMJRoomPlayer::getOperateListJoson(Json::Value& vActList )
 	}
 	) ;
 	return vActList.size() > 0  ;
+}
+
+void CMJRoomPlayer::getAllBillForMsg(Json::Value& jsbillInfoMsg)
+{
+	// svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,....] } , .....] , loseBills : [ { billType : eBill_HuLose, winIdx : 2 , coin : 23 } , { billType : eBill_HuLose, winIdx : 1 , coin : 234 }, ..... ] }
+	Json::Value jsArrayWinBills;
+	Json::Value jsArrayLoseBills;
+	for (auto& ref : m_vecBill)
+	{
+		Json::Value jsBill;
+		jsBill["billType"] = ref->eType;
+		if (eBill_Win == (ref->eType & eBill_Win))
+		{
+			stBillWin* pWin = (stBillWin*)ref;
+			Json::Value jsLoseArray;
+			for (auto& refD : pWin->vLoseIdxAndCoin)
+			{
+				Json::Value jsLose;
+				jsLose["loseIdx"] = refD.first;
+				jsLose["coin"] = refD.second;
+				jsLoseArray[jsLoseArray.size()] = jsLose;
+			}
+			jsBill["detail"] = jsLoseArray;
+			jsArrayWinBills[jsArrayWinBills.size()] = jsBill;
+			continue;
+		}
+		
+		// lose ;
+		auto pLoseBill = (stBillLose*)ref;
+		jsBill["winIdx"] = pLoseBill->nWinnerIdx;
+		jsBill["coin"] = pLoseBill->nOffset;
+		jsArrayWinBills[jsArrayWinBills.size()] = jsBill;
+	}
+
+	jsbillInfoMsg["idx"] = getIdx();
+	jsbillInfoMsg["loseBills"] = jsArrayLoseBills;
+	jsbillInfoMsg["winBills"] = jsArrayWinBills;
 }
 
 

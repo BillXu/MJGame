@@ -591,7 +591,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			pTimeCur = *localtime(&tNow);
 			time_t nLastTakeTime = m_stBaseData.tLastTakeCharityCoinTime;
 			pTimeLast = *localtime(&nLastTakeTime);
-			if ( pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_mon == pTimeLast.tm_mon && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
+			if ( pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
 			{
 
 			}
@@ -639,7 +639,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			pTimeCur = *localtime(&tNow);
 			time_t nLastTakeTime = m_stBaseData.tLastTakeCharityCoinTime;
 			pTimeLast = *localtime(&nLastTakeTime);
-			if ( pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_mon == pTimeLast.tm_mon && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
+			if ( pTimeCur.tm_year == pTimeLast.tm_year &&  pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
 			{
 
 			}
@@ -1013,22 +1013,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			}
 
 			// check times limit state ;
-			time_t tNow = time(nullptr) ;
-			struct tm pTimeCur ;
-			struct tm pTimeLast ;
-			pTimeCur = *localtime(&tNow);
-			time_t nLastTakeTime = m_stBaseData.tLastTakeCharityCoinTime;
-			pTimeLast = *localtime(&nLastTakeTime);
-			if (pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_yday == pTimeLast.tm_yday ) // the same day ; do nothing
-			{
-
-			}
-			else
-			{
-				m_stBaseData.nTakeCharityTimes = 0 ; // new day reset times ;
-			}
-
-			if ( m_stBaseData.nTakeCharityTimes >= TIMES_GET_CHARITY_PER_DAY  )
+			if ( getLeftCharityTimes() == 0 )
 			{
 				jsmsgBack["ret"] = 2 ;
 				SendMsg(jsmsgBack,nmsgType);
@@ -1063,6 +1048,31 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 		return false ;
 	}
 	return true ;
+}
+
+uint8_t CPlayerBaseData::getLeftCharityTimes()
+{
+	time_t tNow = time(nullptr);
+	struct tm pTimeCur;
+	struct tm pTimeLast;
+	pTimeCur = *localtime(&tNow);
+	time_t nLastTakeTime = m_stBaseData.tLastTakeCharityCoinTime;
+	pTimeLast = *localtime(&nLastTakeTime);
+	if (pTimeCur.tm_year == pTimeLast.tm_year && pTimeCur.tm_yday == pTimeLast.tm_yday) // the same day ; do nothing
+	{
+
+	}
+	else
+	{
+		m_stBaseData.nTakeCharityTimes = 0; // new day reset times ;
+	}
+
+	if ( TIMES_GET_CHARITY_PER_DAY <= m_stBaseData.nTakeCharityTimes )
+	{
+		return 0;
+	}
+
+	return TIMES_GET_CHARITY_PER_DAY - m_stBaseData.nTakeCharityTimes;
 }
 
 bool CPlayerBaseData::onCrossServerRequest(stMsgCrossServerRequest* pRequest, eMsgPort eSenderPort,Json::Value* vJsValue )
@@ -1204,6 +1214,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["uid"] = m_stBaseData.nUserUID ;
 		jValue["sessionID"] = GetPlayer()->GetSessionID() ;
 		jValue["vipRoomCard"] = m_stBaseData.nVipRoomCardCnt ;
+		jValue["charity"] = getLeftCharityTimes();
 
 		Json::Value jsclothe ;
 		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];

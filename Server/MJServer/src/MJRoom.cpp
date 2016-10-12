@@ -129,6 +129,12 @@ void CMJRoom::sendRoomInfo(uint32_t nSessionID )
 		jsPlayer["state"] = pPlayer->getState() ;
 		arrPlayers[nIdx] = jsPlayer ;
 	}
+	
+	jsMsg["waitTimer"] = 0;
+	if (getCurRoomState()->getStateID() == eRoomState_WaitPlayerAct || getCurRoomState()->getStateID() == eRoomState_WaitOtherPlayerAct )
+	{
+		jsMsg["waitTimer"] = getCurRoomState()->getStateDuring();
+	}
 
 	jsMsg["players"] = arrPlayers ;
 	sendMsgToPlayer(jsMsg,MSG_ROOM_INFO,nSessionID) ;
@@ -300,10 +306,16 @@ void CMJRoom::caculateGameResult()
 		info["idx"] = nIdx ;
 		info["coin"] = pPlayer->getCoin() ; 
 		info["huType"] = pPlayer->getHuType();
+		info["offset"] = pPlayer->getGameOffset();
 		msgArray[(uint32_t)nIdx] = info ;
+
+		// send bill ;
+		Json::Value jsBillInfo;
+		pPlayer->getAllBillForMsg(jsBillInfo);
+		sendMsgToPlayer(jsBillInfo, MSG_ROOM_PLAYER_GAME_BILL, pPlayer->getSessionID());
 	}
 	msg["players"] = msgArray ;
-	sendRoomMsg(msg,MSG_ROOM_GAME_OVER);
+	sendRoomMsg(msg,MSG_ROOM_GAME_OVER);	
 }
 
 void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
@@ -443,7 +455,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	uint8_t nWinCoin = getBaseBet() ;
 	uint8_t ntotalWin  = 0 ;
 	stBillWin* pBill = new stBillWin ;
-	pBill->eType = stBillWin::eBill_GangWin ;
+	pBill->eType = eBill_GangWin ;
 	if ( nInvokeIdx == nActIdx )
 	{
 		if ( eGangType == eMJAct_BuGang )
@@ -467,7 +479,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 				continue; 
 			}
 			stBillLose* pLoseBill = new stBillLose ;
-			pLoseBill->eType = stBill::eBill_GangLose ;
+			pLoseBill->eType = eBill_GangLose ;
 			pLoseBill->nWinnerIdx = nActIdx ;
 			
 			if ( nWinCoin <= pp->getCoin() )
@@ -500,7 +512,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 		uint32_t ntotalWin = nWinCoin ;
 
 		stBillLose* pLoseBill = new stBillLose ;
-		pLoseBill->eType = stBill::eBill_GangLose ;
+		pLoseBill->eType = eBill_GangLose ;
 		pLoseBill->nWinnerIdx = nActIdx ;
 
 		if ( pLosePlayer->getCoin() >= nWinCoin )

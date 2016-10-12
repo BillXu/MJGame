@@ -276,7 +276,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			if ( m_edoAct != eMJAct_Mo && pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
 				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
-				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
 					pTargeState->addWaitIdx(ref) ;
@@ -362,7 +362,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			if ( pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
 				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
-				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
 					pTargeState->addWaitIdx(ref) ;
@@ -677,7 +677,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			if ( pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
 				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
-				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
 					pTargeState->addWaitIdx(ref) ;
@@ -714,7 +714,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			if ( m_edoAct == eMJAct_MingGang && pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
 				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
-				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
+				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
 					pTargeState->addWaitIdx(ref) ;

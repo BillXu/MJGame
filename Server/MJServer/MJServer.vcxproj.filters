@@ -34,6 +34,9 @@
     <Filter Include="src\NewRoom\state">
       <UniqueIdentifier>{0e8e1063-c489-4154-9eca-a19641c5c561}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\MJ">
+      <UniqueIdentifier>{32900542-06c3-4a1d-9ea2-bb9be8d647b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -225,6 +228,36 @@
     <ClInclude Include="src\TwoBirdGodFanxing.h">
       <Filter>src\Card</Filter>
     </ClInclude>
+    <ClInclude Include="src\IMJPlayerCard.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IMJPlayerCardCheckPaixingHelper.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJPlayerCard.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IGameRoom.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IMJRoom.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IMJPlayer.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IMJRoomState.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomStateWaitReady.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomStateStartGame.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomStateWaitPlayerAct.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -373,6 +406,9 @@
     </ClCompile>
     <ClCompile Include="src\MJNewCheckFanXing.cpp">
       <Filter>src\Card</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IMJRoom.cpp">
+      <Filter>src\MJ</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

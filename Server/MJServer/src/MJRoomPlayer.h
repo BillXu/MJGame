@@ -3,20 +3,10 @@
 #include "ISitableRoomPlayer.h"
 #include "MJPeerCard.h"
 #include "CommonData.h"
+#include "MessageIdentifer.h"
 struct stBill
 {
-	enum eBillType
-	{
-		eBill_None,
-		eBill_Lose = 1 ,
-		eBill_Win = 1 << 1 ,
-		eBill_GangWin = (1 << 2 ) | eBill_Win ,
-		eBill_HuWin = (1 << 3 ) | eBill_Win ,
-		eBill_GangLose = (1 << 4 ) | eBill_Win ,
-		eBill_HuLose = (1 << 5 ) | eBill_Win ,
-		eBill_WinRollBackGang = (1 << 6 ) | eBill_Win ,
-		eBill_LoseRollBackGang = (1 << 6 ) | eBill_Win ,
-	};
+
 	
 	int32_t nOffset ;
 	eBillType eType ;
@@ -86,6 +76,7 @@ public:
 	void debugWantedCard();
 	bool getOperateListJoson(Json::Value& vActList );
 	uint32_t getHuType(){ return m_eHuType; }
+	void getAllBillForMsg(Json::Value& jsbillInfoMsg);
 protected:
 	void updateWantedCardList();
 public:

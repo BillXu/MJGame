@@ -88,6 +88,22 @@ enum eTime
 #if (C_SHARP)  
 public
 #endif
+enum eBillType  // 账单枚举
+{
+	eBill_None,
+	eBill_Lose = 1 ,  // 输的账单
+	eBill_Win = 1 << 1,  // 赢的账单
+	eBill_GangWin = (1 << 2) | eBill_Win,  // 杠牌赢的账单
+	eBill_HuWin = (1 << 3) | eBill_Win, // 胡牌赢的账单
+	eBill_GangLose = (1 << 4) | eBill_Lose,  // 别人杠牌输的账单
+ 	eBill_HuLose = (1 << 5) | eBill_Lose, // 别人胡牌的账单
+	eBill_WinRollBackGang = (1 << 6) | eBill_Win,  //  别人之前杠牌赢的钱，因为他最终没胡牌，需要把这个钱还给我。
+	eBill_LoseRollBackGang = (1 << 6) | eBill_Win,  //  因为自己最终没胡牌，退还杠牌赢的钱。
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eMsgPort
 {
 	ID_MSG_PORT_NONE , // client to game server 
@@ -129,7 +145,7 @@ enum eRoomState  // 玩家的状态
 	eRoomState_DoDecideQue,  //  玩家定缺
 	eRoomState_DoFetchCard, // 玩家摸牌
 	eRoomState_WaitPlayerAct,  // 等待玩家操作 { idx : 0 , exeAct : eMJActType , isWaitChoseAct : 0 , actCard : 23, onlyChu : 1  }
-	eRoomState_DoPlayerAct,  // 玩家操作
+	eRoomState_DoPlayerAct,  // 玩家操作 // { idx : 0 , act : eMJAct_Chi , card : 23, invokeIdx : 23, eatWithA : 23 , eatWithB : 22 }
 	eRoomState_WaitOtherPlayerAct,  // 等待玩家操作，有人出牌了 { invokerIdx : 0 , card : 0 ,cardFrom : eMJActType , arrNeedIdxs : [2,0,1] } 
 	eRoomState_DoOtherPlayerAct,  // 其他玩家操作了。
 	eRoomState_WaitSupplyCoin , // 等待玩家补充金币
@@ -226,8 +242,9 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",sex : eSex,coin : 235 , diamond: 500,uid : 2345, sessionID : 2345, vipRoomCard : 23, clothe : [235,235,234] }
+	// svr : { name: "nickName",sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, vipRoomCard : 23, clothe : [235,235,234] }
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
+	// charity : 救济金剩余可领次数
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME, // 玩家修改昵称
@@ -261,7 +278,7 @@ enum eMsgType
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
-	// svr : { roomID ： 23 , configID : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }
+	// svr : { roomID ： 23 , configID : 23 , waitTimer : 23, roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }
 	// roomState  , 房间状态
 
 	MSG_ROOM_PLAYER_ENTER, // 有其他玩家进入房间
@@ -325,7 +342,7 @@ enum eMsgType
 	// players : 需要充值的玩家所以 数组，可能有多个玩家。
 	
 	MSG_ROOM_GAME_OVER, // 游戏结束
-	// svr : { players : [ {idx : 0 , coin : 2345 ,huType : eFanxingType } ,{idx : 1 , coin : 2345 ,huType : eFanxingType } ,{idx : 2 , coin : 2345,huType : eFanxingType },{idx : 3 , coin : 2345,huType : eFanxingType } ]  } 
+	// svr : { players : [ {idx : 0 , coin : 2345 ,huType : eFanxingType, offset : 23 } ,{idx : 1 , coin : 2345 ,huType : eFanxingType , offset : 23 } ,{idx : 2 , coin : 2345,huType : eFanxingType, offset : 23 },{idx : 3 , coin : 2345,huType : eFanxingType, offset : 23 } ]  } 
 	// eFanxingType 参照枚举值
 	// players: 结束后，每个玩家最终的钱数。
 
@@ -508,4 +525,10 @@ enum eMsgType
 	// client : { dstRoomID : 356 } ,
 	// svr : { ret : 0 } ;
 	// ret : 0 等待你出牌，只能出牌，1 此刻不是你该操作的时候。
+
+	MSG_ROOM_PLAYER_GAME_BILL , // 游戏过程中详细的金钱转换账单。 这个消息一般是在游戏结束够发送,只能收到自己的。
+	// client : 
+	// svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,  { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } , .....] , loseBills : [ { billType : eBill_HuLose, winIdx : 2 , coin : 23 } , { billType : eBill_HuLose, winIdx : 1 , coin : 234 }, ..... ] }
+	// idx ： 这条账单是哪个玩家的。 winBills 是这个玩家所有赢钱的账单 组成的数组。 billType 此账单的类型（赢钱是怎么赢的，值的意思请参考 eBill 的枚举），detail ： 是赢钱的时候，具体是赢了哪些人的钱，从每个人那里赢了多少， 一个数组。
+	// loseIdx 就是输钱的索引，coin 就是输了多少钱。loseBills ： 就是当前玩家数钱的账单数组。 数组元素内容是{ billType类型，输钱是怎么输的，winIdx 就输给了谁，coin 输了多少钱 }
 };

@@ -106,6 +106,12 @@ void CNewMJRoom::sendRoomInfo(uint32_t nSessionID )
 		arrPlayers[nIdx] = jsPlayer ;
 	}
 
+	jsMsg["waitTimer"] = 0;
+	if (getCurRoomState()->getStateID() == eRoomState_WaitPlayerAct )
+	{
+		jsMsg["waitTimer"] = getCurRoomState()->getStateDuring();
+	}
+
 	jsMsg["players"] = arrPlayers ;
 	sendMsgToPlayer(jsMsg,MSG_ROOM_INFO,nSessionID) ;
 	CLogMgr::SharedLogMgr()->PrintLog("send msg room info msg to player session id = %u",nSessionID) ;
