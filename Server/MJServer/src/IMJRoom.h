@@ -42,6 +42,21 @@ public:
 	// mj function ;
 	void onWaitPlayerAct( uint8_t nIdx , bool& isCanPass );
 	uint8_t getAutoChuCardWhenWaitActTimeout(uint8_t nIdx);
+	uint8_t getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx);
+	void onPlayerMo( uint8_t nIdx );
+	void onPlayerPeng( uint8_t nIdx , uint8_t nCard , uint8_t nInvokeIdx );
+	void onPlayerMingGang( uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx );
+	void onPlayerAnGang( uint8_t nIdx, uint8_t nCard );
+	void onPlayerBuGang(uint8_t nIdx, uint8_t nCard );
+	void onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t nInvokeIdx);
+	void onPlayerChu(uint8_t nIdx, uint8_t nCard);
+	bool isAnyPlayerPengOrHuThisCard( uint8_t nInvokeIdx , uint8_t nCard );
+	void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vMustWaitCandinates ); // if have hu ,peng will not contain in ,peng candinate is not must wait ;
+	bool isAnyPlayerRobotGang(uint8_t nInvokeIdx, uint8_t nCard);
+	void onAskForRobotGang(uint8_t nInvokeIdx, uint8_t nCard,std::vector<uint8_t>& vCandinates );
+	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
+	bool isGameOver();
+	bool isCanGoOnMoPai();
 protected:
 	bool addRoomState(IMJRoomState* pState);
 protected:

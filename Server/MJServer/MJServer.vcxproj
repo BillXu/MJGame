@@ -138,8 +138,11 @@
     <ClInclude Include="src\MJPeerCardNew.h" />
     <ClInclude Include="src\MJPlayerCard.h" />
     <ClInclude Include="src\MJRoomBattleEnd.h" />
+    <ClInclude Include="src\MJRoomStateAskForRobotGang.h" />
+    <ClInclude Include="src\MJRoomStateDoPlayerAct.h" />
     <ClInclude Include="src\MJRoomStateStartGame.h" />
     <ClInclude Include="src\MJRoomStateWaitPlayerAct.h" />
+    <ClInclude Include="src\MJRoomStateWaitPlayerChu.h" />
     <ClInclude Include="src\MJRoomStateWaitReady.h" />
     <ClInclude Include="src\MJWaitDecideQueState.h" />
     <ClInclude Include="src\MJBloodFanxing.h" />

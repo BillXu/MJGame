@@ -5,33 +5,26 @@
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
 #include <cassert>
-class MJRoomStateWaitPlayerAct
+class MJRoomStateWaitPlayerChu
 	:public IMJRoomState
 {
 public:
-	uint32_t getStateID()final{ return eRoomState_StartGame; }
+	uint32_t getStateID()final{ return eRoomState_WaitPlayerChu; }
 	void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)override
 	{
 		IMJRoomState::enterRoom(pmjRoom, jsTranData);
 		setStateDuringTime(eTime_WaitPlayerAct);
-		if ( jsTranData["idx"].isNull() == false && jsTranData["idx"].isUInt() )
+		if (jsTranData["idx"].isNull() == false && jsTranData["idx"].isUInt())
 		{
 			m_nIdx = jsTranData["idx"].asUInt();
-			getRoom()->onWaitPlayerAct(m_nIdx, m_isCanPass );
 			return;
 		}
 		assert(0 && "invalid argument");
 	}
 
-	void onStateTimeUp()override 
+	void onStateTimeUp()override
 	{
-		if (m_isCanPass)
-		{
-			m_isCanPass = false;
-			setStateDuringTime(eTime_WaitPlayerAct);
-			return;
-		}
-		auto nCard = getRoom()->getAutoChuCardWhenWaitActTimeout(m_nIdx);
+		auto nCard = getRoom()->getAutoChuCardWhenWaitChuTimeout(m_nIdx);
 		Json::Value jsTran;
 		jsTran["idx"] = m_nIdx;
 		jsTran["act"] = eMJAct_Chu;
@@ -65,47 +58,16 @@ public:
 				break;
 			}
 
-			auto pMJCard = pPlayer->getPlayerCard();
-			switch (actType)
+			if ( eMJAct_Chu != actType)
 			{
-			case eMJAct_Chu:
-			{
-				if (!pMJCard->isHaveCard(nCard))
-				{
-					nRet = 3;
-				}
-			}
-			break;
-			case eMJAct_AnGang:
-			{
-				if (!pMJCard->canAnGangWithCard(nCard))
-				{
-					nRet = 3;
-				}
-			}
-			break;
-			case eMJAct_BuGang:
-			case eMJAct_BuGang_Declare:
-			{
-				if (!pMJCard->canBuGangWithCard(nCard))
-				{
-					nRet = 3;
-				}
-			}
-			break;
-			case eMJAct_Hu:
-			{
-				if (!pMJCard->isHoldCardCanHu())
-				{
-					nRet = 3;
-				}
-				nCard = pMJCard->getNewestFetchedCard();
-			}
-			break;
-			case eMJAct_Pass:
-			break;
-			default:
 				nRet = 2;
+				break;
+			}
+
+			auto pMJCard = pPlayer->getPlayerCard();
+			if (!pMJCard->isHaveCard(nCard))
+			{
+				nRet = 3;
 				break;
 			}
 		} while (0);
@@ -114,13 +76,7 @@ public:
 		{
 			Json::Value jsRet;
 			jsRet["ret"] = nRet;
-			getRoom()->sendMsgToPlayer(jsRet,nMsgType,nSessionID);
-			return true;
-		}
-
-		if (eMJAct_Pass == actType)
-		{
-			setStateDuringTime(eTime_WaitPlayerAct);
+			getRoom()->sendMsgToPlayer(jsRet, nMsgType, nSessionID);
 			return true;
 		}
 
@@ -130,20 +86,13 @@ public:
 		jsTran["act"] = actType;
 		jsTran["card"] = nCard;
 		jsTran["invokeIdx"] = m_nIdx;
-		if (eMJAct_BuGang_Declare == actType || eMJAct_BuGang == actType)
-		{
-			if (getRoom()->isAnyPlayerRobotGang(m_nIdx, nCard))
-			{
-				getRoom()->goToState(eRoomState_AskForRobotGang, &jsTran);
-				return true;
-			}
-		}
 		getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
 		return true;
 	}
 
 protected:
 	uint8_t m_nIdx;
-	bool m_isCanPass;
 };
+
+
 

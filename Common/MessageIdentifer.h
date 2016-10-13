@@ -145,9 +145,12 @@ enum eRoomState  // 玩家的状态
 	eRoomState_DoDecideQue,  //  玩家定缺
 	eRoomState_DoFetchCard, // 玩家摸牌
 	eRoomState_WaitPlayerAct,  // 等待玩家操作 { idx : 0 , exeAct : eMJActType , isWaitChoseAct : 0 , actCard : 23, onlyChu : 1  }
-	eRoomState_DoPlayerAct,  // 玩家操作 // { idx : 0 , act : eMJAct_Chi , card : 23, invokeIdx : 23, eatWithA : 23 , eatWithB : 22 }
+	eRoomState_WaitPlayerChu, // 等待玩家出牌 { idx : 2 }
+	eRoomState_DoPlayerAct,  // 玩家操作 // { idx : 0 ,huIdxs : [1,3,2,], act : eMJAct_Chi , card : 23, invokeIdx : 23, eatWithA : 23 , eatWithB : 22 }
 	eRoomState_WaitOtherPlayerAct,  // 等待玩家操作，有人出牌了 { invokerIdx : 0 , card : 0 ,cardFrom : eMJActType , arrNeedIdxs : [2,0,1] } 
 	eRoomState_DoOtherPlayerAct,  // 其他玩家操作了。
+	eRoomState_AskForRobotGang, // 询问玩家抢杠胡， { invokeIdx : 2 , card : 23 }
+	eRoomState_AskForHuAndPeng, // 询问玩家碰或者胡  { invokeIdx : 2 , card : 23 }
 	eRoomState_WaitSupplyCoin , // 等待玩家补充金币
 	eRoomState_WaitPlayerRecharge = eRoomState_WaitSupplyCoin,  //  等待玩家充值
 	eRoomState_GameEnd, // 游戏结束

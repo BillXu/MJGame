@@ -258,6 +258,15 @@
     <ClInclude Include="src\MJRoomStateWaitPlayerAct.h">
       <Filter>src\MJ</Filter>
     </ClInclude>
+    <ClInclude Include="src\MJRoomStateDoPlayerAct.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomStateWaitPlayerChu.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomStateAskForRobotGang.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
