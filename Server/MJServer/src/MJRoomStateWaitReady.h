@@ -18,7 +18,7 @@ public:
 				CLogMgr::SharedLogMgr()->ErrorLog("you are not in this room how to set ready ? session id = %u", nSessionID );
 				return true;
 			}
-			pPlayer->setState(eRoomPeer_Ready);
+			getRoom()->onPlayerSetReady(pPlayer->getIdx());
 			if (getRoom()->canStartGame())
 			{
 				getRoom()->goToState(eRoomState_StartGame);

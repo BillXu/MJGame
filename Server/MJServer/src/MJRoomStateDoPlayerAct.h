@@ -52,6 +52,7 @@ public:
 	{
 		switch (m_eActType)
 		{
+		case eMJAct_Chi:
 		case eMJAct_Peng:
 		case eMJAct_MingGang:
 		{
@@ -62,6 +63,7 @@ public:
 			break;
 		case eMJAct_Mo:
 		case eMJAct_BuGang:
+		case eMJAct_BuGang_Declare:
 		case eMJAct_AnGang:
 		{
 			Json::Value jsValue;
@@ -154,6 +156,14 @@ protected:
 		case eMJAct_Chu:
 			getRoom()->onPlayerChu(m_nActIdx, m_nCard);
 			break;
+		case eMJAct_Chi:
+			if (m_vEatWith[0] * m_vEatWith[1] == 0)
+			{
+				CLogMgr::SharedLogMgr()->ErrorLog("eat lack of right card");
+				break;
+			}
+			getRoom()->onPlayerEat(m_nActIdx,m_nCard,m_vEatWith[0],m_vEatWith[1],m_nInvokeIdx);
+			break;
 		default:
 			CLogMgr::SharedLogMgr()->ErrorLog("unknow act  how to do it %u",m_eActType);
 			break;
@@ -167,6 +177,7 @@ protected:
 		case eMJAct_Mo:
 			return eTime_DoPlayerMoPai;
 		case eMJAct_Peng: 
+		case eMJAct_Chi:
 			return eTime_DoPlayerAct_Peng;
 		case eMJAct_MingGang:
 		case eMJAct_BuGang:

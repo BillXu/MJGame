@@ -267,6 +267,12 @@
     <ClInclude Include="src\MJRoomStateAskForRobotGang.h">
       <Filter>src\MJ</Filter>
     </ClInclude>
+    <ClInclude Include="src\MJRoomStateAskForPengOrHu.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomStateGameEnd.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
