@@ -3,6 +3,7 @@
 class IMJPlayer;
 struct stEnterRoomData;
 class IMJRoomState;
+#define MAX_SEAT_CNT 4 
 class IMJRoom
 	:public IGameRoom
 {
@@ -15,9 +16,8 @@ public:
 	bool onPlayerApplyLeave(uint32_t nPlayerUID)override;
 	bool isRoomFull()override;
 
-	void roomItemDetailVisitor(Json::Value& vOutJsValue) override;
-	uint32_t getRoomID()override;
-	uint8_t getRoomType() override;
+	uint32_t getRoomID()final;
+	stBaseRoomConfig* getRoomConfig()final{ return m_pRoomConfig; }
 	void update(float fDelta) override;
 	bool onMessage(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nPlayerSessionID)override;
 	bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID) override;
@@ -30,16 +30,16 @@ public:
 	IMJPlayer* getMJPlayerBySessionID(uint32_t nSessionid );
 	IMJPlayer* getMJPlayerByUID( uint32_t nUID );
 
-	virtual void startGame() { }
-	virtual void willStartGame() { }
-	virtual void onGameEnd(){}
-	virtual void onGameDidEnd(){}
+	virtual void startGame() = 0 ;
+	virtual void willStartGame(){};
+	virtual void onGameEnd() = 0 ;
+	virtual void onGameDidEnd(){};
 	virtual bool canStartGame();
-	virtual float getStateDuringForState( uint32_t nState );
 
 	void goToState(IMJRoomState* pTargetState, Json::Value* jsValue = nullptr);
 	void goToState(uint16_t nStateID, Json::Value* jsValue = nullptr);
 	uint8_t getBankerIdx();
+	void setBankIdx(uint8_t nIdx);
 	void onPlayerSetReady( uint8_t nIdx );
 	// mj function ;
 	void onWaitPlayerAct( uint8_t nIdx , bool& isCanPass );
@@ -58,12 +58,19 @@ public:
 	bool isAnyPlayerRobotGang(uint8_t nInvokeIdx, uint8_t nCard);
 	void onAskForRobotGang(uint8_t nInvokeIdx, uint8_t nCard,std::vector<uint8_t>& vCandinates );
 	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
-	bool isGameOver();
-	bool isCanGoOnMoPai();
+	virtual bool isGameOver();
+	virtual bool isCanGoOnMoPai() = 0 ;
+	virtual IMJPlayer* doCreateMJPlayer() = 0;
+	IRoomManager* getRoomMgr(){ return m_pRoomMgr; }
+	IMJRoomState* getCurRoomState(){ return m_pCurState; }
 protected:
 	bool addRoomState(IMJRoomState* pState);
 protected:
-	IMJPlayer* m_vMJPlayers[4];
+	IMJPlayer* m_vMJPlayers[MAX_SEAT_CNT];
 	MAP_ID_ROOM_STATE m_vRoomStates;
 	IMJRoomState* m_pCurState;
+	IRoomManager* m_pRoomMgr;
+	stBaseRoomConfig* m_pRoomConfig;
+	uint32_t m_nRoomID;
+	uint8_t m_nBankerIdx;
 };

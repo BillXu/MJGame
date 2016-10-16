@@ -8,7 +8,7 @@ class IMJRoomState
 public:
 	IMJRoomState(){ m_fStateDuring = 99999; m_pRoom = nullptr; };
 	virtual ~IMJRoomState(){}
-	virtual void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)
+	virtual void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)
 	{
 		m_pRoom = pmjRoom;
 	}
