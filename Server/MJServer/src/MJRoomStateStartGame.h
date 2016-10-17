@@ -6,9 +6,9 @@ class MJRoomStateStartGame
 {
 public:
 	uint32_t getStateID(){ return eRoomState_StartGame; }
-	void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)
+	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)
 	{
-		IMJRoomState::enterRoom(pmjRoom, jsTranData);
+		IMJRoomState::enterState(pmjRoom, jsTranData);
 		getRoom()->willStartGame();
 		getRoom()->startGame();
 		setStateDuringTime(eTime_ExeGameStart);

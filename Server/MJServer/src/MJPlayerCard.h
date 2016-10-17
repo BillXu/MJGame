@@ -8,12 +8,8 @@ class MJPlayerCard
 public:
 	void reset() override;
 	void addDistributeCard(uint8_t nCardNum) final;
-	void addMoCard(uint8_t nMoCard) final;
-	void addGangCard(uint8_t nGangCard) final;
-	bool chuCard(uint8_t nChuCard) final;
-	bool eatCard(uint8_t nTarget, uint8_t nWithCardA, uint8_t nWithCardB) final;
-	bool gangCardBeRobot(uint8_t nCard) final;
-	bool onCardBeGangPeng(uint8_t nCard) final;
+	bool onGangCardBeRobot(uint8_t nCard) final;
+	bool onCardBeGangPengEat(uint8_t nCard) final;
 
 	bool isHaveCard(uint8_t nCard) final;
 	bool canMingGangWithCard(uint8_t nCard) final;
@@ -21,8 +17,17 @@ public:
 	bool canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB) override;
 	bool canHuWitCard(uint8_t nCard) override;
 	bool isTingPai() override;
-	bool getHoldCardThatCanGang(VEC_CARD& vGangCards)final;
+	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)final;
+	bool getHoldCardThatCanBuGang(VEC_CARD& vGangCards)final;
 	bool isHoldCardCanHu() override;
+
+	void onMoCard(uint8_t nMoCard) final;
+	virtual bool onPeng(uint8_t nCard) final;
+	virtual bool onMingGang(uint8_t nCard, uint8_t nGangGetCard) final;
+	virtual bool onAnGang(uint8_t nCard, uint8_t nGangGetCard) final;
+	virtual bool onBuGang(uint8_t nCard, uint8_t nGangGetCard) final;
+	virtual bool onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB) final;
+	virtual bool onChuCard(uint8_t nChuCard)final;
 
 	bool getHoldCard(VEC_CARD& vHoldCard) final;
 	bool getChuedCard(VEC_CARD& vChuedCard) final;

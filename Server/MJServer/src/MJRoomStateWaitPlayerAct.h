@@ -10,9 +10,9 @@ class MJRoomStateWaitPlayerAct
 {
 public:
 	uint32_t getStateID()final{ return eRoomState_StartGame; }
-	void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)override
+	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)override
 	{
-		IMJRoomState::enterRoom(pmjRoom, jsTranData);
+		IMJRoomState::enterState(pmjRoom, jsTranData);
 		setStateDuringTime(eTime_WaitPlayerAct);
 		if ( jsTranData["idx"].isNull() == false && jsTranData["idx"].isUInt() )
 		{

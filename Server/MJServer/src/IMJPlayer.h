@@ -14,6 +14,7 @@ public:
 	virtual IMJPlayerCard* getPlayerCard() = 0;
 	virtual void setState( uint32_t eState );
 	virtual bool haveState( uint32_t eState );
+	virtual uint32_t getState() = 0;
 	virtual uint32_t getSessionID() = 0;
 	virtual uint32_t getUID() = 0;
 };

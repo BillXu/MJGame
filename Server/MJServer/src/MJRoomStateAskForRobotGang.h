@@ -10,9 +10,9 @@ class MJRoomStateAskForRobotGang
 {
 public:
 	uint32_t getStateID()final{ return eRoomState_AskForRobotGang; }
-	void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)override
+	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)override
 	{
-		IMJRoomState::enterRoom(pmjRoom, jsTranData);
+		IMJRoomState::enterState(pmjRoom, jsTranData);
 		setStateDuringTime(eTime_WaitPlayerAct);
 		m_nInvokeIdx = jsTranData["invokeIdx"].asUInt();
 		m_nCard = jsTranData["card"].asUInt();

@@ -5,6 +5,7 @@
 class IRoomManager;
 struct stBaseRoomConfig;
 struct stMsg;
+struct stEnterRoomData;
 class IGameRoom
 {
 public:

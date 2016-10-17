@@ -29,6 +29,7 @@ public:
 	uint8_t getSeatCnt();
 	IMJPlayer* getMJPlayerBySessionID(uint32_t nSessionid );
 	IMJPlayer* getMJPlayerByUID( uint32_t nUID );
+	IMJPlayer* getMJPlayerByIdx( uint8_t nIdx );
 
 	virtual void startGame() = 0 ;
 	virtual void willStartGame(){};
@@ -54,13 +55,14 @@ public:
 	void onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t nInvokeIdx);
 	void onPlayerChu(uint8_t nIdx, uint8_t nCard);
 	bool isAnyPlayerPengOrHuThisCard( uint8_t nInvokeIdx , uint8_t nCard );
-	void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vWaitHuIdx, std::vector<uint8_t>& vWaitPengGangIdx, bool& isNeedWaitEat );  
+	void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vOutWaitHuIdx, std::vector<uint8_t>& vOutWaitPengGangIdx, bool& isNeedWaitEat );  
 	bool isAnyPlayerRobotGang(uint8_t nInvokeIdx, uint8_t nCard);
-	void onAskForRobotGang(uint8_t nInvokeIdx, uint8_t nCard,std::vector<uint8_t>& vCandinates );
+	void onAskForRobotGang(uint8_t nInvokeIdx, uint8_t nCard,std::vector<uint8_t>& vOutCandinates );
 	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
 	virtual bool isGameOver();
 	virtual bool isCanGoOnMoPai() = 0 ;
 	virtual IMJPlayer* doCreateMJPlayer() = 0;
+	virtual uint8_t distributeOneCard() = 0;
 	IRoomManager* getRoomMgr(){ return m_pRoomMgr; }
 	IMJRoomState* getCurRoomState(){ return m_pCurState; }
 protected:

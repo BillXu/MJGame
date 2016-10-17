@@ -9,12 +9,8 @@ public:
 	virtual ~IMJPlayerCard(){}
 	virtual void reset() = 0;
 	virtual void addDistributeCard( uint8_t nCardNum ) = 0 ;
-	virtual void addMoCard( uint8_t nMoCard ) = 0;
-	virtual void addGangCard( uint8_t nGangCard ) = 0 ;
-	virtual bool chuCard( uint8_t nChuCard ) = 0;
-	virtual bool eatCard( uint8_t nTarget , uint8_t nWithCardA, uint8_t nWithCardB) = 0;
-	virtual bool gangCardBeRobot(uint8_t nCard ) = 0;
-	virtual bool onCardBeGangPeng( uint8_t nCard ) = 0 ;
+	virtual bool onGangCardBeRobot(uint8_t nCard ) = 0;
+	virtual bool onCardBeGangPengEat( uint8_t nCard ) = 0 ;
 
 	virtual bool isHaveCard(uint8_t nCard) = 0 ;
 	virtual bool canMingGangWithCard(uint8_t nCard) = 0 ;
@@ -24,8 +20,17 @@ public:
 	virtual bool canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB ) = 0 ;
 	virtual bool canHuWitCard( uint8_t nCard ) = 0;
 	virtual bool isTingPai() = 0 ;
-	virtual bool getHoldCardThatCanGang( VEC_CARD& vGangCards ) = 0 ;
+	virtual bool getHoldCardThatCanAnGang( VEC_CARD& vGangCards ) = 0 ;
+	virtual bool getHoldCardThatCanBuGang(VEC_CARD& vGangCards) = 0;
 	virtual bool isHoldCardCanHu() = 0 ;
+
+	virtual void onMoCard(uint8_t nMoCard) = 0;
+	virtual bool onPeng( uint8_t nCard ) = 0 ;
+	virtual bool onMingGang(uint8_t nCard, uint8_t nGangGetCard ) = 0;
+	virtual bool onAnGang(uint8_t nCard, uint8_t nGangGetCard ) = 0;
+	virtual bool onBuGang(uint8_t nCard, uint8_t nGangGetCard ) = 0;
+	virtual bool onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB ) = 0;
+	virtual bool onChuCard(uint8_t nChuCard) = 0;
 
 	virtual bool getHoldCard(VEC_CARD& vHoldCard ) = 0 ;
 	virtual bool getChuedCard(VEC_CARD& vChuedCard ) = 0 ;

@@ -8,9 +8,9 @@ class MJRoomStateDoPlayerAct
 {
 public:
 	uint32_t getStateID()final{ return eRoomState_DoPlayerAct; }
-	void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)override
+	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)override
 	{
-		IMJRoomState::enterRoom(pmjRoom, jsTranData);
+		IMJRoomState::enterState(pmjRoom, jsTranData);
 		m_nActIdx = jsTranData["idx"].asUInt();
 		m_eActType = jsTranData["act"].asUInt();
 		if (jsTranData["card"].isNull() == false)

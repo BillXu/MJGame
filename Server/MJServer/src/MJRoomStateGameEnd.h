@@ -6,9 +6,9 @@ class MJRoomStateGameEnd
 {
 public:
 	uint32_t getStateID(){ return eRoomState_GameEnd; }
-	void enterRoom(IMJRoom* pmjRoom, Json::Value& jsTranData)
+	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)
 	{
-		IMJRoomState::enterRoom(pmjRoom, jsTranData);
+		IMJRoomState::enterState(pmjRoom, jsTranData);
 		getRoom()->onGameEnd();
 		setStateDuringTime(eTime_GameOver);
 	}
