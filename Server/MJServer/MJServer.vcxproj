@@ -204,6 +204,7 @@
     <ClCompile Include="src\MJNewCheckFanXing.cpp" />
     <ClCompile Include="src\MJPeerCard.cpp" />
     <ClCompile Include="src\MJPeerCardNew.cpp" />
+    <ClCompile Include="src\MJPlayerCard.cpp" />
     <ClCompile Include="src\MJRoom.cpp" />
     <ClCompile Include="src\MJRoomBattleEnd.cpp" />
     <ClCompile Include="src\MJServerRoomManger.cpp" />

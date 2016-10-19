@@ -425,5 +425,8 @@
     <ClCompile Include="src\IMJRoom.cpp">
       <Filter>src\MJ</Filter>
     </ClCompile>
+    <ClCompile Include="src\MJPlayerCard.cpp">
+      <Filter>src\MJ</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

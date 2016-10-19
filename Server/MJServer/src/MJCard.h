@@ -27,3 +27,10 @@ protected:
 	VEC_UINT8 m_vAllCards ;
 	uint8_t m_nCurCardIdx ;
 };
+
+#ifndef CARD_TYPE_HELP
+#define CARD_TYPE_HELP
+#define card_Type(cardNum) CMJCard::parseCardType((cardNum))
+#define card_Value(cardNum) CMJCard::parseCardValue((cardNum))
+#define make_Card_Num(type,value) CMJCard::makeCardNumber((type),(value))
+#endif 
