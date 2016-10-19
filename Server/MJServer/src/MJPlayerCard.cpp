@@ -172,7 +172,7 @@ bool MJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 
 bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 {
-
+	return true;
 }
 
 bool MJPlayerCard::isTingPai()
@@ -260,7 +260,7 @@ bool MJPlayerCard::getHoldCardThatCanBuGang(VEC_CARD& vGangCards)
 
 bool MJPlayerCard::isHoldCardCanHu()
 {
-
+	return true;
 }
 
 void MJPlayerCard::onMoCard(uint8_t nMoCard)
@@ -410,21 +410,25 @@ bool MJPlayerCard::getHoldCard(VEC_CARD& vHoldCard)
 bool MJPlayerCard::getChuedCard(VEC_CARD& vChuedCard)
 {
 	vChuedCard.insert(vChuedCard.end(),m_vChuedCard.begin(),m_vChuedCard.end());
+	return vChuedCard.empty() == false;
 }
 
 bool MJPlayerCard::getGangedCard(VEC_CARD& vGangCard)
 {
 	vGangCard.insert(m_vGanged.end(), m_vGanged.begin(), m_vGanged.end());
+	return false == vGangCard.empty();
 }
 
 bool MJPlayerCard::getPengedCard(VEC_CARD& vPengedCard)
 {
 	vPengedCard.insert(m_vPenged.end(), m_vPenged.begin(), m_vPenged.end());
+	return false == vPengedCard.empty();
 }
 
 bool MJPlayerCard::getEatedCard(VEC_CARD& vEatedCard)
 {
 	vEatedCard.insert(m_vEated.end(), m_vEated.begin(), m_vEated.end());
+	return false == vEatedCard.empty();
 }
 
 uint32_t MJPlayerCard::getNewestFetchedCard()
@@ -444,4 +448,116 @@ void MJPlayerCard::addCardToVecAsc(VEC_CARD& vec, uint8_t nCard)
 		}
 	}
 	vec.push_back(nCard);
+}
+
+void MJPlayerCard::getNotShuns(VEC_CARD vCard, VEC_NOT_SHUN& vNotShun)
+{
+
+}
+
+bool MJPlayerCard::pickKeZiOut(VEC_CARD vCards, VEC_CARD& vKeZi, VEC_CARD& vLeftCard)
+{
+	vKeZi.clear();
+	for (uint8_t nIdx = 0; (uint8_t)(nIdx + 2) < vCards.size();)
+	{
+		if (vCards[nIdx] == vCards[nIdx + 2])
+		{
+			vKeZi.push_back(vCards[nIdx]);
+			// mark find result to 0 , for remove later 
+			vCards[nIdx] = 0;
+			vCards[nIdx + 1] = 0;
+			vCards[nIdx + 2] = 0;
+
+			nIdx = nIdx + 3;
+		}
+		else
+		{
+			++nIdx;
+		}
+	}
+
+	if (vKeZi.empty())
+	{
+		return false;
+	}
+
+	auto iter = std::find(vCards.begin(), vCards.end(), 0);
+	while (iter != vCards.end())
+	{
+		vCards.erase(iter);
+		iter = std::find(vCards.begin(), vCards.end(), 0);
+	}
+	vLeftCard.clear();
+	vLeftCard.swap(vCards);
+	return true;
+}
+
+bool MJPlayerCard::pickNotShunZiOut(VEC_CARD vCardIgnorKeZi, VEC_NOT_SHUN& vNotShun)
+{
+	VEC_CARD vLeftToRight , vRightToLeft;
+	vLeftToRight.assign(vCardIgnorKeZi.begin(),vCardIgnorKeZi.end());
+	vRightToLeft.swap(vCardIgnorKeZi);
+
+	auto pfn = [](VEC_CARD& vec, uint8_t nSeekValue, uint8_t& nFindIdx)->bool{
+		for (uint8_t nIdx = 0; nIdx < vec.size(); ++nIdx)
+		{
+			if (vec[nIdx] == nSeekValue)
+			{
+				nFindIdx = nIdx;
+				return true;
+			}
+		}
+		return false;
+	};
+
+
+	auto pfnErase = [pfn](VEC_CARD& vec)
+	{
+		for (uint8_t nIdx = 0; nIdx < vec.size(); ++nIdx)
+		{
+			uint8_t nValue = vec[nIdx];
+			if (0 == nValue)
+			{
+				continue;
+			}
+			uint8_t nValue1 = nValue + 1; uint8_t nIdx1 = 0;
+			uint8_t nValue2 = nValue1 + 1; uint8_t nIdx2 = 0;
+			if (pfn(vec, nValue1, nIdx1) && pfn(vec, nValue2, nIdx2))
+			{
+				vec[nIdx] = 0;
+				vec[nIdx1] = 0;
+				vec[nIdx2] = 0;
+			}
+		}
+
+		// erase zero ;
+		auto iter = std::find(vec.begin(), vec.end(), 0);
+		while (iter != vec.end())
+		{
+			vec.erase(iter);
+			iter = std::find(vec.begin(), vec.end(), 0);
+		}
+	};
+
+	//-------left to right
+	pfnErase(vLeftToRight);
+	pfnErase(vRightToLeft);
+	//---right to left 
+	if (vLeftToRight.empty() == false)
+	{
+		stNotShunCard st;
+		st.vCards.clear();
+		st.vCards.swap(vLeftToRight);
+		vNotShun.push_back(st);
+	}
+
+	if (vRightToLeft.empty() == false)
+	{
+		stNotShunCard st;
+		st.vCards.clear();
+		st.vCards.swap(vRightToLeft);
+		vNotShun.push_back(st);
+	}
+
+	return (vLeftToRight.empty() == false) || (vRightToLeft.empty() == false);
 }
