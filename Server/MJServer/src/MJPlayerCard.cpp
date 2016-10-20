@@ -45,6 +45,82 @@ bool MJPlayerCard::stNotShunCard::operator == (const stNotShunCard& v)
 	return true;
 }
 
+bool MJPlayerCard::stNotShunCard::operator < (const stNotShunCard& v)const
+{
+	if (getSize() < v.getSize())
+	{
+		return true;
+	}
+
+	if (getSize() > v.getSize())
+	{
+		return false;
+	}
+
+	if (vCards.empty())
+	{
+		return false;
+	}
+
+	stNotShunCard self = *this;
+	stNotShunCard nonConstObj = v;
+	std::sort(self.vCards.begin(), self.vCards.end());
+	std::sort(nonConstObj.vCards.begin(), nonConstObj.vCards.end());
+	for (uint8_t nIdx = 0; nIdx < self.vCards.size(); ++nIdx)
+	{
+		if (self.vCards[nIdx] >= nonConstObj.vCards[nIdx])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+uint8_t MJPlayerCard::stNotShunCard::getLackCardCntForShun()
+{
+	if (vCards.empty())
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("not shun must not be empty ? error ");
+		return 0;
+	}
+
+	auto type = card_Type(vCards.front());
+	auto bMustKe = ( type == eCT_Feng || eCT_Jian == type );
+
+	uint8_t nLackCnt = 0;
+	std::sort(vCards.begin(),vCards.end());
+	for (uint8_t nIdx = 0; nIdx < vCards.size(); )
+	{
+		uint8_t nValue = vCards[nIdx];
+		if ((uint8_t)(nIdx + 1) >= vCards.size())
+		{
+			nLackCnt += 2;
+			break;
+		}
+
+		uint8_t nNextV = vCards[nIdx + 1];
+		if (nNextV == nValue)
+		{
+			nLackCnt += 1;
+			nIdx += 2;
+			continue;
+		}
+
+		if ( bMustKe == false && (nNextV - nValue <= 2))
+		{
+			nLackCnt += 1;
+			nIdx += 2;
+			continue;
+		}
+
+		nLackCnt += 2;
+		nIdx += 1;
+	}
+	return nLackCnt;
+}
+
+
 // mj player card ;
 void MJPlayerCard::reset()
 {
@@ -172,51 +248,133 @@ bool MJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 
 bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 {
-	return true;
+	auto eType = card_Type(nCard);
+	if (eType >= eCT_Max)
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("parse card type error ,canHuWitCard have this card = %u", nCard);
+		return false;
+	}
+
+	addCardToVecAsc(m_vCards[eType], nCard);
+	bool bSelfHu = isHoldCardCanHu();
+	auto iter = std::find(m_vCards[eType].begin(), m_vCards[eType].end(),nCard);
+	return bSelfHu;
 }
 
 bool MJPlayerCard::isTingPai()
 {
-	bool bMayting = false;
-	VEC_NOT_SHUN vNotShun;
-	vNotShun.clear();
-	for (auto& vCard : m_vCards)
+	if (is7PairTing())
 	{
+		return true;
+	}
+
+	SET_NOT_SHUN vNotShun[eCT_Max];
+	uint8_t nTingType = eCT_None;
+	uint8_t nTingTypeB = eCT_None;
+	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+	{
+		auto& vCard = m_vCards[nType];
 		if (vCard.empty())
 		{
 			continue;
 		}
-		VEC_NOT_SHUN tTemp;
-		getNotShuns(vCard, tTemp);
-		if ( tTemp.empty() )
-		{
-			continue;
-		}
 
-		if (!vNotShun.empty())
+		if (!getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType))
 		{
-			return false;
-		}
-		else
-		{
-			vNotShun.swap(tTemp);
+			if (eCT_None != nTingType && nTingTypeB != eCT_None )
+			{
+				return false;
+			}
+
+			if (eCT_None != nTingType)
+			{
+				nTingType = nType;
+			}
+
+			if (eCT_None != nTingTypeB)
+			{
+				nTingTypeB = nType;
+			}
 		}
 	}
 
-	if (vNotShun.empty())
+	if (eCT_None == nTingType && eCT_None == nTingTypeB )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why no card type not shun , all card type is shun ? bug !!!");
+		CLogMgr::SharedLogMgr()->ErrorLog( "why all type hold card is shun zi ?" );
+	}
+
+	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
+	{
+		auto iter = vNot.begin();
+		for (; iter != vNot.end(); ++iter)
+		{
+			auto refNot = *iter;
+			if (refNot.getLackCardCntForShun() == 1)
+			{
+				if (refNot.vCards[0] == refNot.vCards[1])
+				{
+					return true;
+				}
+			}
+		}
 		return false;
-	}
+	};
 
-	for (auto& refNotShun : vNotShun)
+	auto pfnIsNormalQue = [](SET_NOT_SHUN& vNot)->bool
 	{
-		if (refNotShun.getLackCardCntForShun() == 1)
+		auto iter = vNot.begin();
+		for (; iter != vNot.end(); ++iter)
 		{
-			return true;
+			auto refNot = *iter;
+			if (refNot.getLackCardCntForShun() == 1)
+			{
+				return true;
+			}
 		}
-	}
+		return false;
+	};
 
+	auto pfnIsNormalQueSelfContainJiang = [](SET_NOT_SHUN& vNot)->bool
+	{
+		auto iter = vNot.begin();
+		for (; iter != vNot.end(); ++iter)
+		{
+			auto refNot = *iter;
+			if (refNot.getLackCardCntForShun() == 2 && refNot.getSize() == 1 )
+			{
+				return true;
+			}
+
+			if (refNot.getLackCardCntForShun() == 2 && refNot.getSize() == 4 )
+			{
+				std::sort(refNot.vCards.begin(),refNot.vCards.end());
+				if ((refNot.vCards[0] == refNot.vCards[1]) && (refNot.vCards[3] - refNot.vCards[2] <= 2))
+				{
+					return true;
+				}
+
+				if ((refNot.vCards[2] == refNot.vCards[3]) && (refNot.vCards[1] - refNot.vCards[0] <= 2))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+
+	if (eCT_None != nTingType && eCT_None == nTingTypeB)
+	{
+		return pfnIsNormalQueSelfContainJiang(vNotShun[nTingType]);
+	}
+	else if (eCT_None == nTingType && eCT_None != nTingTypeB)
+	{
+		return pfnIsNormalQueSelfContainJiang(vNotShun[nTingTypeB]);
+	}
+	else if (eCT_None != nTingType && eCT_None != nTingTypeB)
+	{
+		return (pfnIsNormalQue(vNotShun[nTingTypeB]) && pfnIsJiang(vNotShun[nTingType])) || (pfnIsNormalQue(vNotShun[nTingType]) && pfnIsJiang(vNotShun[nTingTypeB]));
+	}
+		
 	return false;
 }
 
@@ -260,7 +418,55 @@ bool MJPlayerCard::getHoldCardThatCanBuGang(VEC_CARD& vGangCards)
 
 bool MJPlayerCard::isHoldCardCanHu()
 {
-	return true;
+	if (canHoldCard7PairHu())
+	{
+		return true;
+	}
+
+	SET_NOT_SHUN vNotShun[eCT_Max];
+	uint8_t nTingType = eCT_None;
+	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+	{
+		auto& vCard = m_vCards[nType];
+		if (vCard.empty())
+		{
+			continue;
+		}
+
+		if (!getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType))
+		{
+			if (eCT_None != nTingType )
+			{
+				return false;
+			}
+			nTingType = nType;
+		}
+	}
+
+	if (eCT_None == nTingType )
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("why all type hold card is shun zi no jiang ? how to hu ?");
+		return false;
+	}
+
+	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
+	{
+		auto iter = vNot.begin();
+		for (; iter != vNot.end(); ++iter)
+		{
+			auto refNot = *iter;
+			if (refNot.getLackCardCntForShun() == 1)
+			{
+				if (refNot.vCards[0] == refNot.vCards[1])
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+
+	return pfnIsJiang(vNotShun[nTingType]);
 }
 
 void MJPlayerCard::onMoCard(uint8_t nMoCard)
@@ -450,9 +656,129 @@ void MJPlayerCard::addCardToVecAsc(VEC_CARD& vec, uint8_t nCard)
 	vec.push_back(nCard);
 }
 
-void MJPlayerCard::getNotShuns(VEC_CARD vCard, VEC_NOT_SHUN& vNotShun)
+bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun )
 {
+	// ignore ke zi 
+	if (pickNotShunZiOutIgnoreKeZi(vCard, vNotShun))
+	{
+		vNotShun.clear();
+		return true;
+	}
 
+	// not ignore ke zi 
+	VEC_CARD vKeZi;
+	VEC_CARD vLeftCard;
+	pickKeZiOut(vCard,vKeZi,vLeftCard);
+	if (vLeftCard.empty())
+	{
+		vNotShun.clear();
+		return true;
+	}
+
+	if (bMustKeZiShun || vLeftCard.size() < 3 ) // this situation left card  must be  not shun ;
+	{
+		stNotShunCard stNot;
+		stNot.vCards.swap(vLeftCard);
+		return false;
+	}
+
+	// without kezi ,Left card , that not shun 
+	if (pickNotShunZiOutIgnoreKeZi(vLeftCard, vNotShun))
+	{
+		vNotShun.clear();
+		return true;
+	}
+	
+	// take part keZi into construct shun ;
+	if (vKeZi.size() >= 1)
+	{
+		VEC_CARD vCheck;
+		vCheck.assign(vLeftCard.begin(), vLeftCard.end());
+		vCheck.push_back(vKeZi[0]);
+		vCheck.push_back(vKeZi[0]);
+		vCheck.push_back(vKeZi[0]);
+		if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		{
+			vNotShun.clear();
+			return true;
+		}
+	}
+
+	if (vKeZi.size() >= 2)
+	{
+		VEC_CARD vCheck;
+		vCheck.assign(vLeftCard.begin(), vLeftCard.end());
+		vCheck.push_back(vKeZi[1]);
+		vCheck.push_back(vKeZi[1]);
+		vCheck.push_back(vKeZi[1]);
+		if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		{
+			vNotShun.clear();
+			return true;
+		}
+	}
+
+	 if ( vKeZi.size() >= 3 )
+	 {
+		 VEC_CARD vCheck;
+		 vCheck.assign(vLeftCard.begin(), vLeftCard.end());
+		 vCheck.push_back(vKeZi[2]);
+		 vCheck.push_back(vKeZi[2]);
+		 vCheck.push_back(vKeZi[2]);
+		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 {
+			 vNotShun.clear();
+			 return true;
+		 }
+
+		 // 0,1 ; 1,2; 0,2 ;
+		 vCheck.clear();
+		 vCheck.assign(vLeftCard.begin(), vLeftCard.end());
+		 vCheck.push_back(vKeZi[2]);
+		 vCheck.push_back(vKeZi[2]);
+		 vCheck.push_back(vKeZi[2]);
+
+		 vCheck.push_back(vKeZi[0]);
+		 vCheck.push_back(vKeZi[0]);
+		 vCheck.push_back(vKeZi[0]);
+		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 {
+			 vNotShun.clear();
+			 return true;
+		 }
+
+		 // 0,1 ; 1,2; 0,2 ;
+		 vCheck.clear();
+		 vCheck.assign(vLeftCard.begin(), vLeftCard.end());
+		 vCheck.push_back(vKeZi[2]);
+		 vCheck.push_back(vKeZi[2]);
+		 vCheck.push_back(vKeZi[2]);
+
+		 vCheck.push_back(vKeZi[1]);
+		 vCheck.push_back(vKeZi[1]);
+		 vCheck.push_back(vKeZi[1]);
+		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 {
+			 vNotShun.clear();
+			 return true;
+		 }
+
+		 vCheck.clear();
+		 vCheck.assign(vLeftCard.begin(), vLeftCard.end());
+		 vCheck.push_back(vKeZi[0]);
+		 vCheck.push_back(vKeZi[0]);
+		 vCheck.push_back(vKeZi[0]);
+
+		 vCheck.push_back(vKeZi[1]);
+		 vCheck.push_back(vKeZi[1]);
+		 vCheck.push_back(vKeZi[1]);
+		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 {
+			 vNotShun.clear();
+			 return true;
+		 }
+	 }
+	return false;
 }
 
 bool MJPlayerCard::pickKeZiOut(VEC_CARD vCards, VEC_CARD& vKeZi, VEC_CARD& vLeftCard)
@@ -478,6 +804,7 @@ bool MJPlayerCard::pickKeZiOut(VEC_CARD vCards, VEC_CARD& vKeZi, VEC_CARD& vLeft
 
 	if (vKeZi.empty())
 	{
+		vLeftCard.swap(vCards);
 		return false;
 	}
 
@@ -492,14 +819,17 @@ bool MJPlayerCard::pickKeZiOut(VEC_CARD vCards, VEC_CARD& vKeZi, VEC_CARD& vLeft
 	return true;
 }
 
-bool MJPlayerCard::pickNotShunZiOut(VEC_CARD vCardIgnorKeZi, VEC_NOT_SHUN& vNotShun)
+bool MJPlayerCard::pickNotShunZiOutIgnoreKeZi(VEC_CARD vCardIgnorKeZi, SET_NOT_SHUN& vNotShun)
 {
-	VEC_CARD vLeftToRight , vRightToLeft;
-	vLeftToRight.assign(vCardIgnorKeZi.begin(),vCardIgnorKeZi.end());
-	vRightToLeft.swap(vCardIgnorKeZi);
+	VEC_CARD vAscendSort, vDescendSort;
+	vAscendSort.assign(vCardIgnorKeZi.begin(),vCardIgnorKeZi.end());
+	std::sort(vAscendSort.begin(), vAscendSort.end());   // < asc
 
-	auto pfn = [](VEC_CARD& vec, uint8_t nSeekValue, uint8_t& nFindIdx)->bool{
-		for (uint8_t nIdx = 0; nIdx < vec.size(); ++nIdx)
+	vDescendSort.swap(vCardIgnorKeZi);  //desc
+	std::sort(vDescendSort.begin(), vDescendSort.end(), [](const uint8_t& refLeft, const uint8_t& refLeftRight)->bool{ return refLeft > refLeftRight; });   // < asc
+
+	auto pfn = [](VEC_CARD& vec, uint8_t nSeekValue, uint8_t& nFindIdx, uint8_t nIdxStart )->bool{
+		for (uint8_t nIdx = nIdxStart; nIdx < vec.size(); ++nIdx)
 		{
 			if (vec[nIdx] == nSeekValue)
 			{
@@ -511,7 +841,7 @@ bool MJPlayerCard::pickNotShunZiOut(VEC_CARD vCardIgnorKeZi, VEC_NOT_SHUN& vNotS
 	};
 
 
-	auto pfnErase = [pfn](VEC_CARD& vec)
+	auto pfnErase = [pfn](VEC_CARD& vec,bool bAsc )
 	{
 		for (uint8_t nIdx = 0; nIdx < vec.size(); ++nIdx)
 		{
@@ -522,7 +852,12 @@ bool MJPlayerCard::pickNotShunZiOut(VEC_CARD vCardIgnorKeZi, VEC_NOT_SHUN& vNotS
 			}
 			uint8_t nValue1 = nValue + 1; uint8_t nIdx1 = 0;
 			uint8_t nValue2 = nValue1 + 1; uint8_t nIdx2 = 0;
-			if (pfn(vec, nValue1, nIdx1) && pfn(vec, nValue2, nIdx2))
+			if (!bAsc)
+			{
+				nValue1 = nValue - 1;
+				nValue2 = nValue1 - 1;
+			}
+			if (pfn(vec, nValue1, nIdx1,nIdx + 1 ) && pfn(vec, nValue2, nIdx2,nIdx + 1 ))
 			{
 				vec[nIdx] = 0;
 				vec[nIdx1] = 0;
@@ -540,24 +875,78 @@ bool MJPlayerCard::pickNotShunZiOut(VEC_CARD vCardIgnorKeZi, VEC_NOT_SHUN& vNotS
 	};
 
 	//-------left to right
-	pfnErase(vLeftToRight);
-	pfnErase(vRightToLeft);
+	pfnErase(vAscendSort,true);
+	if (vAscendSort.empty())
+	{
+		return true;
+	}
+
+	pfnErase(vDescendSort,false);
+	if ( vDescendSort.empty())
+	{
+		return true;
+	}
+
 	//---right to left 
-	if (vLeftToRight.empty() == false)
+	if (vAscendSort.empty() == false)
 	{
 		stNotShunCard st;
 		st.vCards.clear();
-		st.vCards.swap(vLeftToRight);
-		vNotShun.push_back(st);
+		st.vCards.swap(vAscendSort);
+		vNotShun.insert(st);
 	}
 
-	if (vRightToLeft.empty() == false)
+	if (vDescendSort.empty() == false)
 	{
 		stNotShunCard st;
 		st.vCards.clear();
-		st.vCards.swap(vRightToLeft);
-		vNotShun.push_back(st);
+		st.vCards.swap(vDescendSort);
+		vNotShun.insert(st);
 	}
 
-	return (vLeftToRight.empty() == false) || (vRightToLeft.empty() == false);
+	return false;
+}
+
+bool MJPlayerCard::is7PairTing()
+{
+	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty() )
+	{
+		return false;
+	}
+
+	uint8_t nPairCnt = 0;
+	for (auto& vCards : m_vCards)
+	{
+		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 1) < vCards.size(); ++nIdx)
+		{
+			if (vCards[nIdx] == vCards[1 + nIdx])
+			{
+				++nPairCnt;
+			}
+		}
+	}
+
+	return nPairCnt == 6;
+}
+
+bool MJPlayerCard::canHoldCard7PairHu()
+{
+	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty())
+	{
+		return false;
+	}
+
+	uint8_t nPairCnt = 0;
+	for (auto& vCards : m_vCards)
+	{
+		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 1) < vCards.size(); ++nIdx)
+		{
+			if (vCards[nIdx] == vCards[1 + nIdx])
+			{
+				++nPairCnt;
+			}
+		}
+	}
+
+	return nPairCnt == 7;
 }

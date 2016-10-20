@@ -3,6 +3,7 @@
 #include "IMJPlayerCardCheckPaixingHelper.h"
 #include "MJDefine.h"
 #include <algorithm>  
+#include <set>
 class MJPlayerCard
 	:public IMJPlayerCard
 	,public IMJPlayerCardCheckPaixingHelper
@@ -17,8 +18,10 @@ public:
 		stNotShunCard& operator = (const stNotShunCard& v);
 		bool operator == (const stNotShunCard& v);
 		uint8_t getLackCardCntForShun();
+		uint8_t getSize()const{ return vCards.size(); }
+		bool operator < (const stNotShunCard& v)const;
 	};
-	typedef std::vector<stNotShunCard> VEC_NOT_SHUN;
+	typedef std::set<stNotShunCard> SET_NOT_SHUN;
 public:
 	void reset() override;
 	void addDistributeCard(uint8_t nCardNum) final;
@@ -51,9 +54,11 @@ public:
 	uint32_t getNewestFetchedCard()final;
 protected:
 	void addCardToVecAsc(VEC_CARD& vec, uint8_t nCard );
-	void getNotShuns(VEC_CARD vCard, VEC_NOT_SHUN& vNotShun);
+	bool getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun );
 	bool pickKeZiOut(VEC_CARD vCard, VEC_CARD& vKeZi , VEC_CARD& vLeftCard );
-	bool pickNotShunZiOut(VEC_CARD vCardIgnorKeZi, VEC_NOT_SHUN& vNotShun);
+	bool pickNotShunZiOutIgnoreKeZi(VEC_CARD vCardIgnorKeZi, SET_NOT_SHUN& vNotShun);
+	bool is7PairTing();
+	bool canHoldCard7PairHu();
 protected:
 	VEC_CARD m_vCards[eCT_Max];
 	VEC_CARD m_vChuedCard;
