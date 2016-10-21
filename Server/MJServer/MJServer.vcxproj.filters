@@ -37,6 +37,9 @@
     <Filter Include="src\MJ">
       <UniqueIdentifier>{32900542-06c3-4a1d-9ea2-bb9be8d647b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\MJHZ">
+      <UniqueIdentifier>{7fbac809-0767-4521-a597-8d7549b74bd3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -273,6 +276,18 @@
     <ClInclude Include="src\MJRoomStateGameEnd.h">
       <Filter>src\MJ</Filter>
     </ClInclude>
+    <ClInclude Include="src\HZMJPlayerCard.h">
+      <Filter>src\MJHZ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HZMJRoom.h">
+      <Filter>src\MJHZ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJPlayer.h">
+      <Filter>src\MJ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HZMJPlayer.h">
+      <Filter>src\MJHZ</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -427,6 +442,18 @@
     </ClCompile>
     <ClCompile Include="src\MJPlayerCard.cpp">
       <Filter>src\MJ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HZMJPlayerCard.cpp">
+      <Filter>src\MJHZ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HZMJRoom.cpp">
+      <Filter>src\MJHZ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJPlayer.cpp">
+      <Filter>src\MJ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HZMJPlayer.cpp">
+      <Filter>src\MJHZ</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

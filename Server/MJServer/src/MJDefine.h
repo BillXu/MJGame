@@ -7,6 +7,7 @@ enum eMJGameType
 	eMJ_BloodTheEnd,
 	eMJ_COMMON,
 	eMJ_TwoBird,
+	eMJ_HZ,
 	eMJ_Max,
 };
 

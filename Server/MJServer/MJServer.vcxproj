@@ -127,6 +127,9 @@
     <ClInclude Include="..\ServerCommon\SystemRoom.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
     <ClInclude Include="src\GameOverState.h" />
+    <ClInclude Include="src\HZMJPlayer.h" />
+    <ClInclude Include="src\HZMJPlayerCard.h" />
+    <ClInclude Include="src\HZMJRoom.h" />
     <ClInclude Include="src\IGameRoom.h" />
     <ClInclude Include="src\IMJPlayer.h" />
     <ClInclude Include="src\IMJPlayerCard.h" />
@@ -136,6 +139,7 @@
     <ClInclude Include="src\MJHuPaiInfo.h" />
     <ClInclude Include="src\MJNewCheckFanXing.h" />
     <ClInclude Include="src\MJPeerCardNew.h" />
+    <ClInclude Include="src\MJPlayer.h" />
     <ClInclude Include="src\MJPlayerCard.h" />
     <ClInclude Include="src\MJRoomBattleEnd.h" />
     <ClInclude Include="src\MJRoomStateAskForPengOrHu.h" />
@@ -194,6 +198,9 @@
     <ClCompile Include="..\ServerCommon\SystemRoom.cpp" />
     <ClCompile Include="..\ServerCommon\Timer.cpp" />
     <ClCompile Include="src\GameOverState.cpp" />
+    <ClCompile Include="src\HZMJPlayer.cpp" />
+    <ClCompile Include="src\HZMJPlayerCard.cpp" />
+    <ClCompile Include="src\HZMJRoom.cpp" />
     <ClCompile Include="src\IMJRoom.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MJBloodFanxing.cpp" />
@@ -204,6 +211,7 @@
     <ClCompile Include="src\MJNewCheckFanXing.cpp" />
     <ClCompile Include="src\MJPeerCard.cpp" />
     <ClCompile Include="src\MJPeerCardNew.cpp" />
+    <ClCompile Include="src\MJPlayer.cpp" />
     <ClCompile Include="src\MJPlayerCard.cpp" />
     <ClCompile Include="src\MJRoom.cpp" />
     <ClCompile Include="src\MJRoomBattleEnd.cpp" />

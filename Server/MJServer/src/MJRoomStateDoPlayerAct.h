@@ -37,7 +37,7 @@ public:
 		if (jsTranData["huIdxs"].isNull() == false && jsTranData["huIdxs"].isArray() )
 		{
 			auto jsA = jsTranData["huIdxs"];
-			for (auto nIdx = 0; nIdx < jsA.size(); ++nIdx)
+			for (uint8_t nIdx = 0; nIdx < jsA.size(); ++nIdx)
 			{
 				m_vHuIdxs.push_back(jsA[nIdx].asUInt());
 			}
@@ -115,10 +115,12 @@ public:
 				return;
 			}
 
-			auto nIdx = getRoom()->getNextActPlayerIdx(m_nActIdx);
+			{
+				auto nIdx = getRoom()->getNextActPlayerIdx(m_nActIdx);
 
 			// next player mo pai 
-			doNextPlayerMoPai(nIdx);
+				doNextPlayerMoPai(nIdx);
+			}
 			break;
 		default:
 			break;
@@ -200,7 +202,7 @@ protected:
 		Json::Value jsTrans;
 		jsTrans["act"] = eMJAct_Mo;
 		jsTrans["idx"] = nIdx;
-		enterRoom(getRoom(),jsTrans);
+		enterState(getRoom(),jsTrans);
 	}
 
 protected:

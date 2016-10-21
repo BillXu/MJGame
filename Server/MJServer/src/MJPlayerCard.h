@@ -52,13 +52,16 @@ public:
 	bool getPengedCard(VEC_CARD& vPengedCard) final;
 	bool getEatedCard(VEC_CARD& vEatedCard) final;
 	uint32_t getNewestFetchedCard()final;
+	virtual bool canHoldCard7PairHu();
 protected:
 	void addCardToVecAsc(VEC_CARD& vec, uint8_t nCard );
 	bool getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun );
 	bool pickKeZiOut(VEC_CARD vCard, VEC_CARD& vKeZi , VEC_CARD& vLeftCard );
 	bool pickNotShunZiOutIgnoreKeZi(VEC_CARD vCardIgnorKeZi, SET_NOT_SHUN& vNotShun);
-	bool is7PairTing();
-	bool canHoldCard7PairHu();
+	virtual bool is7PairTing();
+	virtual uint8_t getMiniQueCnt( VEC_CARD vCards[eCT_Max] );
+	virtual uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max]);
+	uint8_t getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao);
 protected:
 	VEC_CARD m_vCards[eCT_Max];
 	VEC_CARD m_vChuedCard;
@@ -66,4 +69,6 @@ protected:
 	VEC_CARD m_vGanged;
 	VEC_CARD m_vEated;
 	uint8_t m_nNesetFetchedCard;
+	uint8_t m_nJIang;
+	uint8_t m_nDanDiao;
 };

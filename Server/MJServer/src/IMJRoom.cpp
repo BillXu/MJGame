@@ -276,6 +276,63 @@ IMJPlayer* IMJRoom::getMJPlayerByIdx(uint8_t nIdx)
 	return m_vMJPlayers[nIdx];
 }
 
+void IMJRoom::startGame()
+{
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer)
+		{
+			pPlayer->onStartGame();
+		}
+	}
+}
+
+void IMJRoom::willStartGame()
+{
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer)
+		{
+			pPlayer->onWillStartGame();
+		}
+	}
+}
+
+void IMJRoom::onGameEnd()
+{
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer)
+		{
+			pPlayer->onGameEnd();
+		}
+	}
+}
+
+void IMJRoom::onGameDidEnd()
+{
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer)
+		{
+			pPlayer->onGameDidEnd();
+		}
+	}
+}
+
+bool IMJRoom::canStartGame()
+{
+	uint8_t nReadyCnt = 0;
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer && pPlayer->haveState(eRoomPeer_Ready) )
+		{
+			++nReadyCnt;
+		}
+	}
+	return nReadyCnt == getSeatCnt();
+}
+
 // mj function ;
 void IMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
 {
@@ -376,6 +433,7 @@ void IMJRoom::onPlayerMo(uint8_t nIdx)
 		return;
 	}
 	pPlayer->getPlayerCard()->onMoCard(distributeOneCard());
+	pPlayer->clearGangFlag();
 }
 
 void IMJRoom::onPlayerPeng(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)
@@ -421,6 +479,7 @@ void IMJRoom::onPlayerMingGang(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)
 		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not ming gang", nIdx);
 		return;
 	}
+	pPlayer->signGangFlag();
 
 	auto nGangGetCard = distributeOneCard();
 	if (pPlayer->getPlayerCard()->onMingGang(nCard, nGangGetCard) == false)
@@ -438,7 +497,7 @@ void IMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not an gang", nIdx);
 		return;
 	}
-
+	pPlayer->signGangFlag();
 	auto nGangGetCard = distributeOneCard();
 	if (pPlayer->getPlayerCard()->onAnGang(nCard, nGangGetCard) == false)
 	{
@@ -454,7 +513,7 @@ void IMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not bu gang", nIdx);
 		return;
 	}
-
+	pPlayer->signGangFlag();
 	auto nGangCard = distributeOneCard();
 	if (pPlayer->getPlayerCard()->onBuGang(nCard, nGangCard) == false)
 	{

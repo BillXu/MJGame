@@ -124,7 +124,19 @@ uint8_t MJPlayerCard::stNotShunCard::getLackCardCntForShun()
 // mj player card ;
 void MJPlayerCard::reset()
 {
-
+	VEC_CARD m_vCards[eCT_Max];
+	for (auto& vC : m_vCards)
+	{
+		vC.clear();
+	}
+	m_vChuedCard.clear();
+	m_vPenged.clear();
+	m_vGanged.clear();
+	m_vEated.clear();
+	m_vEated.clear();
+	m_nNesetFetchedCard = 0 ;
+	m_nJIang = 0;
+	m_nDanDiao = 0;
 }
 
 void MJPlayerCard::addDistributeCard(uint8_t nCardNum)
@@ -261,6 +273,122 @@ bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 	return bSelfHu;
 }
 
+//bool MJPlayerCard::isTingPai()
+//{
+//	if (is7PairTing())
+//	{
+//		return true;
+//	}
+//
+//	SET_NOT_SHUN vNotShun[eCT_Max];
+//	uint8_t nTingType = eCT_None;
+//	uint8_t nTingTypeB = eCT_None;
+//	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+//	{
+//		auto& vCard = m_vCards[nType];
+//		if (vCard.empty())
+//		{
+//			continue;
+//		}
+//
+//		if (!getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType))
+//		{
+//			if (eCT_None != nTingType && nTingTypeB != eCT_None )
+//			{
+//				return false;
+//			}
+//
+//			if (eCT_None != nTingType)
+//			{
+//				nTingType = nType;
+//			}
+//
+//			if (eCT_None != nTingTypeB)
+//			{
+//				nTingTypeB = nType;
+//			}
+//		}
+//	}
+//
+//	if (eCT_None == nTingType && eCT_None == nTingTypeB )
+//	{
+//		CLogMgr::SharedLogMgr()->ErrorLog( "why all type hold card is shun zi ?" );
+//	}
+//
+//	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
+//	{
+//		auto iter = vNot.begin();
+//		for (; iter != vNot.end(); ++iter)
+//		{
+//			auto refNot = *iter;
+//			if (refNot.getLackCardCntForShun() == 1)
+//			{
+//				if (refNot.vCards[0] == refNot.vCards[1])
+//				{
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	};
+//
+//	auto pfnIsNormalQue = [](SET_NOT_SHUN& vNot)->bool
+//	{
+//		auto iter = vNot.begin();
+//		for (; iter != vNot.end(); ++iter)
+//		{
+//			auto refNot = *iter;
+//			if (refNot.getLackCardCntForShun() == 1)
+//			{
+//				return true;
+//			}
+//		}
+//		return false;
+//	};
+//
+//	auto pfnIsNormalQueSelfContainJiang = [](SET_NOT_SHUN& vNot)->bool
+//	{
+//		auto iter = vNot.begin();
+//		for (; iter != vNot.end(); ++iter)
+//		{
+//			auto refNot = *iter;
+//			if (refNot.getLackCardCntForShun() == 2 && refNot.getSize() == 1 )
+//			{
+//				return true;
+//			}
+//
+//			if (refNot.getLackCardCntForShun() == 2 && refNot.getSize() == 4 )
+//			{
+//				std::sort(refNot.vCards.begin(),refNot.vCards.end());
+//				if ((refNot.vCards[0] == refNot.vCards[1]) && (refNot.vCards[3] - refNot.vCards[2] <= 2))
+//				{
+//					return true;
+//				}
+//
+//				if ((refNot.vCards[2] == refNot.vCards[3]) && (refNot.vCards[1] - refNot.vCards[0] <= 2))
+//				{
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	};
+//
+//	if (eCT_None != nTingType && eCT_None == nTingTypeB)
+//	{
+//		return pfnIsNormalQueSelfContainJiang(vNotShun[nTingType]);
+//	}
+//	else if (eCT_None == nTingType && eCT_None != nTingTypeB)
+//	{
+//		return pfnIsNormalQueSelfContainJiang(vNotShun[nTingTypeB]);
+//	}
+//	else if (eCT_None != nTingType && eCT_None != nTingTypeB)
+//	{
+//		return (pfnIsNormalQue(vNotShun[nTingTypeB]) && pfnIsJiang(vNotShun[nTingType])) || (pfnIsNormalQue(vNotShun[nTingType]) && pfnIsJiang(vNotShun[nTingTypeB]));
+//	}
+//		
+//	return false;
+//}
 bool MJPlayerCard::isTingPai()
 {
 	if (is7PairTing())
@@ -268,113 +396,10 @@ bool MJPlayerCard::isTingPai()
 		return true;
 	}
 
-	SET_NOT_SHUN vNotShun[eCT_Max];
-	uint8_t nTingType = eCT_None;
-	uint8_t nTingTypeB = eCT_None;
-	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+	if ( getMiniQueCnt(m_vCards) <= 0 )
 	{
-		auto& vCard = m_vCards[nType];
-		if (vCard.empty())
-		{
-			continue;
-		}
-
-		if (!getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType))
-		{
-			if (eCT_None != nTingType && nTingTypeB != eCT_None )
-			{
-				return false;
-			}
-
-			if (eCT_None != nTingType)
-			{
-				nTingType = nType;
-			}
-
-			if (eCT_None != nTingTypeB)
-			{
-				nTingTypeB = nType;
-			}
-		}
+		return true;
 	}
-
-	if (eCT_None == nTingType && eCT_None == nTingTypeB )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "why all type hold card is shun zi ?" );
-	}
-
-	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
-	{
-		auto iter = vNot.begin();
-		for (; iter != vNot.end(); ++iter)
-		{
-			auto refNot = *iter;
-			if (refNot.getLackCardCntForShun() == 1)
-			{
-				if (refNot.vCards[0] == refNot.vCards[1])
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	};
-
-	auto pfnIsNormalQue = [](SET_NOT_SHUN& vNot)->bool
-	{
-		auto iter = vNot.begin();
-		for (; iter != vNot.end(); ++iter)
-		{
-			auto refNot = *iter;
-			if (refNot.getLackCardCntForShun() == 1)
-			{
-				return true;
-			}
-		}
-		return false;
-	};
-
-	auto pfnIsNormalQueSelfContainJiang = [](SET_NOT_SHUN& vNot)->bool
-	{
-		auto iter = vNot.begin();
-		for (; iter != vNot.end(); ++iter)
-		{
-			auto refNot = *iter;
-			if (refNot.getLackCardCntForShun() == 2 && refNot.getSize() == 1 )
-			{
-				return true;
-			}
-
-			if (refNot.getLackCardCntForShun() == 2 && refNot.getSize() == 4 )
-			{
-				std::sort(refNot.vCards.begin(),refNot.vCards.end());
-				if ((refNot.vCards[0] == refNot.vCards[1]) && (refNot.vCards[3] - refNot.vCards[2] <= 2))
-				{
-					return true;
-				}
-
-				if ((refNot.vCards[2] == refNot.vCards[3]) && (refNot.vCards[1] - refNot.vCards[0] <= 2))
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	};
-
-	if (eCT_None != nTingType && eCT_None == nTingTypeB)
-	{
-		return pfnIsNormalQueSelfContainJiang(vNotShun[nTingType]);
-	}
-	else if (eCT_None == nTingType && eCT_None != nTingTypeB)
-	{
-		return pfnIsNormalQueSelfContainJiang(vNotShun[nTingTypeB]);
-	}
-	else if (eCT_None != nTingType && eCT_None != nTingTypeB)
-	{
-		return (pfnIsNormalQue(vNotShun[nTingTypeB]) && pfnIsJiang(vNotShun[nTingType])) || (pfnIsNormalQue(vNotShun[nTingType]) && pfnIsJiang(vNotShun[nTingTypeB]));
-	}
-		
 	return false;
 }
 
@@ -416,6 +441,58 @@ bool MJPlayerCard::getHoldCardThatCanBuGang(VEC_CARD& vGangCards)
 	return !vGangCards.empty();
 }
 
+//bool MJPlayerCard::isHoldCardCanHu()
+//{
+//	if (canHoldCard7PairHu())
+//	{
+//		return true;
+//	}
+//
+//	SET_NOT_SHUN vNotShun[eCT_Max];
+//	uint8_t nTingType = eCT_None;
+//	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+//	{
+//		auto& vCard = m_vCards[nType];
+//		if (vCard.empty())
+//		{
+//			continue;
+//		}
+//
+//		if (!getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType))
+//		{
+//			if (eCT_None != nTingType )
+//			{
+//				return false;
+//			}
+//			nTingType = nType;
+//		}
+//	}
+//
+//	if (eCT_None == nTingType )
+//	{
+//		CLogMgr::SharedLogMgr()->ErrorLog("why all type hold card is shun zi no jiang ? how to hu ?");
+//		return false;
+//	}
+//
+//	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
+//	{
+//		auto iter = vNot.begin();
+//		for (; iter != vNot.end(); ++iter)
+//		{
+//			auto refNot = *iter;
+//			if (refNot.getLackCardCntForShun() == 1)
+//			{
+//				if (refNot.vCards[0] == refNot.vCards[1])
+//				{
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	};
+//
+//	return pfnIsJiang(vNotShun[nTingType]);
+//}
 bool MJPlayerCard::isHoldCardCanHu()
 {
 	if (canHoldCard7PairHu())
@@ -423,50 +500,11 @@ bool MJPlayerCard::isHoldCardCanHu()
 		return true;
 	}
 
-	SET_NOT_SHUN vNotShun[eCT_Max];
-	uint8_t nTingType = eCT_None;
-	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+	if (getMiniQueCnt(m_vCards) == 0 )
 	{
-		auto& vCard = m_vCards[nType];
-		if (vCard.empty())
-		{
-			continue;
-		}
-
-		if (!getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType))
-		{
-			if (eCT_None != nTingType )
-			{
-				return false;
-			}
-			nTingType = nType;
-		}
+		return true;
 	}
-
-	if (eCT_None == nTingType )
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why all type hold card is shun zi no jiang ? how to hu ?");
-		return false;
-	}
-
-	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
-	{
-		auto iter = vNot.begin();
-		for (; iter != vNot.end(); ++iter)
-		{
-			auto refNot = *iter;
-			if (refNot.getLackCardCntForShun() == 1)
-			{
-				if (refNot.vCards[0] == refNot.vCards[1])
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	};
-
-	return pfnIsJiang(vNotShun[nTingType]);
+	return false;
 }
 
 void MJPlayerCard::onMoCard(uint8_t nMoCard)
@@ -658,6 +696,11 @@ void MJPlayerCard::addCardToVecAsc(VEC_CARD& vec, uint8_t nCard)
 
 bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun )
 {
+	if (vCard.empty())
+	{
+		vNotShun.clear();
+		return true;
+	}
 	// ignore ke zi 
 	if (pickNotShunZiOutIgnoreKeZi(vCard, vNotShun))
 	{
@@ -683,11 +726,15 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 	}
 
 	// without kezi ,Left card , that not shun 
-	if (pickNotShunZiOutIgnoreKeZi(vLeftCard, vNotShun))
+	if ( vKeZi.size() > 0 )
 	{
-		vNotShun.clear();
-		return true;
+		if ( pickNotShunZiOutIgnoreKeZi(vLeftCard, vNotShun))
+		{
+			vNotShun.clear();
+			return true;
+		}
 	}
+
 	
 	// take part keZi into construct shun ;
 	if (vKeZi.size() >= 1)
@@ -907,26 +954,67 @@ bool MJPlayerCard::pickNotShunZiOutIgnoreKeZi(VEC_CARD vCardIgnorKeZi, SET_NOT_S
 	return false;
 }
 
+//bool MJPlayerCard::is7PairTing()
+//{
+//	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty() )
+//	{
+//		return false;
+//	}
+//
+//	uint8_t nPairCnt = 0;
+//	for (auto& vCards : m_vCards)
+//	{
+//		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 1) < vCards.size(); )
+//		{
+//			if (vCards[nIdx] == vCards[1 + nIdx])
+//			{
+//				++nPairCnt;
+//				nIdx += 2;
+//			}
+//			else
+//			{
+//				++nIdx;
+//			}
+//		}
+//	}
+//
+//	return nPairCnt == 6;
+//}
+//
+//bool MJPlayerCard::canHoldCard7PairHu()
+//{
+//	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty())
+//	{
+//		return false;
+//	}
+//
+//	uint8_t nPairCnt = 0;
+//	for (auto& vCards : m_vCards)
+//	{
+//		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 1) < vCards.size(); ++nIdx)
+//		{
+//			if (vCards[nIdx] == vCards[1 + nIdx])
+//			{
+//				++nPairCnt;
+//			}
+//		}
+//	}
+//
+//	return nPairCnt == 7;
+//}
+
 bool MJPlayerCard::is7PairTing()
 {
-	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty() )
+	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty())
 	{
 		return false;
 	}
 
-	uint8_t nPairCnt = 0;
-	for (auto& vCards : m_vCards)
+	if (get7PairQueCnt(m_vCards) <= 1)
 	{
-		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 1) < vCards.size(); ++nIdx)
-		{
-			if (vCards[nIdx] == vCards[1 + nIdx])
-			{
-				++nPairCnt;
-			}
-		}
+		return true;
 	}
-
-	return nPairCnt == 6;
+	return false;
 }
 
 bool MJPlayerCard::canHoldCard7PairHu()
@@ -936,17 +1024,184 @@ bool MJPlayerCard::canHoldCard7PairHu()
 		return false;
 	}
 
-	uint8_t nPairCnt = 0;
-	for (auto& vCards : m_vCards)
+	if (get7PairQueCnt(m_vCards) == 0 )
 	{
-		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 1) < vCards.size(); ++nIdx)
+		return true;
+	}
+	return false;
+}
+
+uint8_t MJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
+{
+	// prepare cards without cai shen 
+	SET_NOT_SHUN vNotShun[eCT_Max];
+	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+	{
+		auto& vCard = vCards[nType];
+		if (vCard.empty())
 		{
-			if (vCards[nIdx] == vCards[1 + nIdx])
-			{
-				++nPairCnt;
-			}
+			continue;
+		}
+
+		getNotShuns(vCard, vNotShun[nType], eCT_Feng == nType || eCT_Jian == nType);
+	}
+
+	// when find dandiao 
+	uint8_t nQueCnt = 0;
+	m_nJIang = 0;
+	m_nDanDiao = 0;
+	for (auto& vRefNotShun : vNotShun)
+	{
+		uint8_t nTemp;
+		nQueCnt += getLestQue(vRefNotShun, false, m_nDanDiao == 0, nTemp, m_nDanDiao);
+	}
+	CLogMgr::SharedLogMgr()->SystemLog(" fand dan diao mode que cnt = %u value = %u", nQueCnt, m_nDanDiao);
+	if (m_nDanDiao)
+	{
+		return nQueCnt;
+	}
+
+	if (m_nDanDiao == 0)  // can not dandiao 
+	{
+		uint8_t nJiang = 0;
+		uint8_t nWhenJiangQueCnt = 0;
+		for (auto& vRefNotShun : vNotShun)
+		{
+			uint8_t nTemp;
+			nQueCnt += getLestQue(vRefNotShun, m_nJIang == 0, false, m_nJIang, nTemp);
+		}
+
+		CLogMgr::SharedLogMgr()->SystemLog(" fand jiang mode que cnt = %u value = %u", nQueCnt, m_nJIang);
+		if (m_nJIang)
+		{
+			return nQueCnt;
 		}
 	}
 
-	return nPairCnt == 7;
+	CLogMgr::SharedLogMgr()->SystemLog(" no jiang , no dandiao cnt = %u ", nQueCnt);
+	// no jiang , no dandiao 
+	nQueCnt += 2;
+	return nQueCnt;
 }
+
+uint8_t MJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max])
+{
+	uint8_t nUnpairCnt = 0;
+	for (uint8_t nType = eCT_None; nType < eCT_Max; ++nType)
+	{
+		auto& vCard = vCards[nType];
+		if (vCard.empty())
+		{
+			continue;
+		}
+
+		for (uint8_t nIdx = 0; nIdx < vCard.size();)
+		{
+			if (vCard[nIdx] == vCard[1 + nIdx])
+			{
+				nIdx += 2;
+			}
+			else
+			{
+				++nUnpairCnt;
+				++nIdx;
+			}
+		}
+	}
+	return nUnpairCnt;
+}
+
+uint8_t MJPlayerCard::getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao)
+{
+	if (vNotShun.empty())
+	{
+		return 0;
+	}
+
+	auto pfunFindQueCnt = [](stNotShunCard& stNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao)->uint8_t
+	{
+		auto& vCards = stNotShun.vCards;
+		if (vCards.empty())
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("not shun must not be empty ? error ");
+			return 0;
+		}
+
+		auto type = card_Type(vCards.front());
+		auto bMustKe = (type == eCT_Feng || eCT_Jian == type);
+
+		uint8_t nLackCnt = 0;
+		std::sort(vCards.begin(), vCards.end());
+		for (uint8_t nIdx = 0; nIdx < vCards.size();)
+		{
+			uint8_t nValue = vCards[nIdx];
+			if ((uint8_t)(nIdx + 1) >= vCards.size())  // last single card ;
+			{
+				nLackCnt += 2;
+				if (bFindDanDiao)
+				{
+					nLackCnt -= 1;
+					bFindDanDiao = false;
+					nFindDanDiao = nValue;
+				}
+
+				break;
+			}
+
+			uint8_t nNextV = vCards[nIdx + 1];
+			if (nNextV == nValue)
+			{
+				nLackCnt += 1;
+				nIdx += 2;
+				if (bFindJiang)
+				{
+					nLackCnt -= 1;
+					bFindJiang = false;
+					nFiandJiang = nValue;
+				}
+				continue;
+			}
+
+			if (bMustKe == false && (nNextV - nValue <= 2))
+			{
+				nLackCnt += 1;
+				nIdx += 2;
+				continue;
+			}
+
+			nLackCnt += 2;
+			nIdx += 1;
+			if (bFindDanDiao)
+			{
+				nLackCnt -= 1;
+				bFindDanDiao = false;
+				nFindDanDiao = nValue;
+			}
+		}
+		return nLackCnt;
+	};
+
+	uint8_t nLesetQue = 100;
+	uint8_t nFedJIangResult = 0;
+	uint8_t nFedDanResult = 0;
+
+	auto iter = vNotShun.begin();
+	for (; iter != vNotShun.end(); ++iter)
+	{
+		uint8_t nFedJIang = 0;
+		uint8_t nFedDan = 0;
+		stNotShunCard stQ = *iter;
+		auto nQuenCnt = pfunFindQueCnt(stQ, bFindJiang, bFindDanDiao, nFedJIang, nFedDan);
+		if (nQuenCnt < nLesetQue)
+		{
+			nLesetQue = nQuenCnt;
+			nFedJIangResult = nFedJIang;
+			nFedDanResult = nFedDan;
+		}
+	}
+
+	nFiandJiang = nFedJIangResult;
+	nFindDanDiao = nFedDanResult;
+	return nLesetQue;
+}
+
