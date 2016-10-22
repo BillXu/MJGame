@@ -2,15 +2,18 @@
 #include "MJDefine.h"
 #include "NativeTypes.h"
 #include <vector>
+#include "IMJPoker.h"
 class CMJCard
+	:public IMJPoker
 {
 public:
 	typedef std::vector<uint8_t> VEC_UINT8 ;
 public:
 	CMJCard(){ m_vAllCards.clear() ; m_nCurCardIdx = 0 ;}
 	uint8_t getCard();
-	uint8_t getLeftCardCount();
-	void shuffle();
+	uint8_t getLeftCardCount()override;
+	uint8_t distributeOneCard()override { return getCard(); }
+	void shuffle()override;
 	void debugCardInfo();
 	void initAllCard( eMJGameType eType );
 	eMJGameType getGameType();

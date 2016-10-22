@@ -9,7 +9,7 @@ class MJRoomStateWaitPlayerAct
 	:public IMJRoomState
 {
 public:
-	uint32_t getStateID()final{ return eRoomState_StartGame; }
+	uint32_t getStateID()final{ return eRoomState_WaitPlayerAct; }
 	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)override
 	{
 		IMJRoomState::enterState(pmjRoom, jsTranData);
@@ -141,7 +141,7 @@ public:
 		getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
 		return true;
 	}
-
+	uint8_t getCurIdx()override{ return m_nIdx; }
 protected:
 	uint8_t m_nIdx;
 	bool m_isCanPass;

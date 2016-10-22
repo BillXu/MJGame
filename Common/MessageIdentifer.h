@@ -534,4 +534,9 @@ enum eMsgType
 	// svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,  { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } , .....] , loseBills : [ { billType : eBill_HuLose, winIdx : 2 , coin : 23 } , { billType : eBill_HuLose, winIdx : 1 , coin : 234 }, ..... ] }
 	// idx ： 这条账单是哪个玩家的。 winBills 是这个玩家所有赢钱的账单 组成的数组。 billType 此账单的类型（赢钱是怎么赢的，值的意思请参考 eBill 的枚举），detail ： 是赢钱的时候，具体是赢了哪些人的钱，从每个人那里赢了多少， 一个数组。
 	// loseIdx 就是输钱的索引，coin 就是输了多少钱。loseBills ： 就是当前玩家数钱的账单数组。 数组元素内容是{ billType类型，输钱是怎么输的，winIdx 就输给了谁，coin 输了多少钱 }
+
+	MSG_ROOM_HZMJ_RESULT, // 杭州麻将游戏结果；
+	// svr : { winnerIdx : 2 , is7Pair : 0 , HaoHua : 1 , isBaoTou : 0 , piaoCnt : 1 , isGangKai : 1 , isGangPiao , results: [ {uid : 2345 , offset : -23, final : 23} , ....  ]   } 
+	// winnerIdx ： 赢的玩家的索引， is7Pair 是否是七对。 haoHUa ： 如果是七对，有多少个四个一样的，确定豪华级别。 isBaoTou ： 是否是爆头。piaoCnt ： 飘的次数。 isGangKai 是否是杠开。
+	// isGangPiao : 是否是杠飘，result： 结算的输赢金钱结果，数组； 元素： uid： 玩家的uid，offset 输赢差值， final： 最终的钱数；
 };

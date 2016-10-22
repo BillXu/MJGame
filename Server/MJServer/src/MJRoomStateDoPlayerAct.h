@@ -205,6 +205,7 @@ protected:
 		enterState(getRoom(),jsTrans);
 	}
 
+	uint8_t getCurIdx()override{ return m_nInvokeIdx; }
 protected:
 	std::vector<uint8_t> m_vHuIdxs;
 	uint8_t m_nActIdx;

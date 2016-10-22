@@ -16,6 +16,7 @@ public:
 	virtual bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID){ return false; }
 	virtual void onStateTimeUp(){}
 	virtual void leaveState(){}
+	virtual uint8_t getCurIdx(){ return 0; };
 	virtual void update(float fDeta)
 	{
 		if (m_fStateDuring >= 0.0f)

@@ -33,6 +33,8 @@ public:
 	bool canPengWithCard(uint8_t nCard) final;
 	bool canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB) override;
 	bool canHuWitCard(uint8_t nCard) override;
+	bool canAnGangWithCard(uint8_t nCard)override;
+	bool canBuGangWithCard(uint8_t nCard)override;
 	bool isTingPai() override;
 	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)final;
 	bool getHoldCardThatCanBuGang(VEC_CARD& vGangCards)final;

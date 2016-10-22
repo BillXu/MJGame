@@ -89,7 +89,7 @@ public:
 		getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
 		return true;
 	}
-
+	uint8_t getCurIdx()override{ return m_nIdx; }
 protected:
 	uint8_t m_nIdx;
 };

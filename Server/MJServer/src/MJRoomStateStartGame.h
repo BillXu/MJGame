@@ -20,5 +20,6 @@ public:
 		jsValue["idx"] = getRoom()->getBankerIdx();
 		getRoom()->goToState(eRoomState_WaitPlayerAct, &jsValue);
 	}
+	uint8_t getCurIdx()override{ return 0; }
 };
 

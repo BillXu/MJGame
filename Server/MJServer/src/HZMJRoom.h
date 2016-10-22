@@ -10,16 +10,21 @@ public:
 	void onGameEnd()override;
 	void willStartGame()override;
 	void onGameDidEnd()override;
+	void onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)override;
 	bool isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)override;;
 	bool isAnyPlayerRobotGang(uint8_t nInvokeIdx, uint8_t nCard)override;;
+	void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vOutWaitHuIdx, std::vector<uint8_t>& vOutWaitPengGangIdx, bool& isNeedWaitEat)override;
 	bool isGameOver()override;;
 	bool isCanGoOnMoPai()override;
 	IMJPlayer* doCreateMJPlayer()override;
-	uint8_t distributeOneCard()override;
+	IMJPoker* getMJPoker(){ return &m_tPoker; }
 	void onPlayerChu(uint8_t nIdx, uint8_t nCard)override;
 	void onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t nInvokeIdx)override;
+	bool isHavePiao();
+	bool isPlayerPiao(uint8_t nIdx);
 protected:
 	uint8_t m_nContinueBankes;
 	bool m_vCaiPiaoFlag[MAX_SEAT_CNT];
 	CMJCard m_tPoker;
+	uint8_t m_nLeasetLeftCard;
 };

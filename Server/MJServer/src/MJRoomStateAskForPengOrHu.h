@@ -251,7 +251,7 @@ public:
 		getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
 		return true;
 	}
-
+	uint8_t getCurIdx()override{ return m_nInvokeIdx; }
 protected:
 	uint8_t m_nInvokeIdx;
 	uint8_t m_nCard;

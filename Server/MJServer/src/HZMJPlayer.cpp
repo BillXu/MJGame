@@ -3,6 +3,7 @@ void HZMJPlayer::onWillStartGame()
 {
 	MJPlayer::onWillStartGame();
 	clearPiaoTimes();
+	m_tPlayerCard.reset();
 }
 
 void HZMJPlayer::onStartGame()
@@ -14,11 +15,17 @@ void HZMJPlayer::onGameDidEnd()
 {
 	MJPlayer::onGameDidEnd();
 	clearPiaoTimes();
+	m_tPlayerCard.reset();
 }
 
 void HZMJPlayer::onGameEnd()
 {
 	MJPlayer::onGameEnd();
+}
+
+IMJPlayerCard* HZMJPlayer::getPlayerCard()
+{
+	return &m_tPlayerCard;
 }
 
 void HZMJPlayer::increasePiaoTimes( bool isGangPiao )

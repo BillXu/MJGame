@@ -22,4 +22,5 @@ public:
 	virtual bool onMessage(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nPlayerSessionID) = 0;
 	virtual bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID) = 0;
 	virtual stBaseRoomConfig* getRoomConfig() = 0;
+	virtual void sendRoomInfo(uint32_t nSessionID) = 0;
 };

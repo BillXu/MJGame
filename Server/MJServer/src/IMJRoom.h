@@ -2,6 +2,7 @@
 #include "IGameRoom.h"
 class IMJPlayer;
 struct stEnterRoomData;
+class IMJPoker;
 class IMJRoomState;
 #define MAX_SEAT_CNT 4 
 class IMJRoom
@@ -15,7 +16,10 @@ public:
 	bool onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)override;
 	bool onPlayerApplyLeave(uint32_t nPlayerUID)override;
 	bool isRoomFull()override;
-
+	void sendRoomInfo( uint32_t nSessionID )override;
+protected:
+	void sendPlayersCardInfo(uint32_t nSessionID );
+public:
 	uint32_t getRoomID()final;
 	stBaseRoomConfig* getRoomConfig()final{ return m_pRoomConfig; }
 	void update(float fDelta) override;
@@ -43,7 +47,7 @@ public:
 	void setBankIdx(uint8_t nIdx);
 	void onPlayerSetReady( uint8_t nIdx );
 	// mj function ;
-	void onWaitPlayerAct( uint8_t nIdx , bool& isCanPass );
+	virtual void onWaitPlayerAct(uint8_t nIdx, bool& isCanPass);
 	uint8_t getAutoChuCardWhenWaitActTimeout(uint8_t nIdx);
 	uint8_t getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx);
 	void onPlayerMo( uint8_t nIdx );
@@ -55,14 +59,14 @@ public:
 	virtual void onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t nInvokeIdx);
 	virtual void onPlayerChu(uint8_t nIdx, uint8_t nCard);
 	virtual bool isAnyPlayerPengOrHuThisCard( uint8_t nInvokeIdx , uint8_t nCard );
-	void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vOutWaitHuIdx, std::vector<uint8_t>& vOutWaitPengGangIdx, bool& isNeedWaitEat );  
+	virtual void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vOutWaitHuIdx, std::vector<uint8_t>& vOutWaitPengGangIdx, bool& isNeedWaitEat);
 	virtual bool isAnyPlayerRobotGang(uint8_t nInvokeIdx, uint8_t nCard);
 	void onAskForRobotGang(uint8_t nInvokeIdx, uint8_t nCard,std::vector<uint8_t>& vOutCandinates );
 	uint8_t getNextActPlayerIdx( uint8_t nCurActIdx );
 	virtual bool isGameOver();
-	virtual bool isCanGoOnMoPai() = 0 ;
+	virtual bool isCanGoOnMoPai();
 	virtual IMJPlayer* doCreateMJPlayer() = 0;
-	virtual uint8_t distributeOneCard() = 0;
+	virtual IMJPoker* getMJPoker() = 0;
 	IRoomManager* getRoomMgr(){ return m_pRoomMgr; }
 	IMJRoomState* getCurRoomState(){ return m_pCurState; }
 protected:

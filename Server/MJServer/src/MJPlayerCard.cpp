@@ -273,6 +273,33 @@ bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 	return bSelfHu;
 }
 
+bool MJPlayerCard::canAnGangWithCard(uint8_t nCard)
+{
+	auto eType = card_Type(nCard);
+	if (eType >= eCT_Max)
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
+		return false;
+	}
+	auto& vCard = m_vCards[eType];
+	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
+	return nCard == 4;
+}
+
+bool MJPlayerCard::canBuGangWithCard(uint8_t nCard)
+{
+	auto eType = card_Type(nCard);
+	if (eType >= eCT_Max)
+	{
+		CLogMgr::SharedLogMgr()->ErrorLog("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
+		return false;
+	}
+	auto& vCard = m_vCards[eType];
+	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
+	auto npeng = std::count(m_vPenged.begin(), m_vPenged.end(), nCard);
+	return nCard == 1 && 0 < npeng;
+}
+
 //bool MJPlayerCard::isTingPai()
 //{
 //	if (is7PairTing())
