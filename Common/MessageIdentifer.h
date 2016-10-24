@@ -75,7 +75,7 @@ enum eTime
 	eTime_DoExchangeCard = 3, //   执行换牌的时间
 	eTime_WaitDecideQue = 10, // 等待玩家定缺
 	eTime_DoDecideQue = 2, // 定缺时间
-	eTime_WaitPlayerAct = 80000,  // 等待玩家操作的时间
+	eTime_WaitPlayerAct = 10,  // 等待玩家操作的时间
 	eTime_WaitPlayerChoseAct = eTime_WaitPlayerAct,
 	eTime_DoPlayerMoPai = 1 ,  //  玩家摸牌时间
 	eTime_DoPlayerActChuPai = 2,  // 玩家出牌的时间
@@ -245,9 +245,10 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, vipRoomCard : 23, clothe : [235,235,234] }
+	// svr : { name: "nickName",photoID : 23, ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, vipRoomCard : 23, clothe : [235,235,234] }
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 	// charity : 救济金剩余可领次数
+	// photoID : 头像ID ；
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME, // 玩家修改昵称
@@ -257,7 +258,13 @@ enum eMsgType
 	// ret : 0 成功，1 名字长度太长
 
 	MSG_PLAYER_MODIFY_SIGURE,
-	MSG_PLAYER_MODIFY_PHOTO,
+	
+	MSG_PLAYER_MODIFY_PHOTO, // 玩家修改头像
+	// client : { photoID : 23 }
+	// photoID: 新修改的头像id 。
+	// svr : { ret : 0 , photoID : 23 }
+	// ret : 0 表示成功 , 1 参数错误。 photoID : 修改后的头像ID ；
+
 	MSG_PLAYER_UPDATE_MONEY,  // USE WHEN OTHER MAIL A GITF  ;
 	
 	MSG_PLAYER_MODIFY_SEX, // 修改玩家的性别
@@ -336,9 +343,12 @@ enum eMsgType
 	// ret : 0 操作成功 , 1 没有轮到你操作 , 2 不能执行指定的操作，条件不满足, 3 参数错误 , 4 状态错误 ;
 
 	MSG_ROOM_ACT,  // 房间里有玩家执行了一个操作
-	// svr : { idx : 0 , actType : 234, card : 23, gangCard : 12, eatWith : [22,33] }
+	// svr : { idx : 0 , actType : 234, card : 23, gangCard : 12, eatWith : [22,33], huType : 23, fanShu : 23 , detail: [{idx:23 , loseCoin : 23 } , ... ]  }
 	// idx :  执行操作的那个玩家的索引。 actType : 执行操作的类型，参照枚举值eMJActType 。 card： 操作涉及到的牌  gangCard: 杠牌后 获得的牌;
 	// eatWith : 当吃牌的时候，表示用哪两张牌进行吃
+	// detail : 实时结算，每个玩家输了多少钱，一个数组； idx 索引，loseCoin 输了多少钱。 只有胡牌 或者杠牌 的动作才有这个字段；
+	// huType : 胡牌类型，只有是胡的动作才有这个字段；
+	// fanShu :  胡牌的时候的翻数，只有胡牌的动作才有这个字段
 
 	MSG_ROOM_WAIT_RECHARGE, // 等待一些玩家充值
 	// svr: { players: [0,1,3]}    
@@ -434,7 +444,7 @@ enum eMsgType
 
 	MSG_REQUEST_PLAYER_BRIF_INFO, // 请求玩家的基本信息；
 	// client : { targetUID : 23456 }
-	// svr : { ret : 0 , nickName : "lucy" , photoID : 2345 , uid : 2345 , ip : "192.168.1.56" ,sex : eSex, diamond : 2345, phone : 18023043245 }
+	// svr : { ret : 0 , nickName : "lucy" , photoID : 2345 , uid : 2345 , ip : "192.168.1.56" ,sex : eSex, diamond : 2345, phone : 18023043245 ,clothe : [2,35,23] }
 	// ret : 0 成功，1 不存在该玩家
 	// nickName : 昵称 ， photoID : 头像ID， uid ： 玩家Id , ip： 玩家的ip地址，只有在线的玩家存在，否则为空。 sex ： 玩家性别， diamond : 玩家的钻石， phone ： 玩家的手机号
 
@@ -531,7 +541,7 @@ enum eMsgType
 
 	MSG_ROOM_PLAYER_GAME_BILL , // 游戏过程中详细的金钱转换账单。 这个消息一般是在游戏结束够发送,只能收到自己的。
 	// client : 
-	// svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,  { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } , .....] , loseBills : [ { billType : eBill_HuLose, winIdx : 2 , coin : 23 } , { billType : eBill_HuLose, winIdx : 1 , coin : 234 }, ..... ] }
+	// // svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, huType : 23, fanShu : 23 ,detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,....] } , .....] , loseBills : [ { billType : eBill_HuLose, , huType : 23, fanShu : 23 ,winIdx : 2 , coin : 23 } , { billType : eBill_HuLose , huType : 23, fanShu : 23, winIdx : 1 , coin : 234 }, ..... ] }
 	// idx ： 这条账单是哪个玩家的。 winBills 是这个玩家所有赢钱的账单 组成的数组。 billType 此账单的类型（赢钱是怎么赢的，值的意思请参考 eBill 的枚举），detail ： 是赢钱的时候，具体是赢了哪些人的钱，从每个人那里赢了多少， 一个数组。
 	// loseIdx 就是输钱的索引，coin 就是输了多少钱。loseBills ： 就是当前玩家数钱的账单数组。 数组元素内容是{ billType类型，输钱是怎么输的，winIdx 就输给了谁，coin 输了多少钱 }
 
@@ -539,4 +549,15 @@ enum eMsgType
 	// svr : { winnerIdx : 2 , is7Pair : 0 , HaoHua : 1 , isBaoTou : 0 , piaoCnt : 1 , isGangKai : 1 , isGangPiao , results: [ {uid : 2345 , offset : -23, final : 23} , ....  ]   } 
 	// winnerIdx ： 赢的玩家的索引， is7Pair 是否是七对。 haoHUa ： 如果是七对，有多少个四个一样的，确定豪华级别。 isBaoTou ： 是否是爆头。piaoCnt ： 飘的次数。 isGangKai 是否是杠开。
 	// isGangPiao : 是否是杠飘，result： 结算的输赢金钱结果，数组； 元素： uid： 玩家的uid，offset 输赢差值， final： 最终的钱数；
+
+	MSG_PLAYER_CHAT_MSG, // 发送聊天消息；
+	// client : { dstRoomID : 235 , msg: { type : 0 , content : "hellowWorld" , resID : 2  } }
+	// type : 消息类型， 0 普通文字消息， 1 表情， 2 固定语音；
+	// content : 文字消息的内容； resID ： 表情id 或者 固定语音的id ；
+	// svr : { ret : 0 }
+	// ret : 0 成功， 1 没有坐下不能聊天；
+
+	MSG_ROOM_CHAT_MSG,
+	// svr : { idx : 2 , msg: { type : 0 , content : "hellowWorld" , resID : 2  } }
+	// idx : 发送消息的玩家索引；
 };

@@ -74,6 +74,7 @@ void RunFunc ( IServerApp* pApp )
 #include "MJPeerCardNew.h"
 #include "MJCard.h"
 #include "MJHuPaiInfo.h"
+#include "HZMJPlayerCard.h"
 int main()
 {
 	//CMJHuPaiInfo tInfo ;
@@ -85,19 +86,20 @@ int main()
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,2);
 	//vCards.push_back(nValue);
 
-	//nValue = CMJCard::makeCardNumber(eCT_Jian,2);
-	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Jian,2);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan, 2);
 	//vCards.push_back(nValue);
 
-	//nValue = CMJCard::makeCardNumber(eCT_Jian,2);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan, 3);
+	//vCards.push_back(nValue);
+
+	//nValue = CMJCard::makeCardNumber(eCT_Wan, 4);
 	//vCards.push_back(nValue);
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
 	//vCards.push_back(nValue);
 
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,6);
 	//vCards.push_back(nValue);
-	//nValue = CMJCard::makeCardNumber(eCT_Wan,3);
+	//nValue = CMJCard::makeCardNumber(eCT_Wan,6);
 	//vCards.push_back(nValue);
 
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,4);
@@ -114,7 +116,7 @@ int main()
 	//vCards.push_back(nValue);
 	//nValue = CMJCard::makeCardNumber(eCT_Wan,7);
 	//vCards.push_back(nValue);
-
+	
 	//bool b = tInfo.parseHuPaiInfo(vCards);
 	//if ( b )
 	//{
@@ -122,13 +124,16 @@ int main()
 	//}
 	//return 0 ;
 	//CMJPeerCardNew tPeer ;
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Jian,2));
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Jian,2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan, 2));
 	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan,2));
-	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan,2));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan,3));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan, 4));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+	//tPeer.addHoldCard(CMJCard::makeCardNumber(eCT_Wan, 6));
 
-	//bool isP = tPeer.isCardCanPeng(CMJCard::makeCardNumber(eCT_Jian,2));
-	//bool isHu = tPeer.isCardCanHu(CMJCard::makeCardNumber(eCT_Jian,2));
+	////bool isP = tPeer.isCardCanPeng(CMJCard::makeCardNumber(eCT_Jian,2));
+	//bool isHu = tPeer.isCardCanHu(CMJCard::makeCardNumber(eCT_Wan, 5));
 	//if ( isHu )
 	//{
 	//	printf("right") ;
@@ -202,7 +207,55 @@ int main()
 	//uint8_t nGen = 0;
 	//bool b = m_tRoomPlayer.doHuPaiFanshu(39,nGen);
 	//return 0 ;
+	//printf("\n\u5317\u4eac");
 
+	// test new chard ;
+	IMJPlayerCard* pPlayerCard = new HZMJPlayerCard();
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 4));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 4));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+	
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+	if (pPlayerCard->isTingPai())
+	{
+		printf("do ting \n");
+	}
+	
+	if (pPlayerCard->isHoldCardCanHu())
+	{
+		printf("hold card can hu \n");
+	}
+
+	if (((HZMJPlayerCard*)pPlayerCard)->isBaoTou())
+	{
+		printf( "yes is bao tou!" );
+	}
+
+	if (((HZMJPlayerCard*)pPlayerCard)->canHoldCard7PairHu())
+	{
+		printf("7 pair hu , hao hua cnt = %u", ((HZMJPlayerCard*)pPlayerCard)->get7PairHuHaoHuaCnt());
+	}
+	//
 	CMJServerApp* theApp = CMJServerApp::getInstance() ;
 	bool bok = theApp->init() ;
 	CLogMgr::SharedLogMgr()->SetOutputFile("MJSvr");

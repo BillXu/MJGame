@@ -34,6 +34,7 @@ public:
 	uint16_t getPlayerCntWithState( uint32_t nState );
 	ISitableRoomPlayer* getSitdownPlayerBySessionID(uint32_t nSessionID);
 	ISitableRoomPlayer* getSitdownPlayerByUID(uint32_t nUserUID );
+	bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)override;
 	bool onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )override;
 	virtual  uint32_t coinNeededToSitDown() = 0;
 	void onGameDidEnd()override ;

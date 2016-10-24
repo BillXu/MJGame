@@ -363,14 +363,14 @@ bool CNewMJRoom::isAnyOneNeedTheCard( uint8_t nCardOwner , uint8_t nCard, eMJAct
 			 if ( pcard->isCardCanPeng(nCard) )
 			 {
 				 jsArrayNeedIdx[jsArrayNeedIdx.size()] = nIdx ;
-				 continue;
+				// continue;
 			 }
 
 			 CMJPeerCardNew::VEC_EAT_PAIR v ;
 			 if ( nIdx == nNextIdx && pcard->isCardCanEat(nCard,v) )
 			 {
 				 jsArrayNeedIdx[jsArrayNeedIdx.size()] = nIdx ;
-				 continue;
+				 //continue;
 			 }
 		}
 
@@ -378,7 +378,7 @@ bool CNewMJRoom::isAnyOneNeedTheCard( uint8_t nCardOwner , uint8_t nCard, eMJAct
 		if ( pcard->isCardCanHu(nCard) )
 		{
 			jsArrayNeedIdx[jsArrayNeedIdx.size()] = nIdx ;
-			continue;
+			//continue;
 		}
 	}
 	return jsArrayNeedIdx.empty() == false ;

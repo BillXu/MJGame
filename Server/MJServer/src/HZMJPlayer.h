@@ -13,7 +13,7 @@ public:
 	void increasePiaoTimes(bool isGangPiao );
 	void clearPiaoTimes();
 	uint8_t getPiaoTimes();
-	bool haveGangPiao();
+	bool haveGangPiao(){ return m_bHaveGangPiao; }
 protected:
 	uint8_t m_nPiaoTimes;
 	bool m_bHaveGangPiao;

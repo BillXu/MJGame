@@ -68,13 +68,13 @@ bool MJPlayerCard::stNotShunCard::operator < (const stNotShunCard& v)const
 	std::sort(nonConstObj.vCards.begin(), nonConstObj.vCards.end());
 	for (uint8_t nIdx = 0; nIdx < self.vCards.size(); ++nIdx)
 	{
-		if (self.vCards[nIdx] >= nonConstObj.vCards[nIdx])
+		if (self.vCards[nIdx] < nonConstObj.vCards[nIdx])
 		{
-			return false;
+			return true;
 		}
 	}
 
-	return true;
+	return false;
 }
 
 uint8_t MJPlayerCard::stNotShunCard::getLackCardCntForShun()
@@ -423,7 +423,7 @@ bool MJPlayerCard::isTingPai()
 		return true;
 	}
 
-	if ( getMiniQueCnt(m_vCards) <= 0 )
+	if ( getMiniQueCnt(m_vCards) <= 1 )
 	{
 		return true;
 	}
@@ -1092,6 +1092,7 @@ uint8_t MJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 	{
 		uint8_t nJiang = 0;
 		uint8_t nWhenJiangQueCnt = 0;
+		nQueCnt = 0;
 		for (auto& vRefNotShun : vNotShun)
 		{
 			uint8_t nTemp;
@@ -1124,7 +1125,13 @@ uint8_t MJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max])
 
 		for (uint8_t nIdx = 0; nIdx < vCard.size();)
 		{
-			if (vCard[nIdx] == vCard[1 + nIdx])
+			auto nNext = 0; 
+			if (uint8_t(1 + nIdx) < vCard.size())
+			{
+				nNext = vCard[1 + nIdx];
+			}
+
+			if (vCard[nIdx] == nNext )
 			{
 				nIdx += 2;
 			}

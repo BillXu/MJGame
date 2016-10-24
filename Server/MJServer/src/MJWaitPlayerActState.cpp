@@ -16,6 +16,21 @@ void CMJWaitPlayerActState::enterState(IRoom* ptRoom)
 	//	CLogMgr::SharedLogMgr()->PrintLog("idx = %u , self need the card = %u" , m_vWaitIdxs.front().nIdx,nNewCard) ;
 	//	pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
 	//}
+
+	if (firt.nMaxActExePrio == eMJAct_Chu )
+	{
+		Json::Value jsActArray;
+
+		Json::Value passAct;
+		passAct["act"] = eMJAct_Chu;
+		passAct["cardNum"] = ppPlayer->getCardByIdx(0);
+		jsActArray[jsActArray.size()] = passAct;
+
+		Json::Value jsmsg;
+		jsmsg["acts"] = jsActArray;
+		pRoom->sendMsgToPlayer(jsmsg, MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD, ppPlayer->getSessionID());
+		return;
+	}
 	ppPlayer->updateSelfOperateCards();
 	pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
 } 

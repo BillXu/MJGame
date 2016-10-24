@@ -321,10 +321,14 @@ void CMJRoom::caculateGameResult()
 void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 {
 	auto pPlayerWiner = (CMJRoomPlayer*)getPlayerByIdx(nActIdx) ;
-
 	uint8_t nGenshu = 0 ;
 	uint8_t nFanShu = pPlayerWiner->doHuPaiFanshu(0,nGenshu);
-
+	auto huType = pPlayerWiner->getHuType();
+	
+	stBillWin* pWinBill = new stBillWin();
+	pWinBill->eType = eBill_HuWin;
+	pWinBill->nFanShu = nFanShu;
+	pWinBill->nHuType = huType;
 	
 	if ( pPlayerWiner->getNewFetchedFrom() != eMJAct_Mo )
 	{
@@ -333,7 +337,8 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 	}
 	else
 	{
-		 // zi mo 
+		 // zi mo  zi mo jia yifen 
+		nFanShu *= 2; 
 		 CLogMgr::SharedLogMgr()->ErrorLog("zi mo xu yao jia fan ma ?");
 	}
 
@@ -346,6 +351,7 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 	uint32_t nWinCoin = getCacualteCoin(nFanShu,nGenshu) ;
 	
 	uint32_t ntotalWin = 0 ;
+	Json::Value jsLoseDetail;
 	// kou qian ;
 	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 	{
@@ -354,25 +360,52 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 			continue; 
 		}
 
+		stBillLose* pLose = new stBillLose();
+		pLose->eType = eBill_HuLose;
+		pLose->nFanShu = nFanShu;
+		pLose->nHuType = huType;
+		pLose->nWinnerIdx = pPlayerWiner->getIdx();
 		auto pp = getPlayerByIdx(nIdx) ;
 		if ( nWinCoin <= pp->getCoin() )
 		{
 			ntotalWin += nWinCoin ;
 			pp->setCoin(pp->getCoin() - nWinCoin) ;
+			pLose->nOffset = nWinCoin;
+			((CMJRoomPlayer*)pp)->addBill(pLose);
+			pWinBill->vLoseIdxAndCoin[pp->getIdx()] = nWinCoin;
+
+			Json::Value jsLose;
+			jsLose["idx"] = pp->getIdx();
+			jsLose["loseCoin"] = nWinCoin;
+			jsLoseDetail[jsLoseDetail.size()] = jsLose;
+
 			continue;
 		}
 
 		ntotalWin += pp->getCoin() ;
+		pLose->nOffset = pp->getCoin();
+		pWinBill->vLoseIdxAndCoin[pp->getIdx()] = pp->getCoin();
 		pp->setCoin(0) ;
+		((CMJRoomPlayer*)pp)->addBill(pLose);
+
+		Json::Value jsLose;
+		jsLose["idx"] = pp->getIdx();
+		jsLose["loseCoin"] = pLose->nOffset;
+		jsLoseDetail[jsLoseDetail.size()] = jsLose;
 	}
 
 	// add coin 
 	pPlayerWiner->setCoin(pPlayerWiner->getCoin() + ntotalWin ) ;
+	pWinBill->nOffset = ntotalWin;
+	pPlayerWiner->addBill(pWinBill);
 	// send msg 
 	Json::Value msg ;
 	msg["idx"] = pPlayerWiner->getIdx() ;
 	msg["actType"] = eMJAct_Hu ;
+	msg["huType"] = pPlayerWiner->getHuType();
+	msg["fanShu"] = nFanShu;
 	msg["card"] = pPlayerWiner->getNewFetchCard() ;
+	msg["detail"] = jsLoseDetail;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
 }
 
@@ -396,6 +429,17 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 		nFanShu *= 2 ; // add a fan
 		CLogMgr::SharedLogMgr()->PrintLog("uid = %u Gang shang pao jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
 	}
+
+	stBillWin* pWinBill = new stBillWin();
+	pWinBill->eType = eBill_HuWin;
+	pWinBill->nFanShu = nFanShu;
+	pWinBill->nHuType = pPlayerWiner->getHuType();
+
+	stBillLose* pLose = new stBillLose();
+	pLose->eType = eBill_HuLose;
+	pLose->nFanShu = nFanShu;
+	pLose->nWinnerIdx = pPlayerWiner->getIdx();
+	pLose->nHuType = pPlayerWiner->getHuType();
 	
 	// update max fan shu 
 	if ( pPlayerWiner->getMaxWinTimes() < nFanShu )
@@ -421,12 +465,26 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 	{
 		pLosePlayer->onChuedPaiBePengOrGang(nCardNumber);
 	}
+	pLose->nOffset = ntotalWin;
+	pWinBill->nOffset = ntotalWin;
+	pWinBill->vLoseIdxAndCoin[pLosePlayer->getIdx()] = ntotalWin;
+	pLosePlayer->addBill(pLose);
+	pPlayerWiner->addBill(pWinBill);
 	
 	// send msg 
+	Json::Value jsLoseDetail;
+	Json::Value jsLose;
+	jsLose["idx"] = pLosePlayer->getIdx();
+	jsLose["loseCoin"] = ntotalWin;
+	jsLoseDetail[jsLoseDetail.size()] = jsLose;
+
 	Json::Value msg ;
 	msg["idx"] = pPlayerWiner->getIdx() ;
 	msg["actType"] = eMJAct_Hu ;
 	msg["card"] = nCardNumber ;
+	msg["huType"] = pPlayerWiner->getHuType();
+	msg["fanShu"] = nFanShu;
+	msg["detail"] = jsLoseDetail;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
 }
 
@@ -435,6 +493,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nActIdx) ;
 	auto pLosePlayer = (CMJRoomPlayer*)getPlayerByIdx(nInvokeIdx) ;
 
+	Json::Value jsLoseDetail;
 	eMJActType eGangType = eMJAct_AnGang ;
 	if ( isBuGang )
 	{
@@ -452,8 +511,8 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	pPlayer->gangPai(nCardNumber,eGangType,nGangPai) ;
 
 	// caculate wind and rain 
-	uint8_t nWinCoin = getBaseBet() ;
-	uint8_t ntotalWin  = 0 ;
+	uint32_t nWinCoin = getBaseBet() ;
+	uint32_t ntotalWin = 0;
 	stBillWin* pBill = new stBillWin ;
 	pBill->eType = eBill_GangWin ;
 	if ( nInvokeIdx == nActIdx )
@@ -461,10 +520,12 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 		if ( eGangType == eMJAct_BuGang )
 		{
 			nWinCoin = getBaseBet() ;
+			pBill->nFanShu = 1;
 		}
 		else if ( eGangType == eMJAct_AnGang )
 		{
 			nWinCoin = getBaseBet() * 2 ;
+			pBill->nFanShu = 2;
 		}
 		else
 		{
@@ -474,13 +535,14 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 		for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
 		{
 			auto pp = getPlayerByIdx(nIdx) ;
-			if ( nIdx == nActIdx || pp->isHaveState(eRoomPeer_AlreadyHu) ) 
+			if ( nIdx == nActIdx /*|| pp->isHaveState(eRoomPeer_AlreadyHu)*/ ) 
 			{
 				continue; 
 			}
 			stBillLose* pLoseBill = new stBillLose ;
 			pLoseBill->eType = eBill_GangLose ;
 			pLoseBill->nWinnerIdx = nActIdx ;
+			pLoseBill->nFanShu = pBill->nFanShu;
 			
 			if ( nWinCoin <= pp->getCoin() )
 			{
@@ -490,6 +552,10 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 
 				pLoseBill->nOffset = nWinCoin ;
 				
+				Json::Value jsLose;
+				jsLose["idx"] = pp->getIdx();
+				jsLose["loseCoin"] = nWinCoin;
+				jsLoseDetail[jsLoseDetail.size()] = jsLose;
 				((CMJRoomPlayer*)pp)->addBill(pLoseBill) ;
 				continue;
 			}
@@ -499,6 +565,11 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 			pLoseBill->nOffset = pp->getCoin() ;
 			pp->setCoin(0) ;
 			((CMJRoomPlayer*)pp)->addBill(pLoseBill) ;
+
+			Json::Value jsLose;
+			jsLose["idx"] = pp->getIdx();
+			jsLose["loseCoin"] = pLoseBill->nOffset;
+			jsLoseDetail[jsLoseDetail.size()] = jsLose;
 		}
 
 		pBill->nOffset = ntotalWin ;
@@ -508,12 +579,13 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	else
 	{
 		// ming gang 
-		nWinCoin = getBaseBet() * 2 ;
+		nWinCoin = getBaseBet()  ;
 		uint32_t ntotalWin = nWinCoin ;
 
 		stBillLose* pLoseBill = new stBillLose ;
 		pLoseBill->eType = eBill_GangLose ;
 		pLoseBill->nWinnerIdx = nActIdx ;
+		pLoseBill->nFanShu = 1;
 
 		if ( pLosePlayer->getCoin() >= nWinCoin )
 		{
@@ -533,7 +605,13 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 
 		pBill->vLoseIdxAndCoin[pLosePlayer->getIdx()] = ntotalWin ;
 		pBill->nOffset = ntotalWin ;
+		pBill->nFanShu = pLoseBill->nFanShu;
 		pPlayer->addBill(pBill);
+
+		Json::Value jsLose;
+		jsLose["idx"] = pLosePlayer->getIdx();
+		jsLose["loseCoin"] = ntotalWin;
+		jsLoseDetail[jsLoseDetail.size()] = jsLose;
 	}
 
 	// send msg 
@@ -554,6 +632,8 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 
 	msg["card"] = nCardNumber ;
 	msg[ "gangCard" ] = nGangPai ;
+	msg["fanShu"] = pBill->nFanShu;
+	msg["detail"] = jsLoseDetail;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
 }
 
@@ -567,6 +647,11 @@ bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitId
 		}
 
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nIdx) ;
+		if (pPlayer == nullptr || pPlayer->isHaveState(eRoomPeer_DecideLose))
+		{
+			continue;
+		}
+
 		uint8_t nActType = 0 ;
 		if ( pPlayer->isCardBeWanted(nCardNumber,nActType,false) )
 		{
@@ -612,10 +697,24 @@ uint8_t CMJRoom::getLeftCardCnt()
 
 uint8_t CMJRoom::getNextActPlayerIdx( uint8_t nCurActIdx )
 {
-	++nCurActIdx ;
-	nCurActIdx %= getSeatCount() ;
-	m_nCurActIdx = nCurActIdx ;
-	return nCurActIdx ;
+	//++nCurActIdx ;
+	//nCurActIdx %= getSeatCount() ;
+	//m_nCurActIdx = nCurActIdx ;
+	//return nCurActIdx ;
+
+	for (++nCurActIdx; nCurActIdx < getSeatCount() * 2; ++nCurActIdx)
+	{
+		auto nIdx = nCurActIdx % getSeatCount();
+		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nIdx);
+		if (pPlayer == nullptr || pPlayer->isHaveState(eRoomPeer_DecideLose))
+		{
+			continue;
+		}
+		return nIdx;
+	}
+
+	CLogMgr::SharedLogMgr()->ErrorLog("who do not have proper player to be next");
+	return 0;
 }
 
 void CMJRoom::onPlayerMoPai( uint8_t nIdx )
@@ -829,6 +928,17 @@ bool CMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPo
 
 bool CMJRoom::canPlayerDirectLeave( uint32_t nUID )
 {
+	auto pPlayer = getSitdownPlayerByUID(nUID);
+	if (!pPlayer)
+	{
+		return true;
+	}
+
+	if (pPlayer->isHaveState(eRoomPeer_DecideLose))
+	{
+		return true;
+	}
+
 	return ( getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID() ) ;
 }
 

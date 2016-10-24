@@ -18,14 +18,18 @@ struct stBill
 struct stBillLose
 	:public stBill
 {
-	stBillLose(){ eType = eBill_GangLose; }
+	stBillLose(){ eType = eBill_GangLose; nHuType = 0; nFanShu = 0; }
 	uint8_t nWinnerIdx ;
+	uint8_t nHuType;
+	uint16_t nFanShu;
 };
 
 struct stBillWin
 	:public stBill
 {
-	stBillWin(){ eType = eBill_GangWin ;}
+	stBillWin(){ eType = eBill_GangWin; nHuType = 0; nFanShu = 0; }
+	uint8_t nHuType;
+	uint16_t nFanShu;
 	std::map<uint8_t,uint32_t> vLoseIdxAndCoin ;
 };
 

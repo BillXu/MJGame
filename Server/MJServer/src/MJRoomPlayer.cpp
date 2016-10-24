@@ -443,7 +443,7 @@ bool CMJRoomPlayer::getOperateListJoson(Json::Value& vActList )
 
 void CMJRoomPlayer::getAllBillForMsg(Json::Value& jsbillInfoMsg)
 {
-	// svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,....] } , .....] , loseBills : [ { billType : eBill_HuLose, winIdx : 2 , coin : 23 } , { billType : eBill_HuLose, winIdx : 1 , coin : 234 }, ..... ] }
+	// svr : { idx : 2 , winBills : [ { billType :eBill_HuWin, huType : 23, fanShu : 23 ,detail : [ {loseIdx : 2 , coin: 234 }, {loseIdx : 2 , coin: 234 }] } ,....] } , .....] , loseBills : [ { billType : eBill_HuLose, , huType : 23, fanShu : 23 ,winIdx : 2 , coin : 23 } , { billType : eBill_HuLose , huType : 23, fanShu : 23, winIdx : 1 , coin : 234 }, ..... ] }
 	Json::Value jsArrayWinBills;
 	Json::Value jsArrayLoseBills;
 	for (auto& ref : m_vecBill)
@@ -453,6 +453,8 @@ void CMJRoomPlayer::getAllBillForMsg(Json::Value& jsbillInfoMsg)
 		if (eBill_Win == (ref->eType & eBill_Win))
 		{
 			stBillWin* pWin = (stBillWin*)ref;
+			jsBill["huType"] = pWin->nHuType;
+			jsBill["fanShu"] = pWin->nFanShu;
 			Json::Value jsLoseArray;
 			for (auto& refD : pWin->vLoseIdxAndCoin)
 			{
@@ -470,7 +472,9 @@ void CMJRoomPlayer::getAllBillForMsg(Json::Value& jsbillInfoMsg)
 		auto pLoseBill = (stBillLose*)ref;
 		jsBill["winIdx"] = pLoseBill->nWinnerIdx;
 		jsBill["coin"] = pLoseBill->nOffset;
-		jsArrayWinBills[jsArrayWinBills.size()] = jsBill;
+		jsBill["huType"] = pLoseBill->nHuType;
+		jsBill["fanShu"] = pLoseBill->nFanShu;
+		jsArrayLoseBills[jsArrayLoseBills.size()] = jsBill;
 	}
 
 	jsbillInfoMsg["idx"] = getIdx();

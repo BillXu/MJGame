@@ -22,6 +22,12 @@ void CSelectPlayerDataCacher::playerDataToJsonInfo(stPlayerDetailData* pData, Js
 	jsInfo["sex"] = pData->nSex;
 	jsInfo["diamond"] = pData->nDiamoned;
 	jsInfo["phone"] = (char*)pData->cPhoneNum;
+	Json::Value jsclothe;
+	jsclothe[jsclothe.size()] = pData->vJoinedClubID[jsclothe.size()];
+	jsclothe[jsclothe.size()] = pData->vJoinedClubID[jsclothe.size()];
+	jsclothe[jsclothe.size()] = pData->vJoinedClubID[jsclothe.size()];
+
+	jsInfo["clothe"] = jsclothe;
 }
 
 void CSelectPlayerDataCacher::stPlayerDataPrifle::recivedData(stPlayerBrifData* pRecData)

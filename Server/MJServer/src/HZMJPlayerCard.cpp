@@ -61,6 +61,8 @@ bool HZMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 
 uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 {
+	VEC_CARD vBackUpJian;
+	vBackUpJian.assign(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end());
 	auto caiShen = make_Card_Num(eCT_Jian, 3);
 	auto iter = std::find(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end(), caiShen);
 	while (iter != vCards[eCT_Jian].end())
@@ -70,6 +72,9 @@ uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 	}
 
 	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(vCards);
+	// rollback ;
+	vCards[eCT_Jian].swap(vBackUpJian);
+
 	uint8_t nCaishenCnt = getCaiShenCnt();
 	if (nCaishenCnt >= nCnt) // hu le 
 	{
@@ -199,6 +204,8 @@ uint8_t HZMJPlayerCard::getCaiShenCnt()
 
 uint8_t HZMJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max] )
 {
+	VEC_CARD vBackUpJian;
+	vBackUpJian.assign(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end());
 	auto caiShen = make_Card_Num(eCT_Jian, 3);
 	auto iter = std::find(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end(), caiShen);
 	while (iter != vCards[eCT_Jian].end())
@@ -207,6 +214,9 @@ uint8_t HZMJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max] )
 		iter = std::find(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end(), caiShen);
 	}
 	auto nCnt = MJPlayerCard::get7PairQueCnt(vCards);
+	// rollback ;
+	vCards[eCT_Jian].swap(vBackUpJian);
+
 	uint8_t nCaishenCnt = getCaiShenCnt();
 	if (nCaishenCnt >= nCnt) // hu le 
 	{
@@ -216,11 +226,7 @@ uint8_t HZMJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max] )
 			m_nDanDiao = caiShen;
 		}
 		nCaishenCnt -= nCnt;
-		if (nCaishenCnt != 0 && nCaishenCnt != 3)
-		{
-			CLogMgr::SharedLogMgr()->ErrorLog("get7PairQueCnt can not be here !! nCaishenCnt != 0 && nCaishenCnt != 3 ");
-		}
-		return 0;
+		return nCaishenCnt % 2;
 	}
 	nCnt -= nCaishenCnt;
 	return nCnt;
@@ -327,4 +333,10 @@ uint8_t HZMJPlayerCard::get7PairHuHaoHuaCnt()
 	uint8_t nCaiPair = nCaiCnt / 2;
 	auto addtion = nCaiPair < nReal2 ? nCaiPair : nReal2;
 	return (nReal3 + nReal4 + addtion);
+}
+
+bool HZMJPlayerCard::isBaoTou()
+{
+	auto caiShen = make_Card_Num(eCT_Jian, 3);
+	return ( caiShen == m_nJIang || caiShen == m_nDanDiao );
 }

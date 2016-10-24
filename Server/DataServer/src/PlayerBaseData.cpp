@@ -495,16 +495,16 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			m_bPlayerInfoDataDirty = true ;
 		}
 		break;
-	case MSG_PLAYER_MODIFY_PHOTO:
-		{
-			stMsgPlayerModifyPhoto* pPhoto = (stMsgPlayerModifyPhoto*)pMsg ;
-			m_stBaseData.nPhotoID = pPhoto->nPhotoID ;
-			stMsgPlayerModifyPhotoRet msgRet ;
-			msgRet.nRet = 0 ;
-			SendMsg(&msgRet,sizeof(msgRet)) ;
-			m_bPlayerInfoDataDirty = true ;
-		}
-		break;
+	//case MSG_PLAYER_MODIFY_PHOTO:
+	//	{
+	//		stMsgPlayerModifyPhoto* pPhoto = (stMsgPlayerModifyPhoto*)pMsg ;
+	//		m_stBaseData.nPhotoID = pPhoto->nPhotoID ;
+	//		stMsgPlayerModifyPhotoRet msgRet ;
+	//		msgRet.nRet = 0 ;
+	//		SendMsg(&msgRet,sizeof(msgRet)) ;
+	//		m_bPlayerInfoDataDirty = true ;
+	//	}
+	//	break;
 
 	case MSG_PLAYER_UPDATE_MONEY:
 		{
@@ -712,6 +712,20 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 {
 	switch (nmsgType)
 	{
+	case MSG_PLAYER_MODIFY_PHOTO:
+	{
+		if (recvValue["photoID"].isNull() == false && recvValue["photoID"].isUInt())
+		{
+			m_stBaseData.nPhotoID = recvValue["photoID"].asUInt();
+			recvValue["ret"] = 0;
+		}
+		else
+		{
+			recvValue["ret"] = 1;
+		}
+		SendMsg(recvValue, nmsgType);
+	}
+	break;
 	case MSG_PLAYER_MODIFY_SEX:
 		{
 			uint32_t nSex = recvValue["newSex"].asUInt();
@@ -1215,6 +1229,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["sessionID"] = GetPlayer()->GetSessionID() ;
 		jValue["vipRoomCard"] = m_stBaseData.nVipRoomCardCnt ;
 		jValue["charity"] = getLeftCharityTimes();
+		jValue["photoID"] = m_stBaseData.nPhotoID;
 
 		Json::Value jsclothe ;
 		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];

@@ -309,6 +309,33 @@ uint16_t ISitableRoom::getEmptySeatCount()
 	return nCount ;
 }
 
+bool ISitableRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)
+{
+	if (IRoom::onMsg(prealMsg, nMsgType, eSenderPort, nSessionID))
+	{
+		return true;
+	}
+
+	if ( MSG_PLAYER_CHAT_MSG == nMsgType )
+	{
+		auto pRet = getSitdownPlayerBySessionID(nSessionID);
+		if (pRet)
+		{
+			prealMsg["idx"] = pRet->getIdx();
+			sendRoomMsg(prealMsg, MSG_ROOM_CHAT_MSG);
+		}
+		else
+		{
+			CLogMgr::SharedLogMgr()->ErrorLog("you do not sit down , can not say anything");
+		}
+		Json::Value jsRet;
+		jsRet["ret"] = pRet == nullptr ? 1 : 0;
+		sendMsgToPlayer(jsRet, nMsgType, nSessionID);
+		return true;
+	}
+	return false;
+}
+
 ISitableRoomPlayer* ISitableRoom::getPlayerByIdx(uint16_t nIdx )
 {
 	assert(nIdx < getSeatCount() && "invalid player idx");

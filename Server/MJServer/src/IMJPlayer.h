@@ -6,7 +6,7 @@ class IMJPlayer
 {
 public:
 	virtual ~IMJPlayer(){}
-	virtual void init(stEnterRoomData* pData);
+	virtual void init(stEnterRoomData* pData) = 0;
 	virtual void onWillStartGame() = 0;
 	virtual void onStartGame() = 0;
 	virtual void onGameDidEnd() = 0;
@@ -17,8 +17,8 @@ public:
 	virtual void addOffsetCoin( int32_t nOffset ) = 0 ;
 	virtual int32_t getOffsetCoin() = 0;
 	virtual IMJPlayerCard* getPlayerCard() = 0;
-	virtual void setState( uint32_t eState );
-	virtual bool haveState( uint32_t eState );
+	virtual void setState( uint32_t eState ) = 0;
+	virtual bool haveState( uint32_t eState ) = 0;
 	virtual uint32_t getState() = 0;
 	virtual uint32_t getSessionID() = 0;
 	virtual uint32_t getUID() = 0;
