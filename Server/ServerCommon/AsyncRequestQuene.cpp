@@ -3,7 +3,7 @@
 #include <ctime>
 #include "AutoBuffer.h"
 #include "ISeverApp.h"
-#include "LogManager.h"
+#include "log4z.h"
 #define  TIME_CHECK_REQ_STATE 10
 void CAsyncRequestQuene::init( IServerApp* svrApp )
 {
@@ -31,7 +31,7 @@ bool CAsyncRequestQuene::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 		pBuffer += sizeof(stMsgAsyncRequestRet);
 		Json::Reader jsReader ;
 		jsReader.parse(pBuffer,pBuffer + pRet->nResultContentLen,jsResultContent) ;
-		//CLogMgr::SharedLogMgr()->PrintLog("as str : %s",pBuffer);
+		//LOGFMTD("as str : %s",pBuffer);
 	}
  
 	auto pReqIter = m_mapRunningRequest.find(pRet->nReqSerailID) ;
@@ -44,12 +44,12 @@ bool CAsyncRequestQuene::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("type = %u , serial num = %u , request func is null" , pReq->nReqType,pReq->nReqSerialNum) ;
+			LOGFMTD("type = %u , serial num = %u , request func is null" , pReq->nReqType,pReq->nReqSerialNum) ;
 		}
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("serial num = %u , already canncel" , pRet->nReqSerailID) ;
+		LOGFMTD("serial num = %u , already canncel" , pRet->nReqSerailID) ;
 		return true;
 	}
 
@@ -60,13 +60,13 @@ bool CAsyncRequestQuene::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 
 CAsyncRequestQuene::~CAsyncRequestQuene()
 {
-	for ( auto& pp : m_vReserverReqObject )
+	for ( auto pp : m_vReserverReqObject )
 	{
 		delete pp ;
 		pp = nullptr ;
 	}
 
-	for (  auto& iter : m_mapRunningRequest )
+	for (  auto iter : m_mapRunningRequest )
 	{
 		delete iter.second ;
 		iter.second ;
@@ -159,7 +159,7 @@ void CAsyncRequestQuene::timerCheckReqState(CTimer* pTimer, float fTick )
 	}
 
 	time_t tNow = time(nullptr) ;
-	for ( auto& pairReq : m_mapRunningRequest )
+	for ( auto pairReq : m_mapRunningRequest )
 	{
 		auto pReq = pairReq.second ;
 		if ( pReq->tLastSend + TIME_CHECK_REQ_STATE <= tNow )
@@ -167,9 +167,11 @@ void CAsyncRequestQuene::timerCheckReqState(CTimer* pTimer, float fTick )
 			sendAsyncRequest(pReq) ;
 		}
 
-		if ( pReq->nSendTimes > 5 )
+		if ( pReq->nSendTimes > 1 )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("req type = %u , target port = %u , tried too many times , why ",pReq->nReqType,pReq->nSendTimes) ;
+			Json::StyledWriter jsWrite ;
+			auto str = jsWrite.write(pReq->jsReqContent);
+			LOGFMTE("req type = %u , target port = %u  str = %s, tried too many times = %u , why ",pReq->nReqType,pReq->nTargetPortID,str.c_str(),pReq->nSendTimes) ;
 		}
 	}
 }

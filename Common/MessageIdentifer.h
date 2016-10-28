@@ -70,7 +70,7 @@ public
 #endif
 enum eTime
 {
-	eTime_ExeGameStart = 5,			// 执行游戏开始 的时间
+	eTime_ExeGameStart = 10,			// 执行游戏开始 的时间
 	eTime_WaitChoseExchangeCard = 5, //  等待玩家选择换牌的时间
 	eTime_DoExchangeCard = 3, //   执行换牌的时间
 	eTime_WaitDecideQue = 10, // 等待玩家定缺
@@ -83,6 +83,7 @@ enum eTime
 	eTime_DoPlayerAct_Hu = 3,  // 玩家胡牌的时间
 	eTime_DoPlayerAct_Peng = 2, // 玩家碰牌时间
 	eTime_GameOver = 1, // 游戏结束状态持续时间
+	eTime_WaitSupplyCoin = 10, // 等待玩家补充金币
 };
 
 #if (C_SHARP)  
@@ -98,7 +99,11 @@ enum eBillType  // 账单枚举
 	eBill_GangLose = (1 << 4) | eBill_Lose,  // 别人杠牌输的账单
  	eBill_HuLose = (1 << 5) | eBill_Lose, // 别人胡牌的账单
 	eBill_WinRollBackGang = (1 << 6) | eBill_Win,  //  别人之前杠牌赢的钱，因为他最终没胡牌，需要把这个钱还给我。
-	eBill_LoseRollBackGang = (1 << 6) | eBill_Win,  //  因为自己最终没胡牌，退还杠牌赢的钱。
+	eBill_LoseRollBackGang = (1 << 7) | eBill_Win,  //  因为自己最终没胡牌，退还杠牌赢的钱。
+	eBill_WinDaJiao = (1 << 6) | eBill_Win,  //  别人被查大叫，自己赚钱了
+	eBill_LoseDaJiao = (1 << 7) | eBill_Win,  //  被查大叫了，赔钱给所有人。
+	eBill_WinHuaZhu = (1 << 6) | eBill_Win,  //  别人被查花猪，自己赚钱了
+	eBill_LoseHuaZhu = (1 << 7) | eBill_Win,  //  被查查花猪，赔钱给已经听牌的人。
 };
 
 #if (C_SHARP)  
@@ -560,4 +565,6 @@ enum eMsgType
 	MSG_ROOM_CHAT_MSG,
 	// svr : { idx : 2 , msg: { type : 0 , content : "hellowWorld" , resID : 2  } }
 	// idx : 发送消息的玩家索引；
+
+	MSG_INTERAL_ROOM_SEND_UPDATE_COIN,  // SVR USED ;
 };

@@ -23,14 +23,9 @@ public:
 		void Reset(){nSessionID = 0 ; nExtenArg2 = nExtenArg1 = 0 ; assert(pUserData==NULL);}
 	};
 	typedef std::list<stArgData*> LIST_ARG_DATA ;
-	enum eModeType
-	{
-		eModule_Type = 200 ,
-	};
 public:
 	CDBManager();
 	~CDBManager();
-	uint16_t getModuleType()override { return eModule_Type ;}
 	void init( IServerApp* svrApp )override;
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	void OnDBResult(stDBResult* pResult);

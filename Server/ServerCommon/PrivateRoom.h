@@ -85,7 +85,7 @@ protected:
 
 
 // implement 
-#include "LogManager.h"
+#include "log4z.h"
 #include "RoomConfig.h"
 #include "ServerMessageDefine.h"
 #include "IRoomManager.h"
@@ -138,7 +138,7 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	m_stConfig.nGameType = vJsValue["roomType"].asUInt() ;
 	if ( m_stConfig.nMaxSeat == 0 || m_stConfig.nBaseBet == 0 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("create private argument error seatCnt = %u , baseBet = %u",m_stConfig.nMaxSeat,m_stConfig.nBaseBet) ;
+		LOGFMTE("create private argument error seatCnt = %u , baseBet = %u",m_stConfig.nMaxSeat,m_stConfig.nBaseBet) ;
 		m_stConfig.nMaxSeat = 4;
 		m_stConfig.nBaseBet = 1 ;
 	}
@@ -157,12 +157,12 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	if ( vJsValue["ownerUID"].isNull() == false )
 	{
 		m_nOwnerUID = vJsValue["ownerUID"].asUInt() ;
-		CLogMgr::SharedLogMgr()->PrintLog("create private room ownerUID is = %u",m_nOwnerUID) ;
+		LOGFMTD("create private room ownerUID is = %u",m_nOwnerUID) ;
 	}
 	else
 	{
 		m_nOwnerUID = 0 ;
-		CLogMgr::SharedLogMgr()->PrintLog("create private room ownerUID is null ?") ;
+		LOGFMTD("create private room ownerUID is null ?") ;
 	}
 
 	vJsValue["parentRoomID"] = getRoomID() ;
@@ -172,7 +172,7 @@ bool CPrivateRoom<T>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	pRoomMgr->reqeustChatRoomID(m_pRoom);
 	m_pRoom->setDelegate(this);
 
-	CLogMgr::SharedLogMgr()->PrintLog("create 1 private room") ;
+	LOGFMTD("create 1 private room") ;
 	return true ;
 }
 
@@ -213,7 +213,7 @@ void CPrivateRoom<T>::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfi
 	msgRead.nTermNumber = 0 ;
 	m_pRoomMgr->sendMsg(&msgRead,sizeof(msgRead),getRoomID()) ;
 
-	CLogMgr::SharedLogMgr()->PrintLog("read room id = %u ternm = %u rank player",getRoomID(),0) ;
+	LOGFMTD("read room id = %u ternm = %u rank player",getRoomID(),0) ;
 }
 
 template<class T >
@@ -249,7 +249,7 @@ uint8_t CPrivateRoom<T>::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )
 {
 	if ( getRoomState() != eRoomState_Opening )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("vip room not open");
+		LOGFMTD("vip room not open");
 		return 7 ;  // room not open 
 	}
 
@@ -278,14 +278,14 @@ void CPrivateRoom<T>::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer,int8_t
 			m_vAllPlayers[svp.nUID] = svp ;
 
 			pEnterRoomPlayer->nCoin = svp.nRoomCoin ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u first enter room give coin = %u",pEnterRoomPlayer->nUserUID,svp.nRoomCoin) ;
+			LOGFMTD("uid = %u first enter room give coin = %u",pEnterRoomPlayer->nUserUID,svp.nRoomCoin) ;
 		}
 		else
 		{
 			iter->second.nRealCoin = pEnterRoomPlayer->nCoin ;
 			iter->second.nSessionID = pEnterRoomPlayer->nUserSessionID ;
 			pEnterRoomPlayer->nCoin = iter->second.nRoomCoin ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u  enter room again room coin = %u",pEnterRoomPlayer->nUserUID,iter->second.nRoomCoin) ;
+			LOGFMTD("uid = %u  enter room again room coin = %u",pEnterRoomPlayer->nUserUID,iter->second.nRoomCoin) ;
 		}
 		m_pRoom->onPlayerEnterRoom(pEnterRoomPlayer,nSubIdx) ;
 		sendRoomInfo(pEnterRoomPlayer->nUserSessionID) ;
@@ -347,7 +347,7 @@ void CPrivateRoom<T>::update(float fDelta)
 template<class T >
 void CPrivateRoom<T>::onTimeSave()
 {
-	//CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
+	//LOGFMTD("time save room info room id = %u",getRoomID());
 	// save room rank ;
 	stMsgSaveRoomPlayer msgSave ;
 	msgSave.nRoomID = getRoomID() ;
@@ -365,7 +365,7 @@ void CPrivateRoom<T>::onTimeSave()
 		msgSave.savePlayer.nGameOffset = pp->nGameOffset ;
 		msgSave.savePlayer.nOtherOffset = pp->nOtherOffset ;
 		m_pRoomMgr->sendMsg(&msgSave,sizeof(msgSave),0) ;
-		CLogMgr::SharedLogMgr()->PrintLog("update rank uid = %u , offset = %d",pp->nUserUID,pp->nGameOffset) ;
+		LOGFMTD("update rank uid = %u , offset = %d",pp->nUserUID,pp->nGameOffset) ;
 	}
 
 	if ( m_bRoomInfoDiry )
@@ -385,11 +385,11 @@ bool CPrivateRoom<T>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			stMsgReadRoomPlayerRet* pRet = (stMsgReadRoomPlayerRet*)prealMsg ; 
 			if ( pRet->nTermNumber != 0 )
 			{
-				CLogMgr::SharedLogMgr()->SystemLog("recieved last wrong term player data , skip id  room id = %u",getRoomID()) ;
+				LOGFMTI("recieved last wrong term player data , skip id  room id = %u",getRoomID()) ;
 				break; 
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("room id = %d recive room player data cnt = %d",getRoomID(),pRet->nCnt) ;
+			LOGFMTD("room id = %d recive room player data cnt = %d",getRoomID(),pRet->nCnt) ;
 			stSaveRoomPlayerEntry* pp = (stSaveRoomPlayerEntry*)(((char*)prealMsg) + sizeof(stMsgReadRoomPlayerRet));
 			while ( pRet->nCnt-- )
 			{
@@ -456,7 +456,7 @@ bool CPrivateRoom<T>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 				}
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d request rank room id = %u",nUserID,getRoomID());
+			LOGFMTD("uid = %d request rank room id = %u",nUserID,getRoomID());
 			// send room info to player ;
 			stMsgRequestRoomRankRet msgRet ;
 			msgRet.nCnt = vWillSend.size() ;
@@ -466,7 +466,7 @@ bool CPrivateRoom<T>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			for ( auto& itemSendPlayer : vWillSend )
 			{
 				msgBuffer.addContent(&itemSendPlayer.second,sizeof(stRoomRankEntry));
-				CLogMgr::SharedLogMgr()->PrintLog("room id = %u rank player uid = %u offset = %d",getRoomID(),itemSendPlayer.second.nUserUID,itemSendPlayer.second.nGameOffset);
+				LOGFMTD("room id = %u rank player uid = %u offset = %d",getRoomID(),itemSendPlayer.second.nUserUID,itemSendPlayer.second.nGameOffset);
 			}
 			m_pRoomMgr->sendMsg((stMsg*)msgBuffer.getBufferPtr(),msgBuffer.getContentSize(),nPlayerSessionID) ;
 		}
@@ -486,7 +486,7 @@ bool CPrivateRoom<T>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			msgback.nRoomID = pRet->nRoomID ;
 			msgback.nUserUID = pRet->nUserUID ;
 			m_pRoom->sendMsgToPlayer(&msgback,sizeof(msgback),nPlayerSessionID) ;
-			CLogMgr::SharedLogMgr()->PrintLog("private room should not process this message syn in game coin  uid = %u",msgback.nUserUID) ;
+			LOGFMTD("private room should not process this message syn in game coin  uid = %u",msgback.nUserUID) ;
 		}
 		break;
 	default:
@@ -516,7 +516,7 @@ bool CPrivateRoom<T>::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 			auto pp = m_pRoom->getSitdownPlayerBySessionID(nSessionID) ;
 			if ( pp == nullptr )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("pp is null why , you apply dismiss , but , you are not sit in room, session id = %u",nSessionID) ;
+				LOGFMTE("pp is null why , you apply dismiss , but , you are not sit in room, session id = %u",nSessionID) ;
 				return true;
 			}
 
@@ -545,18 +545,18 @@ bool CPrivateRoom<T>::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 		{
 			if ( !m_bWaitDismissReply )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("nobody apply to dismiss room ,why you reply ? session id = %u",nSessionID) ;
+				LOGFMTE("nobody apply to dismiss room ,why you reply ? session id = %u",nSessionID) ;
 				return true ;
 			}
 
 			auto pp = m_pRoom->getSitdownPlayerBySessionID(nSessionID) ;
 			if ( pp == nullptr )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("pp is null why , you apply dismiss , but , you are not sit in room, session id = %u",nSessionID) ;
+				LOGFMTE("pp is null why , you apply dismiss , but , you are not sit in room, session id = %u",nSessionID) ;
 				return true;
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("received player session id = %u , reply dismiss ret = %u",nSessionID,prealMsg["reply"].asUInt()) ;
+			LOGFMTD("received player session id = %u , reply dismiss ret = %u",nSessionID,prealMsg["reply"].asUInt()) ;
 			m_mapRecievedReply[pp->getUserUID()] = prealMsg["reply"].asUInt();
 			onCheckDismissReply(false);
 		}
@@ -593,7 +593,7 @@ void CPrivateRoom<T>::onCheckDismissReply( bool bTimerOut )
 	{
 		if ( ( nSeatCnt - nDisAgreeCnt) * 2 > nSeatCnt )  // not disagree means agree ;
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("most player want dismiss room time out") ;
+			LOGFMTD("most player want dismiss room time out") ;
 			onRoomGameOver(true) ;
 		}
 	}
@@ -601,7 +601,7 @@ void CPrivateRoom<T>::onCheckDismissReply( bool bTimerOut )
 	{
 		if ( nAgreeCnt * 2 > nSeatCnt )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("most player want dismiss room") ;
+			LOGFMTD("most player want dismiss room") ;
 			onRoomGameOver(true) ;
 		}
 		else
@@ -639,7 +639,7 @@ void CPrivateRoom<T>::onDidGameOver(IRoom* pRoom )
 {
 	if ( m_bDoDismissRoom )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("do dismiss room so skip this game over event") ;
+		LOGFMTD("do dismiss room so skip this game over event") ;
 		return ;
 	}
 
@@ -648,7 +648,7 @@ void CPrivateRoom<T>::onDidGameOver(IRoom* pRoom )
 		m_bComsumedRoomCards = true ;
 		// comsum room card ;
 		uint16_t nCardCnt = m_nLeftCircle / ROOM_CIRCLES_PER_VIP_ROOM_CARDS;
-		CLogMgr::SharedLogMgr()->PrintLog("send msg to consumed vip room card") ;
+		LOGFMTD("send msg to consumed vip room card") ;
 		Json::Value jsConsumed ;
 		jsConsumed["cardCnt"] = nCardCnt ;
 		jsConsumed["uid"] = getOwnerUID() ;
@@ -661,7 +661,7 @@ void CPrivateRoom<T>::onDidGameOver(IRoom* pRoom )
 	--m_nLeftCircle ;
 	if ( m_nLeftCircle > 0 && bHaveOver == false )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("vip room over , leftCircle = %u, haveLoseOverPlayer = %b",m_nLeftCircle,bHaveOver) ;
+		LOGFMTD("vip room over , leftCircle = %u, haveLoseOverPlayer = %b",m_nLeftCircle,bHaveOver) ;
 		return ;
 	}
 
@@ -680,7 +680,7 @@ void CPrivateRoom<T>::onRoomGameOver( bool isDismissed )
 		auto stateID = m_pRoom->getCurRoomState()->getStateID() ;
 		if ( stateID != eRoomState_GameEnd && stateID != eRoomSate_WaitReady  )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("vip room dismiss , but not in end state , so go to end state ") ;
+			LOGFMTD("vip room dismiss , but not in end state , so go to end state ") ;
 			m_pRoom->goToState(eRoomState_GameEnd);
 		}
 	}
@@ -708,7 +708,7 @@ void CPrivateRoom<T>::onRoomGameOver( bool isDismissed )
 	{
 		if ( ref.second.nSessionID )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("send game room over bill to session id = %u",ref.second.nSessionID) ;
+			LOGFMTD("send game room over bill to session id = %u",ref.second.nSessionID) ;
 			m_pRoomMgr->sendMsg(jsMsg,MSG_VIP_ROOM_GAME_OVER,ref.second.nSessionID );
 		}
 	}
@@ -744,7 +744,7 @@ void CPrivateRoom<T>::onPlayerLeave(IRoom* pRoom,uint8_t playerUID )
 	auto pp = pRoom->getPlayerByUserUID(playerUID) ;
 	if ( pp == nullptr )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("leave player uid = %u , already leave ? prt is null" ,playerUID ) ;
+		LOGFMTE("leave player uid = %u , already leave ? prt is null" ,playerUID ) ;
 		assert(0 && "player ptr is null , for leave");
 		return ;
 	}
@@ -752,7 +752,7 @@ void CPrivateRoom<T>::onPlayerLeave(IRoom* pRoom,uint8_t playerUID )
 	auto iter = m_vAllPlayers.find(playerUID) ;
 	if ( iter == m_vAllPlayers.end() )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why enter player not register in vip room ?") ;
+		LOGFMTE("why enter player not register in vip room ?") ;
 		assert(0 && "never shold come here" );
 		return ;
 	}
@@ -770,7 +770,7 @@ void CPrivateRoom<T>::onPlayerLeave(IRoom* pRoom,uint8_t playerUID )
 	msgdoLeave.nGameOffset = pp->nGameOffset ;
 	m_pRoom->sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pp->nUserSessionID) ;
 
-	CLogMgr::SharedLogMgr()->PrintLog("player uid = %u leave vip room",pp->nUserUID) ;
+	LOGFMTD("player uid = %u leave vip room",pp->nUserUID) ;
 }
 
 template<class T >
@@ -786,11 +786,11 @@ void CPrivateRoom<T>::sendRoomInfo(uint32_t nSessionID )
 	typename REAL_ROOM_PTR pRoom = m_pRoom ;
 	if ( pRoom == nullptr )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("session id = %u requesiont room info room id = %u, subIdx = %d is null",nSessionID , getRoomID(),0) ;
+		LOGFMTE("session id = %u requesiont room info room id = %u, subIdx = %d is null",nSessionID , getRoomID(),0) ;
 		return ;
 	}
 
-	CLogMgr::SharedLogMgr()->PrintLog("send vip room info ext to player session id = %u",nSessionID) ;
+	LOGFMTD("send vip room info ext to player session id = %u",nSessionID) ;
 	Json::Value jsMsg ;
 	jsMsg["leftCircle"] = m_nLeftCircle ;
 	jsMsg["baseBet"] = m_pRoom->getBaseBet();

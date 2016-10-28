@@ -1,5 +1,5 @@
 #include "IRoomDelegate.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <ctime>
 IRoomDelegate::~IRoomDelegate()
 {
@@ -21,7 +21,7 @@ void IRoomDelegate::onUpdatePlayerGameResult( IRoom* pRoom, uint32_t nUserUID , 
 		targ->second->nGameOffset += nOffsetGame ;
 		targ->second->nOtherOffset += nOtherOffset ;
 		targ->second->bIsDiryt = true ;
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %d update offset = %d , final = %d",nUserUID,nOffsetGame,targ->second->nGameOffset) ;
+		LOGFMTD("uid = %d update offset = %d , final = %d",nUserUID,nOffsetGame,targ->second->nGameOffset) ;
 		return ;
 	}
 	stRoomRankItem* p = new stRoomRankItem ;
@@ -32,7 +32,7 @@ void IRoomDelegate::onUpdatePlayerGameResult( IRoom* pRoom, uint32_t nUserUID , 
 	m_vRoomRankHistroy[p->nUserUID] = p ;
 	m_vSortedRankItems.push_back(p) ;
 
-	CLogMgr::SharedLogMgr()->PrintLog("uid = %d update offset = %d , final = %d",nUserUID,nOffsetGame,nOffsetGame) ;
+	LOGFMTD("uid = %d update offset = %d , final = %d",nUserUID,nOffsetGame,nOffsetGame) ;
 }
 
 uint8_t IRoomDelegate::canPlayerEnterRoom( IRoom* pRoom,stEnterRoomData* pEnterRoomPlayer )  // return 0 means ok ;

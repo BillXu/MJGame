@@ -1,6 +1,6 @@
 #include "RoomConfig.h"
 #include "CommonDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <assert.h>
 bool CRoomConfigMgr::OnPaser(CReaderRow& refReaderRow )
 {
@@ -17,7 +17,7 @@ bool CRoomConfigMgr::OnPaser(CReaderRow& refReaderRow )
 		}
 		break ;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog( "unknown room config ,room type = %d",cType ) ;
+		LOGFMTE( "unknown room config ,room type = %d",cType ) ;
 		return false;
 	}
 

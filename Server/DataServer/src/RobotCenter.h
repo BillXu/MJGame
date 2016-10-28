@@ -7,11 +7,6 @@ class CRobotCenter
 	:public IGlobalModule
 {
 public:
-	enum 
-	{
-		eModule_Type = 3,
-	};
-public:
 	struct stIdleRobot
 	{
 		uint32_t nUserUID ;
@@ -33,7 +28,6 @@ public:
 public:
 	CRobotCenter();
 	~CRobotCenter() ;
-	uint16_t getModuleType(){ return eModule_Type ; }
 	bool onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	bool onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPort , uint32_t nSessionID)override ;
 	void onRobotDisconnect(uint32_t nUID);

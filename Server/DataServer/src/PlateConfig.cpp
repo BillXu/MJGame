@@ -1,5 +1,5 @@
 #include "PlateConfig.h"
-#include "LogManager.h"
+#include "log4z.h"
 bool CPlateConfigMgr::OnPaser(CReaderRow& refReaderRow )
 {
 	stPlateItem* pItem = new stPlateItem ;
@@ -12,7 +12,7 @@ bool CPlateConfigMgr::OnPaser(CReaderRow& refReaderRow )
 	{
 		delete pItem ;
 		pItem = NULL ;
-		CLogMgr::SharedLogMgr()->ErrorLog("have two shop id the same") ;
+		LOGFMTE("have two shop id the same") ;
 		return false;
 	}
 
@@ -60,7 +60,7 @@ stPlateItem* CPlateConfigMgr::randPlateItem( bool isFree )
 			return pItem ;
 		}
 	}
-	CLogMgr::SharedLogMgr()->ErrorLog("why no rand target plate nRand = %u",nRand) ;
+	LOGFMTE("why no rand target plate nRand = %u",nRand) ;
 	return vPlateItems.front() ;
 }
 

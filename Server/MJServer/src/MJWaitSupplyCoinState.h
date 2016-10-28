@@ -5,7 +5,7 @@ class CMJWaitSupplyCoinState
 	:public IRoomState
 {
 public:
-	void onStateDuringTimeUp();
+	void onStateDuringTimeUp()override;
 	uint16_t getStateID(){ return eRoomState_WaitSupplyCoin ; }
 	void enterState(IRoom* pRoom)override ;
 	bool onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )override ;

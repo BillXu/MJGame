@@ -1,6 +1,6 @@
 #pragma once 
 #include "IMJRoomState.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IMJRoom.h"
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
@@ -46,7 +46,7 @@ public:
 		{
 			if (pPlayer == nullptr)
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you are not in this room how to set ready ? session id = %u", nSessionID);
+				LOGFMTE("you are not in this room how to set ready ? session id = %u", nSessionID);
 				nRet = 4;
 				break;
 			}
@@ -74,7 +74,7 @@ public:
 			if (!pMJCard->canHuWitCard(m_nCard))
 			{
 				nRet = 2;
-				CLogMgr::SharedLogMgr()->ErrorLog("why you can not hu ? svr bug ");
+				LOGFMTE("why you can not hu ? svr bug ");
 				break;
 			}
 		} while (0);
@@ -101,7 +101,7 @@ public:
 
 		if (m_vDoHuIdx.empty())
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("every one give up robot gang");
+			LOGFMTD("every one give up robot gang");
 
 			Json::Value jsTran;
 			jsTran["idx"] = m_nInvokeIdx;
@@ -111,7 +111,7 @@ public:
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("some body do robot gang");
+			LOGFMTD("some body do robot gang");
 			// do transfer 
 			Json::Value jsTran;
 			jsTran["idx"] = m_vDoHuIdx.front();

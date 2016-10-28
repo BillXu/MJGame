@@ -63,9 +63,6 @@
     <ClInclude Include="..\ServerCommon\Timer.h">
       <Filter>SvrCommon</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Common\LogManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Common\MessageDefine.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -291,6 +288,15 @@
     <ClInclude Include="src\IMJPoker.h">
       <Filter>src\Card</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\Application.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\catch_dump_file.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\log4z.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -301,9 +307,6 @@
     </ClCompile>
     <ClCompile Include="..\ServerCommon\Timer.cpp">
       <Filter>SvrCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\LogManager.cpp">
-      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\Utility.cpp">
       <Filter>Common</Filter>
@@ -457,6 +460,15 @@
     </ClCompile>
     <ClCompile Include="src\HZMJPlayer.cpp">
       <Filter>src\MJHZ</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\Application.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\catch_dump_file.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\log4z.cpp">
+      <Filter>SvrCommon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

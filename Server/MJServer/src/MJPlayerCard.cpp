@@ -1,6 +1,6 @@
 #include "MJPlayerCard.h"
 #include "MJCard.h"
-#include "LogManager.h"
+#include "log4z.h"
 
 MJPlayerCard::stNotShunCard::stNotShunCard(){ vCards.clear(); }
 bool MJPlayerCard::stNotShunCard::operator != (const stNotShunCard& v)
@@ -81,7 +81,7 @@ uint8_t MJPlayerCard::stNotShunCard::getLackCardCntForShun()
 {
 	if (vCards.empty())
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("not shun must not be empty ? error ");
+		LOGFMTE("not shun must not be empty ? error ");
 		return 0;
 	}
 
@@ -151,7 +151,7 @@ bool MJPlayerCard::onGangCardBeRobot(uint8_t nCardNum)
 	auto eType = card_Type(nCardNum);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("parse card type error ,gang be robot have this card = %u", nCardNum);
+		LOGFMTE("parse card type error ,gang be robot have this card = %u", nCardNum);
 		return false;
 	}
 	auto& vCard = m_vCards[eType];
@@ -161,7 +161,7 @@ bool MJPlayerCard::onGangCardBeRobot(uint8_t nCardNum)
 		vCard.erase(iter);
 		return true;
 	}
-	CLogMgr::SharedLogMgr()->ErrorLog("robot the gang card but player do not have card = %u",nCardNum);
+	LOGFMTE("robot the gang card but player do not have card = %u",nCardNum);
 	return false;
 }
 
@@ -175,7 +175,7 @@ bool MJPlayerCard::onCardBeGangPengEat(uint8_t nCardNum)
 		vCard.erase(iter);
 		return true;
 	}
-	CLogMgr::SharedLogMgr()->ErrorLog("gang eat peng card but player do not have card = %u", nCardNum);
+	LOGFMTE("gang eat peng card but player do not have card = %u", nCardNum);
 	return false;
 }
 
@@ -184,7 +184,7 @@ bool MJPlayerCard::isHaveCard(uint8_t nCardNum)
 	auto eType = card_Type(nCardNum);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("parse card type error so do not have this card = %u",nCardNum);
+		LOGFMTE("parse card type error so do not have this card = %u",nCardNum);
 		return false;
 	}
 
@@ -198,7 +198,7 @@ bool MJPlayerCard::canMingGangWithCard(uint8_t nCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("canMingGangWithCard parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("canMingGangWithCard parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 	auto& vCard = m_vCards[eType];
@@ -211,7 +211,7 @@ bool MJPlayerCard::canPengWithCard(uint8_t nCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("canPengWithCard parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("canPengWithCard parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 	auto& vCard = m_vCards[eType];
@@ -224,13 +224,13 @@ bool MJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("canEatCard parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("canEatCard parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 
 	if (eType != eCT_Tiao && eCT_Tong != eType && eCT_Wan != eType)
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("only wan , tiao , tong can do eat act");
+		LOGFMTD("only wan , tiao , tong can do eat act");
 		return false;
 	}
 
@@ -263,7 +263,7 @@ bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("parse card type error ,canHuWitCard have this card = %u", nCard);
+		LOGFMTE("parse card type error ,canHuWitCard have this card = %u", nCard);
 		return false;
 	}
 
@@ -278,7 +278,7 @@ bool MJPlayerCard::canAnGangWithCard(uint8_t nCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 	auto& vCard = m_vCards[eType];
@@ -291,7 +291,7 @@ bool MJPlayerCard::canBuGangWithCard(uint8_t nCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 	auto& vCard = m_vCards[eType];
@@ -339,7 +339,7 @@ bool MJPlayerCard::canBuGangWithCard(uint8_t nCard)
 //
 //	if (eCT_None == nTingType && eCT_None == nTingTypeB )
 //	{
-//		CLogMgr::SharedLogMgr()->ErrorLog( "why all type hold card is shun zi ?" );
+//		LOGFMTE( "why all type hold card is shun zi ?" );
 //	}
 //
 //	auto pfnIsJiang = [](SET_NOT_SHUN& vNot)->bool
@@ -497,7 +497,7 @@ bool MJPlayerCard::getHoldCardThatCanBuGang(VEC_CARD& vGangCards)
 //
 //	if (eCT_None == nTingType )
 //	{
-//		CLogMgr::SharedLogMgr()->ErrorLog("why all type hold card is shun zi no jiang ? how to hu ?");
+//		LOGFMTE("why all type hold card is shun zi no jiang ? how to hu ?");
 //		return false;
 //	}
 //
@@ -539,7 +539,7 @@ void MJPlayerCard::onMoCard(uint8_t nMoCard)
 	auto eType = card_Type(nMoCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("onMoCard parse card type error so do not have this card = %u", nMoCard);
+		LOGFMTE("onMoCard parse card type error so do not have this card = %u", nMoCard);
 		return ;
 	}
 	addCardToVecAsc(m_vCards[eType], nMoCard);
@@ -551,7 +551,7 @@ bool MJPlayerCard::onPeng(uint8_t nCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("onPeng parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("onPeng parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 	
@@ -572,7 +572,7 @@ bool MJPlayerCard::onMingGang(uint8_t nCard, uint8_t nGangGetCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("onMingGang parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("onMingGang parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 
@@ -598,7 +598,7 @@ bool MJPlayerCard::onAnGang(uint8_t nCard, uint8_t nGangGetCard)
 	auto eType = card_Type(nCard);
 	if (eType >= eCT_Max)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("onAnGang parse card type error so do not have this card = %u", nCard);
+		LOGFMTE("onAnGang parse card type error so do not have this card = %u", nCard);
 		return false;
 	}
 
@@ -628,14 +628,14 @@ bool MJPlayerCard::onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB)
 {
 	if (!isHaveCard(nWithA) || !isHaveCard(withB))
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("do not have with card , can not eat a = %u , b = %u, c = %u",nCard,nWithA,withB);
+		LOGFMTE("do not have with card , can not eat a = %u , b = %u, c = %u",nCard,nWithA,withB);
 		return false;
 	}
 
 	auto eT = card_Type(nCard);
 	if (card_Type(nCard) != card_Type(nWithA))
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("not the same type , can not eat a = %u , b = %u, c = %u", nCard, nWithA, withB);
+		LOGFMTE("not the same type , can not eat a = %u , b = %u, c = %u", nCard, nWithA, withB);
 		return false;
 	}
 
@@ -655,7 +655,7 @@ bool MJPlayerCard::onChuCard(uint8_t nChuCard)
 {
 	if (!isHaveCard(nChuCard))
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you don't have this card , how can chu ?  = %u",nChuCard);
+		LOGFMTE("you don't have this card , how can chu ?  = %u",nChuCard);
 		return false;
 	}
 	auto eT = card_Type(nChuCard);
@@ -1082,7 +1082,7 @@ uint8_t MJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 		uint8_t nTemp;
 		nQueCnt += getLestQue(vRefNotShun, false, m_nDanDiao == 0, nTemp, m_nDanDiao);
 	}
-	CLogMgr::SharedLogMgr()->SystemLog(" fand dan diao mode que cnt = %u value = %u", nQueCnt, m_nDanDiao);
+	LOGFMTI(" fand dan diao mode que cnt = %u value = %u", nQueCnt, m_nDanDiao);
 	if (m_nDanDiao)
 	{
 		return nQueCnt;
@@ -1099,14 +1099,14 @@ uint8_t MJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 			nQueCnt += getLestQue(vRefNotShun, m_nJIang == 0, false, m_nJIang, nTemp);
 		}
 
-		CLogMgr::SharedLogMgr()->SystemLog(" fand jiang mode que cnt = %u value = %u", nQueCnt, m_nJIang);
+		LOGFMTI(" fand jiang mode que cnt = %u value = %u", nQueCnt, m_nJIang);
 		if (m_nJIang)
 		{
 			return nQueCnt;
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog(" no jiang , no dandiao cnt = %u ", nQueCnt);
+	LOGFMTI(" no jiang , no dandiao cnt = %u ", nQueCnt);
 	// no jiang , no dandiao 
 	nQueCnt += 2;
 	return nQueCnt;
@@ -1157,7 +1157,7 @@ uint8_t MJPlayerCard::getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool b
 		auto& vCards = stNotShun.vCards;
 		if (vCards.empty())
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("not shun must not be empty ? error ");
+			LOGFMTE("not shun must not be empty ? error ");
 			return 0;
 		}
 

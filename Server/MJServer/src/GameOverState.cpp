@@ -1,19 +1,19 @@
 #include "GameOverState.h"
 #include "ISitableRoom.h"
-#include "LogManager.h"
+#include "log4z.h"
 void CGameOverState::enterState(IRoom* pRoom )
 {
 	IRoomState::enterState(pRoom) ;
-	CLogMgr::SharedLogMgr()->SystemLog("进入游戏结束状态 ") ;
+	LOGFMTI("进入游戏结束状态 ") ;
 	pRoom->onGameOver();
 	setStateDuringTime(eTime_GameOver);
 }
 
 void CGameOverState::onStateDuringTimeUp()
 {
-	CLogMgr::SharedLogMgr()->PrintLog("game end ,did end ") ;
+	LOGFMTD("game end ,did end ") ;
 	this->m_pRoom->onGameDidEnd();
-	CLogMgr::SharedLogMgr()->PrintLog("game end to wait ready sate") ;
+	LOGFMTD("game end to wait ready sate") ;
 	this->m_pRoom->goToState(eRoomSate_WaitReady) ;
 }
 

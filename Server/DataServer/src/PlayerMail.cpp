@@ -1,6 +1,6 @@
 #include "PlayerMail.h"
 #include "ServerMessageDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "Player.h"
 #include <time.h>
 #include "PlayerFriend.h"
@@ -69,7 +69,7 @@ bool CPlayerMailComponent::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 				arg.eEventType = ePlayerEvent_ReadDBOK;
 				GetPlayer()->PostPlayerEvent(&arg);
  				InformRecievedUnreadMails();
-				CLogMgr::SharedLogMgr()->PrintLog("read mail finish uid = %d, mail size = %d",GetPlayer()->GetUserUID(),m_vAllMail.size() );
+				LOGFMTD("read mail finish uid = %d, mail size = %d",GetPlayer()->GetUserUID(),m_vAllMail.size() );
 				if ( m_vAllMail.size() >= 2 )
 				{
 					m_vAllMail.sort(arrageMailByTime);
@@ -91,7 +91,7 @@ bool CPlayerMailComponent::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			stMsgPlayerAdvice* pRet = (stMsgPlayerAdvice*)pMsg ;
 			if ( pRet->nLen > 512 || pRet->nLen <= 7 )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("uid = %d advice too long len = %d",GetPlayer()->GetUserUID(),pRet->nLen) ;
+				LOGFMTE("uid = %d advice too long len = %d",GetPlayer()->GetUserUID(),pRet->nLen) ;
 				msgRet.nRet = 1; 
 			}
 			SendMsg(&msgRet,sizeof(msgRet)) ;
@@ -109,7 +109,7 @@ bool CPlayerMailComponent::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			buff.addContent(&msgSaveAdVice,sizeof(msgSaveAdVice)) ;
 			buff.addContent(((char*)pMsg)+ sizeof(stMsgPlayerAdvice) ,pRet->nLen ) ;
 			SendMsg((stMsg*)buff.getBufferPtr(),buff.getContentSize()) ;
-			CLogMgr::SharedLogMgr()->PrintLog("recived uid = %d advice",GetPlayer()->GetUserUID());
+			LOGFMTD("recived uid = %d advice",GetPlayer()->GetUserUID());
 		}
 		break;
 	default:
@@ -227,7 +227,7 @@ void CPlayerMailComponent::SendMailListToClient()
 	//	msgRet.tMail.nContentLen = pMail.strContent.size() ;
 	//	if ( pMail.eType <= eMail_RealMail_Begin )
 	//	{
-	//		CLogMgr::SharedLogMgr()->ErrorLog("send sys process mail to player uid = %u , type = %u",GetPlayer()->GetUserUID(),pMail.eType);
+	//		LOGFMTE("send sys process mail to player uid = %u , type = %u",GetPlayer()->GetUserUID(),pMail.eType);
 	//		continue;
 	//	}
 	//	auBuff.clearBuffer();
@@ -235,7 +235,7 @@ void CPlayerMailComponent::SendMailListToClient()
 	//	auBuff.addContent(pMail.strContent.c_str(),msgRet.tMail.nContentLen) ;
 	//	SendMsg((stMsg*)auBuff.getBufferPtr(),auBuff.getContentSize()) ;
 	//}
-	CLogMgr::SharedLogMgr()->PrintLog("send mail to client uid = %d ,size = %d",GetPlayer()->GetUserUID(),vSendMailList.size() ) ;
+	LOGFMTD("send mail to client uid = %d ,size = %d",GetPlayer()->GetUserUID(),vSendMailList.size() ) ;
 
 	saveReadTimeTag();
 }
@@ -247,7 +247,7 @@ void CPlayerMailComponent::PostMailToPlayer( eMailType eType ,const char* pConte
 	{
 		if ( eType == eMail_SysOfflineEvent )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("uid = %u online why send offline event",nTargetUID) ;
+			LOGFMTE("uid = %u online why send offline event",nTargetUID) ;
 			assert(eType != eMail_SysOfflineEvent && "player online why send offline event" );
 			return ;
 		}
@@ -266,7 +266,7 @@ void CPlayerMailComponent::PostMailToPlayer( eMailType eType ,const char* pConte
 		auBuffer.addContent(&msgSave,sizeof(msgSave)) ;
 		auBuffer.addContent(pContent,nContentLen) ;
 		CGameServerApp::SharedGameServerApp()->sendMsg(nTargetUID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
-		CLogMgr::SharedLogMgr()->PrintLog("mail type = %u to player uid = %u  not onlien send to db",eType,nTargetUID);
+		LOGFMTD("mail type = %u to player uid = %u  not onlien send to db",eType,nTargetUID);
 	}
 }
 
@@ -280,7 +280,7 @@ void CPlayerMailComponent::PostOfflineEvent( eOfflineEvent eEvntType ,Json::Valu
 	std::string strConetnt = jWrite.write(vValue) ;
 
 	PostMailToPlayer(eMail_SysOfflineEvent,strConetnt.c_str(),strConetnt.size(),nTargetUID);
-	CLogMgr::SharedLogMgr()->PrintLog("post offline event to uid = %d , event = %d",nTargetUID,eEvntType) ;
+	LOGFMTD("post offline event to uid = %d , event = %d",nTargetUID,eEvntType) ;
 }
 
 void CPlayerMailComponent::PostDlgNotice( eNoticeType eNotice ,Json::Value& pEventArg ,uint32_t nTargetUID )
@@ -298,7 +298,7 @@ void CPlayerMailComponent::PostDlgNotice( eNoticeType eNotice ,Json::Value& pEve
 		msgBuffer.addContent(&msg,sizeof(msg)) ;
 		msgBuffer.addContent(strConetnt.c_str(),msg.nJsonLen) ;
 		pPlayer->SendMsgToClient(msgBuffer.getBufferPtr(),msgBuffer.getContentSize()) ;
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u online show dlg notice",nTargetUID);
+		LOGFMTD("uid = %u online show dlg notice",nTargetUID);
 	}
 	else
 	{
@@ -309,9 +309,9 @@ void CPlayerMailComponent::PostDlgNotice( eNoticeType eNotice ,Json::Value& pEve
 		std::string strConetnt = jWrite.write(vValue) ;
 
 		PostMailToPlayer(eMail_DlgNotice,strConetnt.c_str(),strConetnt.size(),nTargetUID);
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u not online dlg to db",nTargetUID);
+		LOGFMTD("uid = %u not online dlg to db",nTargetUID);
 	}
-	CLogMgr::SharedLogMgr()->PrintLog("post dlg notice event to uid = %d , dlg type = %d",nTargetUID,eNotice) ;
+	LOGFMTD("post dlg notice event to uid = %d , dlg type = %d",nTargetUID,eNotice) ;
 }
 
 void CPlayerMailComponent::ReciveMail(eMailType eType ,const char* pContent, uint16_t nContentLen )
@@ -357,7 +357,7 @@ void CPlayerMailComponent::PostPublicMail(stRecievedMail& pMail)
 	auBuffer.addContent(&msgSave,sizeof(msgSave)) ;
 	auBuffer.addContent(pMail.strContent.c_str(),msgSave.pMailToSave.nContentLen) ;
 	CGameServerApp::SharedGameServerApp()->sendMsg(msgSave.nUserUID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
-	CLogMgr::SharedLogMgr()->PrintLog("save public mail") ;
+	LOGFMTD("save public mail") ;
 }
 
 uint16_t CPlayerMailComponent::getPublicMailsByTime( uint32_t nTimeTag, LIST_MAIL* vOutMail,uint16_t nMaxOutCnt )
@@ -459,11 +459,11 @@ bool CPlayerMailComponent::ProcessMail( stRecievedMail& pMail)
 			msgBuffer.addContent(&msg,sizeof(msg)) ;
 			msgBuffer.addContent(strConetnt.c_str(),msg.nJsonLen) ;
 			GetPlayer()->SendMsgToClient(msgBuffer.getBufferPtr(),msgBuffer.getContentSize()) ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u login on show offline dlg notice",GetPlayer()->GetUserUID());
+			LOGFMTD("uid = %u login on show offline dlg notice",GetPlayer()->GetUserUID());
 		}
 		break;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknown sys mail type = %u , for user uid = %u",pMail.eType,GetPlayer()->GetUserUID());
+		LOGFMTE("unknown sys mail type = %u , for user uid = %u",pMail.eType,GetPlayer()->GetUserUID());
 		break;
 	}
 
@@ -491,7 +491,7 @@ void CPlayerMailComponent::processSysOfflineEvent(stRecievedMail& pMail)
 			}
 			uint16_t nRankIdx = jArg["rankIdx"].asInt()  ;
 			GetPlayer()->GetBaseData()->onGetReward(nRankIdx,nRewardID,nGameType,nRoomID) ;
-			CLogMgr::SharedLogMgr()->PrintLog("do give reward uid = %u, nreward id = %u",GetPlayer()->GetUserUID(),nRewardID) ;
+			LOGFMTD("do give reward uid = %u, nreward id = %u",GetPlayer()->GetUserUID(),nRewardID) ;
 		}
 		break;
 	case Event_AddCoin:
@@ -499,13 +499,13 @@ void CPlayerMailComponent::processSysOfflineEvent(stRecievedMail& pMail)
 			if ( strcmp(jArg["comment"].asCString(),"invitePrize") == 0 )
 			{
 				GetPlayer()->GetBaseData()->addInvitePrize(jArg["addCoin"].asInt());
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %u add invite prize = %u",GetPlayer()->GetUserUID(),jArg["addCoin"].asInt()) ;
+				LOGFMTD("uid = %u add invite prize = %u",GetPlayer()->GetUserUID(),jArg["addCoin"].asInt()) ;
 			}
 			else
 			{
 				GetPlayer()->GetBaseData()->AddMoney(jArg["addCoin"].asInt());
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("do give coin uid = %d , coin = %d comment = %s",GetPlayer()->GetUserUID(),jArg["addCoin"].asInt(),jArg["comment"].asCString()) ;
+			LOGFMTD("do give coin uid = %d , coin = %d comment = %s",GetPlayer()->GetUserUID(),jArg["addCoin"].asInt(),jArg["comment"].asCString()) ;
 		}
 		break;
 	case Event_AddFriend:
@@ -513,7 +513,7 @@ void CPlayerMailComponent::processSysOfflineEvent(stRecievedMail& pMail)
 			uint32_t nTargetUID = jArg["friendUID"].asUInt() ;
 			auto pF = (CPlayerFriend*)GetPlayer()->GetComponent(ePlayerComponent_Friend);
 			pF->AddFriend(nTargetUID) ;
-			CLogMgr::SharedLogMgr()->PrintLog("offline event add friend uid = %u",nTargetUID) ;
+			LOGFMTD("offline event add friend uid = %u",nTargetUID) ;
 		}
 		break;
 	case Event_DelteFriend:
@@ -521,14 +521,14 @@ void CPlayerMailComponent::processSysOfflineEvent(stRecievedMail& pMail)
 			uint32_t nTargetUID = jArg["friendUID"].asUInt() ;
 			auto pF = (CPlayerFriend*)GetPlayer()->GetComponent(ePlayerComponent_Friend);
 			pF->RemoveFriendByUID(nTargetUID) ;
-			CLogMgr::SharedLogMgr()->PrintLog("offline event delete friend uid = %u",nTargetUID) ;
+			LOGFMTD("offline event delete friend uid = %u",nTargetUID) ;
 		}
 		break ;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknown event type from offline , %d  uid = %d ",eEvent,GetPlayer()->GetUserUID()) ;
+		LOGFMTE("unknown event type from offline , %d  uid = %d ",eEvent,GetPlayer()->GetUserUID()) ;
 		break;
 	}
-	CLogMgr::SharedLogMgr()->ErrorLog("process offline event here");
+	LOGFMTE("process offline event here");
 }
 
 void CPlayerMailComponent::saveReadTimeTag()
@@ -548,5 +548,5 @@ void CPlayerMailComponent::saveReadTimeTag()
 	msgSave.pMailToSave.nContentLen = 0 ;
 	msgSave.pMailToSave.nPostTime = m_tReadTimeTag ;
 	SendMsg(&msgSave,sizeof(msgSave)) ;
-	CLogMgr::SharedLogMgr()->PrintLog("uid = %u save read mail tag", GetPlayer()->GetUserUID() );
+	LOGFMTD("uid = %u save read mail tag", GetPlayer()->GetUserUID() );
 }

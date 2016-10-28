@@ -3,7 +3,7 @@
 #include "MJServer.h"
 #include "MessageIdentifer.h"
 #include "ServerMessageDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "AutoBuffer.h"
 #include "ServerStringTable.h"
 #include <algorithm>
@@ -14,6 +14,7 @@
 #include "MJGameStartState.h"
 #include "RobotDispatchStrategy.h"
 #include "MJWaitSupplyCoinState.h"
+#include "log4z.h"
 CMJRoom::CMJRoom()
 {
 	
@@ -78,7 +79,7 @@ void CMJRoom::sendRoomPlayersCardInfo(uint32_t nSessionID)
 {
 	if ( getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID() )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("current room not start game , so need not send runtime info msg") ;
+		LOGFMTD("current room not start game , so need not send runtime info msg") ;
 		return ;
 	}
 	Json::Value jsmsg ;
@@ -138,7 +139,7 @@ void CMJRoom::sendRoomInfo(uint32_t nSessionID )
 
 	jsMsg["players"] = arrPlayers ;
 	sendMsgToPlayer(jsMsg,MSG_ROOM_INFO,nSessionID) ;
-	CLogMgr::SharedLogMgr()->PrintLog("send msg room info msg to player session id = %u",nSessionID) ;
+	LOGFMTD("send msg room info msg to player session id = %u",nSessionID) ;
 }
 
 void CMJRoom::onGameWillBegin()
@@ -146,7 +147,7 @@ void CMJRoom::onGameWillBegin()
 	ISitableRoom::onGameWillBegin();
 	++m_nBankerIdx ;
 	m_nBankerIdx = m_nBankerIdx % getSeatCount() ;
-	CLogMgr::SharedLogMgr()->PrintLog("room game begin");
+	LOGFMTD("room game begin");
 	m_tPoker.shuffle();
 	m_nCurActIdx = m_nBankerIdx ;
 	prepareCards();
@@ -169,7 +170,7 @@ void CMJRoom::onGameDidEnd()
 
 	caculateGameResult();
 	ISitableRoom::onGameDidEnd();
-	CLogMgr::SharedLogMgr()->PrintLog("room game End");
+	LOGFMTD("room game End");
 
 	for ( auto& si : vMapSessionIDIsRobot )
 	{
@@ -187,13 +188,13 @@ void CMJRoom::prepareCards()
 	{
 		uint8_t nRealIdx = nDice % getSeatCount() ;
 		auto pPlayer = (CMJRoomPlayer*)getPlayerByIdx(nRealIdx);
-		CLogMgr::SharedLogMgr()->PrintLog("card player idx = %d",nRealIdx);
+		LOGFMTD("card player idx = %d",nRealIdx);
 		for (uint8_t nCardIdx = 0 ; nCardIdx < 13 ; ++nCardIdx )
 		{
 			uint8_t nCard = m_tPoker.getCard();
 			pPlayer->addDistributeCard(nCard) ;
 			peerCards[nRealIdx][(uint32_t)nCardIdx] = nCard ;
-			CLogMgr::SharedLogMgr()->PrintLog("card number = %u",nCard);
+			LOGFMTD("card number = %u",nCard);
 		}
 	}
 
@@ -252,16 +253,42 @@ void CMJRoom::caculateGameResult()
 	}
 
 	// process hua zhu ;
-	uint8_t nHuaZhuCoin = getBaseBet() ;
+	auto nHuaZhuCoin = getBaseBet() ;
 	for ( auto& pHuaZhu : vecHuaZhu )
 	{
+		if (vecNotHuaZhu.empty() )
+		{
+			break;
+		}
+
+		if (pHuaZhu->getCoin() <= 0)
+		{
+			continue;
+		}
+
+		stBillLose* pLose = new stBillLose();
+		pLose->eType = eBill_LoseHuaZhu;
+		pLose->nFanShu = 0;
+		pLose->nHuType = 0;
+		pLose->nOffset = 0;
+		pLose->nWinnerIdx = 0;
 		for ( auto& pNotHuaZhu : vecNotHuaZhu )
 		{
-			uint8_t nAddcoin = nHuaZhuCoin ;
+			auto nAddcoin = nHuaZhuCoin;
 			if ( pHuaZhu->getCoin() < nHuaZhuCoin )
 			{
 				nAddcoin = pHuaZhu->getCoin();
 			}
+			pLose->nOffset += nAddcoin;
+			pLose->nWinnerIdx = pNotHuaZhu->getIdx();
+
+			stBillWin* pWin = new stBillWin();
+			pWin->eType = eBill_WinHuaZhu;
+			pWin->nFanShu = 1;
+			pWin->nHuType = 0;
+			pWin->nOffset = nAddcoin;
+			pWin->vLoseIdxAndCoin[pHuaZhu->getIdx()] = nAddcoin;
+			pNotHuaZhu->addBill(pWin);
 
 			pNotHuaZhu->setCoin(pNotHuaZhu->getCoin() + nAddcoin );
 			pHuaZhu->setCoin(pHuaZhu->getCoin() - nAddcoin );
@@ -270,12 +297,29 @@ void CMJRoom::caculateGameResult()
 				break; 
 			}
 		}
+		pHuaZhu->addBill(pLose);
 	}
 
 	// process da jiao 
 	for ( auto& pNotTing : vecNotTingPai )
 	{
 		onPlayerRallBackWindRain( pNotTing );
+		if (vecTingPai.empty())
+		{
+			break;
+		}
+
+		if (pNotTing->getCoin() <= 0)
+		{
+			continue;
+		}
+
+		stBillLose* pLose = new stBillLose();
+		pLose->eType = eBill_LoseDaJiao;
+		pLose->nFanShu = 0;
+		pLose->nHuType = 0;
+		pLose->nOffset = 0;
+		pLose->nWinnerIdx = 0;
 		for ( auto& pTing : vecTingPai )
 		{
 			if ( pNotTing->getCoin() <= 0 )
@@ -285,18 +329,30 @@ void CMJRoom::caculateGameResult()
 
 			uint8_t nGenshu = 0 ;
 			uint8_t nFanShu = pTing->getMaxCanHuFanShu(nGenshu) ;
-			uint8_t nAddcoin = getCacualteCoin(nFanShu,nGenshu) ;
+			uint32_t nAddcoin = getCacualteCoin(nFanShu,nGenshu) ;
 			if ( pNotTing->getCoin() < nAddcoin )
 			{
 				nAddcoin = pNotTing->getCoin();
 			}
+			pLose->nOffset += nAddcoin;
+			pLose->nWinnerIdx = pNotTing->getIdx();
+
+			stBillWin* pWin = new stBillWin();
+			pWin->eType = eBill_WinDaJiao;
+			pWin->nFanShu = 1;
+			pWin->nHuType = 0;
+			pWin->nOffset = nAddcoin;
+			pWin->vLoseIdxAndCoin[pNotTing->getIdx()] = nAddcoin;
+			pTing->addBill(pWin);
 
 			pTing->setCoin(pTing->getCoin() + nAddcoin );
 			pNotTing->setCoin(pNotTing->getCoin() - nAddcoin );
 		}
+		pNotTing->addBill(pLose);
 	}
 
 	// send msg 
+	LOGFMTI("GAME OVER : ");
 	Json::Value msg ;
 	Json::Value msgArray ;
 	for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
@@ -308,7 +364,7 @@ void CMJRoom::caculateGameResult()
 		info["huType"] = pPlayer->getHuType();
 		info["offset"] = pPlayer->getGameOffset();
 		msgArray[(uint32_t)nIdx] = info ;
-
+		LOGFMTI("GAME OVER : UID = %u , offset = %d, coin = %u",pPlayer->getUserUID(),pPlayer->getGameOffset(),pPlayer->getCoin());
 		// send bill ;
 		Json::Value jsBillInfo;
 		pPlayer->getAllBillForMsg(jsBillInfo);
@@ -339,7 +395,7 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 	{
 		 // zi mo  zi mo jia yifen 
 		nFanShu *= 2; 
-		 CLogMgr::SharedLogMgr()->ErrorLog("zi mo xu yao jia fan ma ?");
+		 LOGFMTE("zi mo xu yao jia fan ma ?");
 	}
 
 	// update max fan shu 
@@ -407,6 +463,9 @@ void CMJRoom::onPlayerHuPai( uint8_t nActIdx )
 	msg["card"] = pPlayerWiner->getNewFetchCard() ;
 	msg["detail"] = jsLoseDetail;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
+
+	LOGFMTI("PLAYER ZI MO :");
+	debugCoinInfo();
 }
 
 void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvokerIdx ,bool isGangPai )
@@ -419,15 +478,15 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 
 	if ( isGangPai )  // qiang gang hu 
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u qiang gang hu jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
+		LOGFMTD("uid = %u qiang gang hu jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
 		nFanShu *= 2 ; // add a fan
 		pLosePlayer->beRobotGang(nCardNumber) ;
 	}
 	else if ( pLosePlayer->getNewFetchedFrom() != eMJAct_Mo )  // gang shang pao ;
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("process rollback wind and rain , gang shang Pao") ;
+		LOGFMTE("process rollback wind and rain , gang shang Pao") ;
 		nFanShu *= 2 ; // add a fan
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u Gang shang pao jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
+		LOGFMTD("uid = %u Gang shang pao jia 1 fan , invoker = %u",pPlayerWiner->getUserUID() ,pLosePlayer->getUserUID() ) ;
 	}
 
 	stBillWin* pWinBill = new stBillWin();
@@ -486,6 +545,9 @@ void CMJRoom::onPlayerHuPai(uint8_t nActIdx , uint8_t nCardNumber, uint8_t nInvo
 	msg["fanShu"] = nFanShu;
 	msg["detail"] = jsLoseDetail;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
+
+	LOGFMTI("PLAYER HU :");
+	debugCoinInfo();
 }
 
 void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGang, uint8_t nInvokeIdx )
@@ -529,7 +591,7 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("what type of gang ? ") ;
+			LOGFMTE("what type of gang ? ") ;
 		}
 
 		for ( uint8_t nIdx = 0 ; nIdx < getSeatCount() ; ++nIdx )
@@ -635,6 +697,9 @@ void CMJRoom::onPlayerGangPai( uint8_t nActIdx ,uint8_t nCardNumber, bool isBuGa
 	msg["fanShu"] = pBill->nFanShu;
 	msg["detail"] = jsLoseDetail;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
+
+	LOGFMTI("PLAYER GANG PAI :");
+	debugCoinInfo();
 }
 
 bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitIdx>& nNeedCardPlayerIdxs, uint8_t nExptPlayerIdx )
@@ -659,7 +724,7 @@ bool CMJRoom::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector<stWaitId
 			wid.nIdx = nIdx ;
 			wid.nMaxActExePrio = nActType ;
 			nNeedCardPlayerIdxs.push_back(wid) ;
-			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u,max Act Type = %u",nIdx,nCardNumber,nActType) ;
+			LOGFMTD("player idx = %u , need the card : %u,max Act Type = %u",nIdx,nCardNumber,nActType) ;
 		}
 	}
 
@@ -713,7 +778,7 @@ uint8_t CMJRoom::getNextActPlayerIdx( uint8_t nCurActIdx )
 		return nIdx;
 	}
 
-	CLogMgr::SharedLogMgr()->ErrorLog("who do not have proper player to be next");
+	LOGFMTE("who do not have proper player to be next");
 	return 0;
 }
 
@@ -770,7 +835,7 @@ uint8_t CMJRoom::getPlayerAutoChuCardWhenTimeOut(uint8_t nPlayerIdx)
 	if ( nCard == 0 )
 	{
 		nCard = pPlayer->getCardByIdx(0) ;
-		CLogMgr::SharedLogMgr()->ErrorLog("why uid = %u not fetch new card but need to chu pai ",pPlayer->getUserUID()) ;
+		LOGFMTE("why uid = %u not fetch new card but need to chu pai ",pPlayer->getUserUID()) ;
 	}
 	return nCard ;
 }
@@ -827,24 +892,24 @@ bool CMJRoom::onInformActAboutCard( uint8_t nPlayerIdx , uint8_t nCardNum, uint8
 	if ( canPlayerHuPai(nPlayerIdx,nCardNum) )
 	{
 		actArray[actArray.size()] = eMJAct_Hu ;
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Hu) ;
+		LOGFMTD("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Hu) ;
 	}
 
 	if ( canPlayerPengPai(nPlayerIdx,nCardNum) )
 	{
 		actArray[actArray.size()] = eMJAct_Peng ;
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Peng) ;
+		LOGFMTD("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_Peng) ;
 	}
 
 	if ( getLeftCardCnt() > 1 && canPlayerGangWithCard(nPlayerIdx,nCardNum,false) )
 	{
 		actArray[actArray.size()] = eMJAct_MingGang ;
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_MingGang) ;
+		LOGFMTD("uid = %u ,need card for act = %u",pp->getUserUID(),eMJAct_MingGang) ;
 	}
 
 	if ( actArray.empty() )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("this situation no need send act inform ") ;
+		LOGFMTD("this situation no need send act inform ") ;
 		return false;
 	}
 	actArray[actArray.size()] = eMJAct_Pass ;
@@ -897,7 +962,7 @@ bool CMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPo
 	{
 	case MSG_ROOM_REQ_TOTAL_INFO:
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("reback room state and info msg to session id =%u",nSessionID) ;
+			LOGFMTD("reback room state and info msg to session id =%u",nSessionID) ;
 			sendRoomInfo(nSessionID) ;
 			sendRoomPlayersCardInfo(nSessionID) ;
 		}
@@ -908,14 +973,14 @@ bool CMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSenderPo
 			stStandPlayer* pp = getPlayerBySessionID(nSessionID) ;
 			if ( pp )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("player session id = %d apply to leave room ok",nSessionID) ;
+				LOGFMTD("player session id = %d apply to leave room ok",nSessionID) ;
 				onPlayerApplyLeaveRoom(pp->nUserUID) ;
 				jsMsg["ret"] = 0 ;
 			}
 			else
 			{
 				jsMsg["ret"] = 1 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("session id not in this room how to leave session id = %d",nSessionID) ;
+				LOGFMTE("session id not in this room how to leave session id = %d",nSessionID) ;
 			}
 			sendMsgToPlayer(jsMsg,nMsgType,nSessionID);
 		}

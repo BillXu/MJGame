@@ -12,7 +12,7 @@ unsigned __int64 stMysqlField::IntValue64()
 
 float stMysqlField::FloatValue()
 {
-	return atof(pBuffer);  
+	return (float)atof(pBuffer);  
 }
 
 double stMysqlField::DoubleValue()

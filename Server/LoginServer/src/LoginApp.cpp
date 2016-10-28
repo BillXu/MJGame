@@ -51,8 +51,7 @@ bool CLoginApp::init()
 		return false;
 	}
 
-	auto pDBMgr = new CDBManager;
-	registerModule(pDBMgr);
+	installModule(eModule_Type);
 
 	// connected to center ;
 	pSvrConfigItem = m_stSvrConfigMgr.GetServerConfig(eSvrType_Center );
@@ -72,7 +71,7 @@ void CLoginApp::update(float fdeta )
 	CDBRequestQueue::VEC_DBRESULT vResultOut ;
 	CDBRequestQueue::SharedDBRequestQueue()->GetAllResult(vResultOut) ;
 	CDBRequestQueue::VEC_DBRESULT::iterator iter = vResultOut.begin() ;
-	auto pM = (CDBManager*)getModuleByType(CDBManager::eModule_Type) ;
+	auto pM = (CDBManager*)getModuleByType(eModule_Type);
 	for ( ; iter != vResultOut.end(); ++iter )
 	{
 		stDBResult* pRet = *iter ;
@@ -88,4 +87,19 @@ void CLoginApp::onExit()
 	{
 		m_pDBThread->StopWork();
 	}
+}
+
+IGlobalModule* CLoginApp::createModule(uint16_t eModuleType)
+{
+	auto p = IServerApp::createModule(eModuleType);
+	if (p)
+	{
+		return p;
+	}
+
+	if (eModuleType == eModule_Type)
+	{
+		p = new CDBManager();
+	}
+	return p;
 }

@@ -5,14 +5,31 @@
 #include "ServerConfig.h"
 #include "PokerCircle.h"
 class CBrocaster ;
+class CRobotCenter;
 class CGameServerApp
 	:public IServerApp
 {
 public:
+	enum eInstallModule
+	{
+		eMod_None = IServerApp::eDefMod_ChildDef,
+		eMod_RobotCenter = eMod_None,
+		//eMod_EncryptNumber,
+		//eMod_Group,
+		//eMod_GameRoomCenter,
+		//eMod_QinJia,
+		eMod_PlayerMgr,
+		eMod_Max,
+	};
+public:
 	static CGameServerApp* SharedGameServerApp();
+private:
+	CGameServerApp(){}
+public:
 	~CGameServerApp();
-	bool init();
-	CPlayerManager* GetPlayerMgr(){ return m_pPlayerManager ; }
+	bool init()override;
+	CPlayerManager* GetPlayerMgr();
+	CRobotCenter* getRobotCenter();
 	CConfigManager* GetConfigMgr(){ return m_pConfigManager ; }
 	bool onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID);
 	bool onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )override;
@@ -22,12 +39,12 @@ public:
 	void onConnectedToSvr()override;
 	void onExit()override;
 protected:
+	IGlobalModule* createModule(uint16_t eModuleType);
 	bool ProcessPublicMsg( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID );
 	void CheckNewDay();
 public:
 	static CGameServerApp* s_GameServerApp ;
 protected:
-	CPlayerManager* m_pPlayerManager ;
 	CConfigManager* m_pConfigManager ;
 	CPokerCircle m_tPokerCircle ;
 	// check NewDay ;

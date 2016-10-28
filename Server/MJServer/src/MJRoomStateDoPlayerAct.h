@@ -1,7 +1,7 @@
 #pragma once 
 #include "IMJRoomState.h"
 #include "IMJRoom.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IMJPlayer.h"
 class MJRoomStateDoPlayerAct
 	:public IMJRoomState
@@ -41,7 +41,7 @@ public:
 			{
 				m_vHuIdxs.push_back(jsA[nIdx].asUInt());
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("hu idx size = %u",m_vHuIdxs.size());
+			LOGFMTD("hu idx size = %u",m_vHuIdxs.size());
 		}
 
 		doAct();
@@ -91,7 +91,7 @@ public:
 			do
 			{
 				nIdx = getRoom()->getNextActPlayerIdx(nIdx);
-				CLogMgr::SharedLogMgr()->PrintLog("next act player should not in hu list, try next");
+				LOGFMTD("next act player should not in hu list, try next");
 			} while (std::find(m_vHuIdxs.begin(), m_vHuIdxs.end(), nIdx) != m_vHuIdxs.end());
 			
 
@@ -161,13 +161,13 @@ protected:
 		case eMJAct_Chi:
 			if (m_vEatWith[0] * m_vEatWith[1] == 0)
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("eat lack of right card");
+				LOGFMTE("eat lack of right card");
 				break;
 			}
 			getRoom()->onPlayerEat(m_nActIdx,m_nCard,m_vEatWith[0],m_vEatWith[1],m_nInvokeIdx);
 			break;
 		default:
-			CLogMgr::SharedLogMgr()->ErrorLog("unknow act  how to do it %u",m_eActType);
+			LOGFMTE("unknow act  how to do it %u",m_eActType);
 			break;
 		}
 	}
@@ -191,7 +191,7 @@ protected:
 		case eMJAct_Chu:
 			return eTime_DoPlayerActChuPai;
 		default:
-			CLogMgr::SharedLogMgr()->ErrorLog("unknown act type = %u can not return act time",m_eActType);
+			LOGFMTE("unknown act type = %u can not return act time",m_eActType);
 			return 0 ;
 		}
 		return 0;

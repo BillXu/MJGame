@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "ISeverApp.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "MessageDefine.h"
 #include "ServerMessageDefine.h"
 #include <time.h>
@@ -9,7 +9,6 @@
 #include "IGlobalModule.h"
 #include "AutoBuffer.h"
 #include "AsyncRequestQuene.h"
-
 #define TIME_WAIT_FOR_RECONNECT 5
 bool IServerApp::init()
 {
@@ -24,8 +23,10 @@ bool IServerApp::init()
 
 	m_fReconnectTick = 0 ;
 
-	auto pAsy = new CAsyncRequestQuene ;
-	registerModule(pAsy) ;
+	for ( uint16_t nIdx = eDefMod_None ; nIdx < eDefMod_Max ;  ++nIdx )
+	{
+		installModule(nIdx);
+	}
 	return true ;
 }
 
@@ -41,7 +42,7 @@ IServerApp::IServerApp()
 
 IServerApp::~IServerApp()
 {
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		delete pp.second ;
 		pp.second = nullptr ;
@@ -61,14 +62,14 @@ bool IServerApp::OnMessage( Packet* pMsg )
 	stMsg* pmsg = (stMsg*)pMsg->_orgdata ;
 	if ( pmsg->cSysIdentifer == ID_MSG_VERIFY )
 	{
-		CLogMgr::SharedLogMgr()->SystemLog("no need recieve verify msg") ;
+		LOGFMTI("no need recieve verify msg") ;
 		return true ;
 	}
 
 	stMsg* pRet = pmsg;
 	if ( pRet->usMsgType != MSG_TRANSER_DATA )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why msg type is not transfer data , type = %d",pRet->usMsgType ) ;
+		LOGFMTE("why msg type is not transfer data , type = %d",pRet->usMsgType ) ;
 		return true;
 	}
 
@@ -91,7 +92,7 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		Json::Value jsResult ;
 		if ( !onAsyncRequest(pRet->nReqType,jsReqContent,jsResult) )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("async request type = %u , not process from port = %u",pRet->nReqType,pData->nSenderPort) ;
+			LOGFMTE("async request type = %u , not process from port = %u",pRet->nReqType,pData->nSenderPort) ;
 			assert(0 && "must process the req" );
 		}
 		
@@ -122,23 +123,39 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		char* pBuffer = (char*)preal ;
 		pBuffer += sizeof(stMsgJsonContent);
 		//#ifdef __DEBUG
-		char pLog[1024] = { 0 };
-		memcpy(pLog,pBuffer,pRet->nJsLen);
-		CLogMgr::SharedLogMgr()->PrintLog("sessionID = %u rec : %s",pData->nSessionID,pLog);
+		static char pLog[1024] = { 0 };
+		if ( pRet->nJsLen >= 1024 )
+		{
+			LOGFMTE("session id = %u send a invalid len json msg, len = %u ",pData->nSessionID,pRet->nJsLen) ;
+			return true;
+		}
+		memset(pLog,0,sizeof(pLog)) ;
+		memcpy_s(pLog,sizeof(pLog),pBuffer,pRet->nJsLen);
+		LOGFMTD("session id = %u rec : %s",pData->nSessionID,pLog);
+		
 		//#endif // __DEBUG
 
 		Json::Reader reader ;
 		Json::Value rootValue ;
-		bool bret = reader.parse(pBuffer,pBuffer + pRet->nJsLen,rootValue,false) ;
-		if (!bret)
+		auto bRet = reader.parse(pBuffer,pBuffer + pRet->nJsLen,rootValue,false) ;
+		if ( !bRet )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("parse json error");
+			LOGFMTE("session id = %u send a invalid json msg format error ",pData->nSessionID ) ;
+			return true ;
 		}
+
+		if ( rootValue[JS_KEY_MSG_TYPE].isNull() || rootValue[JS_KEY_MSG_TYPE].isNumeric() == false )
+		{
+			LOGFMTE("not have msg key type , session id = %u rec : %s",pData->nSessionID,pLog);
+			return true ;
+		}
+
 		uint16_t nMsgType = rootValue[JS_KEY_MSG_TYPE].asUInt() ;
 		if ( onLogicMsg(rootValue,nMsgType,(eMsgPort)pData->nSenderPort,pData->nSessionID) )
 		{
 			return true ;
 		}
+		LOGFMTE("unprocessed json from port = %d , session id = %d js : %s",pData->nSenderPort,pData->nSessionID,pLog) ;
 		return false ;
 	}
 
@@ -148,14 +165,14 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		return true ;
 	}
 
-	CLogMgr::SharedLogMgr()->ErrorLog("unprocessed msg = %d , from port = %d , session id = %d",preal->usMsgType,pData->nSenderPort,pData->nSessionID) ;
+	LOGFMTE("unprocessed msg = %d , from port = %d , session id = %d",preal->usMsgType,pData->nSenderPort,pData->nSessionID) ;
 	return false ;
 }
 
 bool IServerApp::OnLostSever(Packet* pMsg)
 {
 	m_nTargetSvrNetworkID = INVALID_CONNECT_ID ;
-	CLogMgr::SharedLogMgr()->ErrorLog("Target server disconnected !") ;
+	LOGFMTE("Target server disconnected !") ;
 	m_eConnectState = CNetWorkMgr::eConnectType_Disconnectd ;
 
 	m_fReconnectTick = TIME_WAIT_FOR_RECONNECT ;// right now start reconnect ;
@@ -172,13 +189,13 @@ bool IServerApp::OnConnectStateChanged( eConnectState eSate, Packet* pMsg)
 		cMsg.cSysIdentifer = (uint8_t)getTargetSvrPortType() ;
 		cMsg.usMsgType = getVerifyType() ;
 		m_pNetWork->SendMsg((char*)&cMsg,sizeof(stMsg),pMsg->_connectID) ;
-		CLogMgr::SharedLogMgr()->SystemLog("Connected to Target Svr") ;
+		LOGFMTI("Connected to Target Svr") ;
 		onConnectedToSvr();
 		return false ;
 	}
 
 	m_nTargetSvrNetworkID = INVALID_CONNECT_ID ;
-	CLogMgr::SharedLogMgr()->ErrorLog("connect target svr failed, %d seconds later reconnect",TIME_WAIT_FOR_RECONNECT) ;
+	LOGFMTE("connect target svr failed, %d seconds later reconnect",TIME_WAIT_FOR_RECONNECT) ;
 	return false ;
 }
 
@@ -201,7 +218,7 @@ bool IServerApp::run()
 	}
 
 	onExit();
-	CLogMgr::SharedLogMgr()->SystemLog("sleep 4k mili seconds");
+	LOGFMTI("sleep 4k mili seconds");
 	Sleep(4000);
 	shutDown();
 	return true ;
@@ -225,7 +242,7 @@ bool IServerApp::sendMsg( const char* pBuffer , int nLen )
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("target is disconnect , can not send msg");
+		LOGFMTE("target is disconnect , can not send msg");
 	}
 	return isConnected() ;
 }
@@ -234,7 +251,7 @@ bool IServerApp::sendMsg(  uint32_t nSessionID , const char* pBuffer , uint16_t 
 {
 	if ( isConnected() == false )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("target svr is not connect , send msg failed") ;
+		LOGFMTE("target svr is not connect , send msg failed") ;
 		return false ;
 	}
 	stMsgTransferData msgTransData ;
@@ -245,11 +262,11 @@ bool IServerApp::sendMsg(  uint32_t nSessionID , const char* pBuffer , uint16_t 
 	if ( nLne + nLen >= MAX_MSG_BUFFER_LEN )
 	{
 		stMsg* pmsg = (stMsg*)pBuffer ;
-		CLogMgr::SharedLogMgr()->ErrorLog("msg send to session id = %d , is too big , cannot send , msg id = %d ",nSessionID,pmsg->usMsgType) ;
+		LOGFMTE("msg send to session id = %d , is too big , cannot send , msg id = %d ",nSessionID,pmsg->usMsgType) ;
 		return false;
 	}
-	memcpy(m_pSendBuffer,&msgTransData,nLne);
-	memcpy(m_pSendBuffer + nLne , pBuffer,nLen );
+	memcpy_s(m_pSendBuffer ,sizeof(m_pSendBuffer),&msgTransData,nLne);
+	memcpy_s(m_pSendBuffer + nLne ,sizeof(m_pSendBuffer) - nLne, pBuffer,nLen );
 	nLne += nLen ;
 	sendMsg(m_pSendBuffer,nLne);
 	return true ;
@@ -259,30 +276,27 @@ bool IServerApp::sendMsg( uint32_t nSessionID , Json::Value& recvValue, uint16_t
 {
 	if ( nMsgID )
 	{
-		if ( !recvValue[JS_KEY_MSG_TYPE] )
-		{
-			recvValue[JS_KEY_MSG_TYPE] = nMsgID ;
-		}
-		else
-		{
-			//CLogMgr::SharedLogMgr()->ErrorLog("msg id = %u ,already have this tag uid = %u",nMsgID,recvValue[JS_KEY_MSG_TYPE].asUInt() ) ;
-		}
+		recvValue[JS_KEY_MSG_TYPE] = nMsgID;
+		//if ( !recvValue[JS_KEY_MSG_TYPE] )
+		//{
+		//	recvValue[JS_KEY_MSG_TYPE] = nMsgID ;
+		//}
+		//else
+		//{
+		//	//LOGFMTE("msg id = %u ,already have this tag uid = %u",nMsgID,recvValue[JS_KEY_MSG_TYPE].asUInt() ) ;
+		//}
 	}
 
 	Json::StyledWriter writerJs ;
 	std::string strContent = writerJs.write(recvValue);
-	//CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, send : %s",nSessionID,nTargetPort,strContent.c_str());
+	//LOGFMTD("session id = %u , target port = %u, send : %s",nSessionID,nTargetPort,strContent.c_str());
 	stMsgJsonContent msg ;
 	msg.cSysIdentifer = nTargetPort ;
 	msg.nJsLen = strContent.size() ;
 	CAutoBuffer bufferTemp(sizeof(msg) + msg.nJsLen);
 	bufferTemp.addContent(&msg,sizeof(msg)) ;
 	bufferTemp.addContent(strContent.c_str(),msg.nJsLen) ;
-	if ( bufferTemp.getContentSize() > 900)
-	{
-		CLogMgr::SharedLogMgr()->ErrorLog("消息id = %u, 长度太大 = %u" , bufferTemp.getContentSize());
-	}
-	CLogMgr::SharedLogMgr()->PrintLog("session id = %u , target port = %u, msgID = %u len = %u send : %s", nSessionID, nTargetPort, nMsgID,bufferTemp.getContentSize(), strContent.c_str());
+	//LOGFMTD("session id = %u , target port = %u, len = %u send : %s",nSessionID,nTargetPort,bufferTemp.getContentSize(),strContent.c_str());
 	return sendMsg(nSessionID,bufferTemp.getBufferPtr(),bufferTemp.getContentSize(),bBroadcast) ; 
 }
 
@@ -293,7 +307,7 @@ void IServerApp::stop()
 
 bool IServerApp::onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID)
 {
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		if ( pp.second->onMsg(prealMsg,eSenderPort,nSessionID) )
 		{
@@ -305,7 +319,7 @@ bool IServerApp::onLogicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nS
 
 bool IServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID )
 {
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		if ( pp.second->onMsg(recvValue,nmsgType,eSenderPort,nSessionID) )
 		{
@@ -317,7 +331,7 @@ bool IServerApp::onLogicMsg( Json::Value& recvValue , uint16_t nmsgType, eMsgPor
 
 bool IServerApp::onAsyncRequest(uint16_t nRequestType , const Json::Value& jsReqContent, Json::Value& jsResult )
 {
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		if ( pp.second->onAsyncRequest(nRequestType,jsReqContent,jsResult) )
 		{
@@ -334,14 +348,14 @@ void IServerApp::update(float fDeta )
 		m_fReconnectTick += fDeta ;
 		if ( m_fReconnectTick >= TIME_WAIT_FOR_RECONNECT )
 		{
-			CLogMgr::SharedLogMgr()->SystemLog("Reconnecting....");
+			LOGFMTI("Reconnecting....");
 			doConnectToTargetSvr() ;
 			m_fReconnectTick = 0 ;
 		}
 	}
 
 	// moudle update ;
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		pp.second->update(fDeta);
 	}
@@ -361,7 +375,7 @@ void IServerApp::setConnectServerConfig(stServerConfig* pConfig )
 {
 	if ( pConfig == nullptr )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("connect config is null") ;
+		LOGFMTE("connect config is null") ;
 		return ;
 	}
 
@@ -384,7 +398,7 @@ void IServerApp::doConnectToTargetSvr()
 	assert(m_stConnectConfig.nPort && "please set connect config" ) ;
 	m_pNetWork->ConnectToServer(m_stConnectConfig.strIPAddress,m_stConnectConfig.nPort,m_stConnectConfig.strPassword) ;
 	m_eConnectState = CNetWorkMgr::eConnectType_Connecting ;
-	CLogMgr::SharedLogMgr()->SystemLog("connecting to target svr ip = %s", m_stConnectConfig.strIPAddress );
+	LOGFMTI("connecting to target svr ip = %s", m_stConnectConfig.strIPAddress );
 }
 uint16_t IServerApp::getVerifyType()
 {
@@ -421,7 +435,7 @@ uint16_t IServerApp::getVerifyType()
 
 void IServerApp::onExit()
 {
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		pp.second->onExit();
 	}
@@ -430,18 +444,43 @@ void IServerApp::onExit()
 
 void IServerApp::onConnectedToSvr()
 {
-	for ( auto& pp : m_vAllModule )
+	for ( auto pp : m_vAllModule )
 	{
 		pp.second->onConnectedSvr();
 	}
 }
 
-void IServerApp::registerModule(IGlobalModule* pModule)
+bool IServerApp::registerModule(IGlobalModule* pModule,uint16_t eModuleType)
 {
-	auto pp = getModuleByType(pModule->getModuleType()) ;
+	assert(pModule && "this module is null" );
+	if ( pModule == nullptr )
+	{
+		return false;
+	}
+
+	if ( eModuleType == IGlobalModule::INVALID_MODULE_TYPE )
+	{
+		assert(0&&"please set the module type ");
+		return false ;
+	}
+
+	pModule->setModuleType(eModuleType);
+	auto pp = getModuleByType(eModuleType) ;
 	assert(pp == nullptr && "already have this module" );
+	if ( pp )
+	{
+		return false ;
+	}
+
 	m_vAllModule[pModule->getModuleType()] = pModule ;
 	pModule->init(this);
+	return true ;
+}
+
+bool IServerApp::installModule( uint16_t nModuleType )
+{
+	auto pAsy = createModule(nModuleType) ;
+	return registerModule(pAsy,nModuleType) ;
 }
 
 IGlobalModule* IServerApp::getModuleByType(uint16_t nType )
@@ -454,7 +493,24 @@ IGlobalModule* IServerApp::getModuleByType(uint16_t nType )
 	return nullptr;
 }
 
+IGlobalModule* IServerApp::createModule( uint16_t eModuleType )
+{
+	IGlobalModule* pModule = nullptr ;
+	switch (eModuleType)
+	{
+	case eDefMod_AsyncRequestQueu:
+		{
+			pModule = new CAsyncRequestQuene ;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return pModule ;
+}
+
 CAsyncRequestQuene* IServerApp::getAsynReqQueue()
 {
-	return (CAsyncRequestQuene*)getModuleByType(IGlobalModule::eMode_AsyncRequestQueu);
+	return (CAsyncRequestQuene*)getModuleByType(eDefMod_AsyncRequestQueu);
 }

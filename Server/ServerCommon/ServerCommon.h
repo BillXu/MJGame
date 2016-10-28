@@ -50,6 +50,8 @@ enum eAsyncReq
 	eAsync_Db_Delete,	// { sql : "select * from table where uid = 345" , order : 0 } // order [ 0 - 3 ] biger first process ,  result : { afctRow : 1 , data : [row0,row1] }/// row { tile0 : value , title 0 ;}
 	eAsync_ReqRoomSerials, // {roomType : 2 }  // result :  { ret : 0 , serials : [0 , 2 ,34,56 ] }  // ret : 0 success , 1 svr is reading from db wait a moment ; 
 	eAsync_SyncVipRoomBillID, // { billID : 2345 , useUIDs : [2345,2345,2345,2345] }
+	eAsync_Apns, // { apnsType : 0 , targets : [234,2345,23,4] , content : "hello this is" ,msgID : "fs" ,msgdesc : "shfsg" }  apnsType : 0 , group type . 1 , target persions ;
+	eAsync_SendUpdateCoinToClient, // { sessionID : 234 , coin : 235 , diamond : 234, uid : 3423 , roomID : 234 } 
 	eAsync_Max,
 };
 
@@ -132,7 +134,7 @@ enum eCrossSvrReqSubType
 {\
 	if (sizeof(CHECK_MSG) > (nLen) ) \
 {\
-	CLogMgr::SharedLogMgr()->ErrorLog("Msg Size Unlegal msg") ;	\
+	LOGFMTE("Msg Size Unlegal msg") ;	\
 	return false; \
 	}\
 	}
@@ -141,7 +143,7 @@ enum eCrossSvrReqSubType
 {\
 	if (sizeof(CHECK_MSG) > (nLen) ) \
 {\
-	CLogMgr::SharedLogMgr()->ErrorLog("Msg Size Unlegal msg") ;	\
+	LOGFMTE("Msg Size Unlegal msg") ;	\
 	return; \
 	}\
 	}

@@ -1,5 +1,5 @@
 #include "MJWaitSupplyCoinState.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "MJRoomPlayer.h"
 #include "MJRoom.h"
 #include "MJWaitPlayerActState.h"
@@ -16,6 +16,7 @@ void CMJWaitSupplyCoinState::enterState(IRoom* pRoom)
 	}
 	js["players"] = jsArray ;
 	pRoom->sendRoomMsg(js,MSG_ROOM_INFORM_SUPPLY_COIN);
+	setStateDuringTime(eTime_WaitSupplyCoin);
 }
 
 bool CMJWaitSupplyCoinState::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayerSessionID )
@@ -33,7 +34,7 @@ bool CMJWaitSupplyCoinState::onMessage( stMsg* prealMsg , eMsgPort eSenderPort ,
 		// is sitdown layer 
 		if ( !pSitPlayer )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("you are not sit down player") ;
+			LOGFMTD("you are not sit down player") ;
 			return false ;
 		}
 
@@ -41,7 +42,7 @@ bool CMJWaitSupplyCoinState::onMessage( stMsg* prealMsg , eMsgPort eSenderPort ,
 		auto pW = std::find(m_vWaitPlayerIdxs.begin(),m_vWaitPlayerIdxs.end(),pSitPlayer->getIdx()) ;
 		if ( pW == m_vWaitPlayerIdxs.end() )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("you are not in the wait list ") ;
+			LOGFMTD("you are not in the wait list ") ;
 			return false ;
 		}
 
@@ -55,12 +56,18 @@ bool CMJWaitSupplyCoinState::onMessage( stMsg* prealMsg , eMsgPort eSenderPort ,
 			jsmsg["playerIdx"] = pSitPlayer->getIdx() ;
 			jsmsg["result"] = 1 ;
 			m_pRoom->sendRoomMsg(jsmsg,MSG_ROOM_PLAYER_SUPPLY_COIN_RESULT);
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u supply coin ok", pSitPlayer->getUserUID() ) ;
+			LOGFMTD("uid = %u supply coin ok", pSitPlayer->getUserUID() ) ;
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u supply coin is not enough , go on waiting to supply coin",pSitPlayer->getUserUID()) ;
+			LOGFMTD("uid = %u supply coin is not enough , go on waiting to supply coin",pSitPlayer->getUserUID()) ;
 		}
+
+		if ( m_vWaitPlayerIdxs.empty())
+		{
+			finishWait();
+		}
+
 		return false ;
 	}
 	return false ;
@@ -87,6 +94,11 @@ bool CMJWaitSupplyCoinState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMs
 		if ( removeIter != m_vWaitPlayerIdxs.end() )
 		{
 			m_vWaitPlayerIdxs.erase(removeIter) ;
+		}
+
+		if (m_vWaitPlayerIdxs.empty())
+		{
+			finishWait();
 		}
 		return true ;
 	}
@@ -117,6 +129,12 @@ void CMJWaitSupplyCoinState::onStateDuringTimeUp()
 
 void CMJWaitSupplyCoinState::finishWait()
 {
+	if (m_vWaitPlayerIdxs.empty() == false)
+	{
+		LOGFMTE("wait supply coin is not empty , why finish wait ? ");
+		return;
+	}
+
 	auto pRoom = (CMJRoom*)m_pRoom ;
 	if ( 0 == m_nInvokedByAct )
 	{
@@ -133,11 +151,12 @@ void CMJWaitSupplyCoinState::finishWait()
 		if ( ppPlayer->isHaveState(eRoomPeer_AlreadyHu) )
 		{
 			fWaitTime *= 0.5 ;
-			CLogMgr::SharedLogMgr()->PrintLog("idx = %u already hu, so act time will be half as before",m_nInvokerIdx) ;
+			LOGFMTD("idx = %u already hu, so act time will be half as before",m_nInvokerIdx) ;
 		}
 		pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nInvokerIdx,fWaitTime)) ;
 
 		pTargeState->addWaitingTarget(m_nInvokerIdx,eMJAct_Hu) ;
+		m_pRoom->goToState(pTargeState);
 	}
 	else if ( 1 == m_nInvokedByAct )
 	{

@@ -1,6 +1,6 @@
 #include "MJServerRoomManger.h"
 #include "MJServer.h"
-#include "LogManager.h"
+#include "log4z.h"
 #define ROOM_LIST_ITEM_CNT_PER_PAGE 5 
 #include "AutoBuffer.h"
 #include "SystemRoom.h"
@@ -21,7 +21,7 @@ void CMJRoomManager::init(IServerApp* svrApp)
 			IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,false,(*iter)->nConfigID,(eRoomType)(*iter)->nGameType,vDefault);
 			addRoomToSystem(pRoom) ;
 		}
-		CLogMgr::SharedLogMgr()->PrintLog("system crate five room config id = %u , roomType = %u",(*iter)->nConfigID,(*iter)->nGameType ) ;
+		LOGFMTD("system crate five room config id = %u , roomType = %u",(*iter)->nConfigID,(*iter)->nGameType ) ;
 	}
 }
 
@@ -41,7 +41,7 @@ IRoomInterface* CMJRoomManager::doCreateInitedRoomObject(uint32_t nRoomID,bool i
 IRoomInterface* CMJRoomManager::doCreateRoomObject(eRoomType reqSubRoomType,bool isPrivateRoom)
 {
 	IRoomInterface* pRoom = nullptr ;
-	//CLogMgr::SharedLogMgr()->ErrorLog("always create er ren queshen , temp") ;
+	//LOGFMTE("always create er ren queshen , temp") ;
 	//return pRoom = new CNewMJRoom() ;
 	switch (reqSubRoomType)
 	{
@@ -79,7 +79,7 @@ IRoomInterface* CMJRoomManager::doCreateRoomObject(eRoomType reqSubRoomType,bool
 		}
 		break;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknown room type = %u, so can not creat room ",reqSubRoomType);
+		LOGFMTE("unknown room type = %u, so can not creat room ",reqSubRoomType);
 	}
 	return pRoom ;
 }

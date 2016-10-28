@@ -1,5 +1,5 @@
 #include "RobotCenter.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "ServerMessageDefine.h"
 #include "ISeverApp.h"
 #include "GameServerApp.h"
@@ -35,7 +35,7 @@ bool CRobotCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSen
 			auto ppPLayer = CGameServerApp::SharedGameServerApp()->GetPlayerMgr()->GetPlayerBySessionID(nSessionID) ;
 			if ( ppPLayer == nullptr )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("this robot not login session id = %u",nSessionID) ;
+				LOGFMTE("this robot not login session id = %u",nSessionID) ;
 				return true;
 			}
 
@@ -51,7 +51,7 @@ bool CRobotCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSen
 				pR->nUserUID = ppPLayer->GetUserUID() ;
 				m_vIdleRobots.push_back(pR) ;
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("a robot uid = %u enter idle ",ppPLayer->GetUserUID()) ;
+			LOGFMTD("a robot uid = %u enter idle ",ppPLayer->GetUserUID()) ;
 			processRobotReq();
 		}
 		break;
@@ -94,7 +94,7 @@ bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSess
 				m_vReqRobotCmdCacher.push_back(cmd) ;
 			}
 
-			//CLogMgr::SharedLogMgr()->PrintLog("received req from room id = %u , type = %u",pRet->nRoomID,pRet->nRoomType) ;
+			//LOGFMTD("received req from room id = %u , type = %u",pRet->nRoomID,pRet->nRoomType) ;
 			processRobotReq();
 		}
 		break;
@@ -109,7 +109,7 @@ bool CRobotCenter::onMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSess
 				{
 					delete ref ;
 					m_vReqRobotCmdCacher.erase(iter);
-					CLogMgr::SharedLogMgr()->PrintLog(" can all request from room id = %u",pRet->nRoomID);
+					LOGFMTD(" can all request from room id = %u",pRet->nRoomID);
 					return true ;
 				}
 			}
@@ -177,7 +177,7 @@ void CRobotCenter::processRobotReq()
 				Json::Value jsMsg ;
 				jsMsg["dstRoomID"] = cmd->nRoomID ;
 				getSvrApp()->sendMsg((*iter)->nSessionID,jsMsg,MSG_SVR_INFOR_ROBOT_ENTER);
-				CLogMgr::SharedLogMgr()->PrintLog("order robot uid = %u to enter room type = %u , room id = %u",(*iter)->nUserUID,cmd->nRoomType,cmd->nRoomID) ;
+				LOGFMTD("order robot uid = %u to enter room type = %u , room id = %u",(*iter)->nUserUID,cmd->nRoomType,cmd->nRoomID) ;
 
 				delete (*iter) ;
 				(*iter) = nullptr ;
@@ -199,7 +199,7 @@ void CRobotCenter::processRobotReq()
 		{
 			if ( (*iterDel) == delRef )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("finish req form room type = %u ,id = %u and delete it",delRef->nRoomType,delRef->nRoomID) ;
+				LOGFMTD("finish req form room type = %u ,id = %u and delete it",delRef->nRoomType,delRef->nRoomID) ;
 				delete (*iterDel) ;
 				m_vReqRobotCmdCacher.erase(iterDel) ;
 				break; 

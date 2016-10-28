@@ -1,5 +1,5 @@
 #include "WaitPlayerActState.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "NewMJRoom.h"
 void CWaitPlayerAct::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 {
@@ -25,7 +25,7 @@ void CWaitPlayerAct::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 	auto ret = doExcutingAct(m_eExecutingAct,m_nActCard ) ;
 	if ( ret == false )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("doing act = %u , error with card = %u",m_eExecutingAct,m_nActCard ) ;
+		LOGFMTE("doing act = %u , error with card = %u",m_eExecutingAct,m_nActCard ) ;
 	}
 }
 
@@ -63,7 +63,7 @@ bool CWaitPlayerAct::doExcutingAct( eMJActType eAct, uint8_t nActCard )
 			isExcuteOk = pNewRoom->onPlayerDeclareBuGang(m_nCurPlayerIdx,m_nActCard) ; // must delcalre , send the declare msg to client ;
 			if ( !isExcuteOk )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog( "you can not bu gang idx = %u",m_nCurPlayerIdx) ;
+				LOGFMTD( "you can not bu gang idx = %u",m_nCurPlayerIdx) ;
 				break;  // if you can not bu gang , you should do this ;
 			}
 
@@ -85,7 +85,7 @@ bool CWaitPlayerAct::doExcutingAct( eMJActType eAct, uint8_t nActCard )
 		fDuringTime = eTime_DoPlayerAct_Gang ;
 		break;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknown act type = %u ,wait player act enter state card = %u , you may need restart the server ",m_eExecutingAct,m_nActCard ) ;
+		LOGFMTE("unknown act type = %u ,wait player act enter state card = %u , you may need restart the server ",m_eExecutingAct,m_nActCard ) ;
 		break;
 	}
 	setStateDuringTime(fDuringTime);
@@ -163,7 +163,7 @@ void CWaitPlayerAct::onStateDuringTimeUp()
 			}
 			else
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("no body can hu bu gang card , why come to declare state ?");
+				LOGFMTE("no body can hu bu gang card , why come to declare state ?");
 				doExcutingAct(eMJAct_BuGang_Done,m_nActCard) ;
 			}
 		}
@@ -174,7 +174,7 @@ void CWaitPlayerAct::onStateDuringTimeUp()
 		startWaitChoseAct(m_nCurPlayerIdx) ;
 		break;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknown act type = %u ,during time out ",m_eExecutingAct) ;
+		LOGFMTE("unknown act type = %u ,during time out ",m_eExecutingAct) ;
 		break;
 	}
 }
@@ -227,7 +227,7 @@ bool CWaitPlayerAct::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eS
 	{
 		if ( this->m_isWaitingChoseAct == false )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
+			LOGFMTE("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
 			nRet = 4 ;
 			break;
 		}
@@ -236,21 +236,21 @@ bool CWaitPlayerAct::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eS
 		auto pRoom = (CNewMJRoom*)m_pRoom ;
 		if ( pRoom->getIdxBySessionID(nSessionID) != m_nCurPlayerIdx )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you are not in room or not the turn you act , curActIdx = %u,so can not respone your act = %u, session id = %u",m_nCurPlayerIdx,nReqActType,nReqActCard) ;
+			LOGFMTE("you are not in room or not the turn you act , curActIdx = %u,so can not respone your act = %u, session id = %u",m_nCurPlayerIdx,nReqActType,nReqActCard) ;
 			nRet = 1 ;
 			break;
 		}
 
 		if ( m_isOnlyCanChu && nReqActType != eMJAct_Chu )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you can only do chu act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
+			LOGFMTE("you can only do chu act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
 			nRet = 2 ;
 			break;
 		}
 
 		if ( eMJAct_Pass == nReqActType )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("player chose pass ,so start waiting agian") ;
+			LOGFMTD("player chose pass ,so start waiting agian") ;
 			startWaitChoseAct(m_nCurPlayerIdx,true) ;
 			break;
 		}
@@ -258,7 +258,7 @@ bool CWaitPlayerAct::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eS
 		auto fLeftDuring = getStateDuring();
 		if ( !doExcutingAct((eMJActType)nReqActType,nReqActCard) )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("this act error = %u , card = %u, go on waiting chose, but do not reset time " ,nReqActType,nReqActCard ) ;
+			LOGFMTE("this act error = %u , card = %u, go on waiting chose, but do not reset time " ,nReqActType,nReqActCard ) ;
 			setStateDuringTime(fLeftDuring) ;
 			this->m_isWaitingChoseAct = true ;
 			nRet = 2 ;

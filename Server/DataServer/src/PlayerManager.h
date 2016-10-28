@@ -4,6 +4,7 @@
 #include <json/json.h>
 #include <map>
 #include <list>
+#include "IGlobalModule.h"
 class CPlayer ;
 struct stMsg ;
 class CSelectPlayerDataCacher
@@ -42,6 +43,7 @@ protected:
 	MAP_ID_DATA m_vDetailData ;
 };
 class CPlayerManager
+	:public IGlobalModule
 {
 public:
 	typedef std::map<uint32_t, CPlayer*> MAP_SESSIONID_PLAYERS ; 
@@ -50,8 +52,8 @@ public:
 public:
 	CPlayerManager();
 	~CPlayerManager();
-	bool OnMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nSessionID  );
-	bool OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort eSenderPort , uint32_t nSessionID );
+	bool onMsg(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nSessionID)override;
+	bool onMsg(Json::Value& recvValue, uint16_t nmsgType, eMsgPort eSenderPort, uint32_t nSessionID)override;
 	CPlayer* GetPlayerByUserUID( uint32_t nUserUID, bool bInclueOffline = true );
 	CPlayer* GetPlayerBySessionID(uint32_t nSessionID , bool bInclueOffline = false );
 	void Update(float fDeta );

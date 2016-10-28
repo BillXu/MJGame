@@ -1,5 +1,5 @@
 #include "httpRequest.h"
-#include "LogManager.h"
+#include "log4z.h"
 CHttpRequest::~CHttpRequest()
 {
 	if ( m_pCurlList )
@@ -79,7 +79,7 @@ bool CHttpRequest::performRequest(const char* pAddtionUrl , const char* pData , 
 bool CHttpRequest::performGetRequest(const char* pAddtionUrl)
 {
 	//curl_easy_setopt(m_pCURL, CURLOPT_POST, 0L);
-	curl_easy_setopt(m_pCURL, CURLOPT_POST, 0L);	
+	curl_easy_setopt(m_pCURL, CURLOPT_POST, 0L);
 
 	curl_easy_setopt(m_pCURL, CURLOPT_CUSTOMREQUEST, "GET");
 	//static char pBuffer[512] = { 0 };
@@ -122,7 +122,7 @@ size_t CHttpRequest::onRecieveData(void *buffer, size_t size, size_t count, void
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("why htttp request call back delegate is null ") ;	
+		LOGFMTE("why htttp request call back delegate is null ") ;	
 	}
 	return size * count ;
 }

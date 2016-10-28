@@ -6,7 +6,7 @@
 #include "GameOverState.h"
 #include "RoomConfig.h"
 #include "NewMJRoomPlayer.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "RobotDispatchStrategy.h"
 CTwoBirdFanxingChecker CNewMJRoom::m_tTowBirdFanxingChecker ;
 CNewMJRoom::CNewMJRoom()
@@ -60,7 +60,7 @@ void CNewMJRoom::sendRoomPlayersCardInfo(uint32_t nSessionID)
 {
 	if ( getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID() )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("current room not start game , so need not send runtime info msg") ;
+		LOGFMTD("current room not start game , so need not send runtime info msg") ;
 		return ;
 	}
 	Json::Value jsmsg ;
@@ -114,7 +114,7 @@ void CNewMJRoom::sendRoomInfo(uint32_t nSessionID )
 
 	jsMsg["players"] = arrPlayers ;
 	sendMsgToPlayer(jsMsg,MSG_ROOM_INFO,nSessionID) ;
-	CLogMgr::SharedLogMgr()->PrintLog("send msg room info msg to player session id = %u",nSessionID) ;
+	LOGFMTD("send msg room info msg to player session id = %u",nSessionID) ;
 }
 
 bool CNewMJRoom::canPlayerDirectLeave( uint32_t nUID )
@@ -148,7 +148,7 @@ bool CNewMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSende
 	{
 	case MSG_ROOM_REQ_TOTAL_INFO:
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("reback room state and info msg to session id =%u",nSessionID) ;
+			LOGFMTD("reback room state and info msg to session id =%u",nSessionID) ;
 			sendRoomInfo(nSessionID) ;
 			sendRoomPlayersCardInfo(nSessionID) ;
 		}
@@ -159,14 +159,14 @@ bool CNewMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSende
 			stStandPlayer* pp = getPlayerBySessionID(nSessionID) ;
 			if ( pp )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("player session id = %d apply to leave room ok",nSessionID) ;
+				LOGFMTD("player session id = %d apply to leave room ok",nSessionID) ;
 				onPlayerApplyLeaveRoom(pp->nUserUID) ;
 				jsMsg["ret"] = 0 ;
 			}
 			else
 			{
 				jsMsg["ret"] = 1 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("session id not in this room how to leave session id = %d",nSessionID) ;
+				LOGFMTE("session id not in this room how to leave session id = %d",nSessionID) ;
 			}
 			sendMsgToPlayer(jsMsg,nMsgType,nSessionID);
 		}
@@ -176,7 +176,7 @@ bool CNewMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSende
 			auto pp = getSitdownPlayerBySessionID(nSessionID) ;
 			if ( pp == nullptr )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you are not sit down , can not ready session id = %u",nSessionID) ;
+				LOGFMTE("you are not sit down , can not ready session id = %u",nSessionID) ;
 				return true ;
 			}
 
@@ -186,11 +186,11 @@ bool CNewMJRoom::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSende
 			}
 			else
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you are not have wati next game state why you set ready ? idx = %u",pp->getIdx() ) ;
+				LOGFMTE("you are not have wati next game state why you set ready ? idx = %u",pp->getIdx() ) ;
 				return true ;
 			}
 
-			CLogMgr::SharedLogMgr()->SystemLog("room id = %u 玩家uid=%u 准备好了。",getRoomID(),pp->getUserUID());
+			LOGFMTI("room id = %u 玩家uid=%u 准备好了。",getRoomID(),pp->getUserUID());
 
 			Json::Value jsMsg ;
 			jsMsg["idx"] = pp->getIdx() ;
@@ -209,7 +209,7 @@ void CNewMJRoom::doStartGame()
 {
 	ISitableRoom::doStartGame();
 	m_nBankerIdx = getNextActIdx(m_nBankerIdx) ;
-	CLogMgr::SharedLogMgr()->PrintLog("room game begin");
+	LOGFMTD("room game begin");
 	prepareCards();
 }
 
@@ -226,13 +226,13 @@ void CNewMJRoom::prepareCards()
 	{
 		uint8_t nRealIdx = nDice % getSeatCount() ;
 		auto pPlayer = (CNewMJRoomPlayer*)getPlayerByIdx(nRealIdx);
-		CLogMgr::SharedLogMgr()->PrintLog("card player idx = %d",nRealIdx);
+		LOGFMTD("card player idx = %d",nRealIdx);
 		for (uint8_t nCardIdx = 0 ; nCardIdx < 13 ; ++nCardIdx )
 		{
 			uint8_t nCard = m_tPoker.getCard();
 			pPlayer->getMJPeerCard()->addHoldCard(nCard) ;
 			peerCards[nRealIdx][(uint32_t)nCardIdx] = nCard ;
-			CLogMgr::SharedLogMgr()->PrintLog("card number = %u",nCard);
+			LOGFMTD("card number = %u",nCard);
 		}
 	}
 #else
@@ -245,7 +245,7 @@ void CNewMJRoom::prepareCards()
 	{
 		uint8_t nRealIdx = nDice % getSeatCount() ;
 		auto pPlayer = (CNewMJRoomPlayer*)getPlayerByIdx(nRealIdx);
-		CLogMgr::SharedLogMgr()->PrintLog("card player idx = %d",nRealIdx);
+		LOGFMTD("card player idx = %d",nRealIdx);
 		for (uint8_t nCardIdx = 0 ; nCardIdx < 13 ; ++nCardIdx )
 		{
 			uint8_t nCard = m_tPoker.getCard();
@@ -262,7 +262,7 @@ void CNewMJRoom::prepareCards()
 			}
 			pPlayer->getMJPeerCard()->addHoldCard(nCard) ;
 			peerCards[nRealIdx][(uint32_t)nCardIdx] = nCard ;
-			CLogMgr::SharedLogMgr()->PrintLog("card number = %u",nCard);
+			LOGFMTD("card number = %u",nCard);
 		}
 	}
 
@@ -303,7 +303,7 @@ void CNewMJRoom::onGameOver()
 	}
 	msg["players"] = msgArray ;
 	sendRoomMsg(msg,MSG_ROOM_GAME_OVER);
-	CLogMgr::SharedLogMgr()->PrintLog("send game over msg , %u ", MSG_ROOM_GAME_OVER);
+	LOGFMTD("send game over msg , %u ", MSG_ROOM_GAME_OVER);
 	ISitableRoom::onGameOver() ;
 }
 
@@ -328,7 +328,7 @@ void CNewMJRoom::onGameDidEnd()
 	}
 
 	ISitableRoom::onGameDidEnd();
-	CLogMgr::SharedLogMgr()->PrintLog("room game End");
+	LOGFMTD("room game End");
 
 	for ( auto& si : vMapSessionIDIsRobot )
 	{
@@ -389,7 +389,7 @@ uint8_t CNewMJRoom::getAutoChuCardWhenWaitTimeOut(uint8_t nPlayerIdx )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("nplayer idx = %u is null , why need it chu card",nPlayerIdx ) ;
+		LOGFMTE("nplayer idx = %u is null , why need it chu card",nPlayerIdx ) ;
 		return 0 ;
 	}
 
@@ -400,7 +400,7 @@ uint8_t CNewMJRoom::getAutoChuCardWhenWaitTimeOut(uint8_t nPlayerIdx )
 	}
 
 	nCard = pp->getMJPeerCard()->getFirstHoldCard(); 
-	CLogMgr::SharedLogMgr()->PrintLog("new received card is used, so auto use the first card = %u",nCard) ;
+	LOGFMTD("new received card is used, so auto use the first card = %u",nCard) ;
 	return nCard ;
 }
 
@@ -417,7 +417,7 @@ uint8_t CNewMJRoom::getNextActIdx( uint8_t nCurActIdx )
 		return pRealIdx ;
 	}
 
-	CLogMgr::SharedLogMgr()->ErrorLog("why we can not find the proper next idx , curidx = %u",nCurActIdx ) ;
+	LOGFMTE("why we can not find the proper next idx , curidx = %u",nCurActIdx ) ;
 	return 0 ;
 }
 
@@ -444,7 +444,7 @@ void CNewMJRoom::sendActListToPlayerAboutCard( uint8_t nPlayerIdx , std::list<eM
 	auto pp = getPlayerByIdx(nPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player idx = %u , not in room , how to send act list",nPlayerIdx ) ;
+		LOGFMTE("player idx = %u , not in room , how to send act list",nPlayerIdx ) ;
 		return ;
 	}
 
@@ -466,7 +466,7 @@ void CNewMJRoom::sendPlayerActListOnRecievedCard( uint8_t nCurPlayerIdx )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nCurPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player idx = %u , not in room , how to send act list, why recieved card ?",nCurPlayerIdx ) ;
+		LOGFMTE("player idx = %u , not in room , how to send act list, why recieved card ?",nCurPlayerIdx ) ;
 		return ;
 	}
 
@@ -521,7 +521,7 @@ bool CNewMJRoom::onPlayerEat( uint8_t nActPlayerIdx  , uint8_t nInvokePlayerIdx 
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to eat ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to eat ?",nActPlayerIdx );
 		return false ;
 	}
 	CMJPeerCardNew::stEatPair sPair ;
@@ -534,7 +534,7 @@ bool CNewMJRoom::onPlayerEat( uint8_t nActPlayerIdx  , uint8_t nInvokePlayerIdx 
 		auto ppInvoker = (CNewMJRoomPlayer*)getPlayerByIdx(nInvokePlayerIdx) ;
 		if ( !ppInvoker )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("why Eat invoker is null idx = %u",nInvokePlayerIdx);
+			LOGFMTE("why Eat invoker is null idx = %u",nInvokePlayerIdx);
 		}
 		else
 		{
@@ -551,11 +551,11 @@ bool CNewMJRoom::onPlayerEat( uint8_t nActPlayerIdx  , uint8_t nInvokePlayerIdx 
 		jseatwith[jseatwith.size()] = nWithCardB;
 		jsmsg["eatWith"] = jseatwith ;
 		sendRoomMsg(jsmsg,MSG_ROOM_ACT);
-		CLogMgr::SharedLogMgr()->PrintLog("do send 吃 invoke idx = %u ",nInvokePlayerIdx);
+		LOGFMTD("do send 吃 invoke idx = %u ",nInvokePlayerIdx);
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("do eat act error invoke idx = %u ",nInvokePlayerIdx);
+		LOGFMTE("do eat act error invoke idx = %u ",nInvokePlayerIdx);
 	}
 	return bRet ;
 }
@@ -565,7 +565,7 @@ bool CNewMJRoom::onPlayerPeng( uint8_t nActPlayerIdx , uint8_t nInvokePlayrIdx ,
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to peng ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to peng ?",nActPlayerIdx );
 		return false ;
 	}
 
@@ -576,7 +576,7 @@ bool CNewMJRoom::onPlayerPeng( uint8_t nActPlayerIdx , uint8_t nInvokePlayrIdx ,
 		auto ppInvoker = (CNewMJRoomPlayer*)getPlayerByIdx(nInvokePlayrIdx) ;
 		if ( !ppInvoker )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("why Peng invoker is null idx = %u",nInvokePlayrIdx);
+			LOGFMTE("why Peng invoker is null idx = %u",nInvokePlayrIdx);
 		}
 		else
 		{
@@ -599,24 +599,24 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 	auto ppHu = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !ppHu )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why hu player is null idx = %u",nActPlayerIdx ) ;
+		LOGFMTE("why hu player is null idx = %u",nActPlayerIdx ) ;
 		return false ;
 	}
 
 	if ( bIsSelf && !ppHu->getMJPeerCard()->isHoldCardExist(nTargetCard) )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you hu card = %u ,bu you don't have card, idx = %u ",nTargetCard,nActPlayerIdx ) ;
+		LOGFMTE("you hu card = %u ,bu you don't have card, idx = %u ",nTargetCard,nActPlayerIdx ) ;
 	}
 
 	if ( bIsSelf && ppHu->getNewRecievedCard() != nTargetCard )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("why don't you tell me the new received card to hu = %u, you tell = %u ",ppHu->getNewRecievedCard(),nTargetCard ) ;
+		LOGFMTD("why don't you tell me the new received card to hu = %u, you tell = %u ",ppHu->getNewRecievedCard(),nTargetCard ) ;
 	}
 
 	auto ppInvoker = (CNewMJRoomPlayer*)getPlayerByIdx(nInvokerPlayerIdx) ;
 	if ( !ppInvoker )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why hu invoker is null , idx = %u",nInvokerPlayerIdx) ;
+		LOGFMTE("why hu invoker is null , idx = %u",nInvokerPlayerIdx) ;
 		return false ;
 	}
 
@@ -624,13 +624,13 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 	bool bRet = ppHu->getMJPeerCard()->onHu(nTargetCard,bIsSelf);
 	if ( !bRet )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("say you hu , but you donot hu, idx = %u,card = %u",nActPlayerIdx,nTargetCard) ;
+		LOGFMTE("say you hu , but you donot hu, idx = %u,card = %u",nActPlayerIdx,nTargetCard) ;
 		return false ;
 	}
 
 	if ( !getHuFanxing(ppHu,ppInvoker,nTargetCard,isRbotGang ,nFanType,nFanShu) )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why check fanxing return error ?") ;
+		LOGFMTE("why check fanxing return error ?") ;
 		return false ;
 	}
 
@@ -676,7 +676,7 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 
 	ppHu->setCoin(ppHu->getCoin() + nPlayerWin) ;
 	ppHu->setState(eRoomPeer_AlreadyHu) ;
-	CLogMgr::SharedLogMgr()->SystemLog("playerUID = %u fan shu = %u , winCoin = %u",ppHu->getUserUID(),nFanShu,nHuWinCoin);
+	LOGFMTI("playerUID = %u fan shu = %u , winCoin = %u",ppHu->getUserUID(),nFanShu,nHuWinCoin);
 	// send msg 
 	Json::Value msg ;
 	msg["idx"] = nActPlayerIdx ;
@@ -691,7 +691,7 @@ bool CNewMJRoom::onPlayerMingGang( uint8_t nActPlayerIdx , uint8_t nInvokerIdx ,
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to MingGang ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to MingGang ?",nActPlayerIdx );
 		return false ;
 	}
 	auto pNewCard = m_tPoker.getCard();
@@ -702,7 +702,7 @@ bool CNewMJRoom::onPlayerMingGang( uint8_t nActPlayerIdx , uint8_t nInvokerIdx ,
 		auto ppInvoker = (CNewMJRoomPlayer*)getPlayerByIdx(nInvokerIdx) ;
 		if ( !ppInvoker )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("why MingGang invoker is null idx = %u",nInvokerIdx);
+			LOGFMTE("why MingGang invoker is null idx = %u",nInvokerIdx);
 		}
 		else
 		{
@@ -711,7 +711,7 @@ bool CNewMJRoom::onPlayerMingGang( uint8_t nActPlayerIdx , uint8_t nInvokerIdx ,
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why you can not ming gang ?") ;
+		LOGFMTE("why you can not ming gang ?") ;
 		return false ;
 	}
 
@@ -730,19 +730,19 @@ bool CNewMJRoom::onPlayerDeclareBuGang(uint8_t nActPlayerIdx , uint8_t nTargetCa
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to DeclareBuGang ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to DeclareBuGang ?",nActPlayerIdx );
 		return false ;
 	}
 
 	if ( m_tPoker.getLeftCardCount() < 1 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("no more card , so can not declare buGang ") ;
+		LOGFMTE("no more card , so can not declare buGang ") ;
 		return false ;
 	}
 
 	if ( !pp->getMJPeerCard()->isCardCanBuGang(nTargetCard) )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you can not bu gang with card = %u , idx = %u",nTargetCard,nActPlayerIdx );
+		LOGFMTE("you can not bu gang with card = %u , idx = %u",nTargetCard,nActPlayerIdx );
 		return false ;
 	}
 
@@ -759,7 +759,7 @@ bool CNewMJRoom::onPlayerBuGang(uint8_t nActPlayerIdx , uint8_t nTargetCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to BuGang ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to BuGang ?",nActPlayerIdx );
 		return false ;
 	}
 	auto pNewCard = m_tPoker.getCard();
@@ -780,19 +780,19 @@ bool CNewMJRoom::onPlayerAnGang(uint8_t nActPlayerIdx , uint8_t nTargetCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to AnGang ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to AnGang ?",nActPlayerIdx );
 		return false ;
 	}
 
 	if ( !pp->getMJPeerCard()->isCardCanAnGang(nTargetCard) )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("say you can an gang , why can not ? idx = %u",nActPlayerIdx ) ;
+		LOGFMTE("say you can an gang , why can not ? idx = %u",nActPlayerIdx ) ;
 		return false ;
 	}
 
 	if ( m_tPoker.getLeftCardCount() < 1 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("now more card , so can not do an gang ") ;
+		LOGFMTE("now more card , so can not do an gang ") ;
 		return false ;
 	}
 	auto pNewCard = m_tPoker.getCard();
@@ -815,7 +815,7 @@ bool CNewMJRoom::onPlayerMoPai( uint8_t nActPlayerIdx )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to MoPai ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to MoPai ?",nActPlayerIdx );
 		return false ;
 	}
 	auto pNewCard = m_tPoker.getCard();
@@ -836,7 +836,7 @@ bool CNewMJRoom::onPlayerChu(uint8_t nActPlayerIdx , uint8_t nCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to Chu ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to Chu ?",nActPlayerIdx );
 		return false ;
 	}
 
@@ -855,13 +855,13 @@ void CNewMJRoom::onPlayerDeclareGangBeRobted( uint8_t nPlayerIdx , uint8_t nCard
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to DeclareGangBeRobted ?",nPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to DeclareGangBeRobted ?",nPlayerIdx );
 		return  ;
 	}
 
 	if ( !pp->getMJPeerCard()->isHoldCardExist(nCard) )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you don not have the card = %u , how to be robot ",nCard ) ;
+		LOGFMTE("you don not have the card = %u , how to be robot ",nCard ) ;
 		return  ;
 	}
 
@@ -874,7 +874,7 @@ bool CNewMJRoom::canPlayerPeng(uint8_t nActPlayerIdx , uint8_t nCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to check peng ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to check peng ?",nActPlayerIdx );
 		return false ;
 	}
 	return pp->getMJPeerCard()->isCardCanPeng(nCard);
@@ -885,13 +885,13 @@ bool CNewMJRoom::canPlayerMingGang(uint8_t nActlayerIdx ,uint8_t nCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to check MingGang ?",nActlayerIdx );
+		LOGFMTE( "player idx = %u is null how to check MingGang ?",nActlayerIdx );
 		return false ;
 	}
 
 	if ( m_tPoker.getLeftCardCount() < 1 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("no more card , so can not do gang") ;
+		LOGFMTE("no more card , so can not do gang") ;
 		return false ;
 	}
 	return pp->getMJPeerCard()->isCardCanMingGang(nCard);
@@ -902,7 +902,7 @@ bool CNewMJRoom::canPlayerHu(uint8_t nActlayerIdx , uint8_t nCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to check Eat ?",nActlayerIdx );
+		LOGFMTE( "player idx = %u is null how to check Eat ?",nActlayerIdx );
 		return false ;
 	}
 	return pp->getMJPeerCard()->isCardCanHu(nCard);
@@ -913,7 +913,7 @@ bool CNewMJRoom::canPlayerEat(uint8_t nActlayerIdx , uint8_t nCard )
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to check Eat ?",nActlayerIdx );
+		LOGFMTE( "player idx = %u is null how to check Eat ?",nActlayerIdx );
 		return false ;
 	}
 	CMJPeerCardNew::VEC_EAT_PAIR vPair ;
@@ -925,7 +925,7 @@ bool CNewMJRoom::canPlayerEatWith(uint8_t nActPlayerIdx , uint8_t ACard, uint8_t
 	auto pp = (CNewMJRoomPlayer*)getPlayerByIdx(nActPlayerIdx) ;
 	if ( !pp )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "player idx = %u is null how to check Eat with ?",nActPlayerIdx );
+		LOGFMTE( "player idx = %u is null how to check Eat with ?",nActPlayerIdx );
 		return false ;
 	}
 	std::vector<uint8_t> vecHold ;
@@ -996,7 +996,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 	// 天胡
 	if ( vShowAllCard.size() == 0 && pActor->getIdx() == getBankerIdx() )
 	{
-		CLogMgr::SharedLogMgr()->SystemLog("this is tian hu") ;
+		LOGFMTI("this is tian hu") ;
 		nFanxing = 1 ;
 		nFanshu = 48 ;
 		return true ;
@@ -1009,7 +1009,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 		pActor->getMJPeerCard()->getShowedCard(v);
 		if ( v.empty() && pActor->getMJPeerCard()->isBeRobotEmpty() )
 		{
-			CLogMgr::SharedLogMgr()->SystemLog("this is di hu") ;
+			LOGFMTI("this is di hu") ;
 			nFanxing = 1 ;
 			nFanshu = 32 ;
 			return true ;
@@ -1023,7 +1023,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 		pActor->getMJPeerCard()->getShowedCard(v);
 		if ( v.empty() && pActor->getMJPeerCard()->isBeRobotEmpty() )
 		{
-			CLogMgr::SharedLogMgr()->SystemLog("this is ren hu") ;
+			LOGFMTI("this is ren hu") ;
 			nFanxing = 1 ;
 			nFanshu = 24 ;
 			return true ;
@@ -1044,7 +1044,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 		{
 			nFanshu = 16 ;
 			nFanxing = 1 ;
-			CLogMgr::SharedLogMgr()->PrintLog("this is tian ting ");
+			LOGFMTD("this is tian ting ");
 			return true ;
 		}
 	}

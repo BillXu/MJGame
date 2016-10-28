@@ -1,6 +1,6 @@
 #include "HZMJPlayerCard.h"
 #include "MJCard.h"
-#include "LogManager.h"
+#include "log4z.h"
 bool HZMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 {
 	if (m_vEated.size() >= 6)
@@ -86,7 +86,7 @@ uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 		nCaishenCnt -= nCnt;
 		if (nCaishenCnt != 0 && nCaishenCnt != 3)
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("can not be here !! nCaishenCnt != 0 && nCaishenCnt != 3 ");
+			LOGFMTE("can not be here !! nCaishenCnt != 0 && nCaishenCnt != 3 ");
 		}
 		return 0;
 	}
@@ -106,7 +106,7 @@ uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 //		auto& vCards = stNotShun.vCards;
 //		if (vCards.empty())
 //		{
-//			CLogMgr::SharedLogMgr()->ErrorLog("not shun must not be empty ? error ");
+//			LOGFMTE("not shun must not be empty ? error ");
 //			return 0;
 //		}
 //
@@ -234,7 +234,7 @@ uint8_t HZMJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max] )
 
 bool HZMJPlayerCard::canHuWitCard(uint8_t nCard)
 {
-	CLogMgr::SharedLogMgr()->PrintLog("hangzhou Majiang only can zi mo ");
+	LOGFMTD("hangzhou Majiang only can zi mo ");
 	return false;
 }
 
@@ -306,7 +306,7 @@ uint8_t HZMJPlayerCard::get7PairHuHaoHuaCnt()
 				}
 				else
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("why cai sheng is not engough");
+					LOGFMTE("why cai sheng is not engough");
 				}
 			}
 			else if (vCard[nIdx] == second)
@@ -323,7 +323,7 @@ uint8_t HZMJPlayerCard::get7PairHuHaoHuaCnt()
 				}
 				else
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("why cai sheng is not engough");
+					LOGFMTE("why cai sheng is not engough");
 				}
 				nIdx += 1;
 			}

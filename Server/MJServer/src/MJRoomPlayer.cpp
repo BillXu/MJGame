@@ -1,6 +1,6 @@
 #include "MJRoomPlayer.h"
 #include <string>
-#include "LogManager.h"
+#include "log4z.h"
 #include "ServerMessageDefine.h"
 #include <cassert>
 #include <json/json.h>
@@ -63,7 +63,7 @@ bool CMJRoomPlayer::removeCard(uint8_t nCardNumber)
 {
 	m_tPeerCard.removeCardNumber(nCardNumber);
 
-	CLogMgr::SharedLogMgr()->PrintLog(" removeCard idx = %u, anpai : ",getIdx() ) ;
+	LOGFMTD(" removeCard idx = %u, anpai : ",getIdx() ) ;
 	m_tPeerCard.debugAnpaiCount();
 	return true ;
 }
@@ -81,7 +81,7 @@ uint8_t CMJRoomPlayer::getCardByIdx(uint8_t nCardIdx, bool isForExchange )
 void CMJRoomPlayer::addDistributeCard(uint8_t nCardNumber )
 {
 	m_tPeerCard.addCard(nCardNumber);
-	CLogMgr::SharedLogMgr()->PrintLog(" addDistributeCard idx = %u, anpai : ",getIdx() ) ;
+	LOGFMTD(" addDistributeCard idx = %u, anpai : ",getIdx() ) ;
 	m_tPeerCard.debugAnpaiCount();
 	m_isWantedCarListDirty = true ;
 }
@@ -181,7 +181,7 @@ void CMJRoomPlayer::fetchCard(uint8_t nCardNumber )
 	m_tPeerCard.addCard(m_nNewFetchCard);
 	//debugWantedCard();
 
-	CLogMgr::SharedLogMgr()->PrintLog("idx = %u fetchCard , number = %u ",getIdx(),nCardNumber ) ;
+	LOGFMTD("idx = %u fetchCard , number = %u ",getIdx(),nCardNumber ) ;
 	//m_tPeerCard.debugAnpaiCount();
 }
 
@@ -218,7 +218,7 @@ bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , uint8_t& nActType , boo
 {
 	if ( isHaveState(eRoomPeer_DecideLose) )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("already decide lose , can not need card") ;
+		LOGFMTD("already decide lose , can not need card") ;
 		return false ;
 	}
 
@@ -233,7 +233,7 @@ bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , uint8_t& nActType , boo
 			{
 				if ( isHaveState(eRoomPeer_AlreadyHu) && refWanted.eCanInvokeAct != eMJAct_Hu )
 				{
-					CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , already hu , so can not need the card not invoke hu",getIdx()) ;
+					LOGFMTD("player idx = %u , already hu , so can not need the card not invoke hu",getIdx()) ;
 					continue;
 				}
 
@@ -250,7 +250,7 @@ bool CMJRoomPlayer::isCardBeWanted(uint8_t nCardNumber , uint8_t& nActType , boo
 		return true ;
 	}
 
-	CLogMgr::SharedLogMgr()->PrintLog("idx = %u , i need not the card : %u" ,getIdx(),nCardNumber) ;
+	LOGFMTD("idx = %u , i need not the card : %u" ,getIdx(),nCardNumber) ;
 	debugWantedCard();
 	return false ;
 }
@@ -260,7 +260,7 @@ void CMJRoomPlayer::onPengCard(uint8_t nCard )
 	m_tPeerCard.doAction(eMJAct_Peng,nCard);
 	m_eNewFetchCardFrom = eMJAct_Mo ;
 
-	CLogMgr::SharedLogMgr()->PrintLog(" onPengCard idx = %u, anpai : ",getIdx() ) ;
+	LOGFMTD(" onPengCard idx = %u, anpai : ",getIdx() ) ;
 	m_tPeerCard.debugAnpaiCount();
 }
 
@@ -315,7 +315,7 @@ void CMJRoomPlayer::gangPai( uint8_t nGangPai, eMJActType eGangType,uint8_t nNew
 
 	
 	//debugWantedCard();
-	CLogMgr::SharedLogMgr()->PrintLog("idx = %u gangPai , GangCard = %u, nNew = %u ",getIdx(),nGangPai,nNewCard ) ;
+	LOGFMTD("idx = %u gangPai , GangCard = %u, nNew = %u ",getIdx(),nGangPai,nNewCard ) ;
 	//m_tPeerCard.debugAnpaiCount();
 
 	if ( eGangType == eMJAct_BuGang_Done || eMJAct_BuGang == eGangType )
@@ -395,10 +395,10 @@ void CMJRoomPlayer::getCardInfo( Json::Value& vCardInFoValue )
 void CMJRoomPlayer::debugWantedCard()
 {
 	updateWantedCardList();
-	CLogMgr::SharedLogMgr()->PrintLog("idx = %u wanted card : ",getIdx()) ;
+	LOGFMTD("idx = %u wanted card : ",getIdx()) ;
 	for (stWantedCard& var : m_listWantedCard )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("card number : %u, invoke act = %u, wanted card from = %u",var.nNumber,var.eCanInvokeAct,var.eWanteddCardFrom ) ;
+		LOGFMTD("card number : %u, invoke act = %u, wanted card from = %u",var.nNumber,var.eCanInvokeAct,var.eWanteddCardFrom ) ;
 	}
 }
 

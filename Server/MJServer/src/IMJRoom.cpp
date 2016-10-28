@@ -3,7 +3,7 @@
 #include "RoomConfig.h"
 #include <assert.h>
 #include "IRoomManager.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
 #include "IMJPoker.h"
@@ -113,14 +113,14 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 
 	jsMsg["players"] = arrPlayers;
 	sendMsgToPlayer(jsMsg, MSG_ROOM_INFO, nSessionID);
-	CLogMgr::SharedLogMgr()->PrintLog("send msg room info msg to player session id = %u", nSessionID);
+	LOGFMTD("send msg room info msg to player session id = %u", nSessionID);
 }
 
 void IMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 {
 	if (getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID())
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("current room not start game , so need not send runtime info msg");
+		LOGFMTD("current room not start game , so need not send runtime info msg");
 		return;
 	}
 	Json::Value jsmsg;
@@ -176,7 +176,7 @@ void IMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 	jsmsg["curActIdex"] = getCurRoomState()->getCurIdx();
 	jsmsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
 	sendMsgToPlayer(jsmsg, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);
-	CLogMgr::SharedLogMgr()->PrintLog("send player card infos !");
+	LOGFMTD("send player card infos !");
 }
 
 uint32_t IMJRoom::getRoomID()
@@ -225,7 +225,7 @@ bool IMJRoom::sitdown(IMJPlayer* pPlayer, uint8_t nIdx)
 
 	if (m_vMJPlayers[nIdx])
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("this pos already have player , find other seat nidx = %u",nIdx);
+		LOGFMTE("this pos already have player , find other seat nidx = %u",nIdx);
 		return false;
 	}
 	m_vMJPlayers[nIdx] = pPlayer;
@@ -257,7 +257,7 @@ bool IMJRoom::standup(uint32_t nUID)
 			return true;
 		}
 	}
-	CLogMgr::SharedLogMgr()->ErrorLog("uid = %u , not sit down can not standup",nUID);
+	LOGFMTE("uid = %u , not sit down can not standup",nUID);
 	return false;
 }
 
@@ -294,10 +294,10 @@ void IMJRoom::goToState(IMJRoomState* pTargetState, Json::Value* jsValue )
 {
 	if (pTargetState == getCurRoomState() )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("go to the same state %d , room id = %d ? ", pTargetState->getStateID(), getRoomID());
+		LOGFMTE("go to the same state %d , room id = %d ? ", pTargetState->getStateID(), getRoomID());
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("roomID = %u 进入房间状态： %u", getRoomID(), pTargetState->getStateID());
+	LOGFMTI("roomID = %u 进入房间状态： %u", getRoomID(), pTargetState->getStateID());
 
 	getCurRoomState()->leaveState();
 	m_pCurState = pTargetState;
@@ -306,7 +306,7 @@ void IMJRoom::goToState(IMJRoomState* pTargetState, Json::Value* jsValue )
 	//stMsgRoomEnterNewState msgNewState;
 	//msgNewState.m_fStateDuring = m_pCurState->getStateDuring();
 	//msgNewState.nNewState = m_pCurState->getStateID();
-	CLogMgr::SharedLogMgr()->SystemLog("not tell client state changed");
+	LOGFMTI("not tell client state changed");
 }
 
 void IMJRoom::goToState(uint16_t nStateID, Json::Value* jsValue )
@@ -314,7 +314,7 @@ void IMJRoom::goToState(uint16_t nStateID, Json::Value* jsValue )
 	auto pSateIter = m_vRoomStates.find(nStateID);
 	if (pSateIter == m_vRoomStates.end())
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("can not find state id = %u , so can not to it",nStateID );
+		LOGFMTE("can not find state id = %u , so can not to it",nStateID );
 		return;
 	}
 	goToState(pSateIter->second, jsValue);
@@ -335,7 +335,7 @@ void IMJRoom::onPlayerSetReady(uint8_t nIdx)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("idx = %u target player is null ptr can not set ready",nIdx);
+		LOGFMTE("idx = %u target player is null ptr can not set ready",nIdx);
 		return;
 	}
 	pPlayer->setState(eRoomPeer_Ready);
@@ -349,7 +349,7 @@ IMJPlayer* IMJRoom::getMJPlayerByIdx(uint8_t nIdx)
 {
 	if ( nIdx >= getSeatCnt())
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("invalid seat idx = %u get player",nIdx );
+		LOGFMTE("invalid seat idx = %u get player",nIdx );
 		return nullptr;
 	}
 	return m_vMJPlayers[nIdx];
@@ -376,18 +376,18 @@ void IMJRoom::startGame()
 	{
 		if (!pPlayer)
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("why player is null hz mj must all player is not null");
+			LOGFMTE("why player is null hz mj must all player is not null");
 			continue;
 		}
 
-		CLogMgr::SharedLogMgr()->PrintLog("distribute card for player idx = %u",pPlayer->getIdx());
+		LOGFMTD("distribute card for player idx = %u",pPlayer->getIdx());
 		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
 		{
 			auto nCard = pPoker->distributeOneCard();
 			pPlayer->getPlayerCard()->addDistributeCard(nCard);
 
 			peerCards[pPlayer->getIdx()][nIdx] = nCard; // sign for msg ;
-			CLogMgr::SharedLogMgr()->PrintLog("card idx = %u card number = %u", nIdx,nCard);
+			LOGFMTD("card idx = %u card number = %u", nIdx,nCard);
 		}
 
 		if (getBankerIdx() == pPlayer->getIdx())
@@ -410,7 +410,7 @@ void IMJRoom::startGame()
 	}
 	msg["peerCards"] = arrPeerCards;
 	sendRoomMsg(msg, MSG_ROOM_START_GAME);
-	CLogMgr::SharedLogMgr()->SystemLog("room id = %u start game !",getRoomID());
+	LOGFMTI("room id = %u start game !",getRoomID());
 }
 
 void IMJRoom::willStartGame()
@@ -465,7 +465,7 @@ void IMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player idx = %u is null can not tell it wait act",nIdx);
+		LOGFMTE("player idx = %u is null can not tell it wait act",nIdx);
 		return;
 	}
 	auto pMJCard = pPlayer->getPlayerCard();
@@ -517,7 +517,7 @@ void IMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
 	jsMsg["acts"] = jsArrayActs;
 	sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD, pPlayer->getSessionID());
 	
-	CLogMgr::SharedLogMgr()->PrintLog("tell player idx = %u do act size = %u",nIdx,jsArrayActs.size());
+	LOGFMTD("tell player idx = %u do act size = %u",nIdx,jsArrayActs.size());
 }
 
 uint8_t IMJRoom::getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)
@@ -525,7 +525,7 @@ uint8_t IMJRoom::getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not chu card",nIdx);
+		LOGFMTE("why this player is null idx = %u , can not chu card",nIdx);
 		return 0;
 	}
 	return pPlayer->getPlayerCard()->getNewestFetchedCard();
@@ -536,14 +536,14 @@ uint8_t IMJRoom::getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not chu card", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not chu card", nIdx);
 		return 0;
 	}
 	IMJPlayerCard::VEC_CARD vCard;
 	pPlayer->getPlayerCard()->getHoldCard(vCard);
 	if (vCard.empty() == false)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("hold card can not be empty");
+		LOGFMTE("hold card can not be empty");
 		assert(0&&"hold card must no be empty");
 		return 0;
 	}
@@ -555,7 +555,7 @@ void IMJRoom::onPlayerMo(uint8_t nIdx)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not mo", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not mo", nIdx);
 		return;
 	}
 
@@ -576,13 +576,13 @@ void IMJRoom::onPlayerPeng(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)
 	auto pInvoker = getMJPlayerByIdx(nInvokeIdx);
 	if (!pPlayer || !pInvoker)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not peng", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not peng", nIdx);
 		return;
 	}
 
 	if (pPlayer->getPlayerCard()->onPeng(nCard) == false)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "nidx = %u peng card = %u error",nIdx,nCard );
+		LOGFMTE( "nidx = %u peng card = %u error",nIdx,nCard );
 	}
 	pInvoker->getPlayerCard()->onCardBeGangPengEat(nCard);
 
@@ -599,13 +599,13 @@ void IMJRoom::onPlayerEat(uint8_t nIdx, uint8_t nCard, uint8_t nWithA, uint8_t n
 	auto pInvoker = getMJPlayerByIdx(nInvokeIdx);
 	if (!pPlayer || !pInvoker )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not eat", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not eat", nIdx);
 		return;
 	}
 
 	if (pPlayer->getPlayerCard()->onEat(nCard,nWithA,nWithB) == false)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("nidx = %u eat card = %u error, with a = %u ,b = %u", nIdx, nCard,nWithA,nWithB);
+		LOGFMTE("nidx = %u eat card = %u error, with a = %u ,b = %u", nIdx, nCard,nWithA,nWithB);
 	}
 	pInvoker->getPlayerCard()->onCardBeGangPengEat(nCard);
 
@@ -627,7 +627,7 @@ void IMJRoom::onPlayerMingGang(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)
 	auto pInvoker = getMJPlayerByIdx(nInvokeIdx);
 	if (!pPlayer || !pInvoker)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not ming gang", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not ming gang", nIdx);
 		return;
 	}
 	pPlayer->signGangFlag();
@@ -635,7 +635,7 @@ void IMJRoom::onPlayerMingGang(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)
 	auto nGangGetCard = getMJPoker()->distributeOneCard();
 	if (pPlayer->getPlayerCard()->onMingGang(nCard, nGangGetCard) == false)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("nidx = %u ming gang card = %u error,", nIdx, nCard );
+		LOGFMTE("nidx = %u ming gang card = %u error,", nIdx, nCard );
 	}
 	pInvoker->getPlayerCard()->onCardBeGangPengEat(nCard);
 
@@ -653,14 +653,14 @@ void IMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not an gang", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not an gang", nIdx);
 		return;
 	}
 	pPlayer->signGangFlag();
 	auto nGangGetCard = getMJPoker()->distributeOneCard();
 	if (pPlayer->getPlayerCard()->onAnGang(nCard, nGangGetCard) == false)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("nidx = %u an gang card = %u error,", nIdx, nCard);
+		LOGFMTE("nidx = %u an gang card = %u error,", nIdx, nCard);
 	}
 
 	// send msg ;
@@ -677,14 +677,14 @@ void IMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not bu gang", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not bu gang", nIdx);
 		return;
 	}
 	pPlayer->signGangFlag();
 	auto nGangCard = getMJPoker()->distributeOneCard();
 	if (pPlayer->getPlayerCard()->onBuGang(nCard, nGangCard) == false)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("nidx = %u bu gang card = %u error,", nIdx, nCard);
+		LOGFMTE("nidx = %u bu gang card = %u error,", nIdx, nCard);
 	}
 
 	// send msg 
@@ -711,13 +711,13 @@ void IMJRoom::onPlayerChu(uint8_t nIdx, uint8_t nCard)
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this player is null idx = %u , can not chu", nIdx);
+		LOGFMTE("why this player is null idx = %u , can not chu", nIdx);
 		return;
 	}
 
 	if (!pPlayer->getPlayerCard()->onChuCard(nCard))
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("chu card error idx = %u , card = %u",nIdx,nCard );
+		LOGFMTE("chu card error idx = %u , card = %u",nIdx,nCard );
 	}
 
 	// send msg ;
@@ -816,7 +816,7 @@ void IMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::v
 
 		jsMsg["acts"] = jsActs;
 		sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD, ref->getSessionID());
-		CLogMgr::SharedLogMgr()->PrintLog("inform uid = %u act about other card room id = %u card = %u", ref->getUID(), getRoomID(),nCard );
+		LOGFMTD("inform uid = %u act about other card room id = %u card = %u", ref->getUID(), getRoomID(),nCard );
 	}
 }
 
@@ -877,7 +877,7 @@ void IMJRoom::onAskForRobotGang(uint8_t nInvokeIdx, uint8_t nCard, std::vector<u
 
 		jsMsg["acts"] = jsActs;
 		sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD, ref->getSessionID());
-		CLogMgr::SharedLogMgr()->PrintLog("inform uid = %u robot gang card = %u room id = %u ", ref->getUID(),nCard, getRoomID());
+		LOGFMTD("inform uid = %u robot gang card = %u room id = %u ", ref->getUID(),nCard, getRoomID());
 	}
 }
 
@@ -903,6 +903,6 @@ bool IMJRoom::addRoomState(IMJRoomState* pState)
 	{
 		m_vRoomStates[pState->getStateID()] = pState;
 	}
-	CLogMgr::SharedLogMgr()->ErrorLog("already add this state id =%u , be remember delete failed add obj",pState->getStateID());
+	LOGFMTE("already add this state id =%u , be remember delete failed add obj",pState->getStateID());
 	return false;
 }

@@ -1,7 +1,7 @@
 #pragma once 
 #include "IMJRoomState.h"
 #include "IMJRoom.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IMJPlayer.h"
 class CMJRoomStateWaitReady
 	:public IMJRoomState
@@ -15,7 +15,7 @@ public:
 			auto pPlayer = getRoom()->getMJPlayerBySessionID(nSessionID);
 			if (pPlayer == nullptr)
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you are not in this room how to set ready ? session id = %u", nSessionID );
+				LOGFMTE("you are not in this room how to set ready ? session id = %u", nSessionID );
 				return true;
 			}
 			getRoom()->onPlayerSetReady(pPlayer->getIdx());

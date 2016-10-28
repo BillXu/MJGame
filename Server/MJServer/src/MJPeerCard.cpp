@@ -2,7 +2,7 @@
 #include <cassert>
 #include "MJCard.h"
 #include "MJBloodFanxing.h"
-#include "LogManager.h"
+#include "log4z.h"
 bool CPeerCardSubCollect::removeCardNumber( uint8_t nNumber )
 {
 	auto iter = m_vAnCards.begin() ;
@@ -481,7 +481,7 @@ uint8_t CMJPeerCard::doHuPaiFanshu( uint8_t nCardNumber , uint8_t& nGenShu ,eFan
 			removeCardNumber(nCardNumber) ;
 			// must left 13 count card , because player can hu more than once 
 		} 
-		CLogMgr::SharedLogMgr()->PrintLog("player hu pai , type = %u , fanShu = %u",htype,nFanShu) ;
+		LOGFMTD("player hu pai , type = %u , fanShu = %u",htype,nFanShu) ;
 		return nFanShu ;
 	}
 	else
@@ -632,12 +632,12 @@ void  CMJPeerCard::debugAnpaiCount()
 	for ( auto& ref : m_vSubCollectionCards )
 	{
 		nTotal += ref.second.getAnPaiCount() ;
-		//CLogMgr::SharedLogMgr()->PrintLog("An pai type = %u, cnt = %u\n",ref.first,ref.second.getAnPaiCount()) ;
+		//LOGFMTD("An pai type = %u, cnt = %u\n",ref.first,ref.second.getAnPaiCount()) ;
 		for ( auto& refValue : ref.second.m_vAnCards )
 		{
-			//CLogMgr::SharedLogMgr()->PrintLog("An pai Number = %u\n",refValue.nCardNumber) ;
+			//LOGFMTD("An pai Number = %u\n",refValue.nCardNumber) ;
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->PrintLog("total cnt = %u",nTotal) ;
+	LOGFMTD("total cnt = %u",nTotal) ;
 }

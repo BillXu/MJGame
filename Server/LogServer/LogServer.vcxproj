@@ -91,8 +91,11 @@
     <ClCompile Include="..\..\Common\IConfigFile.cpp" />
     <ClCompile Include="..\..\Common\LogManager.cpp" />
     <ClCompile Include="..\..\Common\Utility.cpp" />
+    <ClCompile Include="..\ServerCommon\Application.cpp" />
     <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp" />
+    <ClCompile Include="..\ServerCommon\catch_dump_file.cpp" />
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp" />
+    <ClCompile Include="..\ServerCommon\log4z.cpp" />
     <ClCompile Include="..\ServerCommon\mutex.cpp" />
     <ClCompile Include="..\ServerCommon\Sem.cpp" />
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp" />
@@ -112,8 +115,11 @@
     <ClInclude Include="..\..\Common\MessageDefine.h" />
     <ClInclude Include="..\..\Common\MessageIdentifer.h" />
     <ClInclude Include="..\..\Common\Utility.h" />
+    <ClInclude Include="..\ServerCommon\Application.h" />
     <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h" />
+    <ClInclude Include="..\ServerCommon\catch_dump_file.h" />
     <ClInclude Include="..\ServerCommon\ISeverApp.h" />
+    <ClInclude Include="..\ServerCommon\log4z.h" />
     <ClInclude Include="..\ServerCommon\mutex.h" />
     <ClInclude Include="..\ServerCommon\Sem.h" />
     <ClInclude Include="..\ServerCommon\ServerConfig.h" />

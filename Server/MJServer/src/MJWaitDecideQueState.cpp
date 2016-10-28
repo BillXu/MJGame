@@ -1,5 +1,5 @@
 #include "MJWaitDecideQueState.h"
-#include "LogManager.h"
+#include "log4z.h"
 // wait 
 
 void CMJWaitDecideQueState::enterState(IRoom* pRoom)
@@ -28,7 +28,7 @@ void CMJWaitDecideQueState::onWaitEnd( bool bTimeOut )
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("enter to do decide que ") ;
+		LOGFMTD("enter to do decide que ") ;
 		auto pTargeState = (IExecuingState*)m_pRoom->getRoomStateByID(eRoomState_DoDecideQue) ;
 		pTargeState->setExecuteTime(eTime_DoDecideQue) ;
 		pTargeState->setExecuteActs(m_vActList) ;
@@ -46,25 +46,25 @@ bool CMJWaitDecideQueState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	auto pp = (CMJRoomPlayer*)((ISitableRoom*)m_pRoom)->getSitdownPlayerBySessionID(nSessionID) ; 
 	if ( pp && isIdxInWaitList(pp->getIdx()) )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("player decide que id = %u",pp->getIdx()) ;
+		LOGFMTD("player decide que id = %u",pp->getIdx()) ;
 		stQueTypeActionItem* pE = new stQueTypeActionItem ;
 		pE->nActIdx = pp->getIdx();
 		pE->nType = prealMsg["type"].asUInt();
 
 		if ( pE->nType <= eCT_None || pE->nType > eCT_Tiao )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("idx = %u ,decide invalid que type = %u",pp->getIdx(),pE->nType) ;
+			LOGFMTE("idx = %u ,decide invalid que type = %u",pp->getIdx(),pE->nType) ;
 			delete pE ;
 			pE = nullptr ;
 			return true ;
 		}
 		pp->setMustQueType(pE->nType) ;
-		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , que Type : %u",pp->getIdx(),pE->nType);
+		LOGFMTD("idx = %u , que Type : %u",pp->getIdx(),pE->nType);
 		responeWaitAct(pE->nActIdx,pE) ;
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("you are not in wait act list for decide que session id = %u",nSessionID) ;
+		LOGFMTE("you are not in wait act list for decide que session id = %u",nSessionID) ;
 	}
 	return true ;
 }
@@ -72,7 +72,7 @@ bool CMJWaitDecideQueState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 // do act 
 void CMJDoDecideQueState::enterState(IRoom* pRoom)
 {
-	CLogMgr::SharedLogMgr()->PrintLog("finish Que : ") ;
+	LOGFMTD("finish Que : ") ;
 	Json::Value msg ;
 	Json::Value arrayType ;
 	for ( auto ref : m_vActList )
@@ -82,7 +82,7 @@ void CMJDoDecideQueState::enterState(IRoom* pRoom)
 		jsPlayer["idx"] = pD->nActIdx ;
 		jsPlayer["type"] = pD->nType ;
 		arrayType[ref->nActIdx] = jsPlayer;
-		CLogMgr::SharedLogMgr()->PrintLog("idx = %u , que Type : %u",pD->nActIdx,pD->nType);
+		LOGFMTD("idx = %u , que Type : %u",pD->nActIdx,pD->nType);
 	}
 
 	msg["ret"] = arrayType ;
@@ -94,7 +94,7 @@ void CMJDoDecideQueState::onExecuteOver()
 {
 	auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
 	auto pRoom = (CMJRoom*)m_pRoom ;
-	CLogMgr::SharedLogMgr()->PrintLog("after decide que , enter wait player act banker id = %u",pRoom->getBankerIdx()) ;
+	LOGFMTD("after decide que , enter wait player act banker id = %u",pRoom->getBankerIdx()) ;
 	pTargeState->addWaitingTarget(pRoom->getBankerIdx(),eMJAct_Hu) ;
 	pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(pRoom->getBankerIdx(),eTime_WaitPlayerAct)) ;
 	m_pRoom->goToState(pTargeState) ;

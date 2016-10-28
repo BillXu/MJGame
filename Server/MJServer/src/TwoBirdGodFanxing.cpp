@@ -1,7 +1,7 @@
 #include "TwoBirdGodFanxing.h"
 #include "MJPeerCardNew.h"
 #include "NewMJRoom.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <algorithm>
 #include <set>
 void CTowBirdGodCheckFanxingInfo::resetInfo( CMJPeerCardNew* peerCard, uint8_t nHuCard , bool isMiaoshou,bool isLoaoYue,bool isGangShangHua,bool isQaingGang, bool isZiMo,bool isJueZhang )
@@ -40,9 +40,9 @@ bool CTwoBirdFanxingChecker::check( CTowBirdGodCheckFanxingInfo*pInfo, uint8_t& 
 	{
 		nFanShu = 1 ;
 		nFanXing = 1 ;
-		CLogMgr::SharedLogMgr()->PrintLog(" common hu type ") ;
+		LOGFMTD(" common hu type ") ;
 	}
-	//CLogMgr::SharedLogMgr()->ErrorLog("temp return base fanxing and base fanshu");
+	//LOGFMTE("temp return base fanxing and base fanshu");
 	return true ;
 }
 
@@ -111,7 +111,7 @@ bool CDaSiXiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is da si xi ") ;
+	LOGFMTI("this is da si xi ") ;
 	nFanXing = 1 ;
 	nFanShu = 88 ;
 	return true ;
@@ -146,7 +146,7 @@ bool CDaSanYuanFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& 
 
 	if ( bFind )
 	{
-		CLogMgr::SharedLogMgr()->SystemLog("this is da san yuan ") ;
+		LOGFMTI("this is da san yuan ") ;
 		nFanXing = 1 ;
 		nFanShu = 88 ;
 	}
@@ -185,7 +185,7 @@ bool CJiuBaoLianDengFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is jiu bao lian deng ") ;
+	LOGFMTI("this is jiu bao lian deng ") ;
 	nFanXing = 1 ;
 	nFanShu = 88 ;
 	return true ;
@@ -217,7 +217,7 @@ bool CSiGangFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 	{
 		return false ;
 	}
-	CLogMgr::SharedLogMgr()->SystemLog("this is Si Gang ") ;
+	LOGFMTI("this is Si Gang ") ;
 	nFanXing = 1 ;
 	nFanShu = 88 ;
 	return true ;
@@ -238,7 +238,7 @@ bool CLianQiDuiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& 
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is lian qi dui ") ;
+	LOGFMTI("this is lian qi dui ") ;
 	nFanXing = 1 ;
 	nFanShu = 88 ;
 	return true ;
@@ -293,7 +293,7 @@ bool CXiaoSiXiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is xiao si xi ") ;
+	LOGFMTI("this is xiao si xi ") ;
 	nFanXing = 1 ;
 	nFanShu = 64 ;
 	return true ;
@@ -324,7 +324,7 @@ bool CXiaoSanYuanFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is xiao san yuan ") ;
+	LOGFMTI("this is xiao san yuan ") ;
 	nFanXing = 1 ;
 	nFanShu = 64 ;
 	return true ;
@@ -359,7 +359,7 @@ bool CZiYiSeFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is zi yi se ") ;
+	LOGFMTI("this is zi yi se ") ;
 	nFanXing = 1 ;
 	nFanShu = 64 ;
 	return true ;
@@ -375,7 +375,7 @@ bool CSiAnKeFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("this is si an ke") ;
+	LOGFMTI("this is si an ke") ;
 	nFanXing = 1 ;
 	nFanShu = 64 ;
 	return true ;
@@ -446,7 +446,7 @@ bool CYiSeShuangLongHuiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,u
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("yi se shuang long hui") ;
+	LOGFMTI("yi se shuang long hui") ;
 	nFanXing = 1 ;
 	nFanShu = 64 ;
 	return true ;
@@ -510,7 +510,7 @@ bool CYiSeSiTongShunFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("yi si tong shun") ;
+	LOGFMTI("yi si tong shun") ;
 	nFanXing = 1 ;
 	nFanShu = 48 ;
 	return true ;
@@ -541,7 +541,7 @@ bool CYiSeSiJieGaoFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("yi se si jie gao") ;
+	LOGFMTI("yi se si jie gao") ;
 	nFanXing = 1 ;
 	nFanShu = 48 ;
 	return true ;
@@ -601,7 +601,7 @@ bool CYiSeSiBuGaoFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t
 	{
 		return false ;
 	}
-	CLogMgr::SharedLogMgr()->SystemLog(" yi se si bu gao ") ;
+	LOGFMTI(" yi se si bu gao ") ;
 	nFanXing = 1 ;
 	nFanShu = 32 ;
 	return true ;
@@ -618,7 +618,7 @@ bool CSanGangFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nF
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("san gang ") ;
+	LOGFMTI("san gang ") ;
 	nFanXing = 1 ;
 	nFanShu = 32 ;
 	return true ;
@@ -654,7 +654,7 @@ bool CHunYaoJiuFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& 
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog(" hun yao jiu ") ;
+	LOGFMTI(" hun yao jiu ") ;
 	nFanXing = 1 ;
 	nFanShu = 32 ;
 	return true ;
@@ -692,7 +692,7 @@ bool CQiDui::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, u
 		return false ;
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog(" qi dui  ") ;
+	LOGFMTI(" qi dui  ") ;
 	nFanXing = 1 ;
 	nFanShu = 24 ;
 	return true ;
@@ -722,7 +722,7 @@ bool CQingYiSe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog(" qing yi se   ") ;
+	LOGFMTI(" qing yi se   ") ;
 	nFanXing = 1 ;
 	nFanShu = 24 ;
 	return true ;
@@ -752,7 +752,7 @@ bool CYiSeTongSanShun::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 		{
 			nFanXing = 1 ;
 			nFanShu = 24 ;
-			CLogMgr::SharedLogMgr()->PrintLog("yi se san tong shun") ;
+			LOGFMTD("yi se san tong shun") ;
 			return true  ;
 		}
 	}
@@ -764,7 +764,7 @@ bool CYiSeTongSanShun::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 		{
 			nFanXing = 1 ;
 			nFanShu = 24 ;
-			CLogMgr::SharedLogMgr()->PrintLog("yi se san tong shun") ;
+			LOGFMTD("yi se san tong shun") ;
 			return true  ;
 		}
 	}
@@ -794,7 +794,7 @@ bool CYiSeSanJieGao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 		{
 			nFanXing = 1 ;
 			nFanShu = 24 ;
-			CLogMgr::SharedLogMgr()->PrintLog("yi se san jie gao") ;
+			LOGFMTD("yi se san jie gao") ;
 			return true  ;
 		}
 	}
@@ -851,7 +851,7 @@ bool CQingLong::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing
 		}
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog(" qing long ") ;
+	LOGFMTI(" qing long ") ;
 	nFanXing = 1 ;
 	nFanShu = 16 ;
 	return true ;
@@ -903,7 +903,7 @@ bool CYiSeSanBuGao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	{
 		if ( lpFunc(vShunFirstCard) )
 		{
-			CLogMgr::SharedLogMgr()->SystemLog(" yi se san bu gao ") ;
+			LOGFMTI(" yi se san bu gao ") ;
 			nFanXing = 1 ;
 			nFanShu = 16 ;
 			return true ;
@@ -918,7 +918,7 @@ bool CYiSeSanBuGao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 			vCp.erase(ptr) ;
 			if ( lpFunc(vCp) )
 			{
-				CLogMgr::SharedLogMgr()->SystemLog(" yi se san bu gao ") ;
+				LOGFMTI(" yi se san bu gao ") ;
 				nFanXing = 1 ;
 				nFanShu = 16 ;
 				return true ;
@@ -927,7 +927,7 @@ bool CYiSeSanBuGao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("never come to here") ;
+		LOGFMTE("never come to here") ;
 	}
 	return false ;
 }
@@ -939,7 +939,7 @@ bool CSanAnKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 	auto ptHuInfo = pInfo->m_pPeerCard->getHuPaiInfoPtr();
 	if ( ptHuInfo->m_vAnKeZi.size() == 3 )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("san an ke") ;
+		LOGFMTD("san an ke") ;
 		nFanXing = 1 ;
 		nFanShu = 16 ;
 		return true ;
@@ -991,7 +991,7 @@ bool CDaYu5::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, u
 
 	nFanXing = 1 ;
 	nFanShu = 12 ;
-	CLogMgr::SharedLogMgr()->PrintLog("da yu 5") ;
+	LOGFMTD("da yu 5") ;
 	return true ;
 }
 
@@ -1021,7 +1021,7 @@ bool CXiaoYu5::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 
 	nFanXing = 1 ;
 	nFanShu = 12 ;
-	CLogMgr::SharedLogMgr()->PrintLog("da yu 5") ;
+	LOGFMTD("da yu 5") ;
 	return true ;
 }
 
@@ -1043,7 +1043,7 @@ bool CSanFengKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXin
 
 	nFanXing = 1 ;
 	nFanShu = 12 ;
-	CLogMgr::SharedLogMgr()->PrintLog("san feng ke") ;
+	LOGFMTD("san feng ke") ;
 	return true ;
 }
 
@@ -1079,7 +1079,7 @@ bool CMiaoShouHuiChun::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 	}
 	nFanXing = 1 ;
 	nFanShu = 8  ;
-	CLogMgr::SharedLogMgr()->PrintLog("miao shou hui chun");
+	LOGFMTD("miao shou hui chun");
 	return true ;
 }
 
@@ -1094,7 +1094,7 @@ bool CHaiDiLaoYue::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanX
 	}
 	nFanXing = 1 ;
 	nFanShu = 8  ;
-	CLogMgr::SharedLogMgr()->PrintLog("hai di lao yue");
+	LOGFMTD("hai di lao yue");
 	return true ;
 }
 
@@ -1109,7 +1109,7 @@ bool CGangShangHua::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	}
 	nFanXing = 1 ;
 	nFanShu = 8  ;
-	CLogMgr::SharedLogMgr()->PrintLog("gang shang hua");
+	LOGFMTD("gang shang hua");
 	return true ;
 }
 
@@ -1124,7 +1124,7 @@ bool QiangGangHu::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	}
 	nFanXing = 1 ;
 	nFanShu = 8  ;
-	CLogMgr::SharedLogMgr()->PrintLog("Qiang Gang hu");
+	LOGFMTD("Qiang Gang hu");
 	return true ;
 }
 
@@ -1171,7 +1171,7 @@ bool CPengPengHu::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 
 	nFanShu = 6 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog("peng peng hu") ;
+	LOGFMTD("peng peng hu") ;
 	return true ;
 }
 
@@ -1203,7 +1203,7 @@ bool CHunYiSe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 		{
 			nFanShu = 6 ;
 			nFanXing = 1 ;
-			CLogMgr::SharedLogMgr()->PrintLog("Hun yi se") ;
+			LOGFMTD("Hun yi se") ;
 			return true ;
 		}
 	}
@@ -1222,7 +1222,7 @@ bool CQuanQiuRen::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	{
 		nFanShu = 6 ;
 		nFanXing = 1 ;
-		CLogMgr::SharedLogMgr()->PrintLog("quan qiu ren") ;
+		LOGFMTD("quan qiu ren") ;
 		return true ;
 	}
 	return false ;
@@ -1239,7 +1239,7 @@ bool CShuangAnGang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	{
 		nFanShu = 6 ;
 		nFanXing = 1 ;
-		CLogMgr::SharedLogMgr()->PrintLog("shuang an gang") ;
+		LOGFMTD("shuang an gang") ;
 		return true ;
 	}
 	return false ;
@@ -1263,7 +1263,7 @@ bool CShuangJianKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	{
 		nFanShu = 6 ;
 		nFanXing = 1 ;
-		CLogMgr::SharedLogMgr()->PrintLog("shuang jian ke") ;
+		LOGFMTD("shuang jian ke") ;
 		return true ;
 	}
 
@@ -1361,7 +1361,7 @@ bool CQuanDaiYao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 
 	nFanShu = 4 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog("dai yao jiu") ;
+	LOGFMTD("dai yao jiu") ;
 	return true ;
 }
 
@@ -1398,7 +1398,7 @@ bool CBuQiuRen::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing
 
 	nFanShu = 4 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog(" bu qiu ren ") ;
+	LOGFMTD(" bu qiu ren ") ;
 	return true ;
 }
 
@@ -1417,7 +1417,7 @@ bool CShuangMingGang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nF
 
 	nFanShu = 4 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog(" shuang ming gang ") ;
+	LOGFMTD(" shuang ming gang ") ;
 	return true ;
 }
 
@@ -1432,7 +1432,7 @@ bool CHuJueZhang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 
 	nFanShu = 4 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog(" hu jue zhang ") ;
+	LOGFMTD(" hu jue zhang ") ;
 	return true ;
 }
 
@@ -1480,7 +1480,7 @@ bool CJianKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, 
 		{
 			nFanShu = 2 ;
 			nFanXing = 1 ;
-			CLogMgr::SharedLogMgr()->PrintLog("this is jian ke ") ;
+			LOGFMTD("this is jian ke ") ;
 			return true ;
 		}
 	}
@@ -1515,7 +1515,7 @@ bool CMengQianQing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 
 	nFanShu = 2 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog("this is meng qian qing ") ;
+	LOGFMTD("this is meng qian qing ") ;
 	return true ;
 }
 
@@ -1540,7 +1540,7 @@ bool CPingHu::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, 
 
 	nFanShu = 2 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog(" ping hu ") ;
+	LOGFMTD(" ping hu ") ;
 	return true ;
 }
 
@@ -1563,7 +1563,7 @@ bool CSiGuiYi::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 		{
 			nFanShu = 2 ;
 			nFanXing = 1 ;
-			CLogMgr::SharedLogMgr()->PrintLog(" si gui yi ") ;
+			LOGFMTD(" si gui yi ") ;
 			return true ;
 		}
 	}
@@ -1575,7 +1575,7 @@ bool CSiGuiYi::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 		{
 			nFanShu = 2 ;
 			nFanXing = 1 ;
-			CLogMgr::SharedLogMgr()->PrintLog(" si gui yi ") ;
+			LOGFMTD(" si gui yi ") ;
 			return true ;
 		}
 	}
@@ -1595,7 +1595,7 @@ bool CShuangAnKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 
 	nFanShu = 2 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog(" shuang an ke ") ;
+	LOGFMTD(" shuang an ke ") ;
 	return true ;
 }
 
@@ -1613,7 +1613,7 @@ bool CAnGang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, 
 
 	nFanShu = 2 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog("An Gang") ;
+	LOGFMTD("An Gang") ;
 	return true ;
 }
 
@@ -1638,7 +1638,7 @@ bool CDuanYao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 
 	nFanShu = 2 ;
 	nFanXing = 1 ;
-	CLogMgr::SharedLogMgr()->PrintLog(" duan yao ") ;
+	LOGFMTD(" duan yao ") ;
 	return true ;
 }
 

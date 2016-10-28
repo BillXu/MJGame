@@ -1,6 +1,6 @@
 #include "MJRoomBattleEnd.h"
 #include "MJRoomPlayer.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IRoomDelegate.h"
 bool CMJRoomBattleEnd::isGameOver()
 {
@@ -43,7 +43,7 @@ bool CMJRoomBattleEnd::checkPlayersNeedTheCard( uint8_t nCardNumber ,std::vector
 			wid.nIdx = nIdx ;
 			wid.nMaxActExePrio = nActType ;
 			nNeedCardPlayerIdxs.push_back(wid) ;
-			CLogMgr::SharedLogMgr()->PrintLog("player idx = %u , need the card : %u,max Act Type = %u",nIdx,nCardNumber,nActType) ;
+			LOGFMTD("player idx = %u , need the card : %u,max Act Type = %u",nIdx,nCardNumber,nActType) ;
 		}
 	}
 
@@ -63,6 +63,6 @@ uint8_t CMJRoomBattleEnd::getNextActPlayerIdx( uint8_t nCurActIdx )
 		return nIdx ;
 	}
 
-	CLogMgr::SharedLogMgr()->ErrorLog("who do not have proper player to be next") ;
+	LOGFMTE("who do not have proper player to be next") ;
 	return 0 ;
 }

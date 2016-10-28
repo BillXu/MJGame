@@ -6,7 +6,7 @@
 #include "AutoBuffer.h"
 #include "ServerDefine.h"
 #include "ServerMessageDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "RoomConfig.h"
 #include <algorithm>
 #include <json/json.h>
@@ -134,7 +134,7 @@ uint8_t IRoom::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )  // retur
 	//stStandPlayer* pp = getPlayerByUserUID(pEnterRoomPlayer->nUserUID);
 	//if ( pp )
 	//{
-	//	CLogMgr::SharedLogMgr()->ErrorLog("player uid = %d , already in this room, can not enter twice",pEnterRoomPlayer->nUserUID) ;
+	//	LOGFMTE("player uid = %d , already in this room, can not enter twice",pEnterRoomPlayer->nUserUID) ;
 	//	return 1;
 	//}
 
@@ -142,7 +142,7 @@ uint8_t IRoom::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )  // retur
 	//{
 	//	return getDelegate()->canPlayerEnterRoom(this,pEnterRoomPlayer) ;
 	//}
-	return 0 ;
+	return 0;
 }
 
 void IRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer ,int8_t& nSubIdx)
@@ -151,7 +151,7 @@ void IRoom::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer ,int8_t& nSubIdx
 	stStandPlayer * pStandPlayer = nullptr ;
 	if ( pp )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("player uid = %d , already in this room, can not enter twice, data svr crashed ?",pEnterRoomPlayer->nUserUID) ;
+		LOGFMTD("player uid = %d , already in this room, can not enter twice, data svr crashed ?",pEnterRoomPlayer->nUserUID) ;
 		pStandPlayer = pp ;
 		memcpy(pStandPlayer,pEnterRoomPlayer,sizeof(stEnterRoomData));
 	}
@@ -168,7 +168,7 @@ bool IRoom::canStartGame()
 {
 	if ( m_vInRoomPlayers.empty() )
 	{
-		//CLogMgr::SharedLogMgr()->PrintLog("room = %u have room player , so do not start game ",getRoomID());
+		//LOGFMTD("room = %u have room player , so do not start game ",getRoomID());
 		return false ;
 	}
 	// if have any player not robot ?
@@ -176,7 +176,7 @@ bool IRoom::canStartGame()
 	{
 		return true ;
 	}
-	//CLogMgr::SharedLogMgr()->PrintLog("room = %u all player are robot so need not start game ",getRoomID());
+	//LOGFMTD("room = %u all player are robot so need not start game ",getRoomID());
 	return false ;
 }
 
@@ -220,12 +220,12 @@ void IRoom::playerDoLeaveRoom( stStandPlayer* pp )
 			sendMsgToPlayer(&msgdoLeave,sizeof(msgdoLeave),pp->nUserSessionID) ;
 		}
 
-		CLogMgr::SharedLogMgr()->PrintLog("uid = %d , do leave this room ",pp->nUserUID ) ;
+		LOGFMTD("uid = %d , do leave this room ",pp->nUserUID ) ;
 		removePlayer(pp);
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player , not in this room can not do leave room" ) ;
+		LOGFMTE("player , not in this room can not do leave room" ) ;
 	}
 	
 }
@@ -361,11 +361,11 @@ bool IRoom::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32_t nPlayer
 			if ( getDelegate() && getPlayerByUserUID(pRet->nTargetUID) )
 			{
 				getDelegate()->onUpdatePlayerGameResult(this,pRet->nTargetUID,pRet->nOffset);
-				CLogMgr::SharedLogMgr()->SystemLog("modify uid = %u offset = %d",pRet->nTargetUID,pRet->nOffset) ;
+				LOGFMTI("modify uid = %u offset = %d",pRet->nTargetUID,pRet->nOffset) ;
 			}
 			else
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("modify room rank uid = %u not in room ", pRet->nTargetUID);
+				LOGFMTE("modify room rank uid = %u not in room ", pRet->nTargetUID);
 			}
 		}
 		break;
@@ -410,7 +410,7 @@ void IRoom::onGameDidEnd()
 
 void IRoom::onTimeSave( )
 {
-	//CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
+	//LOGFMTD("time save room info room id = %u",getRoomID());
 
 	//if ( m_bRoomInfoDiry )
 	//{
@@ -424,10 +424,10 @@ void IRoom::goToState(IRoomState* pTargetState ,Json::Value* jsValue )
 	//assert(pTargetState != m_pCurRoomState && "go to the same state ? " );
 	if ( pTargetState == m_pCurRoomState)
 	{
-		CLogMgr::SharedLogMgr()->SystemLog("go to the same state %d , room id = %d ? ",pTargetState->getStateID(), getRoomID() );
+		LOGFMTI("go to the same state %d , room id = %d ? ",pTargetState->getStateID(), getRoomID() );
 	}
 
-	CLogMgr::SharedLogMgr()->SystemLog("roomID = %u 进入房间状态： %u",getRoomID(),pTargetState->getStateID());
+	LOGFMTI("roomID = %u 进入房间状态： %u",getRoomID(),pTargetState->getStateID());
 	
 	m_pCurRoomState->leaveState() ;
 	m_pCurRoomState = pTargetState ;
@@ -492,7 +492,7 @@ bool IRoom::isDeleteRoom()
 
 void IRoom::forcePlayersLeaveRoom()
 {
-	CLogMgr::SharedLogMgr()->PrintLog("force all player leave room") ;
+	LOGFMTD("force all player leave room") ;
 	MAP_UID_STAND_PLAYER vtempSet (m_vInRoomPlayers.begin(),m_vInRoomPlayers.end() ) ;
 	for ( auto& iterRef : vtempSet )
 	{

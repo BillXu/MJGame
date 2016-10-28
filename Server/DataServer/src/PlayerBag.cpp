@@ -1,6 +1,6 @@
 #include "PlayerBag.h"
 #include <ctime>
-#include "LogManager.h"
+#include "log4z.h"
 #include "Player.h"
 #include "GameServerApp.h"
 #include "AsyncRequestQuene.h"
@@ -45,7 +45,7 @@ bool CPlayerBag::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMsgPort
 			}
 			jsmsg["items"] = jsItems ;
 			SendMsg(jsmsg,nmsgType);
-			CLogMgr::SharedLogMgr()->PrintLog("send bag msg to players uid = %u size = %u",GetPlayer()->GetUserUID(),jsItems.size()) ;
+			LOGFMTD("send bag msg to players uid = %u size = %u",GetPlayer()->GetUserUID(),jsItems.size()) ;
 		}
 		break ;
 	default:
@@ -95,7 +95,7 @@ void CPlayerBag::readItems()
 		else
 		{
 			m_isReading = false ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %u finished read items = %u",GetPlayer()->GetUserUID(),m_vAllItems.size()) ;
+			LOGFMTD("uid = %u finished read items = %u",GetPlayer()->GetUserUID(),m_vAllItems.size()) ;
 		}
 	});
 
@@ -178,7 +178,7 @@ void CPlayerBag::addPlayerItem(uint32_t nItemID , bool isStack , uint32_t nCnt ,
 
 	if ( !isNewAdd )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("not new add so do no do db operate") ;
+		LOGFMTD("not new add so do no do db operate") ;
 		return ;
 	}
 
@@ -190,7 +190,7 @@ void CPlayerBag::addPlayerItem(uint32_t nItemID , bool isStack , uint32_t nCnt ,
 		
 		jsSql["sql"] = pBuffer;
 		CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsSql);
-		CLogMgr::SharedLogMgr()->PrintLog("add item sql = %s",jsSql["sql"].asCString()) ;
+		LOGFMTD("add item sql = %s",jsSql["sql"].asCString()) ;
 	}
 	else
 	{
@@ -198,7 +198,7 @@ void CPlayerBag::addPlayerItem(uint32_t nItemID , bool isStack , uint32_t nCnt ,
 		std::ostringstream strStream ;
 		strStream << "update playeritems set deadTime = ' " << pItem->nDeadTime << " ' where userUID = ' " << GetPlayer()->GetUserUID() << " ' and itemID = ' " << pItem->nItemID << " ' ;"  ;
 		jsSql["sql"] = strStream.str().c_str();
-		CLogMgr::SharedLogMgr()->PrintLog("update item sql = %s",jsSql["sql"].asCString()) ;
+		LOGFMTD("update item sql = %s",jsSql["sql"].asCString()) ;
 		CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Update,jsSql);
 	}
 }

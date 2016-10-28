@@ -24,7 +24,7 @@ public:
 
 	uint32_t getState(){ return m_nState ; }
 	uint32_t getCoin(){ return nCoin ;}
-	void setCoin( int32_t nNewCoin ){ nCoin = nNewCoin ;}
+	void setCoin(int32_t nNewCoin);
 	uint32_t getUserUID(){ return nUserUID ; }
 	uint32_t getSessionID(){ return nSessionID ; }
 	virtual void reset(IRoom::stStandPlayer* pPlayer);

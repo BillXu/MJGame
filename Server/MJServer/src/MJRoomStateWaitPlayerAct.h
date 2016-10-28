@@ -1,6 +1,6 @@
 #pragma once 
 #include "IMJRoomState.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IMJRoom.h"
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
@@ -54,7 +54,7 @@ public:
 		{
 			if (pPlayer == nullptr)
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you are not in this room how to set ready ? session id = %u", nSessionID);
+				LOGFMTE("you are not in this room how to set ready ? session id = %u", nSessionID);
 				nRet = 4;
 				break;
 			}

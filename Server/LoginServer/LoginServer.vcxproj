@@ -22,7 +22,9 @@
     <ClInclude Include="..\DBServer\src\DBRequest.h" />
     <ClInclude Include="..\DBServer\src\DBRequestFlags.h" />
     <ClInclude Include="..\DBServer\src\MySqlData.h" />
+    <ClInclude Include="..\ServerCommon\Application.h" />
     <ClInclude Include="..\ServerCommon\AsyncRequestQuene.h" />
+    <ClInclude Include="..\ServerCommon\catch_dump_file.h" />
     <ClInclude Include="..\ServerCommon\httpRequest.h" />
     <ClInclude Include="..\ServerCommon\IGlobalModule.h" />
     <ClInclude Include="..\ServerCommon\ISeverApp.h" />
@@ -48,7 +50,9 @@
     <ClCompile Include="..\DBServer\src\DataBaseThread.cpp" />
     <ClCompile Include="..\DBServer\src\DBRequest.cpp" />
     <ClCompile Include="..\DBServer\src\MySqlData.cpp" />
+    <ClCompile Include="..\ServerCommon\Application.cpp" />
     <ClCompile Include="..\ServerCommon\AsyncRequestQuene.cpp" />
+    <ClCompile Include="..\ServerCommon\catch_dump_file.cpp" />
     <ClCompile Include="..\ServerCommon\httpRequest.cpp" />
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp" />
     <ClCompile Include="..\ServerCommon\mutex.cpp" />
@@ -72,14 +76,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />

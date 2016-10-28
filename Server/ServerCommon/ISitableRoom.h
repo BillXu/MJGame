@@ -43,6 +43,7 @@ public:
 	bool checkHavePlayerLoseOver(std::vector<uint8_t>& vLoseOverPlayerIdxs);
 	uint8_t getIdxBySessionID(uint32_t nSessionID );
 protected:
+	void debugCoinInfo();
 	uint8_t GetFirstInvalidIdxWithState( uint8_t nIdxFromInclude , eRoomPeerState estate );
 private:
 	time_t m_tTimeCheckRank ;

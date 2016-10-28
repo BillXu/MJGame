@@ -1,6 +1,6 @@
 #include "WaitActWithChuedCard.h"
 #include "NewMJRoom.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <algorithm>
 void CWaitActWithChuedCard::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 {
@@ -13,14 +13,14 @@ void CWaitActWithChuedCard::enterState(IRoom* pRoom,Json::Value& jsTransferData)
 	auto jsArray = jsTransferData["arrNeedIdxs"];
 	if ( jsArray.size() == 0 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("none one need the card , need array is null , why come to this state ?") ;
+		LOGFMTE("none one need the card , need array is null , why come to this state ?") ;
 	}
 
 	setStateDuringTime(eTime_WaitPlayerChoseAct);
 
 	if ( m_vWaitingObject.empty() == false )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why wait object is not empty ,when enter state ") ;
+		LOGFMTE("why wait object is not empty ,when enter state ") ;
 		m_vWaitingObject.clear() ;
 	}
 
@@ -172,7 +172,7 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 			if ( iter != m_vWaitingObject.end() )
 			{
 				m_nMaxActedIdx = nNextIdx ;
-				CLogMgr::SharedLogMgr()->PrintLog("already in wait list idx = %u , gon find",nNextIdx) ;
+				LOGFMTD("already in wait list idx = %u , gon find",nNextIdx) ;
 				continue;
 			}
 
@@ -191,7 +191,7 @@ void CWaitActWithChuedCard::onStateDuringTimeUp()
 			return ;
 		}
 
-		CLogMgr::SharedLogMgr()->ErrorLog("state should not come here, you may need restart the server");
+		LOGFMTE("state should not come here, you may need restart the server");
 	}
 }
 
@@ -236,7 +236,7 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	{
 		if ( this->m_isWaitingChoseAct == false )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
+			LOGFMTE("cur state is not wait act, so you can not respone your act = %u, session id = %u",nReqActType,nReqActCard) ;
 			nRet = 4 ;
 			break;
 		}
@@ -244,14 +244,14 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		auto idx = m_pRoom->getIdxBySessionID(nSessionID) ;
 		if ( idx > m_pRoom->getSeatCount() )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you may not in this room , so can not do this act, sessionid = %u , act = %u",nSessionID,nReqActType) ;
+			LOGFMTE("you may not in this room , so can not do this act, sessionid = %u , act = %u",nSessionID,nReqActType) ;
 			nRet = 1 ;
 			break;
 		}
 
 		if ( nReqActCard != m_nTargetCard )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you req card is invalid , so can not do this act, sessionid = %u , card = %u, targetCard = %u",nSessionID,nReqActCard,m_nTargetCard);
+			LOGFMTE("you req card is invalid , so can not do this act, sessionid = %u , card = %u, targetCard = %u",nSessionID,nReqActCard,m_nTargetCard);
 			nRet = 3 ;
 			break;
 		}
@@ -259,21 +259,21 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		auto iter = std::find_if(m_vWaitingObject.begin(),m_vWaitingObject.end(),[idx](WAIT_PEER_INFO_PTR& peer){ return peer->nIdx == idx ;} ) ;
 		if ( iter == m_vWaitingObject.end() )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you are not in the wait list") ;
+			LOGFMTE("you are not in the wait list") ;
 			nRet = 1 ;
 			break;
 		}
 
 		if ( (*iter)->isCanDoAct((eMJActType)nReqActType) == false )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you can not do this act , act type = %u, idx = %u",nReqActType,idx) ;
+			LOGFMTE("you can not do this act , act type = %u, idx = %u",nReqActType,idx) ;
 			nRet = 2 ;
 			break;
 		}
 
 		if ( (*iter)->nChosedAct != eMJAct_Max )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you already chosed act = %u , can not chose twice , now = %u",(*iter)->nChosedAct,nReqActType) ;
+			LOGFMTE("you already chosed act = %u , can not chose twice , now = %u",(*iter)->nChosedAct,nReqActType) ;
 			nRet = 4 ;
 			break;
 		}
@@ -283,7 +283,7 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			auto jsEatWith = prealMsg["eatWith"];
 			if ( jsEatWith.isArray() == false || jsEatWith.size() != 2 )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you do eat act ,but do not send 2 eat with card session id =%u",nSessionID) ;
+				LOGFMTE("you do eat act ,but do not send 2 eat with card session id =%u",nSessionID) ;
 				nRet = 3 ;
 				break;
 			}
@@ -291,7 +291,7 @@ bool CWaitActWithChuedCard::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			auto pMJRoom = (CNewMJRoom*)m_pRoom ;
 			if ( !pMJRoom->canPlayerEatWith(idx,jsEatWith[0u].asUInt(),jsEatWith[1u].asUInt()) )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you do eat act ,but do not have this two card eat with card session id =%u",nSessionID) ;
+				LOGFMTE("you do eat act ,but do not have this two card eat with card session id =%u",nSessionID) ;
 				nRet = 3 ;
 				break;
 			}
@@ -350,7 +350,7 @@ bool CWaitActWithChuedCard::doExcutingAct()
 	{
 		m_nMaxActedIdx = m_nInvokeIdx ;
 		setStateDuringTime(0.01f) ;
-		CLogMgr::SharedLogMgr()->PrintLog("all body give up about this card operation") ;
+		LOGFMTD("all body give up about this card operation") ;
 		return true ;
 	}
 	
@@ -369,7 +369,7 @@ bool CWaitActWithChuedCard::doExcutingAct()
 				auto Ret = pRoom->onPlayerEat(ref->nIdx,m_nInvokeIdx,m_nTargetCard,ref->nWithCardA,ref->nWithCardB);
 				if ( Ret == false )
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("you do eat act ,but can not eat with card = %u , = %u",ref->nWithCardA,ref->nWithCardB) ;
+					LOGFMTE("you do eat act ,but can not eat with card = %u , = %u",ref->nWithCardA,ref->nWithCardB) ;
 					return false ;
 				}
 				setStateDuringTime(eTime_DoPlayerAct_Peng);
@@ -394,7 +394,7 @@ bool CWaitActWithChuedCard::doExcutingAct()
 			}
 			break;
 		default:
-			CLogMgr::SharedLogMgr()->ErrorLog("unknown act type for chued card act = %u",ref->nChosedAct) ;
+			LOGFMTE("unknown act type for chued card act = %u",ref->nChosedAct) ;
 			break;
 		}
 	}

@@ -4,7 +4,7 @@
 #include "Player.h"
 #include "PlayerBaseData.h"
 #include "AutoBuffer.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <algorithm>  
 CPokerCircle::CPokerCircle()
 {
@@ -61,7 +61,7 @@ bool CPokerCircle::onMessage(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t n
 				{
 					m_nMaxTopicUID = pDetail->nTopicID ;
 				}
-				//CLogMgr::SharedLogMgr()->SystemLog("read topic id = %d , content: %s",pDetail->nTopicID,pDetail->strContent.c_str()) ;
+				//LOGFMTI("read topic id = %d , content: %s",pDetail->nTopicID,pDetail->strContent.c_str()) ;
 				std::sort(m_vListTopics.begin(),m_vListTopics.end(),TopicSort);
 			}
 		}
@@ -100,7 +100,7 @@ bool CPokerCircle::onMessage(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t n
 			pDetail->nPublishTime = time(nullptr) ;
 			pDetail->nTopicID = ++m_nMaxTopicUID ;
 			pDetail->strContent.append(((char*)prealMsg) + sizeof(stMsgPublishTopic),pRet->nContentLen) ;
-			CLogMgr::SharedLogMgr()->PrintLog("recive content = %s",pDetail->strContent.c_str()) ;
+			LOGFMTD("recive content = %s",pDetail->strContent.c_str()) ;
 			m_vListTopics.push_back(pDetail);
 
 			msgBack.nRet = 0 ;
@@ -159,13 +159,13 @@ bool CPokerCircle::onMessage(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t n
 				return true ;
 			}
 
-			CLogMgr::SharedLogMgr()->SystemLog("page idx = %d",pRet->nPageIdx);
+			LOGFMTI("page idx = %d",pRet->nPageIdx);
 			uint64_t nStartIdx = pRet->nPageIdx * CIRCLE_TOPIC_CNT_PER_PAGE ;
 			for ( uint8_t nIdx =0 ; nStartIdx < m_vListTopics.size() && nIdx < CIRCLE_TOPIC_CNT_PER_PAGE ; ++nStartIdx, ++nIdx )
 			{
 				uint64_t nReverIdx = m_vListTopics.size() - 1 - nStartIdx ;
 				msgBack.vTopicIDs[nIdx] = m_vListTopics[nReverIdx]->nTopicID ;
-				CLogMgr::SharedLogMgr()->SystemLog("topic array idx = %d ,id = %I64d",nIdx,msgBack.vTopicIDs[nIdx]) ;
+				LOGFMTI("topic array idx = %d ,id = %I64d",nIdx,msgBack.vTopicIDs[nIdx]) ;
 			}
 			CGameServerApp::SharedGameServerApp()->sendMsg(nSessionID,(char*)&msgBack,sizeof(msgBack)) ;
 		}
@@ -192,7 +192,7 @@ bool CPokerCircle::onMessage(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t n
 			aubuff.addContent(&msgBack,sizeof(msgBack)) ;
 			aubuff.addContent(topic->strContent.c_str(),msgBack.nContentLen) ;
 			CGameServerApp::SharedGameServerApp()->sendMsg(nSessionID,aubuff.getBufferPtr(),aubuff.getContentSize()) ;
-			CLogMgr::SharedLogMgr()->PrintLog("send content = %s",topic->strContent.c_str()) ;
+			LOGFMTD("send content = %s",topic->strContent.c_str()) ;
 		}
 		break;
 	default:

@@ -1,7 +1,7 @@
 #include "MJServer.h"
 #include "MessageDefine.h"
 #include <ctime>
-#include "LogManager.h"
+#include "log4z.h"
 #include "ServerStringTable.h"
 #include "RewardConfig.h"
 bool CMJServerApp::init()
@@ -14,7 +14,7 @@ bool CMJServerApp::init()
 	stServerConfig* pConfig = stSvrConfigMgr.GetServerConfig(eSvrType_Center) ;
 	if ( pConfig == NULL )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("center svr config is null , so can not connected to !") ;
+		LOGFMTE("center svr config is null , so can not connected to !") ;
 		return false;
 	}
 	setConnectServerConfig(pConfig);
@@ -23,13 +23,27 @@ bool CMJServerApp::init()
 	CServerStringTable::getInstance()->LoadFile("../configFile/stringTable.txt");
 	CRewardConfig::getInstance()->LoadFile("../configFile/rewardConfig.txt");
 
-	auto* pMgr = new CMJRoomManager(&m_tMgr);
-	registerModule(pMgr);
+	installModule(eMod_RoomMgr);
 	return true ;
 }
 
 uint16_t CMJServerApp::getLocalSvrMsgPortType()
 {
 	return ID_MSG_PORT_MJ ;
+}
+
+IGlobalModule* CMJServerApp::createModule(uint16_t eModuleType)
+{
+	auto p = IServerApp::createModule(eModuleType);
+	if (p)
+	{
+		return p;
+	}
+
+	if (eModuleType == eMod_RoomMgr)
+	{
+		p = new CMJRoomManager(getRoomConfigMgr());
+	}
+	return p;
 }
 

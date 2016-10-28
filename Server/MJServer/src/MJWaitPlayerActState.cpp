@@ -1,6 +1,6 @@
 #include "MJWaitPlayerActState.h"
 #include "MJDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <algorithm>
 #include "MJWaitSupplyCoinState.h"
 // wait player act 
@@ -13,7 +13,7 @@ void CMJWaitPlayerActState::enterState(IRoom* ptRoom)
 	auto firt = m_vWaitIdxs.front();
 	//if ( firt.nMaxActExePrio != eMJAct_Chu && ppPlayer->updateSelfOperateCards() )
 	//{
-	//	CLogMgr::SharedLogMgr()->PrintLog("idx = %u , self need the card = %u" , m_vWaitIdxs.front().nIdx,nNewCard) ;
+	//	LOGFMTD("idx = %u , self need the card = %u" , m_vWaitIdxs.front().nIdx,nNewCard) ;
 	//	pRoom->onInformSelfCanActWithCard(m_vWaitIdxs.front().nIdx);
 	//}
 
@@ -83,7 +83,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	{
 		msgBack["ret"] = 2 ;
 		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
-		CLogMgr::SharedLogMgr()->PrintLog("you must chu pai") ;
+		LOGFMTD("you must chu pai") ;
 		return true ;
 	}
 
@@ -94,7 +94,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 	pActTypeItem->nActIdx = pPlayer->getIdx() ;
 	pActTypeItem->nCardNumber = prealMsg["card"].asUInt() ;
 
-	CLogMgr::SharedLogMgr()->PrintLog("player do act = %u , idx = %u",pActTypeItem->nActType,pActTypeItem->nActIdx) ;
+	LOGFMTD("player do act = %u , idx = %u",pActTypeItem->nActType,pActTypeItem->nActIdx) ;
 	switch ( nActType )
 	{
 	case eMJAct_Pass:
@@ -110,7 +110,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
 			if ( !pRoom->canPlayerHuPai(pActTypeItem->nActIdx,0) )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("idx = %u can not hu with this card , new fetched card = %u",pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
+				LOGFMTE("idx = %u can not hu with this card , new fetched card = %u",pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
 				msgBack["ret"] = 2 ;
 				m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 				delete pActTypeItem ;
@@ -123,7 +123,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		{
 			if ( isAlreadyHu && pPlayer->getNewFetchCard() != pActTypeItem->nCardNumber )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("idx = %u already hu , can not chu other card , must new fetched card = %u",pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
+				LOGFMTE("idx = %u already hu , can not chu other card , must new fetched card = %u",pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
 
 				msgBack["ret"] = 4 ;
 				m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
@@ -141,7 +141,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
 			if ( pRoom->canPlayerGangWithCard(pActTypeItem->nActIdx,nCard,true) == false )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("idx = %u can not gang type = %u, with this card , new fetched card = %u",nActType,pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
+				LOGFMTE("idx = %u can not gang type = %u, with this card , new fetched card = %u",nActType,pPlayer->getIdx(),pPlayer->getNewFetchCard()) ;
 				msgBack["ret"] = 2 ;
 				m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
 
@@ -153,7 +153,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 			if ( nActType == eMJAct_BuGang )
 			{
 				nActType = eMJAct_BuGang_Pre ;
-				CLogMgr::SharedLogMgr()->PrintLog("player idx = %u bu gang , card = %u",pPlayer->getIdx(),pActTypeItem->nCardNumber) ;
+				LOGFMTD("player idx = %u bu gang , card = %u",pPlayer->getIdx(),pActTypeItem->nCardNumber) ;
 			}
 		}
 		break ;
@@ -162,7 +162,7 @@ bool CMJWaitPlayerActState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsg
 		pActTypeItem = nullptr ;
 		msgBack["ret"] = 2 ;
 		m_pRoom->sendMsgToPlayer(msgBack,MSG_PLAYER_ACT,nSessionID) ;
-		CLogMgr::SharedLogMgr()->PrintLog("unknown act type = %u, for idx = %u",nActType,pPlayer->getIdx()) ;
+		LOGFMTD("unknown act type = %u, for idx = %u",nActType,pPlayer->getIdx()) ;
 		return true ;
 	}
 	pActTypeItem->nActType = nActType ;
@@ -188,12 +188,12 @@ void CMJWaitPlayerActState::onWaitEnd( bool bTimeOut )
 			if ( pRoom->canPlayerHuPai(pPlayer->getIdx(),0) )
 			{
 				pActTypeItem->nActType = eMJAct_Hu ;
-				CLogMgr::SharedLogMgr()->PrintLog("wait time out , already hu , this card can hu , so gon hu , card = %u",pActTypeItem->nCardNumber) ;
+				LOGFMTD("wait time out , already hu , this card can hu , so gon hu , card = %u",pActTypeItem->nCardNumber) ;
 			}
 		}
 		else
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("wait player act time out sys do act chu idx = %u",pActTypeItem->nActIdx) ;
+			LOGFMTD("wait player act time out sys do act chu idx = %u",pActTypeItem->nActIdx) ;
 		}
 		
 		responeWaitAct(pActTypeItem->nActIdx,pActTypeItem);
@@ -202,7 +202,7 @@ void CMJWaitPlayerActState::onWaitEnd( bool bTimeOut )
 	{
 		auto pTargeState = (IExecuingState*)m_pRoom->getRoomStateByID(eRoomState_DoPlayerAct) ;
 		pTargeState->setExecuteTime(getExecuteTime()) ;
-		CLogMgr::SharedLogMgr()->PrintLog("go to do act list size = %u",m_vActList.size()) ;
+		LOGFMTD("go to do act list size = %u",m_vActList.size()) ;
 		pTargeState->setExecuteActs(m_vActList) ;
 		m_pRoom->goToState(pTargeState) ;
 	}
@@ -223,7 +223,7 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 	m_nCurIdx = pdoAct->nActIdx ;
 
 	CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
-	CLogMgr::SharedLogMgr()->PrintLog("do player act = %u , idx = %u",pdoAct->nActType,pdoAct->nActIdx) ;
+	LOGFMTD("do player act = %u , idx = %u",pdoAct->nActType,pdoAct->nActIdx) ;
 	switch ( m_edoAct )
 	{
 	case eMJAct_Mo:
@@ -267,7 +267,7 @@ void CMJDoPlayerActState::doExecuteAct( stActionItem* pAct)
 		}
 		break ;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknown act type = %u , for player idx = %u",m_edoAct,pdoAct->nActIdx) ;
+		LOGFMTE("unknown act type = %u , for player idx = %u",m_edoAct,pdoAct->nActIdx) ;
 		break ;
 	}
 }
@@ -290,7 +290,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			std::vector<uint8_t> vNeedPlayersIdx ;
 			if ( m_edoAct != eMJAct_Mo && pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				LOGFMTD("go to wait player supply coin state") ;
 				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
@@ -308,7 +308,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			if ( ppPlayer->isHaveState(eRoomPeer_AlreadyHu) )
 			{
 				fWaitTime *= 0.5 ;
-				CLogMgr::SharedLogMgr()->PrintLog("idx = %u already hu, so act time will be half as before",m_nCurIdx) ;
+				LOGFMTD("idx = %u already hu, so act time will be half as before",m_nCurIdx) ;
 			}
 			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,fWaitTime)) ;
 			
@@ -320,7 +320,7 @@ void CMJDoPlayerActState::onExecuteOver()
 		{
 			if ( m_vecCardPlayerIdxs.empty() )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog(" no one need the card = %u, from idx = %u ,so wait them",m_nCardNumber,m_nCurIdx) ;
+				LOGFMTD(" no one need the card = %u, from idx = %u ,so wait them",m_nCardNumber,m_nCurIdx) ;
 
 				CMJRoom* pRoom = (CMJRoom*)m_pRoom ;
 				if ( pRoom->isGameOver() )
@@ -344,7 +344,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			}
 			else
 			{
-				CLogMgr::SharedLogMgr()->PrintLog(" %u player need the card = %u, from idx = %u ,so wait them",m_vecCardPlayerIdxs.size(),m_nCardNumber,m_nCurIdx) ;
+				LOGFMTD(" %u player need the card = %u, from idx = %u ,so wait them",m_vecCardPlayerIdxs.size(),m_nCardNumber,m_nCurIdx) ;
 				auto pTargeState = (CMJWaitOtherActState*)m_pRoom->getRoomStateByID(eRoomState_WaitOtherPlayerAct) ;
 				auto pRoom = (CMJRoom*)m_pRoom ;
 				for ( auto ref : m_vecCardPlayerIdxs )
@@ -376,7 +376,7 @@ void CMJDoPlayerActState::onExecuteOver()
 			std::vector<uint8_t> vNeedPlayersIdx ;
 			if ( pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				LOGFMTD("go to wait player supply coin state") ;
 				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
@@ -666,7 +666,7 @@ void CMJDoOtherPlayerActState::doExecuteAct( stActionItem* pAct)
 		break ;
 	case eMJAct_Peng:
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("idx = %u , do peng " ,pdoAct->nActIdx) ;
+			LOGFMTD("idx = %u , do peng " ,pdoAct->nActIdx) ;
 			pRoom->onPlayerPeng(pdoAct->nActIdx,m_tInfo.nCardNumber,m_tInfo.nCardProvideIdx);
 		}
 		break;
@@ -691,7 +691,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			std::vector<uint8_t> vNeedPlayersIdx ;
 			if ( pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				LOGFMTD("go to wait player supply coin state") ;
 				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
@@ -728,7 +728,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 			std::vector<uint8_t> vNeedPlayersIdx ;
 			if ( m_edoAct == eMJAct_MingGang && pRoom->getPlayersNeedSupplyCoin(vNeedPlayersIdx) )
 			{
-				CLogMgr::SharedLogMgr()->PrintLog("go to wait player supply coin state") ;
+				LOGFMTD("go to wait player supply coin state") ;
 				auto pTargeState = (CMJWaitSupplyCoinState*)m_pRoom->getRoomStateByID(eRoomState_WaitSupplyCoin);
 				for (auto& ref : vNeedPlayersIdx )
 				{
@@ -741,7 +741,7 @@ void CMJDoOtherPlayerActState::onExecuteOver()
 
 			auto pTargeState = (IWaitingState*)m_pRoom->getRoomStateByID(eRoomState_WaitPlayerAct) ;
 			auto pRoom = (CMJRoom*)m_pRoom ;
-			CLogMgr::SharedLogMgr()->PrintLog("do peng ok wait idx = %u act " ,m_nCurIdx) ;
+			LOGFMTD("do peng ok wait idx = %u act " ,m_nCurIdx) ;
 			pTargeState->addWaitingTarget(m_nCurIdx,eMJAct_Chu) ;
 			pRoom->setCurWaitIdx(m_nCurIdx) ;
 			pTargeState->setWaitTime(pRoom->getWaitPlayerActTime(m_nCurIdx,eTime_WaitPlayerAct)) ;

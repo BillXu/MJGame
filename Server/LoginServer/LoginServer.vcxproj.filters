@@ -108,6 +108,12 @@
     <ClInclude Include="src\IDVerifyTask.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\ServerCommon\Application.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ServerCommon\catch_dump_file.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\Utility.cpp">
@@ -172,6 +178,12 @@
     </ClCompile>
     <ClCompile Include="src\IDVerifyTask.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\Application.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ServerCommon\catch_dump_file.cpp">
+      <Filter>SvrCommon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

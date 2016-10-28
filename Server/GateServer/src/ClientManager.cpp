@@ -10,6 +10,7 @@
 #include <time.h>
 #include "json/json.h"
 #include "AutoBuffer.h"
+#include "log4z.h"
 #define TIME_WAIT_FOR_RECONNECTE 40
 CGateClientMgr::CGateClientMgr()
 {

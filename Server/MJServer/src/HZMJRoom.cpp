@@ -70,7 +70,7 @@ void HZMJRoom::onGameDidEnd()
 	if (nHuIdx != (uint8_t)-1)
 	{
 		setBankIdx(nHuIdx);
-		CLogMgr::SharedLogMgr()->PrintLog("player idx = %u be the new banker room id = %u",nHuIdx,getRoomID());
+		LOGFMTD("player idx = %u be the new banker room id = %u",nHuIdx,getRoomID());
 	}
 	IMJRoom::onGameDidEnd();
 }
@@ -85,12 +85,12 @@ void HZMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
 		return;
 	}
 
-	CLogMgr::SharedLogMgr()->PrintLog("some one piao , but not cur idx = %u , so can not do free, room id = %u",nIdx,getRoomID());
+	LOGFMTD("some one piao , but not cur idx = %u , so can not do free, room id = %u",nIdx,getRoomID());
 	// bei piao xianzhi le
 	auto pPlayer = getMJPlayerByIdx(nIdx);
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("player idx = %u is null can not tell it wait act", nIdx);
+		LOGFMTE("player idx = %u is null can not tell it wait act", nIdx);
 		return;
 	}
 	auto pMJCard = (HZMJPlayerCard*)pPlayer->getPlayerCard();
@@ -134,7 +134,7 @@ void HZMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
 	jsMsg["acts"] = jsArrayActs;
 	sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD, pPlayer->getSessionID());
 
-	CLogMgr::SharedLogMgr()->PrintLog("tell player idx = %u do act size = %u", nIdx, jsArrayActs.size());
+	LOGFMTD("tell player idx = %u do act size = %u", nIdx, jsArrayActs.size());
 }
 
 bool HZMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
@@ -229,7 +229,7 @@ void HZMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::
 
 		jsMsg["acts"] = jsActs;
 		sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD, ref->getSessionID());
-		CLogMgr::SharedLogMgr()->PrintLog("inform uid = %u act about other card room id = %u card = %u", ref->getUID(), getRoomID(), nCard);
+		LOGFMTD("inform uid = %u act about other card room id = %u card = %u", ref->getUID(), getRoomID(), nCard);
 	}
 }
 
@@ -288,7 +288,7 @@ void HZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 	// check only can self mo hu ;
 	if (vHuIdx.size() != 1 || vHuIdx.front() != nInvokeIdx)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("hzmj can only zi mo , why not this situation");
+		LOGFMTE("hzmj can only zi mo , why not this situation");
 		return;
 	}
 
@@ -296,7 +296,7 @@ void HZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 	HZMJPlayer* pPlayer = (HZMJPlayer*)getMJPlayerByIdx(vHuIdx.front());
 	if (!pPlayer)
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("hu player is null , idx = %u",vHuIdx.front());
+		LOGFMTE("hu player is null , idx = %u",vHuIdx.front());
 		return;
 	}
 
@@ -414,7 +414,7 @@ void HZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 
 	jsMsg["results"] = jsResult;
 	sendRoomMsg(jsMsg, MSG_ROOM_HZMJ_RESULT);
-	CLogMgr::SharedLogMgr()->PrintLog("send game result !");
+	LOGFMTD("send game result !");
 }
 
 bool HZMJRoom::isHavePiao()

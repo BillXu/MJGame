@@ -81,7 +81,7 @@ protected:
 
 
 // define 
-#include "LogManager.h"
+#include "log4z.h"
 #include "RoomConfig.h"
 #include "ServerMessageDefine.h"
 #include "IRoomManager.h"
@@ -171,7 +171,7 @@ bool CSystemRoom<TR>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 	if ( vJsValue["name"].isNull() == false )
 	{
 		m_strName = vJsValue["name"].asString();
-		CLogMgr::SharedLogMgr()->PrintLog("new create room name = %s",m_strName.c_str()) ;
+		LOGFMTD("new create room name = %s",m_strName.c_str()) ;
 	}
 	uint16_t nSubRoomCnt = 2 ;
 	if ( vJsValue["subRoomCnt"].isNull() == false )
@@ -179,7 +179,7 @@ bool CSystemRoom<TR>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 		nSubRoomCnt = vJsValue["subRoomCnt"].asInt();
 		if ( nSubRoomCnt <= 0 )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("why set sub room cnt = 0 ") ;
+			LOGFMTE("why set sub room cnt = 0 ") ;
 			nSubRoomCnt = 3 ;
 		}
 	}
@@ -194,7 +194,7 @@ bool CSystemRoom<TR>::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 		pRoom->setDelegate(this);
 		m_vRooms.push_back(pRoom) ;
 	}
-	CLogMgr::SharedLogMgr()->PrintLog("create %u sub room",nSubRoomCnt) ;
+	LOGFMTD("create %u sub room",nSubRoomCnt) ;
 	return true ;
 }
 
@@ -230,7 +230,7 @@ void CSystemRoom<TR>::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfi
 	msgRead.nTermNumber = m_nTermNumber ;
 	m_pRoomMgr->sendMsg(&msgRead,sizeof(msgRead),getRoomID()) ;
 
-	CLogMgr::SharedLogMgr()->PrintLog("read room id = %u ternm = %u rank player",getRoomID(),m_nTermNumber) ;
+	LOGFMTD("read room id = %u ternm = %u rank player",getRoomID(),m_nTermNumber) ;
 	if ( m_nTermNumber > 0 )
 	{
 		stMsgReadRoomPlayer msgRead ;
@@ -238,7 +238,7 @@ void CSystemRoom<TR>::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfi
 		msgRead.nRoomType = getRoomType() ;
 		msgRead.nTermNumber = m_nTermNumber - 1 ;
 		m_pRoomMgr->sendMsg(&msgRead,sizeof(msgRead),getRoomID()) ;
-		CLogMgr::SharedLogMgr()->PrintLog("read room id = %u last rank players ",getRoomID()) ;
+		LOGFMTD("read room id = %u last rank players ",getRoomID()) ;
 	}
 }
 
@@ -284,7 +284,7 @@ uint8_t CSystemRoom<TR>::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )
 {
 	if ( pEnterRoomPlayer->nPlayerType == ePlayer_Robot )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("temp let robot enter any room");
+		LOGFMTE("temp let robot enter any room");
 		return 0 ;
 	}
 
@@ -297,26 +297,26 @@ uint8_t CSystemRoom<TR>::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )
 	//{
 	//	if ( pEnterRoomPlayer->isRegisted == false )
 	//	{
-	//		CLogMgr::SharedLogMgr()->PrintLog("player is visitor , son can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
+	//		LOGFMTD("player is visitor , son can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
 	//		return 2 ; // not register player  can not enter ;
 	//	}
 	//}
 
 	if ( m_pConfig->nEnterLowLimit && m_pConfig->nEnterLowLimit > pEnterRoomPlayer->nCoin )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("player coin is too few so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
+		LOGFMTD("player coin is too few so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
 		return 3 ; // player coin is too few ;
 	}
 
 	if ( m_pConfig->nEnterTopLimit && m_pConfig->nEnterTopLimit < pEnterRoomPlayer->nCoin )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("player coin is too many, so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
+		LOGFMTD("player coin is too many, so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
 		return 4 ; // player coin is too many ;
 	}
 
 	//if ( isPlayerLoseReachMax(nullptr,pEnterRoomPlayer->nUserUID) )
 	//{
-	//	CLogMgr::SharedLogMgr()->PrintLog("player lose reach limit, so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
+	//	LOGFMTD("player lose reach limit, so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
 	//	return 5 ; // lose too many ;
 	//}
 
@@ -324,7 +324,7 @@ uint8_t CSystemRoom<TR>::canPlayerEnterRoom( stEnterRoomData* pEnterRoomPlayer )
 	auto alReadyRoom2 = getRoomByUID(pEnterRoomPlayer->nUserUID);
 	if ( alReadyRoom != nullptr || alReadyRoom2 != nullptr )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("you already in some room, so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
+		LOGFMTD("you already in some room, so can not enter room , uid = %d",pEnterRoomPlayer->nUserUID);
 		return 1 ;
 	}
 	return 0 ;
@@ -335,7 +335,7 @@ void CSystemRoom<TR>::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer, int8_
 {
 	if ( nSubIdx >= (int8_t)m_vRooms.size() )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("invalid sub idx = %u ,room id = %u",nSubIdx, getRoomID());
+		LOGFMTE("invalid sub idx = %u ,room id = %u",nSubIdx, getRoomID());
 		nSubIdx = -1 ;
 	}
 
@@ -353,7 +353,7 @@ void CSystemRoom<TR>::onPlayerEnterRoom(stEnterRoomData* pEnterRoomPlayer, int8_
 	roomEnter->onPlayerEnterRoom(pEnterRoomPlayer,nSubIdx);
 	sendRoomInfo(pEnterRoomPlayer->nUserSessionID,roomEnter->getRoomID());
 	roomEnter->sendRoomPlayersCardInfo(pEnterRoomPlayer->nUserSessionID);
-	CLogMgr::SharedLogMgr()->PrintLog("uid = %u , enter room id = %u , subIdx = %u",pEnterRoomPlayer->nUserUID, getRoomID(),roomEnter->getRoomID()) ;
+	LOGFMTD("uid = %u , enter room id = %u , subIdx = %u",pEnterRoomPlayer->nUserUID, getRoomID(),roomEnter->getRoomID()) ;
 }
 
 template<typename TR >
@@ -371,7 +371,7 @@ void CSystemRoom<TR>::sendRoomInfo(uint32_t nSessionID , int8_t nSubRoomIdx )
 
 	//if ( pRoom == nullptr )
 	//{
-	//	CLogMgr::SharedLogMgr()->ErrorLog("session id = %u requesiont room info room id = %u, subIdx = %d is null",nSessionID , getRoomID(),nSubRoomIdx) ;
+	//	LOGFMTE("session id = %u requesiont room info room id = %u, subIdx = %d is null",nSessionID , getRoomID(),nSubRoomIdx) ;
 	//	return ;
 	//}
 
@@ -395,7 +395,7 @@ void CSystemRoom<TR>::sendRoomInfo(uint32_t nSessionID , int8_t nSubRoomIdx )
 	//sBuf.addContent(&msgInfo,sizeof(msgInfo)) ;
 	//sBuf.addContent(str.c_str(),msgInfo.nJsonLen) ;
 	//m_pRoomMgr->sendMsg((stMsg*)sBuf.getBufferPtr(),sBuf.getContentSize(),nSessionID) ;
-	//CLogMgr::SharedLogMgr()->PrintLog("send room info to session id = %u js:%s",nSessionID, str.c_str()) ;
+	//LOGFMTD("send room info to session id = %u js:%s",nSessionID, str.c_str()) ;
 }
 
 template<class TR >
@@ -443,7 +443,7 @@ void CSystemRoom<TR>::update(float fDelta)
 			{
 				m_eState = eRoomState_WillClose ;
 				m_bRoomInfoDiry = true ;
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do will close",getRoomID() );
+				LOGFMTD("uid = %d change do will close",getRoomID() );
 			}
 		}
 		break;
@@ -453,7 +453,7 @@ void CSystemRoom<TR>::update(float fDelta)
 			{
 				m_eState = eRoomState_Close ;
 				m_bRoomInfoDiry = true ;
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do close",getRoomID() );
+				LOGFMTD("uid = %d change do close",getRoomID() );
 				onRoomClose();
 			}
 		}
@@ -465,7 +465,7 @@ void CSystemRoom<TR>::update(float fDelta)
 			{
 				m_eState = eRoomState_Opening ;
 				m_bRoomInfoDiry = true ;
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do open",getRoomID() );
+				LOGFMTD("uid = %d change do open",getRoomID() );
 				onRoomOpen();
 			}
 		}
@@ -475,7 +475,7 @@ void CSystemRoom<TR>::update(float fDelta)
 	//		if ( isSubRoomClosed() )
 	//		{
 	//			m_bRoomInfoDiry = true ;
-	//			CLogMgr::SharedLogMgr()->PrintLog("uid = %d change do dead",getRoomID() );
+	//			LOGFMTD("uid = %d change do dead",getRoomID() );
 	//			m_eState = eRoomState_Dead ;
 	//			for ( auto uu : m_vRooms )
 	//			{
@@ -492,7 +492,7 @@ void CSystemRoom<TR>::update(float fDelta)
 		}
 		break;
 	default:
-		CLogMgr::SharedLogMgr()->ErrorLog("unknonw room state = %u room id = %u",getRoomState(),getRoomID()) ;
+		LOGFMTE("unknonw room state = %u room id = %u",getRoomState(),getRoomID()) ;
 		break;
 	}
 }
@@ -500,7 +500,7 @@ void CSystemRoom<TR>::update(float fDelta)
 template<class TR >
 void CSystemRoom<TR>::onTimeSave()
 {
-	//CLogMgr::SharedLogMgr()->PrintLog("time save room info room id = %u",getRoomID());
+	//LOGFMTD("time save room info room id = %u",getRoomID());
 	// save room rank ;
 	stMsgSaveRoomPlayer msgSave ;
 	msgSave.nRoomID = getRoomID() ;
@@ -518,7 +518,7 @@ void CSystemRoom<TR>::onTimeSave()
 		msgSave.savePlayer.nGameOffset = pp->nGameOffset ;
 		msgSave.savePlayer.nOtherOffset = pp->nOtherOffset ;
 		m_pRoomMgr->sendMsg(&msgSave,sizeof(msgSave),0) ;
-		CLogMgr::SharedLogMgr()->PrintLog("update rank uid = %u , offset = %d",pp->nUserUID,pp->nGameOffset) ;
+		LOGFMTD("update rank uid = %u , offset = %d",pp->nUserUID,pp->nGameOffset) ;
 	}
 
 	for ( auto pR : m_vRooms )
@@ -547,7 +547,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 	{
 	//case MSG_REQUEST_ROOM_REWARD_INFO:
 	//	{
-	//		CLogMgr::SharedLogMgr()->PrintLog("session id = %u request room id = %u reward info",nPlayerSessionID,getRoomID()) ;
+	//		LOGFMTD("session id = %u request room id = %u reward info",nPlayerSessionID,getRoomID()) ;
 	//		if ( nullptr != m_pRewardInfoBuffer )
 	//		{
 	//			m_pRoomMgr->sendMsg((stMsg*)m_pRewardInfoBuffer,m_nBufferLen,nPlayerSessionID) ;
@@ -587,17 +587,17 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			stMsgReadRoomPlayerRet* pRet = (stMsgReadRoomPlayerRet*)prealMsg ; 
 			if ( pRet->nTermNumber + 1 < m_nTermNumber )
 			{
-				CLogMgr::SharedLogMgr()->SystemLog("recieved last last term player data , skip id  room id = %u",getRoomID()) ;
+				LOGFMTI("recieved last last term player data , skip id  room id = %u",getRoomID()) ;
 				break; 
 			}
 
 			if ( pRet->bIsLast && m_nTermNumber == pRet->nTermNumber )
 			{
-				CLogMgr::SharedLogMgr()->SystemLog("room id = %u read ok ",getRoomID()) ;
+				LOGFMTI("room id = %u read ok ",getRoomID()) ;
 				m_bReadOk = true ;
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("room id = %d recive room player data cnt = %d",getRoomID(),pRet->nCnt) ;
+			LOGFMTD("room id = %d recive room player data cnt = %d",getRoomID(),pRet->nCnt) ;
 			stSaveRoomPlayerEntry* pp = (stSaveRoomPlayerEntry*)(((char*)prealMsg) + sizeof(stMsgReadRoomPlayerRet));
 			while ( pRet->nCnt-- )
 			{
@@ -617,7 +617,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 				}
 				else
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("recived too old rank data room id = %u",getRoomID());
+					LOGFMTE("recived too old rank data room id = %u",getRoomID());
 					return true ;
 				}
 
@@ -629,7 +629,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 				extern bool sortFuncRankItem(IRoomDelegate::stRoomRankItem* pLeft , IRoomDelegate::stRoomRankItem* pRight );
 
 				m_vLastGameRank.sort(sortFuncRankItem);
-				CLogMgr::SharedLogMgr()->PrintLog("sort last rank player room id = %u",getRoomID());
+				LOGFMTD("sort last rank player room id = %u",getRoomID());
 			}
 		}
 		break;
@@ -685,7 +685,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 				}
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d request rank room id = %u",nUserID,getRoomID());
+			LOGFMTD("uid = %d request rank room id = %u",nUserID,getRoomID());
 			// send room info to player ;
 			stMsgRequestRoomRankRet msgRet ;
 			msgRet.nCnt = vWillSend.size() ;
@@ -695,7 +695,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			for ( auto& itemSendPlayer : vWillSend )
 			{
 				msgBuffer.addContent(&itemSendPlayer.second,sizeof(stRoomRankEntry));
-				CLogMgr::SharedLogMgr()->PrintLog("room id = %u rank player uid = %u offset = %d",getRoomID(),itemSendPlayer.second.nUserUID,itemSendPlayer.second.nGameOffset);
+				LOGFMTD("room id = %u rank player uid = %u offset = %d",getRoomID(),itemSendPlayer.second.nUserUID,itemSendPlayer.second.nGameOffset);
 			}
 			m_pRoomMgr->sendMsg((stMsg*)msgBuffer.getBufferPtr(),msgBuffer.getContentSize(),nPlayerSessionID) ;
 		}
@@ -727,7 +727,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 				msgBuffer.addContent(&itemSendPlayer.second,sizeof(stRoomRankEntry));
 			}
 			m_pRoomMgr->sendMsg((stMsg*)msgBuffer.getBufferPtr(),msgBuffer.getContentSize(),nPlayerSessionID) ;
-			CLogMgr::SharedLogMgr()->PrintLog("session id = %u request last game rank , room id = %u",nPlayerSessionID,getRoomID());
+			LOGFMTD("session id = %u request last game rank , room id = %u",nPlayerSessionID,getRoomID());
 		}
 		break;
 	case MSG_REQUEST_ROOM_INFO:
@@ -756,7 +756,7 @@ bool CSystemRoom<TR>::onMessage( stMsg* prealMsg , eMsgPort eSenderPort , uint32
 			}
 			else
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("sessionid = %u send msg = %u, subIdx = %d room is null room id = %u", nPlayerSessionID,pRet->usMsgType,pRet->nSubRoomIdx,getRoomID()) ;
+				LOGFMTE("sessionid = %u send msg = %u, subIdx = %d room is null room id = %u", nPlayerSessionID,pRet->usMsgType,pRet->nSubRoomIdx,getRoomID()) ;
 			}
 		}
 		return false ;
@@ -770,7 +770,7 @@ bool CSystemRoom<TR>::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 {
 	if ( 1 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("system msg not used ") ;
+		LOGFMTE("system msg not used ") ;
 		//return m_pRoom->onMsg(prealMsg,nMsgType,eSenderPort,nSessionID) ;
 	}
 	return false ;
@@ -848,7 +848,7 @@ void CSystemRoom<TR>::onRankPlayerChanged( uint32_t nUID , uint16_t nPreIdx , ui
 	{
 		m_pRoomMgr->sendMsg((stMsg*)abf->getBufferPtr(),abf->getContentSize(),getRoomID()) ;
 	}
-	CLogMgr::SharedLogMgr()->PrintLog("send rank change apns uid = %u",nUID) ;
+	LOGFMTD("send rank change apns uid = %u",nUID) ;
 }
 
 //template<class TR >
@@ -875,14 +875,14 @@ void CSystemRoom<TR>::onRoomOpen()
 {
 	m_eState = eRoomState_Opening ;
 	m_tCloseTime = m_tOpenTime + m_nDuringSeconds ;
-	CLogMgr::SharedLogMgr()->SystemLog("room id = %d opened",getRoomID());
+	LOGFMTI("room id = %d opened",getRoomID());
 	// refresh last game rank ;
 	refreshLastGameRank();
 	// remove all histroy 
 	removeAllRankItemPlayer();
 	++m_nTermNumber ;
 	m_bRoomInfoDiry = true ;
-	CLogMgr::SharedLogMgr()->SystemLog("room id = %u star to termNumber = %u",getRoomID(),m_nTermNumber) ;
+	LOGFMTI("room id = %u star to termNumber = %u",getRoomID(),m_nTermNumber) ;
 }
 
 template<class TR >
@@ -898,7 +898,7 @@ template<class TR >
 void CSystemRoom<TR>::onRoomClose()
 {
 	//m_eState = eRoomState_Close ;
-	//CLogMgr::SharedLogMgr()->SystemLog("room id = %d closed",getRoomID());
+	//LOGFMTI("room id = %d closed",getRoomID());
 	//sortRoomRankItem();
 
 	//m_tOpenTime = time(nullptr) + TIME_DURING_ROOM_CLOSE ; // half an hour later reopen ;
@@ -957,7 +957,7 @@ void CSystemRoom<TR>::onRoomClose()
 	//aub.addContent(&msgReq,sizeof(msgReq)) ;
 	//aub.addContent(strJson.c_str(),msgReq.nJsonsLen) ;
 	//m_pRoomMgr->sendMsg((stMsg*)aub.getBufferPtr(),aub.getContentSize(),0) ;
-	//CLogMgr::SharedLogMgr()->PrintLog("room id = %d game over , result js = %s",getRoomID(),strJson.c_str()) ;
+	//LOGFMTD("room id = %d game over , result js = %s",getRoomID(),strJson.c_str()) ;
 
 	//// save log ;
 	//stMsgSaveLog msgLog ;
@@ -1005,7 +1005,7 @@ void CSystemRoom<TR>::onRoomClose()
 	//sprintf_s(pBuffer,sizeof(pBuffer),pContent,getRoomName()) ;
 	//if ( strlen(pBuffer) > 219 )
 	//{
-	//	CLogMgr::SharedLogMgr()->ErrorLog("msg too len : %s",pBuffer) ;
+	//	LOGFMTE("msg too len : %s",pBuffer) ;
 	//	onTimeSave();
 	//	return ;
 	//}

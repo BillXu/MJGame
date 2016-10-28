@@ -1,6 +1,6 @@
 #include "MJExchangeCardState.h"
 #include "MJRoomPlayer.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include <cassert>
 // wait state 
 void CMJWaitExchangeCardState::enterState(IRoom* pRoom)
@@ -52,7 +52,7 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 	Json::Value vCards = prealMsg["cards"] ;
 	if ( vCards.size() != 3 )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("please chose 3 cards to exchange") ;
+		LOGFMTD("please chose 3 cards to exchange") ;
 		msgBack["ret"] = 2 ;
 		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
@@ -62,7 +62,7 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 	auto pp = (CMJRoomPlayer*)pSitRoom->getSitdownPlayerBySessionID(nSessionID) ;
 	if ( pp == nullptr )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("%u sessionid , not sit in this room ",nSessionID) ;
+		LOGFMTD("%u sessionid , not sit in this room ",nSessionID) ;
 		msgBack["ret"] = 3 ;
 		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ; 
@@ -70,7 +70,7 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 
 	if ( isIdxInWaitList(pp->getIdx()) == false )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("session id = %u not in the wait act list" ,nSessionID ) ;
+		LOGFMTE("session id = %u not in the wait act list" ,nSessionID ) ;
 		msgBack["ret"] = 4 ;
 		m_pRoom->sendMsgToPlayer(msgBack,nMsgType,nSessionID) ;
 		return true ;
@@ -86,7 +86,7 @@ bool CMJWaitExchangeCardState::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, e
 		p->vExchangeCard[nIdx] = vCards[nIdx].asUInt();
 		if ( ! pp->isHaveAnCard( p->vExchangeCard[nIdx] ) )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("you do not have this card = %u , cannot used it to exchange",p->vExchangeCard[nIdx]) ;
+			LOGFMTE("you do not have this card = %u , cannot used it to exchange",p->vExchangeCard[nIdx]) ;
 			delete p ;
 			p = nullptr ;
 

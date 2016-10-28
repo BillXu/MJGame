@@ -1,7 +1,7 @@
 #include "MJPlayer.h"
 #include "MessageIdentifer.h"
 #include "ServerDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 void MJPlayer::init(stEnterRoomData* pData)
 {
 	setState(eRoomPeer_WaitNextGame);
@@ -53,7 +53,7 @@ void MJPlayer::addOffsetCoin(int32_t nOffset)
 {
 	if (nOffset < 0 && (-1 * nOffset) >(int32_t)getCoin())
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog( "do not have so much money to offset = %d ,have = %u",nOffset,getCoin() );
+		LOGFMTE( "do not have so much money to offset = %d ,have = %u",nOffset,getCoin() );
 		m_nOffset -= m_nCoin;
 		m_nCoin = 0;
 		return;

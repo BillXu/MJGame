@@ -1,6 +1,6 @@
 #pragma once 
 #include "IMJRoomState.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "IMJRoom.h"
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
@@ -58,7 +58,7 @@ public:
 		{
 			if (pPlayer == nullptr)
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("you are not in this room how to set ready ? session id = %u", nSessionID);
+				LOGFMTE("you are not in this room how to set ready ? session id = %u", nSessionID);
 				nRet = 4;
 				break;
 			}
@@ -67,14 +67,14 @@ public:
 			{
 				if (m_isNeedWaitEat == false)
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("not wait eat act ");
+					LOGFMTE("not wait eat act ");
 					nRet = 1;
 					break;
 				}
 
 				if (pPlayer->getIdx() != (m_nInvokeIdx + 1) % getRoom()->getSeatCnt() )
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("eat only just previous player's card");
+					LOGFMTE("eat only just previous player's card");
 					nRet = 1;
 					break;
 				}
@@ -96,7 +96,7 @@ public:
 			{
 				if ( m_isNeedWaitEat && pPlayer->getIdx() == (m_nInvokeIdx + 1) % getRoom()->getSeatCnt())
 				{
-					CLogMgr::SharedLogMgr()->PrintLog("give up eat act");
+					LOGFMTD("give up eat act");
 					m_isNeedWaitEat = false;
 				}
 				break;
@@ -110,7 +110,7 @@ public:
 				if (!pMJCard->canHuWitCard(m_nCard))
 				{
 					nRet = 2;
-					CLogMgr::SharedLogMgr()->ErrorLog("why you can not hu ? svr bug ");
+					LOGFMTE("why you can not hu ? svr bug ");
 					break;
 				}
 				m_vDoHuIdx.push_back(pPlayer->getIdx());
@@ -121,7 +121,7 @@ public:
 				if (!pMJCard->canPengWithCard(m_nCard))
 				{
 					nRet = 2;
-					CLogMgr::SharedLogMgr()->ErrorLog("why you can not peng ? svr bug ");
+					LOGFMTE("why you can not peng ? svr bug ");
 					break;
 				}
 				m_vDoPengGangIdx.push_back(pPlayer->getIdx());
@@ -133,7 +133,7 @@ public:
 				if (!pMJCard->canMingGangWithCard(m_nCard))
 				{
 					nRet = 2;
-					CLogMgr::SharedLogMgr()->ErrorLog("why you can not ming gang ? svr bug ");
+					LOGFMTE("why you can not ming gang ? svr bug ");
 					break;
 				}
 				m_vDoPengGangIdx.push_back(pPlayer->getIdx());
@@ -144,7 +144,7 @@ public:
 			{
 				if (prealMsg["eatWith"].isNull() || prealMsg["eatWith"].isArray() == false || prealMsg["eatWith"].size() != 2)
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("eat arg error");
+					LOGFMTE("eat arg error");
 					nRet = 3;
 					break;
 				}
@@ -155,7 +155,7 @@ public:
 				m_vEatWithInfo.push_back(jsE[1u].asUInt());
 				if ( !pMJCard->canEatCard(m_nCard, m_vEatWithInfo[0], m_vEatWithInfo[1]))
 				{
-					CLogMgr::SharedLogMgr()->ErrorLog("why you can not eat ? svr bug ");
+					LOGFMTE("why you can not eat ? svr bug ");
 					nRet = 2;
 					m_vEatWithInfo.clear();
 					break;
@@ -212,7 +212,7 @@ public:
 		 
 		if ( m_vDoHuIdx.empty() == false )
 		{
-			CLogMgr::SharedLogMgr()->PrintLog("some body do hu ");
+			LOGFMTD("some body do hu ");
 			// do transfer 
 			Json::Value jsTran;
 			jsTran["idx"] = m_vDoHuIdx.front();

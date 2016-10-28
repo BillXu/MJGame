@@ -111,7 +111,7 @@ void CDBRequestQueue::pushDeleteResult(stDBResult* pResult)
 
 void CDBRequestQueue::doClearResult()
 {
-	VEC_DBRESULT vResult ;   
+	VEC_DBRESULT vResult ;
 	vResult.clear() ;
 	mWillDelteResultLock.Lock() ;
 	vResult.swap(m_vWillDelteResult) ;
