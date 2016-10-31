@@ -100,10 +100,10 @@ enum eBillType  // 账单枚举
  	eBill_HuLose = (1 << 5) | eBill_Lose, // 别人胡牌的账单
 	eBill_WinRollBackGang = (1 << 6) | eBill_Win,  //  别人之前杠牌赢的钱，因为他最终没胡牌，需要把这个钱还给我。
 	eBill_LoseRollBackGang = (1 << 7) | eBill_Win,  //  因为自己最终没胡牌，退还杠牌赢的钱。
-	eBill_WinDaJiao = (1 << 6) | eBill_Win,  //  别人被查大叫，自己赚钱了
-	eBill_LoseDaJiao = (1 << 7) | eBill_Win,  //  被查大叫了，赔钱给所有人。
-	eBill_WinHuaZhu = (1 << 6) | eBill_Win,  //  别人被查花猪，自己赚钱了
-	eBill_LoseHuaZhu = (1 << 7) | eBill_Win,  //  被查查花猪，赔钱给已经听牌的人。
+	eBill_WinDaJiao = (1 << 8) | eBill_Win,  //  别人被查大叫，自己赚钱了
+	eBill_LoseDaJiao = (1 << 9) | eBill_Lose,  //  被查大叫了，赔钱给所有人。
+	eBill_WinHuaZhu = (1 << 10) | eBill_Win,  //  别人被查花猪，自己赚钱了
+	eBill_LoseHuaZhu = (1 << 11) | eBill_Lose,  //  被查查花猪，赔钱给已经听牌的人。
 };
 
 #if (C_SHARP)  

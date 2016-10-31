@@ -1038,7 +1038,7 @@ bool CMJRoom::getPlayersNeedSupplyCoin(std::vector<uint8_t>& vNeedPlayersIdx)
 	for ( uint8_t nidx = 0 ; nidx < getSeatCount(); ++nidx )
 	{
 		auto pp = (CMJRoomPlayer*)getPlayerByIdx(nidx);
-		if ( pp && pp->getCoin() < coinNeededToSitDown() )
+		if ( pp && pp->isHaveState(eRoomPeer_CanAct) && pp->getCoin() < coinNeededToSitDown() )
 		{
 			vNeedPlayersIdx.push_back(nidx) ;
 		}
