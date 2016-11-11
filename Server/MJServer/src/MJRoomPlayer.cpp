@@ -432,6 +432,12 @@ bool CMJRoomPlayer::getOperateListJoson(Json::Value& vActList )
 		{
 			return ;
 		}
+
+		if (ar.eCanInvokeAct == eMJAct_BuGang && isHaveState(eRoomPeer_AlreadyHu) && ar.nNumber != getNewFetchCard())
+		{
+			return;
+		}
+
 		Json::Value js ;
 		js["act"] = ar.eCanInvokeAct ;
 		js["cardNum"] = ar.nNumber ;

@@ -7,6 +7,8 @@
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
 #include "IMJPoker.h"
+#include "IGameRoomManager.h"
+#include "RobotDispatchStrategy.h"
 IMJRoom::~IMJRoom()
 {
 	for (auto& ref : m_vMJPlayers)
@@ -23,9 +25,12 @@ IMJRoom::~IMJRoom()
 			ref.second = nullptr;
 		}
 	}
+
+	delete m_pRobotDispatchStrage;
+	m_pRobotDispatchStrage = nullptr;
 }
 
-bool IMJRoom::init(IRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
+bool IMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	// zero data 
 	memset(m_vMJPlayers, 0, sizeof(m_vMJPlayers));
@@ -39,11 +44,34 @@ bool IMJRoom::init(IRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t n
 		pConfig->nMaxSeat = MAX_SEAT_CNT;
 	}
 	setBankIdx(-1);
+
+	m_pRobotDispatchStrage = new CRobotDispatchStrategy();
+
+	m_pRobotDispatchStrage->init(this, 0, getRoomID());
+
 	return true;
 }
 
 bool IMJRoom::onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)
 {
+	// check if already in room ;
+	auto player = getMJPlayerByUID(pEnterRoomPlayer->nUserUID);
+	if (player)
+	{
+		LOGFMTD("player already in this room just reactive Room id = %u , uid = %u, coin do not refresh = %u , enter coin = %u",getRoomID(),pEnterRoomPlayer->nUserUID,player->getCoin(),pEnterRoomPlayer->nCoin);
+		pEnterRoomPlayer->nCoin = player->getCoin();
+		player->onComeBackRoom(pEnterRoomPlayer);
+
+		// msg ;
+		Json::Value jsMsg;
+		jsMsg["idx"] = player->getIdx();
+		jsMsg["uid"] = player->getUID();
+		jsMsg["coin"] = player->getCoin();
+		jsMsg["state"] = player->getState();
+		sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_ENTER);
+		return true;
+	}
+
 	uint8_t nEmptyIdx = -1;
 	for (uint8_t nIdx = 0; nIdx < getSeatCnt(); ++nIdx)
 	{
@@ -63,12 +91,36 @@ bool IMJRoom::onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)
 	pMJPlayer->init(pEnterRoomPlayer);
 	pMJPlayer->setIdx(nEmptyIdx);
 	sitdown(pMJPlayer, nEmptyIdx);
+
+	// tell robot dispatch player join ;
+	getRobotDispatchStrage()->onPlayerJoin(pMJPlayer->getSessionID(), pMJPlayer->isRobot());
 	return true;
 }
 
-bool IMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
+uint8_t IMJRoom::checkPlayerCanEnter(stEnterRoomData* pEnterRoomPlayer)
 {
-	return false;
+	auto pPlayer = getMJPlayerByUID(pEnterRoomPlayer->nUserUID);
+	if (pPlayer)
+	{
+		return 0;
+	}
+
+	auto pConfig = getRoomConfig();
+	if (pEnterRoomPlayer->nCoin < pConfig->nEnterLowLimit && pConfig->nEnterLowLimit != 0)
+	{
+		return 3;
+	}
+
+	if (pEnterRoomPlayer->nCoin > pConfig->nEnterTopLimit && pConfig->nEnterTopLimit != 0)
+	{
+		return 4;
+	}
+
+	if (isRoomFull())
+	{
+		return 7;
+	}
+	return 0;
 }
 
 bool IMJRoom::isRoomFull()
@@ -114,6 +166,8 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 	jsMsg["players"] = arrPlayers;
 	sendMsgToPlayer(jsMsg, MSG_ROOM_INFO, nSessionID);
 	LOGFMTD("send msg room info msg to player session id = %u", nSessionID);
+
+	sendPlayersCardInfo(nSessionID);
 }
 
 void IMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
@@ -127,7 +181,7 @@ void IMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 	Json::Value vPeerCards;
 	for (auto& pp : m_vMJPlayers )
 	{
-		if (pp == nullptr || pp->haveState(eRoomPeer_CanAct) == false)
+		if (pp == nullptr /*|| pp->haveState(eRoomPeer_CanAct) == false*/)  // lose also have card 
 		{
 			continue;
 		}
@@ -191,11 +245,81 @@ void IMJRoom::update(float fDelta)
 
 bool IMJRoom::onMessage(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nPlayerSessionID)
 {
-	return false;
+	return getCurRoomState()->onMessage(prealMsg, eSenderPort, nPlayerSessionID);
 }
 
 bool IMJRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)
 {
+	if ( MSG_PLAYER_LEAVE_ROOM == nMsgType )
+	{
+		//LOGFMTE("sub class must process this msg");
+		//assert(0&&"sub class must process this msg");
+		Json::Value jsMsg;
+		auto pPlayer = getMJPlayerBySessionID(nSessionID);
+		if (!pPlayer)
+		{
+			LOGFMTE("you are not in room why you apply leave room id = %u ,session id = %u",getRoomID(),nSessionID );
+			jsMsg["ret"] = 1;
+		}
+		else
+		{
+			jsMsg["ret"] = 0;
+			onPlayerApplyLeave(pPlayer->getUID());
+		}
+		sendMsgToPlayer(jsMsg, nMsgType, nSessionID);
+		return true;;
+	}
+
+	if (MSG_INTERAL_ROOM_SEND_UPDATE_COIN == nMsgType)
+	{
+		uint32_t nSessionIDThis = prealMsg["sessionID"].asUInt();
+		uint32_t nUID = prealMsg["uid"].asUInt();
+		uint32_t nCoin = prealMsg["coin"].asUInt();
+		uint32_t nDiamond = prealMsg["diamond"].asUInt();
+		uint32_t nRoomID = prealMsg["roomID"].asUInt();
+		auto pSitp = getMJPlayerByUID(nUID);
+		if (pSitp)
+		{
+			LOGFMTD("uid = %u data svr coin = %u , room sit down coin = %u", nCoin, pSitp->getCoin());
+			nCoin = pSitp->getCoin();
+		}
+		else
+		{
+			LOGFMTE("update coin error ,you don't int ther room id = %u  , uid = %u", nRoomID, nUID);
+		}
+
+		Json::Value jsmsgBack;
+		jsmsgBack["coin"] = nCoin;
+		jsmsgBack["diamond"] = nDiamond;
+		sendMsgToPlayer(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionIDThis);
+		return true;
+	}
+
+	if (MSG_PLAYER_CHAT_MSG == nMsgType)
+	{
+		auto pRet = getMJPlayerBySessionID(nSessionID);
+		if (pRet)
+		{
+			prealMsg["idx"] = pRet->getIdx();
+			sendRoomMsg(prealMsg, MSG_ROOM_CHAT_MSG);
+		}
+		else
+		{
+			LOGFMTE("you do not sit down , can not say anything");
+		}
+		Json::Value jsRet;
+		jsRet["ret"] = pRet == nullptr ? 1 : 0;
+		sendMsgToPlayer(jsRet, nMsgType, nSessionID);
+		return true;
+	}
+
+	if ( MSG_ROOM_REQ_TOTAL_INFO == nMsgType)
+	{
+		LOGFMTD("reback room state and info msg to session id =%u", nSessionID);
+		sendRoomInfo(nSessionID);
+		return true;
+	}
+ 
 	return getCurRoomState()->onMsg(prealMsg,nMsgType,eSenderPort,nSessionID);
 }
 
@@ -213,6 +337,11 @@ void IMJRoom::sendRoomMsg(Json::Value& prealMsg, uint16_t nMsgType)
 void IMJRoom::sendMsgToPlayer(Json::Value& prealMsg, uint16_t nMsgType, uint32_t nSessionID)
 {
 	getRoomMgr()->sendMsg(prealMsg, nMsgType, nSessionID);
+}
+
+void IMJRoom::sendMsgToPlayer(stMsg* pmsg, uint16_t nLen, uint32_t nSessionID)
+{
+	getRoomMgr()->sendMsg(pmsg, nLen, nSessionID);
 }
 
 bool IMJRoom::sitdown(IMJPlayer* pPlayer, uint8_t nIdx)
@@ -562,6 +691,7 @@ void IMJRoom::onPlayerMo(uint8_t nIdx)
 	auto nNewCard = getMJPoker()->distributeOneCard();
 	pPlayer->getPlayerCard()->onMoCard(nNewCard);
 	pPlayer->clearGangFlag();
+	pPlayer->clearDecareBuGangFlag();
 	// send msg ;
 	Json::Value msg;
 	msg["idx"] = nIdx;
@@ -681,6 +811,7 @@ void IMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 		return;
 	}
 	pPlayer->signGangFlag();
+	pPlayer->clearDecareBuGangFlag();
 	auto nGangCard = getMJPoker()->distributeOneCard();
 	if (pPlayer->getPlayerCard()->onBuGang(nCard, nGangCard) == false)
 	{
@@ -743,10 +874,10 @@ bool IMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
 			return true;
 		}
 
-		if (isCanGoOnMoPai() && pMJCard->canMingGangWithCard(nCard) ) // must can gang 
-		{
-			return true;
-		}
+		//if (isCanGoOnMoPai() && pMJCard->canMingGangWithCard(nCard) ) // must can gang , will not run here , will return when check peng ;
+		//{
+		//	return true;
+		//}
 
 		if (ref->getIdx() == (nInvokeIdx + 1) % getSeatCnt())
 		{
@@ -902,7 +1033,20 @@ bool IMJRoom::addRoomState(IMJRoomState* pState)
 	if (iter == m_vRoomStates.end())
 	{
 		m_vRoomStates[pState->getStateID()] = pState;
+		return true;
 	}
 	LOGFMTE("already add this state id =%u , be remember delete failed add obj",pState->getStateID());
 	return false;
+}
+
+void IMJRoom::setInitState(IMJRoomState* pState)
+{
+	m_pCurState = pState; 
+	Json::Value js;
+	m_pCurState->enterState(this,js);
+}
+
+uint32_t IMJRoom::getCoinNeedToSitDown()
+{
+	return ((stMJRoomConfig*)getRoomConfig())->nEnterLowLimit;
 }

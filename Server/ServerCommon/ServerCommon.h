@@ -40,7 +40,7 @@ enum eDBAct
 
 enum eAsyncReq
 {
-	eAsync_CreateRoom, // extern MSG_CREATE_ROOM client , addtion : { roomID : 235, createUID : 3334, serialNum : 23455 }  // result : { ret : 0 } , must success ;
+	eAsync_CreateRoom, // extern MSG_CREATE_ROOM client , addtion : { createUID : 3334 }  // result : { ret : 0, roomID : 23 , roomType : 23 } , must success ;
 	eAsync_DeleteRoom,// { roomID : 2345 }  // ret : { ret : 0 } // 0 success , 1 not find room , 2 room is running ;
 	eAsync_PostDlgNotice, // { dlgType : eNoticeType , targetUID : 2345 , arg : { ....strg } }
 	eAsync_OnRoomDeleted, // { roomID : 234 }
@@ -52,6 +52,7 @@ enum eAsyncReq
 	eAsync_SyncVipRoomBillID, // { billID : 2345 , useUIDs : [2345,2345,2345,2345] }
 	eAsync_Apns, // { apnsType : 0 , targets : [234,2345,23,4] , content : "hello this is" ,msgID : "fs" ,msgdesc : "shfsg" }  apnsType : 0 , group type . 1 , target persions ;
 	eAsync_SendUpdateCoinToClient, // { sessionID : 234 , coin : 235 , diamond : 234, uid : 3423 , roomID : 234 } 
+	eAsync_ApplyLeaveRoom, // {uid : 234 , roomID : 2345 , reason : 0 } reason : 0 , disconnect , 1 other peer login.  result : { ret : 0 , coin : 2345 } // ret : 0 leave direct, 1 delay leave room , 2 not in room , 3 not find room   ;
 	eAsync_Max,
 };
 

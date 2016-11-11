@@ -11,6 +11,7 @@ public:
 		ePlayerGameState_Entering,
 		ePlayerGameState_StayIn,
 		ePlayerGameState_NotIn,
+		ePlayerGameState_ApplyingLeave,
 		ePlayerGameState_Max,
 	};
 
@@ -46,6 +47,7 @@ public:
 	void addNewBillIDs(uint32_t nBillID );
 protected:
 	void sendGameDataToClient();
+	void doApplyLeaveRoom( uint8_t nReason );  // reason : 0 , disconnect , 1 other peer login.
 protected:
 	uint32_t m_nStateInRoomID ;
 	ePlayerGameState m_ePlayerGameState ;

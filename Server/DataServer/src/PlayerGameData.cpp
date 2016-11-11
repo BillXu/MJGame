@@ -9,6 +9,7 @@
 #include "TaxasPokerPeerCard.h"
 #include "RoomConfig.h"
 #include "AsyncRequestQuene.h"
+#include "RobotCenter.h"
 void CPlayerGameData::Reset()
 {
 	IPlayerComponent::Reset();
@@ -187,18 +188,57 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 
 			m_bIsCreating = true ;
-			stMsgCrossServerRequest msgReq ;
-			msgReq.cSysIdentifer = CPlayer::getMsgPortByRoomType(eRoom_MJ) ;
-			msgReq.nReqOrigID = GetPlayer()->GetUserUID() ;
-			msgReq.nRequestSubType = eCrossSvrReqSub_Default;
-			msgReq.nRequestType = eCrossSvrReq_CreateRoom ;
-			msgReq.nTargetID = 0 ;
-			msgReq.vArg[0] = 0;
-			msgReq.vArg[1] = 0;
-			msgReq.vArg[2] = 0 ;
-			CON_REQ_MSG_JSON(msgReq,recvValue,autoBuf) ;
-			CGameServerApp::SharedGameServerApp()->sendMsg(msgReq.nReqOrigID,autoBuf.getBufferPtr(),autoBuf.getContentSize()) ;
-			LOGFMTD("uid = %u create vip room ",GetPlayer()->GetUserUID()) ;
+
+			if (eRoom_MJ_Two_Bird_God == recvValue["roomType"].asUInt())
+			{
+				stMsgCrossServerRequest msgReq;
+				msgReq.cSysIdentifer = CPlayer::getMsgPortByRoomType(eRoom_MJ);
+				msgReq.nReqOrigID = GetPlayer()->GetUserUID();
+				msgReq.nRequestSubType = eCrossSvrReqSub_Default;
+				msgReq.nRequestType = eCrossSvrReq_CreateRoom;
+				msgReq.nTargetID = 0;
+				msgReq.vArg[0] = 0;
+				msgReq.vArg[1] = 0;
+				msgReq.vArg[2] = 0;
+				CON_REQ_MSG_JSON(msgReq, recvValue, autoBuf);
+				CGameServerApp::SharedGameServerApp()->sendMsg(msgReq.nReqOrigID, autoBuf.getBufferPtr(), autoBuf.getContentSize());
+				LOGFMTD("uid = %u create vip room ", GetPlayer()->GetUserUID());
+				return true;
+			}
+
+			// create private room ;
+			auto pAsyncQ = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
+			recvValue["createUID"] = GetPlayer()->GetUserUID();
+			pAsyncQ->pushAsyncRequest(ID_MSG_PORT_MJ, eAsync_CreateRoom, recvValue, [this](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
+			{
+				// ret : 0 leave direct, 1 delay leave room , 2 not in room  ;
+				uint8_t nRet = retContent["ret"].asUInt();
+				Json::Value jsBack;
+				jsBack["ret"] = nRet;
+				jsBack["roomID"] = 0;
+				if ( nRet == 0)
+				{
+					eRoomType eType = (eRoomType)retContent["roomType"].asUInt();
+					uint32_t nroomid = retContent["roomID"].asUInt();
+					jsBack["roomID"] = nroomid;
+					if (eRoom_Max > eType )
+					{
+						addOwnRoom(eType, nroomid, 0);
+					}
+					else
+					{
+						LOGFMTE("add my own room , unknown room type = %d , uid = %d", eType, GetPlayer()->GetUserUID());
+					}
+					LOGFMTD("uid = %d , create room id = %d , config id = %d", GetPlayer()->GetUserUID(), nroomid, 0);
+				}
+				else
+				{
+					LOGFMTD("result create failed give back coin uid = %d", GetPlayer()->GetUserUID());
+				}
+				SendMsg(jsBack, MSG_CREATE_VIP_ROOM);
+				m_bIsCreating = false;
+				LOGFMTD("uid = %u , create vip room ok ", GetPlayer()->GetUserUID());
+			});
 		}
 		break;
 	case MSG_VIP_ROOM_CLOSED:
@@ -337,6 +377,14 @@ bool CPlayerGameData::OnMessage( stMsg* pMessage , eMsgPort eSenderPort)
 			Json::Value jsq ;
 			jsq[JS_KEY_MSG_TYPE] = MSG_REQ_UPDATE_COIN ;
 			GetPlayer()->GetBaseData()->OnMessage(jsq,MSG_REQ_UPDATE_COIN,ID_MSG_PORT_CLIENT ) ;
+
+			/// if robot must tell idle ;
+			if (GetPlayer()->GetBaseData()->getPlayerType() == ePlayer_Robot)
+			{
+				Json::Value js;
+				CGameServerApp::SharedGameServerApp()->getRobotCenter()->onMsg(js, MSG_TELL_ROBOT_IDLE,ID_MSG_PORT_CLIENT,GetPlayer()->GetSessionID());
+				LOGFMTD("robot leave room svr tell idle uid = %u ",GetPlayer()->GetUserUID());
+			}
 		}
 		break;
 	case MSG_SVR_DELAYED_LEAVE_ROOM:
@@ -705,6 +753,7 @@ void CPlayerGameData::OnPlayerDisconnect()
 		SendMsg(&msgEnter,sizeof(msgEnter)) ;
 		LOGFMTD("uid = %d disconnected , apply to leave room id = %d ",GetPlayer()->GetUserUID(),m_nStateInRoomID) ;
 		GetPlayer()->delayDelete();
+		doApplyLeaveRoom(0);
 	}
 }
 
@@ -724,6 +773,7 @@ void CPlayerGameData::OnOtherWillLogined()
 		msgEnter.vArg[1] = GetPlayer()->GetSessionID() ;
 		SendMsg(&msgEnter,sizeof(msgEnter)) ;
 
+		doApplyLeaveRoom(1);
 		LOGFMTD("uid = %d other device login , apply to leave room id = %d ",GetPlayer()->GetUserUID(),m_nStateInRoomID) ;
 	}
 }
@@ -781,7 +831,14 @@ bool CPlayerGameData::isCreateRoomCntReachLimit(eRoomType eType)
 		return true;
 	}
 
-	return m_vMyOwnRooms[eType].size() >= 1 ;
+	for (auto& ref : m_vMyOwnRooms)
+	{
+		if (ref.size() >= 1)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool CPlayerGameData::deleteOwnRoom(eRoomType eType , uint32_t nRoomID )
@@ -859,4 +916,47 @@ void CPlayerGameData::addNewBillIDs(uint32_t nBillID )
 	ss << "insert into playerbillids (userUID,billID) values ( " << GetPlayer()->GetUserUID() << "," << nBillID << " ) ; " ;
 	jsReq["sql"] = ss.str();
 	CGameServerApp::SharedGameServerApp()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DB,eAsync_DB_Add,jsReq) ;
+}
+
+void CPlayerGameData::doApplyLeaveRoom(uint8_t nReason)
+{
+	if (getCurGameState() != ePlayerGameState_StayIn)
+	{
+		return;
+	}
+
+	auto pAsyncQ = CGameServerApp::SharedGameServerApp()->getAsynReqQueue();
+	Json::Value jsReq;
+	jsReq["uid"] = GetPlayer()->GetUserUID();
+	jsReq["roomID"] = m_nStateInRoomID;
+	jsReq["reason"] = nReason;
+	//pAsyncQ->pushAsyncRequest(ID_MSG_PORT_MJ, eAsync_ApplyLeaveRoom, jsReq);
+	pAsyncQ->pushAsyncRequest(ID_MSG_PORT_MJ, eAsync_ApplyLeaveRoom, jsReq, [this](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
+	{
+		// ret : 0 leave direct, 1 delay leave room , 2 not in room  ;
+		uint8_t nRet = retContent["ret"].asUInt();
+		//uint32_t nCoin = retContent["coin"].asUInt();
+		//if (0 == nRet)
+		//{
+		//	//m_ePlayerGameState = ePlayerGameState_NotIn;
+		//	//m_nStateInRoomID = 0;
+		//	LOGFMTD("player uid = %u leave room old coin = %u",GetPlayer()->GetUserUID(),GetPlayer()->GetBaseData()->getCoin());
+		//	//GetPlayer()->GetBaseData()->setCoin(nCoin);
+		//}
+		//else if ( 1 == nRet )
+		//{ 
+		//	LOGFMTD("player uid = %u will delay leave room coin = %u", GetPlayer()->GetUserUID(), GetPlayer()->GetBaseData()->getCoin() );
+		//}
+		//else if (2 == nRet || 3 == nRet )
+		if (2 == nRet || 3 == nRet)
+		{
+			m_ePlayerGameState = ePlayerGameState_NotIn;
+			m_nStateInRoomID = 0;
+			LOGFMTD("player uid = %u not in room but reset state  coin = %u or room is null ", GetPlayer()->GetUserUID(), GetPlayer()->GetBaseData()->getCoin());
+		}
+		else
+		{
+			LOGFMTE("apply result unknown ret = %u , uid = %u",nRet,GetPlayer()->GetUserUID());
+		}
+	});
 }

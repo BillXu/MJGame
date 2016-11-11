@@ -81,6 +81,7 @@ public:
 	bool getOperateListJoson(Json::Value& vActList );
 	uint32_t getHuType(){ return m_eHuType; }
 	void getAllBillForMsg(Json::Value& jsbillInfoMsg);
+	uint8_t getAutoQueType(){ return m_tPeerCard.getAutoQueType(); }
 protected:
 	void updateWantedCardList();
 public:

@@ -29,14 +29,14 @@ public:
 	bool onCardBeGangPengEat(uint8_t nCard) final;
 
 	bool isHaveCard(uint8_t nCard) final;  // holdCard ;
-	bool canMingGangWithCard(uint8_t nCard) final;
-	bool canPengWithCard(uint8_t nCard) final;
+	bool canMingGangWithCard(uint8_t nCard) override;
+	bool canPengWithCard(uint8_t nCard) override;
 	bool canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB) override;
 	bool canHuWitCard(uint8_t nCard) override;
 	bool canAnGangWithCard(uint8_t nCard)override;
 	bool canBuGangWithCard(uint8_t nCard)override;
 	bool isTingPai() override;
-	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)final;
+	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;
 	bool getHoldCardThatCanBuGang(VEC_CARD& vGangCards)final;
 	bool isHoldCardCanHu() override;
 
@@ -55,6 +55,7 @@ public:
 	bool getEatedCard(VEC_CARD& vEatedCard) final;
 	uint32_t getNewestFetchedCard()final;
 	virtual bool canHoldCard7PairHu();
+	bool getCanHuCards(std::set<uint8_t>& vCanHuCards);
 protected:
 	void addCardToVecAsc(VEC_CARD& vec, uint8_t nCard );
 	bool getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun );
@@ -64,6 +65,7 @@ protected:
 	virtual uint8_t getMiniQueCnt( VEC_CARD vCards[eCT_Max] );
 	virtual uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max]);
 	uint8_t getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao);
+	void debugCardInfo();
 protected:
 	VEC_CARD m_vCards[eCT_Max];
 	VEC_CARD m_vChuedCard;

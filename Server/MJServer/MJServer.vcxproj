@@ -133,6 +133,7 @@
     <ClInclude Include="src\HZMJPlayerCard.h" />
     <ClInclude Include="src\HZMJRoom.h" />
     <ClInclude Include="src\IGameRoom.h" />
+    <ClInclude Include="src\IGameRoomManager.h" />
     <ClInclude Include="src\IMJPlayer.h" />
     <ClInclude Include="src\IMJPlayerCard.h" />
     <ClInclude Include="src\IMJPlayerCardCheckPaixingHelper.h" />
@@ -144,7 +145,9 @@
     <ClInclude Include="src\MJPeerCardNew.h" />
     <ClInclude Include="src\MJPlayer.h" />
     <ClInclude Include="src\MJPlayerCard.h" />
+    <ClInclude Include="src\MJPrivateRoom.h" />
     <ClInclude Include="src\MJRoomBattleEnd.h" />
+    <ClInclude Include="src\MJRoomManager.h" />
     <ClInclude Include="src\MJRoomStateAskForPengOrHu.h" />
     <ClInclude Include="src\MJRoomStateAskForRobotGang.h" />
     <ClInclude Include="src\MJRoomStateDoPlayerAct.h" />
@@ -174,6 +177,16 @@
     <ClInclude Include="src\WaitActWithChuedCard.h" />
     <ClInclude Include="src\WaitPlayerActState.h" />
     <ClInclude Include="src\WaitStartState.h" />
+    <ClInclude Include="src\XLFanXingChecker.h" />
+    <ClInclude Include="src\XLMJPlayer.h" />
+    <ClInclude Include="src\XLMJPlayerCard.h" />
+    <ClInclude Include="src\XLMJRoom.h" />
+    <ClInclude Include="src\XLMJSettle.h" />
+    <ClInclude Include="src\XLRoomStateDoPlayerAct.h" />
+    <ClInclude Include="src\XLRoomStateStartGame.h" />
+    <ClInclude Include="src\XLRoomStateWaitDecideQue.h" />
+    <ClInclude Include="src\XLRoomStateWaitSupplyCoin.h" />
+    <ClInclude Include="src\XZMJRoom.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\ConfigReader.cpp" />
@@ -206,6 +219,7 @@
     <ClCompile Include="src\HZMJPlayer.cpp" />
     <ClCompile Include="src\HZMJPlayerCard.cpp" />
     <ClCompile Include="src\HZMJRoom.cpp" />
+    <ClCompile Include="src\IGameRoomManager.cpp" />
     <ClCompile Include="src\IMJRoom.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MJBloodFanxing.cpp" />
@@ -218,8 +232,10 @@
     <ClCompile Include="src\MJPeerCardNew.cpp" />
     <ClCompile Include="src\MJPlayer.cpp" />
     <ClCompile Include="src\MJPlayerCard.cpp" />
+    <ClCompile Include="src\MJPrivateRoom.cpp" />
     <ClCompile Include="src\MJRoom.cpp" />
     <ClCompile Include="src\MJRoomBattleEnd.cpp" />
+    <ClCompile Include="src\MJRoomManager.cpp" />
     <ClCompile Include="src\MJServerRoomManger.cpp" />
     <ClCompile Include="src\MJRoomPlayer.cpp" />
     <ClCompile Include="src\MJServer.cpp" />
@@ -233,6 +249,10 @@
     <ClCompile Include="src\WaitActWithChuedCard.cpp" />
     <ClCompile Include="src\WaitPlayerActState.cpp" />
     <ClCompile Include="src\WaitStartState.cpp" />
+    <ClCompile Include="src\XLMJPlayer.cpp" />
+    <ClCompile Include="src\XLMJPlayerCard.cpp" />
+    <ClCompile Include="src\XLMJRoom.cpp" />
+    <ClCompile Include="src\XZMJRoom.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

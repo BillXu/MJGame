@@ -5,6 +5,7 @@ class MJPlayer
 {
 public:
 	void init(stEnterRoomData* pData)override;
+	void onComeBackRoom(stEnterRoomData* pData)override;
 	void onWillStartGame()override;
 	void onStartGame()override;
 	void onGameDidEnd()override;
@@ -22,7 +23,13 @@ public:
 	void signGangFlag()final;
 	void clearGangFlag()final;
 	bool haveGangFalg()final;
+	void signDecareBuGangFlag()final;
+	void clearDecareBuGangFlag()final;
+	bool haveDecareBuGangFalg()final;
+	int32_t onRecievedSupplyCoin(uint32_t nSupplyCoin)final;
+	bool isRobot()final;
 private:
+	uint8_t m_nPlayerType;
 	uint32_t m_eState;
 	uint32_t m_nUserUID;
 	uint32_t m_nSessioID;
@@ -30,4 +37,5 @@ private:
 	int32_t m_nOffset;
 	uint32_t m_nCoin;
 	bool m_isHaveGang;
+	bool m_isDeclareBuGang;
 };

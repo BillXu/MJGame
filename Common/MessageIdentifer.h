@@ -1,5 +1,20 @@
 #pragma once 
 //#define  C_SHARP 
+
+#if (C_SHARP)  
+public
+#endif
+enum eMJGameType
+{
+	eMJ_None,
+	eMJ_BloodRiver = eMJ_None,
+	eMJ_BloodTheEnd,
+	eMJ_COMMON,
+	eMJ_TwoBird,
+	eMJ_HZ,
+	eMJ_Max,
+};
+
 #if (C_SHARP)  
 public
 #endif
@@ -156,7 +171,7 @@ enum eRoomState  // 玩家的状态
 	eRoomState_DoOtherPlayerAct,  // 其他玩家操作了。
 	eRoomState_AskForRobotGang, // 询问玩家抢杠胡， { invokeIdx : 2 , card : 23 }
 	eRoomState_AskForHuAndPeng, // 询问玩家碰或者胡  { invokeIdx : 2 , card : 23 }
-	eRoomState_WaitSupplyCoin , // 等待玩家补充金币
+	eRoomState_WaitSupplyCoin , // 等待玩家补充金币  {nextState: 234 , transData : { ... } }
 	eRoomState_WaitPlayerRecharge = eRoomState_WaitSupplyCoin,  //  等待玩家充值
 	eRoomState_GameEnd, // 游戏结束
 	eRoomState_Max,
@@ -181,6 +196,8 @@ enum eRoomPeerState  // 牌局内玩家的状态
 	eRoomPeer_WaitNextGame = ((1 << 6)|eRoomPeer_SitDown ),
 	eRoomPeer_AlreadyHu = ((1 << 8)|eRoomPeer_CanAct ),  //  已经胡牌的状态
 	eRoomPeer_DecideLose = eRoomPeer_GiveUp ,  // 认输状态
+	eRoomPeer_LoserLeave = (1 << 9),  //  已经离开房间的认输的人。但是他的备份留在房间里。
+	eRoomPeer_DelayLeave = (1 << 10),  //  牌局结束后才离开
 	eRoomPeer_Max,
 };
 
@@ -212,6 +229,21 @@ enum eMailType
 	eMail_WinMatch, // { gameType:234,roomName:234,rankIdx:2,addCoin:345,cup : 2 , diamomd : 34 }
 	eMail_VIP_INVITE, // { inviteUID : 2345 , roomID : 2345 } vip 房间邀请， inviteUID 邀请者的UID， roomID 房间的id ，可以通过这个进入房间
 	eMail_Max,
+};
+
+#if (C_SHARP)  
+public
+#endif
+enum eSettleType    // 这个枚举定义的只是一个中立的事件，对于发生事件的双方，叫法不一样，例如： 赢的人叫被点炮，输的人 叫 点炮。
+{
+	eSettle_DianPao,  // 点炮
+	eSettle_MingGang, // 明杠
+	eSettle_AnGang, //  暗杠
+	eSettle_BuGang,  //  补杠
+	eSettle_ZiMo,  // 自摸
+	eSettle_HuaZhu,  //   查花猪
+	eSettle_DaJiao,  //  查大叫
+	eSettle_Max,
 };
 
 #if (C_SHARP)  
@@ -354,6 +386,26 @@ enum eMsgType
 	// detail : 实时结算，每个玩家输了多少钱，一个数组； idx 索引，loseCoin 输了多少钱。 只有胡牌 或者杠牌 的动作才有这个字段；
 	// huType : 胡牌类型，只有是胡的动作才有这个字段；
 	// fanShu :  胡牌的时候的翻数，只有胡牌的动作才有这个字段
+	// 特别注意！！！！！ detail 字段可能有没，为了兼容 ，可以检测一下，是否存在detail 这个key 值。最终的最终是要舍弃的。
+
+	MSG_ROOM_SETTLE_DIAN_PAO, //  实结算的 点炮
+	//svr : { paoIdx : 234 , isGangPao : 0 , isRobotGang : 0 , huPlayers : [ { idx : 2 , coin : 2345 }, { idx : 2, coin : 234 }, ... ]  }
+	// paoIdx : 引跑者的索引， isGangShangPao ： 是否是杠上炮， isRobotGang ： 是否是被抢杠， huPlayer ： 这一炮 引发的所有胡牌这，是一个数组。 { idx ： 胡牌人的索引， coin 胡牌人赢的金币} 
+
+	MSG_ROOM_SETTLE_MING_GANG, // 实结算 明杠 
+	// svr :  { invokerIdx : 234 , gangIdx : 234 , gangWin : 2344 }
+	// invokerIdx ： 引杠者的索引， gangIdx ： 杠牌这的索引 ， gangWin： 此次杠牌赢的钱；
+
+	MSG_ROOM_SETTLE_AN_GANG, // 实时结算 暗杠 
+	//svr： { gangIdx: 234, losers : [{idx: 23, lose : 234 }, .....] }
+	// gangIdx : 杠牌者的索引。 losers 此次杠牌输钱的人，数组。 { idx 输钱人的索引， lose  输了多少钱 }
+
+	MSG_ROOM_SETTLE_BU_GANG, // 实际结算 补杠
+	// svr : 参数和解释都跟 暗杠一样。
+
+	MSG_ROOM_SETTLE_ZI_MO, // 实时结算 自摸
+	// svr ： { ziMoIdx: 234, losers : [{idx: 23, lose : 234 }, .....] }
+	// ziMoIdx : 自摸的人的索引。 losers ： 自摸导致别人数钱了。一个数字。 {idx 输钱人的索引， lose ： 输了多少钱 } 
 
 	MSG_ROOM_WAIT_RECHARGE, // 等待一些玩家充值
 	// svr: { players: [0,1,3]}    
@@ -363,6 +415,15 @@ enum eMsgType
 	// svr : { players : [ {idx : 0 , coin : 2345 ,huType : eFanxingType, offset : 23 } ,{idx : 1 , coin : 2345 ,huType : eFanxingType , offset : 23 } ,{idx : 2 , coin : 2345,huType : eFanxingType, offset : 23 },{idx : 3 , coin : 2345,huType : eFanxingType, offset : 23 } ]  } 
 	// eFanxingType 参照枚举值
 	// players: 结束后，每个玩家最终的钱数。
+	
+	MSG_PLAYER_DETAIL_BILL_INFOS, // 游戏结束后收到的个人详细账单，每个人只能收到自己的。
+	// svr ： { idx： 23 ， bills：[ { type: 234, offset : -23, huType : 23, beiShu : 234, target : [2, 4] } , .......... ] } 
+	// idx : 玩家的索引。
+	// bills : 玩家的账单数组，直接可以用于显示。 账单有多条。
+	// 账单内解释： type ： 取值参考枚举 eSettleType ， offset ： 这个账单的输赢，负数表示输了， 结合type 得出描述，比如：Type 为点炮，正数就是被点炮，负数就是点炮，
+	// 同理当type 是自摸的时候，如果offset 为负数，那么就是被自摸，整数就是自摸。依次类推其他类型。
+	// huType : 只有当是自摸的时候有效，表示自摸的胡类型，或者被点炮 这个字段也是有效的。beiShu ：就是胡牌的倍数，有效性随同　ｈｕＴｙｐｅ。 
+	// target : 就是自己这个账单 相对的一方， 就是赢了哪些人的钱，或者输给谁了。被谁自摸了，被谁点炮了，点炮了谁。具体到客户端表现，就是最右边那个 上家下家，之类的那一列。
 
 	MSG_PLAYER_LEAVE_ROOM, // 玩家离开房间
 	// client : {dstRoomID : 23 } ;

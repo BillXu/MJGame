@@ -13,7 +13,7 @@ public:
 		if ( MSG_PLAYER_SET_READY == nMsgType)
 		{
 			auto pPlayer = getRoom()->getMJPlayerBySessionID(nSessionID);
-			if (pPlayer == nullptr)
+			if (pPlayer == nullptr || (pPlayer->haveState(eRoomPeer_WaitNextGame) == false ))
 			{
 				LOGFMTE("you are not in this room how to set ready ? session id = %u", nSessionID );
 				return true;

@@ -9,7 +9,9 @@
 #include "HZMJPlayerCard.h"
 #include "HZMJPlayer.h"
 #include "RoomConfig.h"
-bool HZMJRoom::init(IRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
+#include "IGameRoomManager.h"
+#include "ServerMessageDefine.h"
+bool HZMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	IMJRoom::init(pRoomMgr,pConfig,nRoomID,vJsValue);
 	// create room state ;
@@ -29,6 +31,41 @@ bool HZMJRoom::init(IRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t 
 	return true;
 }
 
+bool HZMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
+{
+	auto pPlayer = getMJPlayerByUID(nPlayerUID);
+	if (!pPlayer)
+	{
+		LOGFMTE("you are not in room id = %u , how to leave this room ? uid = %u", getRoomID(), nPlayerUID);
+		return false;
+	}
+
+	auto curState = getCurRoomState()->getStateID();
+	if (eRoomSate_WaitReady == curState || eRoomState_GameEnd == curState )
+	{
+		// direct leave just stand up ;
+		stMsgSvrDoLeaveRoom msgdoLeave;
+		msgdoLeave.nCoin = pPlayer->getCoin();
+		msgdoLeave.nGameType = getRoomType();
+		msgdoLeave.nRoomID = getRoomID();
+		msgdoLeave.nUserUID = pPlayer->getUID();
+		msgdoLeave.nMaxFangXingType = 0;
+		msgdoLeave.nMaxFanShu = 0;
+		msgdoLeave.nRoundsPlayed = 1;
+		msgdoLeave.nGameOffset = pPlayer->getOffsetCoin();
+		getRoomMgr()->sendMsg(&msgdoLeave, sizeof(msgdoLeave), pPlayer->getSessionID());
+
+		return standup(nPlayerUID);
+
+	}
+	else
+	{
+		pPlayer->setState((pPlayer->getState() | eRoomPeer_DelayLeave));
+		LOGFMTE("decide player already sync data uid = %u", pPlayer->getUID());
+	}
+	return true;
+}
+
 void HZMJRoom::startGame()
 {
 	memset(m_vCaiPiaoFlag, 0, sizeof(m_vCaiPiaoFlag));
@@ -39,6 +76,9 @@ void HZMJRoom::onGameEnd()
 {
 	// send game result ;
 	IMJRoom::onGameEnd();
+
+	// if have player delay leave just leave ;
+
 }
 
 void HZMJRoom::willStartGame()

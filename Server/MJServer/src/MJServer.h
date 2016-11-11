@@ -12,6 +12,7 @@ public:
 	{
 		eMod_None = IServerApp::eDefMod_ChildDef,
 		eMod_RoomMgr = eMod_None,
+		eMod_RoomMgrOld,
 		eMod_Max,
 	};
 public:

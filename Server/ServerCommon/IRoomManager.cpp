@@ -10,6 +10,7 @@
 #include "ISeverApp.h"
 #include "AsyncRequestQuene.h"
 #include <sstream>
+#include "ISitableRoom.h"
 #define ROOM_LIST_ITEM_CNT_PER_PAGE 5 
 #define TIME_SAVE_ROOM_INFO 60*10
 uint32_t IRoomManager::s_MaxBillID = 0 ;
@@ -369,7 +370,13 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 						LOGFMTD("adjust robot coin to : %u" , nStandCoin );
 					}
 
-					if (pRet->tPlayerData.nCoin < nStandCoin)
+					//auto pMJRoom = dynamic_cast<ISitableRoom*>(pRoomEnter);
+					//if (pMJRoom)
+					//{
+
+					//}
+
+					//if (pRet->tPlayerData.nCoin < nStandCoin)
 					{
 						pRet->tPlayerData.nCoin = nStandCoin;
 						LOGFMTE("temp set robot coin uid = %u", pRet->tPlayerData.nUserUID);

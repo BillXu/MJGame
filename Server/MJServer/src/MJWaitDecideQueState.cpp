@@ -21,7 +21,7 @@ void CMJWaitDecideQueState::onWaitEnd( bool bTimeOut )
 
 			stQueTypeActionItem* p = new stQueTypeActionItem ;
 			p->nActIdx = pp->getIdx() ;
-			p->nType = rand() % 3 + 1 ;
+			p->nType = pp->getAutoQueType() ;
 			pp->setMustQueType(p->nType) ;
 			responeWaitAct(p->nActIdx,p) ;
 		}

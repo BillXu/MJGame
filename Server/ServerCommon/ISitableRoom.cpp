@@ -50,7 +50,7 @@ bool ISitableRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pCo
 		m_vSitdownPlayers[nIdx] = nullptr ;
 	}
 
-	m_pRobotDispatchStrage = new CRobotDispatchStrategy ;
+	m_pRobotDispatchStrage = new CRobotDispatchStrategy() ;
 
 	m_pRobotDispatchStrage->init(this,0,getRoomID(),nRoomID);
 	return true ;
@@ -59,7 +59,7 @@ bool ISitableRoom::onFirstBeCreated(IRoomManager* pRoomMgr,stBaseRoomConfig* pCo
 void ISitableRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* pConfig,uint32_t nRoomID , Json::Value& vJsValue )
 {
 	IRoom::serializationFromDB(pRoomMgr,pConfig,nRoomID,vJsValue);
-	auto* pC = pConfig;
+	auto pC = pConfig;
 	m_nSeatCnt = pC->nMaxSeat ;
 	m_vSitdownPlayers = new ISitableRoomPlayer*[m_nSeatCnt] ;
 	for ( uint8_t nIdx = 0 ; nIdx < m_nSeatCnt ; ++nIdx )
@@ -67,7 +67,7 @@ void ISitableRoom::serializationFromDB(IRoomManager* pRoomMgr,stBaseRoomConfig* 
 		m_vSitdownPlayers[nIdx] = nullptr ;
 	}
 
-	m_pRobotDispatchStrage = new CRobotDispatchStrategy ;
+	m_pRobotDispatchStrage = new CRobotDispatchStrategy() ;
 	m_pRobotDispatchStrage->init(this,0,getRoomID(),nRoomID);
 }
 

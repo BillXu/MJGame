@@ -565,11 +565,9 @@ struct stMsgSvrEnterRoomRet
 //struct stMsgSvrApplyLeaveRoom
 //	:public stMsg
 //{
-//	stMsgSvrApplyLeaveRoom(){ cSysIdentifer = ID_MSG_PORT_NIU_NIU ; usMsgType = MSG_SVR_DO_LEAVE_ROOM ; }
+//	stMsgSvrApplyLeaveRoom(){ cSysIdentifer = ID_MSG_PORT_NIU_NIU; usMsgType = MSG_SVR_APPLY_LEAVE; }
 //	uint32_t nUserUID ;
-//	uint32_t nSessionID ;
 //	uint32_t nRoomID ;
-//	uint32_t nRoomType ;
 //};
 
 struct stMsgSvrDoLeaveRoom

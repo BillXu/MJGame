@@ -48,6 +48,7 @@ public:
 	uint8_t getCardCount();
 	uint8_t getAnPaiCount() { return m_vAnCards.size() ; }
 	uint8_t getGenCount();
+	uint16_t getAutoQueWeight();
 public:
 	LIST_PEER_CARDS m_vAnCards ;
 	LIST_PEER_CARDS m_vMingCards ;
@@ -74,6 +75,7 @@ public:
 	void getAnPai(Json::Value& vAnPia );
 	void getMingPai( Json::Value& vMingPia );
 	void debugAnpaiCount();
+	uint8_t getAutoQueType();
 protected:
 	uint8_t getGenShu();
 protected:

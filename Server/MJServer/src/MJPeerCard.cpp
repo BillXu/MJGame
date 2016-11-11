@@ -3,6 +3,7 @@
 #include "MJCard.h"
 #include "MJBloodFanxing.h"
 #include "log4z.h"
+#include <algorithm>
 bool CPeerCardSubCollect::removeCardNumber( uint8_t nNumber )
 {
 	auto iter = m_vAnCards.begin() ;
@@ -54,6 +55,62 @@ uint8_t CPeerCardSubCollect::getGenCount()
 		}
 	}
 	return nCnt ;
+}
+
+uint16_t CPeerCardSubCollect::getAutoQueWeight()
+{
+	uint16_t nWeiht = getCardCount() * 100;
+	std::vector<uint8_t> vecCards;
+	for (auto& ref : m_vAnCards)
+	{
+		vecCards.push_back(ref.nCardNumber);
+	}
+
+	std::sort(vecCards.begin(),vecCards.end());
+	
+	for (uint8_t nIdx = 0; nIdx < vecCards.size();)
+	{
+		uint8_t nValue = vecCards[nIdx];
+		uint8_t nPiarValue = 0, nKeValue = 0, nGenValue = 0;
+		if (nIdx + 3 < vecCards.size())
+		{
+			nGenValue = vecCards[nIdx + 3];
+			nKeValue = vecCards[nIdx + 2];
+			nPiarValue = vecCards[nIdx + 1];
+		}
+		else if (nIdx + 2 < vecCards.size())
+		{
+			nKeValue = vecCards[nIdx + 2];
+			nPiarValue = vecCards[nIdx + 1];
+		}
+		else if (nIdx + 1 < vecCards.size())
+		{
+			nPiarValue = vecCards[nIdx + 1];
+		}
+
+		if (nGenValue == nValue)
+		{
+			nWeiht += 80;
+			nIdx += 4;
+			continue;
+		}
+
+		if (nKeValue == nValue)
+		{
+			nWeiht += 60;
+			nIdx += 3;
+			continue;
+		}
+
+		if (nPiarValue == nValue)
+		{
+			nWeiht += 40;
+			nIdx += 2;
+			continue;
+		}
+		++nIdx;
+	}
+	return nWeiht;
 }
 
 void CPeerCardSubCollect::doAction(eMJActType eType, uint8_t nNumber )
@@ -640,4 +697,20 @@ void  CMJPeerCard::debugAnpaiCount()
 	}
 
 	LOGFMTD("total cnt = %u",nTotal) ;
+}
+
+uint8_t CMJPeerCard::getAutoQueType()
+{
+	uint16_t nMiniWeigth = 1000;
+	uint8_t nType = 0;
+	for (auto& ref : m_vSubCollectionCards)
+	{
+		if (ref.second.getAutoQueWeight() < nMiniWeigth)
+		{
+			nMiniWeigth = ref.second.getAutoQueWeight();
+			nType = ref.first;
+		}
+	}
+
+	return nType;
 }

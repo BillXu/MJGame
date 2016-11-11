@@ -1046,3 +1046,13 @@ bool CMJRoom::getPlayersNeedSupplyCoin(std::vector<uint8_t>& vNeedPlayersIdx)
 	return vNeedPlayersIdx.empty() == false ;
 }
 
+bool CMJRoom::canStartGame()
+{
+	if ( getPlayerCntWithState(eRoomPeer_SitDown) == getSeatCount() )
+	{
+		// go to start game 
+		return true;
+	}
+	return false;
+}
+

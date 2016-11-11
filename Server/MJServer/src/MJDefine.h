@@ -1,15 +1,6 @@
 #pragma once
 #include "MessageIdentifer.h"
-enum eMJGameType
-{
-	eMJ_None,
-	eMJ_BloodRiver = eMJ_None,
-	eMJ_BloodTheEnd,
-	eMJ_COMMON,
-	eMJ_TwoBird,
-	eMJ_HZ,
-	eMJ_Max,
-};
+
 
 enum  eMJCardType
 {

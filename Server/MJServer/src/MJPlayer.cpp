@@ -10,6 +10,15 @@ void MJPlayer::init(stEnterRoomData* pData)
 	m_nCoin = pData->nCoin;
 	m_nIdx = -1;
 	m_nOffset = 0;
+	m_nPlayerType = pData->nPlayerType;
+	clearDecareBuGangFlag();
+}
+
+void MJPlayer::onComeBackRoom(stEnterRoomData* pData)
+{
+	m_nSessioID = pData->nUserSessionID;
+	m_nCoin = pData->nCoin;
+	m_nPlayerType = pData->nPlayerType;
 }
 
 void MJPlayer::onWillStartGame()
@@ -21,17 +30,20 @@ void MJPlayer::onWillStartGame()
 void MJPlayer::onStartGame()
 {
 	setState(eRoomPeer_CanAct);
+	clearDecareBuGangFlag();
 }
 
 void MJPlayer::onGameDidEnd()
 {
 	setState(eRoomPeer_WaitNextGame);
+	clearDecareBuGangFlag();
 }
 
 void MJPlayer::onGameEnd()
 {
 	setState(eRoomPeer_WaitNextGame);
 	clearGangFlag();
+	clearDecareBuGangFlag();
 }
 
 uint8_t MJPlayer::getIdx()
@@ -105,4 +117,30 @@ void MJPlayer::clearGangFlag()
 bool MJPlayer::haveGangFalg()
 {
 	return m_isHaveGang;
+}
+
+void MJPlayer::signDecareBuGangFlag()
+{
+	m_isDeclareBuGang = true;
+}
+
+void MJPlayer::clearDecareBuGangFlag()
+{
+	m_isDeclareBuGang = false;
+}
+
+bool MJPlayer::haveDecareBuGangFalg()
+{
+	return m_isDeclareBuGang;
+}
+
+int32_t MJPlayer::onRecievedSupplyCoin(uint32_t nSupplyCoin)
+{
+	m_nCoin += nSupplyCoin;
+	return m_nCoin;
+}
+
+bool MJPlayer::isRobot()
+{
+	return ePlayer_Robot == m_nPlayerType;
 }

@@ -203,7 +203,7 @@ bool MJPlayerCard::canMingGangWithCard(uint8_t nCard)
 	}
 	auto& vCard = m_vCards[eType];
 	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
-	return nCard == 3;
+	return nCnt == 3;
 }
 
 bool MJPlayerCard::canPengWithCard(uint8_t nCard)
@@ -216,7 +216,7 @@ bool MJPlayerCard::canPengWithCard(uint8_t nCard)
 	}
 	auto& vCard = m_vCards[eType];
 	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
-	return nCard >= 2;
+	return nCnt >= 2;
 }
 
 bool MJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
@@ -270,6 +270,7 @@ bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 	addCardToVecAsc(m_vCards[eType], nCard);
 	bool bSelfHu = isHoldCardCanHu();
 	auto iter = std::find(m_vCards[eType].begin(), m_vCards[eType].end(),nCard);
+	m_vCards[eType].erase(iter);
 	return bSelfHu;
 }
 
@@ -283,7 +284,7 @@ bool MJPlayerCard::canAnGangWithCard(uint8_t nCard)
 	}
 	auto& vCard = m_vCards[eType];
 	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
-	return nCard == 4;
+	return nCnt == 4;
 }
 
 bool MJPlayerCard::canBuGangWithCard(uint8_t nCard)
@@ -297,7 +298,7 @@ bool MJPlayerCard::canBuGangWithCard(uint8_t nCard)
 	auto& vCard = m_vCards[eType];
 	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
 	auto npeng = std::count(m_vPenged.begin(), m_vPenged.end(), nCard);
-	return nCard == 1 && 0 < npeng;
+	return nCnt == 1 && 0 < npeng;
 }
 
 //bool MJPlayerCard::isTingPai()
@@ -557,7 +558,7 @@ bool MJPlayerCard::onPeng(uint8_t nCard)
 	
 	auto& vCard = m_vCards[eType];
 	auto nEraseCnt = 2;
-	while (nEraseCnt-- < 0)
+	while (nEraseCnt-- > 0)
 	{
 		auto iter = std::find(vCard.begin(), vCard.end(), nCard);
 		vCard.erase(iter);
@@ -578,7 +579,7 @@ bool MJPlayerCard::onMingGang(uint8_t nCard, uint8_t nGangGetCard)
 
 	auto& vCard = m_vCards[eType];
 	auto nEraseCnt = 3;
-	while (nEraseCnt-- < 0)
+	while (nEraseCnt-- > 0)
 	{
 		auto iter = std::find(vCard.begin(), vCard.end(), nCard);
 		vCard.erase(iter);
@@ -604,7 +605,7 @@ bool MJPlayerCard::onAnGang(uint8_t nCard, uint8_t nGangGetCard)
 
 	auto& vCard = m_vCards[eType];
 	auto nEraseCnt = 4;
-	while (nEraseCnt-- < 0)
+	while (nEraseCnt-- > 0)
 	{
 		auto iter = std::find(vCard.begin(), vCard.end(), nCard);
 		vCard.erase(iter);
@@ -621,7 +622,34 @@ bool MJPlayerCard::onAnGang(uint8_t nCard, uint8_t nGangGetCard)
 
 bool MJPlayerCard::onBuGang(uint8_t nCard, uint8_t nGangGetCard)
 {
-	return onMingGang(nCard, nGangGetCard);
+	auto eType = card_Type(nCard);
+	if (eType >= eCT_Max)
+	{
+		LOGFMTE("onMingGang parse card type error so do not have this card = %u", nCard);
+		return false;
+	}
+
+	// remove hold card 
+	auto& vCard = m_vCards[eType];
+	auto iter = std::find(vCard.begin(), vCard.end(), nCard);
+	vCard.erase(iter);
+
+	// remove peng 
+	auto iterPeng = std::find(m_vPenged.begin(), m_vPenged.end(), nCard);
+	if (iterPeng == m_vPenged.end())
+	{
+		LOGFMTE("not peng , hao to bu gang ? %u ",nCard); 
+		return false;
+	}
+
+	// add to gang ;
+	addCardToVecAsc(m_vGanged, nCard);
+
+	// new get card ;
+	auto eGetType = card_Type(nGangGetCard);
+	addCardToVecAsc(vCard, nGangGetCard);
+	m_nNesetFetchedCard = nGangGetCard;
+	return true;
 }
 
 bool MJPlayerCard::onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB)
@@ -662,6 +690,8 @@ bool MJPlayerCard::onChuCard(uint8_t nChuCard)
 	auto iter = std::find(m_vCards[eT].begin(), m_vCards[eT].end(), nChuCard);
 	m_vCards[eT].erase(iter);
 	m_vChuedCard.push_back(nChuCard);
+
+	debugCardInfo();
 	return true;
 }
 
@@ -1058,6 +1088,153 @@ bool MJPlayerCard::canHoldCard7PairHu()
 	return false;
 }
 
+bool MJPlayerCard::getCanHuCards(std::set<uint8_t>& vCanHuCards)
+{
+	if (is7PairTing())
+	{
+		// when 7 pair ting , then must dan diao ;
+		if (m_nDanDiao == 0)
+		{
+			LOGFMTE("why 7 pair ting , is not  dan diao ? bug ?????");
+			return false;
+		}
+		vCanHuCards.insert(m_nDanDiao);
+		return true;
+	}
+
+	if ( isTingPai() == false )
+	{
+		vCanHuCards.clear();
+		return false;
+	}
+
+	// copy card for use ;
+	VEC_CARD vCards[eCT_Max];
+	for (uint8_t nIdx = 0; nIdx < eCT_Max; ++nIdx )
+	{
+		vCards[nIdx] = m_vCards[nIdx];
+	}
+
+	// already 
+	auto pfnGetCanHuCardIgnoreJiang = [this](VEC_CARD& vCardToFind, std::set<uint8_t>& vCanHuCards)
+	{
+		if (vCardToFind.empty())
+		{
+			return;
+		}
+		SET_NOT_SHUN vNotShun;
+		auto type = card_Type(vCardToFind.front());
+		auto bMustKe = (type == eCT_Feng || eCT_Jian == type);
+		getNotShuns(vCardToFind, vNotShun, bMustKe);
+
+		// pare can hu cards ;
+		auto iter = vNotShun.begin();
+		for (; iter != vNotShun.end(); ++iter)
+		{
+			if ((*iter).getSize() != 2)
+			{
+				continue;
+			}
+			auto vCheckCard = (*iter).vCards;
+			auto aValue = vCheckCard[0];
+			auto bValue = vCheckCard[1];
+
+			if (aValue == bValue)
+			{
+				vCanHuCards.insert(aValue);
+				continue;
+			}
+
+			if (bMustKe)
+			{
+				continue;
+			}
+
+			// when not must ke zi ;
+			if (aValue > bValue)
+			{
+				aValue += bValue;
+				bValue = aValue - bValue;
+				aValue = aValue - bValue;
+			}
+
+			if (aValue + 2 == bValue)
+			{
+				vCanHuCards.insert((aValue + 1));
+				continue;
+			}
+
+			if (aValue + 1u == bValue)
+			{
+				auto a = aValue - 1;
+				auto b = bValue + 1;
+				if (card_Value(a) >= 1)
+				{
+					vCanHuCards.insert(a);
+				}
+
+				if (b <= 9)
+				{
+					vCanHuCards.insert(b);
+				}
+			}
+		}
+	};
+	if ( m_nJIang )
+	{
+		auto type = card_Type(m_nJIang);
+		// remove jiang , then check ;
+		auto iter = std::find(vCards[type].begin(), vCards[type].end(), m_nJIang);
+		vCards[type].erase(iter);
+		iter = std::find(vCards[type].begin(), vCards[type].end(), m_nJIang);
+		vCards[type].erase(iter);
+
+		for (uint8_t nIdx = 0; nIdx < eCT_Max; ++nIdx)
+		{
+			pfnGetCanHuCardIgnoreJiang(m_vCards[nIdx], vCanHuCards);
+			if (vCanHuCards.empty() == false)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	// if no jiang , so must be dan diao ;
+	if (0 == m_nDanDiao)
+	{
+		LOGFMTE("why is not dan diao , also have no jiang big bug ????? ");
+		return false;
+	}
+	
+	auto type = card_Type(m_nDanDiao);
+	SET_NOT_SHUN vNotShun;
+	getNotShuns(vCards[type], vNotShun, eCT_Feng == type || eCT_Jian == type);
+	// parse dan diao card ;
+	auto iter = vNotShun.begin();
+	for (; iter != vNotShun.end(); ++iter)
+	{
+		if ((*iter).getSize() == 1)
+		{
+			vCanHuCards.insert((*iter).vCards.front());
+		}
+	}
+
+	// although  diandiao  , but also this can have already jiang , because when decide jiang or dandiao , we asume , dan diao first ;
+	if (std::count(vCards[type].begin(), vCards[type].end(), m_nDanDiao) >= 2)
+	{
+		// remove as jiang 
+		auto iter = std::find(vCards[type].begin(), vCards[type].end(), m_nDanDiao);
+		vCards[type].erase(iter);
+		iter = std::find(vCards[type].begin(), vCards[type].end(), m_nDanDiao);
+		vCards[type].erase(iter);
+		pfnGetCanHuCardIgnoreJiang(vCards[type], vCanHuCards);
+	}
+
+	return vCanHuCards.empty() == false;
+}
+
 uint8_t MJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 {
 	// prepare cards without cai shen 
@@ -1237,5 +1414,26 @@ uint8_t MJPlayerCard::getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool b
 	nFiandJiang = nFedJIangResult;
 	nFindDanDiao = nFedDanResult;
 	return nLesetQue;
+}
+
+void MJPlayerCard::debugCardInfo()
+{
+	LOGFMTD("card info start !");
+	for (uint8_t eType = 0; eType < eCT_Max; ++eType)
+	{
+		VEC_CARD& vCard = m_vCards[eType];
+		if (vCard.empty())
+		{
+			continue;
+		}
+		LOGFMTI("card info type : %u ", eType );
+		for (auto & ref : vCard)
+		{
+			auto value = card_Value(ref);
+			LOGFMTI("value = %u",value);
+		}
+	}
+
+	LOGFMTD("card info end !");
 }
 

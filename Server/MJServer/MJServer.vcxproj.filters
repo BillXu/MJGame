@@ -40,6 +40,18 @@
     <Filter Include="src\MJHZ">
       <UniqueIdentifier>{7fbac809-0767-4521-a597-8d7549b74bd3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\MJXL">
+      <UniqueIdentifier>{2153e569-7fcf-402d-b21a-acee268b2f95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MJXL\XLState">
+      <UniqueIdentifier>{1e25545e-602b-463f-9778-8858abd576da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Private">
+      <UniqueIdentifier>{2ddc95f2-ba54-4d6c-abd8-a4e04ec7362c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MJXZ">
+      <UniqueIdentifier>{fa1d7aae-da0e-4b47-8b18-0dcd01a8d12f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -297,6 +309,45 @@
     <ClInclude Include="..\ServerCommon\log4z.h">
       <Filter>SvrCommon</Filter>
     </ClInclude>
+    <ClInclude Include="src\IGameRoomManager.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJRoomManager.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLMJPlayer.h">
+      <Filter>src\MJXL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLMJPlayerCard.h">
+      <Filter>src\MJXL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLMJRoom.h">
+      <Filter>src\MJXL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLMJSettle.h">
+      <Filter>src\MJXL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLRoomStateWaitDecideQue.h">
+      <Filter>src\MJXL\XLState</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLRoomStateWaitSupplyCoin.h">
+      <Filter>src\MJXL\XLState</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLRoomStateDoPlayerAct.h">
+      <Filter>src\MJXL\XLState</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLRoomStateStartGame.h">
+      <Filter>src\MJXL\XLState</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XLFanXingChecker.h">
+      <Filter>src\MJXL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MJPrivateRoom.h">
+      <Filter>src\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XZMJRoom.h">
+      <Filter>src\MJXZ</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -469,6 +520,27 @@
     </ClCompile>
     <ClCompile Include="..\ServerCommon\log4z.cpp">
       <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IGameRoomManager.cpp">
+      <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJRoomManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XLMJPlayer.cpp">
+      <Filter>src\MJXL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XLMJPlayerCard.cpp">
+      <Filter>src\MJXL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XLMJRoom.cpp">
+      <Filter>src\MJXL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MJPrivateRoom.cpp">
+      <Filter>src\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XZMJRoom.cpp">
+      <Filter>src\MJXZ</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

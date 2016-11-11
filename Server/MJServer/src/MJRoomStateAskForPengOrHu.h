@@ -238,6 +238,7 @@ public:
 			jsTran["card"] = m_nCard;
 			jsTran["invokeIdx"] = m_nInvokeIdx;
 			getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
+			return true;
 		}
 
 		// must do eat

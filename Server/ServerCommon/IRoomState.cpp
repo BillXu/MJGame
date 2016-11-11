@@ -169,7 +169,7 @@ void IExecuingState::enterState(IRoom* pRoom)
 void IRoomStateWaitPlayerReady::update(float)
 {
 	auto pSitRoom = (ISitableRoom*)(m_pRoom);
-	if ( pSitRoom->getPlayerCntWithState(eRoomPeer_Ready) == m_pRoom->getSeatCount() )
+	if ( pSitRoom->canStartGame() )
 	{
 		// go to start game 
 		pSitRoom->goToState(eRoomState_StartGame) ;
@@ -182,7 +182,7 @@ bool IRoomStateWaitPlayerReady::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, 
 	{
 		auto pSitRoom = (ISitableRoom*)(m_pRoom); 
 		auto pp = pSitRoom->getSitdownPlayerBySessionID(nSessionID) ;
-		if ( pp == nullptr )
+		if ( pp == nullptr || ( pp->isHaveState(eRoomPeer_WaitNextGame) == false ) )
 		{
 			LOGFMTE("you are not sit down , can not ready session id = %u",nSessionID) ;
 			return true ;

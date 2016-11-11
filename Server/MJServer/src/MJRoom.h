@@ -54,6 +54,8 @@ public:
 	uint32_t getWaitPlayerActTime(uint8_t nIdx ,uint8_t nSugguestTime );
 	virtual bool isGameOver();
 	bool getPlayersNeedSupplyCoin(std::vector<uint8_t>& vNeedPlayersIdx);
+	bool canStartGame()override;
+	//uint32_t getRobotShouldTakeInCoin();
 protected:
 	uint32_t getCacualteCoin( uint8_t nFanshu , uint8_t nGenShu );
 	ISitableRoomPlayer* doCreateSitableRoomPlayer() override;

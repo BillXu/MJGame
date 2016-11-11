@@ -14,6 +14,7 @@ public:
 	}
 	virtual uint32_t getStateID() = 0;
 	virtual bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID){ return false; }
+	virtual bool onMessage(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nPlayerSessionID){ return false; }
 	virtual void onStateTimeUp(){}
 	virtual void leaveState(){}
 	virtual uint8_t getCurIdx(){ return 0; };

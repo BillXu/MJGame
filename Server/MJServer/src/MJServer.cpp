@@ -4,6 +4,7 @@
 #include "log4z.h"
 #include "ServerStringTable.h"
 #include "RewardConfig.h"
+#include "MJRoomManager.h"
 bool CMJServerApp::init()
 {
 	IServerApp::init();
@@ -24,6 +25,7 @@ bool CMJServerApp::init()
 	CRewardConfig::getInstance()->LoadFile("../configFile/rewardConfig.txt");
 
 	installModule(eMod_RoomMgr);
+	installModule(eMod_RoomMgrOld);
 	return true ;
 }
 
@@ -40,9 +42,13 @@ IGlobalModule* CMJServerApp::createModule(uint16_t eModuleType)
 		return p;
 	}
 
-	if (eModuleType == eMod_RoomMgr)
+	if (eModuleType == eMod_RoomMgrOld)
 	{
 		p = new CMJRoomManager(getRoomConfigMgr());
+	}
+	else if (eMod_RoomMgr == eModuleType)
+	{
+		p = new MJRoomManager();
 	}
 	return p;
 }
