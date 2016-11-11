@@ -499,24 +499,133 @@ protected:
 };
 
 
-//class CBloodFanxingDaiYaoJiu
-//	:public IMJCardFanXing
-//{
-//public:
-//	CBloodFanxingDaiYaoJiu();
-//	uint8_t getFanRate()override{ return 4; };
-//	eFanxingType getType()override{ return eFanxing_DaiYaoJiu; }
-//	bool checkType(CMJPeerCard& peerCard)override;
-//};
-//
-//class CBloodFanxingQingDaiYaoJiu
-//	:public CBloodQingYiSe
-//{
-//public:
-//	uint8_t getFanRate()override{ return 16; };
-//	eFanxingType getType()override{ return eFanxing_QingDaiYaoJiu; }
-//};
-//
+class XLFanXingDaiYaoJiu
+	:public XLFanXingChecker
+{
+public:
+	bool doCheckFanxing(XLFanXingHelper* pHelper, uint8_t& nBeiShu, uint32_t& nFanXingType)override
+	{
+		if (doSelfCheck(pHelper))
+		{
+			nBeiShu = 4;
+			nFanXingType = eFanxing_DaiYaoJiu;
+			return true;
+		}
+		return false;
+	}
+
+	bool doSelfCheck(XLFanXingHelper* pHelper)override
+	{
+		MJPlayerCard::VEC_CARD vCards , vGang;
+		pHelper->helpGetGangCard(vGang);
+		pHelper->helpGetPengedCard(vCards);
+		vCards.insert(vCards.begin(),vGang.begin(),vGang.end());
+		vCards.push_back(pHelper->helpGetJiang());
+		for (auto& ref : vCards)
+		{
+			auto v = card_Value(ref);
+			if (1 != v && 9 != v )
+			{
+				return false;
+			}
+		}
+
+		// check per type
+		auto pfunFindNot19 = [](MJPlayerCard::VEC_CARD& vCards, uint8_t nJiang )->bool
+		{
+			// remove jiang ;
+			auto iter = std::find(vCards.begin(), vCards.end(), nJiang);
+			if (iter != vCards.end())
+			{
+				vCards.erase(iter);
+			}
+
+			if (vCards.empty())
+			{
+				return false;
+			}
+
+			// find card that 4 - 6 
+			for (auto& ref : vCards)
+			{
+				auto v = card_Value(ref);
+				if ( 4 <= v && 6 >= v)
+				{
+					return true;
+				}
+			}
+
+			// find 1 , 2 , 3 count 
+			auto nCnt1 = std::count_if(vCards.begin(), vCards.end(), [](uint8_t& nValue){ auto v = card_Value(nValue);  return v == 1;  });
+			auto nCnt2 = std::count_if(vCards.begin(), vCards.end(), [](uint8_t& nValue){ auto v = card_Value(nValue);  return v == 2;  });
+			auto nCnt3 = std::count_if(vCards.begin(), vCards.end(), [](uint8_t& nValue){ auto v = card_Value(nValue);  return v == 3;  });
+			if (nCnt2 != nCnt3 || nCnt2 > nCnt1)
+			{
+				return true;
+			}
+
+			// find 7 , 8 , 9 count 
+			auto nCnt7 = std::count_if(vCards.begin(), vCards.end(), [](uint8_t& nValue){ auto v = card_Value(nValue);  return v == 7;  });
+			auto nCnt8 = std::count_if(vCards.begin(), vCards.end(), [](uint8_t& nValue){ auto v = card_Value(nValue);  return v == 8;  });
+			auto nCnt9 = std::count_if(vCards.begin(), vCards.end(), [](uint8_t& nValue){ auto v = card_Value(nValue);  return v == 9;  });
+			if (nCnt7 != nCnt8 || nCnt7 > nCnt9 )
+			{
+				return true;
+			}
+
+			return false;
+		};
+
+		// get card ;
+		vCards.clear();
+		pHelper->helpGetHoldCardByType(vCards,eCT_Wan);
+		if (pfunFindNot19(vCards, pHelper->helpGetJiang()))
+		{
+			return false;
+		}
+
+		vCards.clear();
+		pHelper->helpGetHoldCardByType(vCards, eCT_Tiao);
+		if (pfunFindNot19(vCards, pHelper->helpGetJiang()))
+		{
+			return false;
+		}
+
+		vCards.clear();
+		pHelper->helpGetHoldCardByType(vCards, eCT_Tong);
+		if (pfunFindNot19(vCards, pHelper->helpGetJiang()))
+		{
+			return false;
+		}
+
+		return true;
+	}
+};
+
+class XLFanXingQingDaiYaoJiu
+	:public XLFanXingChecker
+{
+public:
+	bool doCheckFanxing(XLFanXingHelper* pHelper, uint8_t& nBeiShu, uint32_t& nFanXingType)override
+	{
+		if (doSelfCheck(pHelper))
+		{
+			nBeiShu = 16;
+			nFanXingType = eFanxing_QingDaiYaoJiu;
+			return true;
+		}
+		return false;
+	}
+
+	bool doSelfCheck(XLFanXingHelper* pHelper)override
+	{
+		return m_tQingYiSe.doSelfCheck(pHelper) && m_tDaiYaoJiu.doSelfCheck(pHelper);
+	}
+protected:
+	XLFanXingDaiYaoJiu m_tDaiYaoJiu;
+	XLFanXingQingYiSe m_tQingYiSe;
+};
+
 //class CBloodFanxing
 //	:public CSingleton<CBloodFanxing>
 //{
