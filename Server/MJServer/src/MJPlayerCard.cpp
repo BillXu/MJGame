@@ -716,19 +716,19 @@ bool MJPlayerCard::getChuedCard(VEC_CARD& vChuedCard)
 
 bool MJPlayerCard::getGangedCard(VEC_CARD& vGangCard)
 {
-	vGangCard.insert(m_vGanged.end(), m_vGanged.begin(), m_vGanged.end());
+	vGangCard.insert(vGangCard.end(), m_vGanged.begin(), m_vGanged.end());
 	return false == vGangCard.empty();
 }
 
 bool MJPlayerCard::getPengedCard(VEC_CARD& vPengedCard)
 {
-	vPengedCard.insert(m_vPenged.end(), m_vPenged.begin(), m_vPenged.end());
+	vPengedCard.insert(vPengedCard.end(), m_vPenged.begin(), m_vPenged.end());
 	return false == vPengedCard.empty();
 }
 
 bool MJPlayerCard::getEatedCard(VEC_CARD& vEatedCard)
 {
-	vEatedCard.insert(m_vEated.end(), m_vEated.begin(), m_vEated.end());
+	vEatedCard.insert(vEatedCard.end(), m_vEated.begin(), m_vEated.end());
 	return false == vEatedCard.empty();
 }
 

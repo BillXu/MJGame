@@ -324,7 +324,6 @@ protected:
 	XLFanXingQingYiSe m_tQingYiSe;
 };
 
-
 class XLFanXingJinGouDiao
 	:public XLFanXingChecker
 {
@@ -371,7 +370,6 @@ public:
 	}
 };
 
-
 class XLFanXingQingJinGouDiao
 	:public XLFanXingChecker
 {
@@ -395,7 +393,6 @@ protected:
 	XLFanXingJinGouDiao m_tJinGouDiao;
 	XLFanXingQingYiSe m_tQingYiSe;
 };
-
 
 class XLFanXingShiBaLuoHan
 	:public XLFanXingChecker
@@ -497,7 +494,6 @@ public:
 protected:
 	XLFanXingJinGouDiao m_tJinGouDiao;
 };
-
 
 class XLFanXingDaiYaoJiu
 	:public XLFanXingChecker
