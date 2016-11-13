@@ -285,21 +285,25 @@ void tempTest()
 	XLMJPlayerCard* pPlayerCard = new XLMJPlayerCard();
 		
 	pPlayerCard->setQueType(eCT_Tiao);
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
 
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
 	
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 2));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 4));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
 	
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 4));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
 		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
 	
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
 		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 8));
+		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
 	
 		 
 		

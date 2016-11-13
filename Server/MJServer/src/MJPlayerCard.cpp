@@ -72,6 +72,10 @@ bool MJPlayerCard::stNotShunCard::operator < (const stNotShunCard& v)const
 		{
 			return true;
 		}
+		else
+		{
+			return false;
+		}
 	}
 
 	return false;
@@ -785,9 +789,9 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 	{
 		stNotShunCard stNot;
 		stNot.vCards.clear();
-		stNot.vCards.swap(vLeftCard);
+		stNot.vCards = vLeftCard;
 		vNotShun.insert(stNot);
-		return false;
+		//return false;
 	}
 
 	// without kezi ,Left card , that not shun . ignore part ke zi , means some kezi not represent ke zi ;
@@ -1420,8 +1424,16 @@ uint8_t MJPlayerCard::getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool b
 		}
 	}
 
-	nFiandJiang = nFedJIangResult;
-	nFindDanDiao = nFedDanResult;
+	if (nFiandJiang == 0)
+	{
+		nFiandJiang = nFedJIangResult;
+	}
+	
+	if (nFindDanDiao == 0)
+	{
+		nFindDanDiao = nFedDanResult;
+	}
+	
 	return nLesetQue;
 }
 

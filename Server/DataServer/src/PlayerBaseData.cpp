@@ -1040,9 +1040,10 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			jsmsgBack["finalCoin"] = getCoin() ;
 			jsmsgBack["recievedCoin"] = 0 ;
 			jsmsgBack["leftTimes"] = 0 ;
+			LOGFMTD("get chartiy coin = %u , uid = %u",GetAllCoin(),GetPlayer()->GetUserUID());
 			if ( GetAllCoin() > COIN_CONDITION_TO_GET_CHARITY )  
 			{
-				jsmsgBack["ret"] = 2;
+				jsmsgBack["ret"] = 1;
 				SendMsg(jsmsgBack, nmsgType);
 				break;
 			}
@@ -1050,6 +1051,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 			// check times limit state ;
 			if ( getLeftCharityTimes() == 0 )
 			{
+				LOGFMTD("get charity time limit out uid = %u",GetPlayer()->GetUserUID());
 				jsmsgBack["ret"] = 2 ;
 				SendMsg(jsmsgBack,nmsgType);
 				break;

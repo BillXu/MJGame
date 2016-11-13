@@ -96,7 +96,12 @@ public:
 			}
 			else
 			{
-				LOGFMTD("uid = %u supply coin is not enough , go on waiting to supply coin", pSitPlayer->getUID());
+				LOGFMTD("uid = %u supply coin is not enough , go on waiting to supply coin reset wait time", pSitPlayer->getUID());
+				std::vector<uint8_t> vTmp;
+				vTmp.push_back(pSitPlayer->getIdx());
+				XLMJRoom* pRoom = (XLMJRoom*)getRoom();
+				pRoom->infoPlayerSupplyCoin(vTmp);
+				setStateDuringTime(eTime_WaitSupplyCoin);
 			}
 
 			if (vWaitIdx.empty())
@@ -111,6 +116,20 @@ public:
 
 	void onStateTimeUp()override
 	{
+		// wait time out auto decide lose 
+		for (auto& ref : vWaitIdx)
+		{
+			auto pSitPlayer = getRoom()->getMJPlayerByIdx(ref);
+			// is sitdown layer 
+			if (!pSitPlayer)
+			{
+				LOGFMTE("idx = %u auto decide lose but is null ptr",ref);
+				continue;
+			}
+			pSitPlayer->setState(eRoomPeer_DecideLose);
+			LOGFMTD("uid = %u auto decide lose", pSitPlayer->getUID());
+		}
+
 		if (getRoom()->isGameOver())
 		{
 			getRoom()->goToState(eRoomState_GameEnd);
