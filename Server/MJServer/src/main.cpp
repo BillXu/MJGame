@@ -276,10 +276,48 @@
 //	return 0 ;
 //}
 
+#include "MJPlayerCard.h"
+#include "MJCard.h"
+#include "XLMJPlayerCard.h"
+void tempTest()
+{
+	//	// test new chard ;
+	XLMJPlayerCard* pPlayerCard = new XLMJPlayerCard();
+		
+	pPlayerCard->setQueType(eCT_Tiao);
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
+	
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 2));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 4));
+	
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 4));
+		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
+	
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
+	
+		 
+		
+		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+		auto p = pPlayerCard->getMaxPossibleBeiShu();
+		printf("beishu = %u\n",p);
+		if (pPlayerCard->isTingPai())
+		{
+			printf("do ting \n");
+		}
+
+}
+
 #include "MJServer.h"
 #include "Application.h"
 int main()
 {
+	//tempTest();
 	CApplication theAplication(CMJServerApp::getInstance());
 	theAplication.startApp();
 	return 0;

@@ -61,6 +61,11 @@ int32_t MJPlayer::getCoin()
 	return m_nCoin;
 }
 
+void MJPlayer::setCoin( int32_t nNewCoin)
+{
+	m_nCoin = nNewCoin;
+}
+
 void MJPlayer::addOffsetCoin(int32_t nOffset)
 {
 	if (nOffset < 0 && (-1 * nOffset) >(int32_t)getCoin())

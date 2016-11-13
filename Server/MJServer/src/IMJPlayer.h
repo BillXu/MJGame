@@ -15,6 +15,7 @@ public:
 	virtual uint8_t getIdx() = 0;
 	virtual void setIdx(uint8_t nIdx) = 0;
 	virtual int32_t getCoin() = 0;
+	virtual void setCoin( int32_t nNewCoin ) = 0 ;  // only used for comsume desk fee
 	virtual int32_t onRecievedSupplyCoin( uint32_t nSupplyCoin ) = 0;
 	virtual void addOffsetCoin( int32_t nOffset ) = 0 ;
 	virtual int32_t getOffsetCoin() = 0;

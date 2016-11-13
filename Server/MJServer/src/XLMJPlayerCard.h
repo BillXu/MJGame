@@ -22,6 +22,7 @@ public:
 	bool canAnGangWithCard(uint8_t nCard)override;
 	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;
 	XLFanXingChecker* getFanxingChecker(){ return &m_tFanXingChecker; };
+	bool getHuedCard(VEC_CARD& vhuedCard);
 protected:
 	uint8_t getGenShu();
 protected:

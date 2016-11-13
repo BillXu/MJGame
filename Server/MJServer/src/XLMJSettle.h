@@ -4,6 +4,7 @@
 #include <cassert>
 #include "json/json.h"
 #include "MessageIdentifer.h"
+#include "log4z.h"
 struct ISettle
 {
 	eSettleType eType;
@@ -123,7 +124,14 @@ struct ISettleGang
 struct stSettleMingGang
 	:public ISettleGang
 {
-	stSettleMingGang(uint8_t nInvokeIdx, uint8_t nGangIdx, uint32_t nCoin){ eType = eSettle_MingGang; nInvokerIdx = nInvokeIdx; nCoinOffset = nCoin; }
+	stSettleMingGang(uint8_t nInvokeIdx, uint8_t nGangIdx, uint32_t nCoin)
+	{
+		this->nGangIdx = nGangIdx;
+		eType = eSettle_MingGang; 
+		nInvokerIdx = nInvokeIdx; 
+		nCoinOffset = nCoin; 
+	}
+
 	bool isContainPlayer(uint8_t nIdx)override
 	{
 		if (nIdx == nInvokerIdx || nIdx == nGangIdx )
@@ -222,7 +230,13 @@ struct stSettleAnGang
 		}
 		else
 		{
-			jsInfo["offset"] = (int32_t)nWinCoin * -1;
+			auto iter = vMapPlayeIdxAndCoin.find(nIdx);
+			if (iter == vMapPlayeIdxAndCoin.end())
+			{
+				LOGFMTE("idx = %u be win but have recorder ? ",nIdx);
+				return false;
+			}
+			jsInfo["offset"] = (int32_t)iter->second * -1;
 			jsTarget[0u] = nGangIdx;
 		}
 		jsInfo["target"] = jsTarget;

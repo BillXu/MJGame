@@ -31,7 +31,7 @@ public:
 	IMJRoomDelegate* getDelegate(){ return m_pDelegate; }
 	bool isWaitPlayerActForever(){ return getDelegate() != nullptr; }
 protected:
-	void sendPlayersCardInfo(uint32_t nSessionID );
+	virtual void sendPlayersCardInfo(uint32_t nSessionID );
 public:
 	uint32_t getRoomID()final;
 	stBaseRoomConfig* getRoomConfig()final{ return m_pRoomConfig; }

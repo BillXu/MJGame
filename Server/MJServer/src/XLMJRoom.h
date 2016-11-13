@@ -31,6 +31,7 @@ public:
 	bool getWaitSupplyCoinPlayerIdxs(std::vector<uint8_t>& vOutWaitSupplyIdx);
 	void infoPlayerSupplyCoin(std::vector<uint8_t>& vOutWaitSupplyIdx );
 protected:
+	void sendPlayersCardInfo(uint32_t nSessionID)override;
 	void onPlayerZiMo(uint8_t nIdx, uint8_t nCard);
 	void doChaHuaZhu(std::vector<uint8_t>& vHuaZhu);
 	void doChaDaJiao(std::vector<uint8_t>& vHuaZhu );

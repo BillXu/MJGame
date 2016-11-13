@@ -32,6 +32,7 @@ public:
 			return;
 		}
 		auto nCard = getRoom()->getAutoChuCardWhenWaitActTimeout(m_nIdx);
+		LOGFMTE("wait time out , auto chu card = %u idx = %u", nCard,m_nIdx);
 		Json::Value jsTran;
 		jsTran["idx"] = m_nIdx;
 		jsTran["act"] = eMJAct_Chu;

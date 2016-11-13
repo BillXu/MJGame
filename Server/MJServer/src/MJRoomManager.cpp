@@ -341,7 +341,7 @@ bool MJRoomManager::processEnterRoomMsg(stMsg* prealMsg, eMsgPort eSenderPort, u
 			}
 
 			nStandCoin = nLowLimit + rand() % (nTopLimit - nLowLimit);
-			nStandCoin = float(nStandCoin) * 1.1f;
+			nStandCoin = float(nStandCoin) * 1.1f + pConfig->nDeskFee;
 			LOGFMTD("adjust robot coin to : %u", nStandCoin);
 			pRet->tPlayerData.nCoin = nStandCoin;
 		}

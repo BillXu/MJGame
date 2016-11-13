@@ -13,6 +13,7 @@ public:
 	uint8_t getIdx() final;
 	void setIdx(uint8_t nIdx)  final;
 	int32_t getCoin() final;
+	void setCoin(int32_t nNewCoin)final;
 	void addOffsetCoin(int32_t nOffset) override;
 	int32_t getOffsetCoin() override;
 	void setState(uint32_t eState) override;

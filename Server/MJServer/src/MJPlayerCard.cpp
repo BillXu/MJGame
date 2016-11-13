@@ -271,6 +271,7 @@ bool MJPlayerCard::canHuWitCard(uint8_t nCard)
 	bool bSelfHu = isHoldCardCanHu();
 	auto iter = std::find(m_vCards[eType].begin(), m_vCards[eType].end(),nCard);
 	m_vCards[eType].erase(iter);
+	//debugCardInfo();
 	return bSelfHu;
 }
 
@@ -545,6 +546,7 @@ void MJPlayerCard::onMoCard(uint8_t nMoCard)
 	}
 	addCardToVecAsc(m_vCards[eType], nMoCard);
 	m_nNesetFetchedCard = nMoCard;
+	debugCardInfo();
 }
 
 bool MJPlayerCard::onPeng(uint8_t nCard)
@@ -565,6 +567,7 @@ bool MJPlayerCard::onPeng(uint8_t nCard)
 	}
 
 	addCardToVecAsc(m_vPenged,nCard);
+	//debugCardInfo();
 	return true;
 }
 
@@ -591,6 +594,7 @@ bool MJPlayerCard::onMingGang(uint8_t nCard, uint8_t nGangGetCard)
 	auto eGetType = card_Type(nGangGetCard);
 	addCardToVecAsc(m_vCards[eGetType],nGangGetCard);
 	m_nNesetFetchedCard = nGangGetCard;
+	//debugCardInfo();
 	return true;
 }
 
@@ -617,6 +621,7 @@ bool MJPlayerCard::onAnGang(uint8_t nCard, uint8_t nGangGetCard)
 	auto eGetType = card_Type(nGangGetCard);
 	addCardToVecAsc(m_vCards[eGetType], nGangGetCard);
 	m_nNesetFetchedCard = nGangGetCard;
+	//debugCardInfo();
 	return true;
 }
 
@@ -647,8 +652,9 @@ bool MJPlayerCard::onBuGang(uint8_t nCard, uint8_t nGangGetCard)
 
 	// new get card ;
 	auto eGetType = card_Type(nGangGetCard);
-	addCardToVecAsc(vCard, nGangGetCard);
+	addCardToVecAsc(m_vCards[eGetType], nGangGetCard);
 	m_nNesetFetchedCard = nGangGetCard;
+	//debugCardInfo();
 	return true;
 }
 
@@ -691,7 +697,7 @@ bool MJPlayerCard::onChuCard(uint8_t nChuCard)
 	m_vCards[eT].erase(iter);
 	m_vChuedCard.push_back(nChuCard);
 
-	debugCardInfo();
+	//debugCardInfo();
 	return true;
 }
 
@@ -778,11 +784,13 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 	if (bMustKeZiShun || vLeftCard.size() < 3 ) // this situation left card  must be  not shun ;
 	{
 		stNotShunCard stNot;
+		stNot.vCards.clear();
 		stNot.vCards.swap(vLeftCard);
+		vNotShun.insert(stNot);
 		return false;
 	}
 
-	// without kezi ,Left card , that not shun 
+	// without kezi ,Left card , that not shun . ignore part ke zi , means some kezi not represent ke zi ;
 	if ( vKeZi.size() > 0 )
 	{
 		if ( pickNotShunZiOutIgnoreKeZi(vLeftCard, vNotShun))
@@ -1085,6 +1093,7 @@ bool MJPlayerCard::canHoldCard7PairHu()
 	{
 		return true;
 	}
+	//debugCardInfo();
 	return false;
 }
 
@@ -1173,7 +1182,7 @@ bool MJPlayerCard::getCanHuCards(std::set<uint8_t>& vCanHuCards)
 					vCanHuCards.insert(a);
 				}
 
-				if (b <= 9)
+				if (card_Value(a) <= 9)
 				{
 					vCanHuCards.insert(b);
 				}
@@ -1191,7 +1200,7 @@ bool MJPlayerCard::getCanHuCards(std::set<uint8_t>& vCanHuCards)
 
 		for (uint8_t nIdx = 0; nIdx < eCT_Max; ++nIdx)
 		{
-			pfnGetCanHuCardIgnoreJiang(m_vCards[nIdx], vCanHuCards);
+			pfnGetCanHuCardIgnoreJiang(vCards[nIdx], vCanHuCards);
 			if (vCanHuCards.empty() == false)
 			{
 				return true;
@@ -1430,6 +1439,11 @@ void MJPlayerCard::debugCardInfo()
 		for (auto & ref : vCard)
 		{
 			auto value = card_Value(ref);
+			auto type = card_Type(ref);
+			if (type != eType)
+			{
+				LOGFMTE("wrong add to card = %u",ref);
+			}
 			LOGFMTI("value = %u",value);
 		}
 	}

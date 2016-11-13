@@ -59,9 +59,9 @@ bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 
 		if (eRoomSate_WaitReady == curState || eRoomState_GameEnd == curState)  // when game over or not start , delte player in room data ;
 		{
-			auto ret = standup(nPlayerUID);
 			// tell robot dispatch player leave 
 			getRobotDispatchStrage()->onPlayerLeave(pPlayer->getSessionID(), pPlayer->isRobot());
+			auto ret = standup(nPlayerUID);
 			return ret;
 		}
 		else 
@@ -172,7 +172,7 @@ void XLMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 	auto pSettle = new stSettleAnGang(nIdx);
 	for (auto& pPlayer : m_vMJPlayers)
 	{
-		if (nullptr == pPlayer || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
+		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
 		{
 			continue;
 		}
@@ -199,7 +199,7 @@ void XLMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 	auto pSettle = new stSettleBuGang(nIdx);
 	for (auto& pPlayer : m_vMJPlayers)
 	{
-		if (nullptr == pPlayer || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
+		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
 		{
 			continue;
 		}
@@ -360,6 +360,71 @@ void XLMJRoom::onPlayerZiMo(uint8_t nIdx, uint8_t nCard)
 	sendRoomMsg(msg, MSG_ROOM_ACT);
 
 	addSettle(pSettle);
+}
+
+void XLMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
+{
+	if (getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID())
+	{
+		LOGFMTD("current room not start game , so need not send runtime info msg");
+		return;
+	}
+	Json::Value jsmsg;
+	Json::Value vPeerCards;
+	for (auto& pp : m_vMJPlayers)
+	{
+		if (pp == nullptr /*|| pp->haveState(eRoomPeer_CanAct) == false*/)  // lose also have card 
+		{
+			continue;
+		}
+
+		auto pCard = (XLMJPlayerCard*)pp->getPlayerCard();
+		// svr : { bankerIdx : 2, leftCardCnt : 32 ,playersCard: [ { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
+		// { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] }
+		Json::Value jsCardInfo;
+		jsCardInfo["idx"] = pp->getIdx();
+		jsCardInfo["queType"] = pCard->getQueType();
+
+		IMJPlayerCard::VEC_CARD vAnPai, vMingPai, vChuPai, vHuPai, temp;
+		pCard->getHoldCard(vAnPai);
+		pCard->getChuedCard(vChuPai);
+
+		pCard->getEatedCard(vMingPai);
+		pCard->getPengedCard(temp);
+		for (auto& pc : temp)
+		{
+			vMingPai.push_back(pc); vMingPai.push_back(pc); vMingPai.push_back(pc);
+		}
+		temp.clear();
+		pCard->getGangedCard(temp);
+		for (auto& pc : temp)
+		{
+			vMingPai.push_back(pc); vMingPai.push_back(pc); vMingPai.push_back(pc); vMingPai.push_back(pc);
+		}
+		temp.clear();
+
+		// get hued 
+		pCard->getHuedCard(vHuPai);
+		auto toJs = [](IMJPlayerCard::VEC_CARD& vCards, Json::Value& js)
+		{
+			for (auto& c : vCards)
+			{
+				js[js.size()] = c;
+			}
+		};
+
+		Json::Value jsMingPai, jsAnPai, jsChuPai, jsHupai;
+		toJs(vMingPai, jsMingPai); toJs(vAnPai, jsAnPai); toJs(vChuPai, jsChuPai);toJs(vHuPai,jsHupai);
+		jsCardInfo["mingPai"] = jsMingPai; jsCardInfo["anPai"] = jsAnPai; jsCardInfo["chuPai"] = jsChuPai; jsCardInfo["huPai"] = jsHupai;
+		vPeerCards[vPeerCards.size()] = jsCardInfo;
+	}
+
+	jsmsg["playersCard"] = vPeerCards;
+	jsmsg["bankerIdx"] = getBankerIdx();
+	jsmsg["curActIdex"] = getCurRoomState()->getCurIdx();
+	jsmsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
+	sendMsgToPlayer(jsmsg, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);
+	LOGFMTD("send player card infos !");
 }
 
 bool XLMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
@@ -666,6 +731,9 @@ void XLMJRoom::sendPlayerDetailBillInfo(uint8_t nIdx)
 		Json::Value jsInfo;
 		if ( pSettle->writePlayerBillInfo(nIdx, jsInfo))
 		{
+			Json::StyledWriter jsW;
+			auto str = jsW.write(jsInfo);
+			LOGFMTI("bill info idx = %u type = %u : %s ",nIdx,pSettle->eType,str.c_str());
 			jsBills[jsBills.size()] = jsInfo;
 		}
 	}
@@ -801,6 +869,11 @@ void XLMJRoom::doChaDaJiao(std::vector<uint8_t>& vHuaZhu)
 			auto pTingPaiPlayer = getMJPlayerByIdx(nTingIdx);
 			auto pTingPlayerCard = (XLMJPlayerCard*)pTingPaiPlayer->getPlayerCard();
 			uint32_t nLoseCoin = pTingPlayerCard->getMaxPossibleBeiShu() * getBaseBet();
+			if (nLoseCoin == 0)
+			{
+				LOGFMTE("why i hu is cha jiao win 0 ? my card is : ");
+				pTingPlayerCard->debugCardInfo();
+			}
 			if ((int32_t)nLoseCoin > pPlayerDaJiao->getCoin())
 			{
 				nLoseCoin = pPlayerDaJiao->getCoin();

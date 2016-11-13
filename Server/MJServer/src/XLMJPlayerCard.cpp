@@ -306,3 +306,9 @@ uint8_t XLMJPlayerCard::getGenShu()
 	}
 	return nGenCnt;
 }
+
+bool XLMJPlayerCard::getHuedCard(VEC_CARD& vhuedCard)
+{
+	vhuedCard.insert(vhuedCard.begin(), m_vecAlreadyHu.begin(), m_vecAlreadyHu.end());
+	return m_vecAlreadyHu.empty() == false;
+}

@@ -14,6 +14,12 @@ void CMJRoomManager::init(IServerApp* svrApp)
 	auto iter = m_pConfigMgr->GetBeginIter() ;
 	for ( ; iter != m_pConfigMgr->GetEndIter(); ++iter )
 	{
+		auto p = *iter;
+		if (p->nGameType != eRoom_MJ_Two_Bird_God)
+		{
+			continue;
+		}
+
 		uint8_t nCreaeCnt = 1 ;
 		while ( nCreaeCnt-- )
 		{

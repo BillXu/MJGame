@@ -428,7 +428,7 @@ enum eMsgType
 	MSG_PLAYER_LEAVE_ROOM, // 玩家离开房间
 	// client : {dstRoomID : 23 } ;
 	// svr : { ret : 0 }
-	// ret : 0 表示成功， 1 房间号错误,不在该房间里。
+	// ret : 0 表示成功， 1 房间号错误,不在该房间里, 2 房间不存在了。
 
 	MSG_ROOM_PLAYER_LEAVE, // 有玩家离开房间;
 	// svr : { idx : 2 }

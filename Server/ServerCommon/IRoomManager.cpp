@@ -223,6 +223,15 @@ bool IRoomManager::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort eSen
 	IRoomInterface* pRoom = GetRoomByID(prealMsg["dstRoomID"].asUInt()) ;
 	if ( pRoom == NULL )
 	{
+		if (nMsgType == MSG_PLAYER_LEAVE_ROOM)
+		{
+			Json::Value jsMsg;
+			jsMsg["ret"] = 2;
+			sendMsg(jsMsg, nMsgType, nSessionID);
+			LOGFMTE("player leave room msg , room do not exsit");
+			return true;
+		}
+
 		LOGFMTE("can not find room to process id = %d ,from = %d, room id = %d",nMsgType,eSenderPort,prealMsg["dstRoomID"].asUInt() ) ;
 		return  false ;
 	}
@@ -366,8 +375,8 @@ bool IRoomManager::onPublicMsg(stMsg* prealMsg , eMsgPort eSenderPort , uint32_t
 						}
 
 						nStandCoin = nLowLimit + rand() % (nTopLimit - nLowLimit);
-						nStandCoin = float(nStandCoin) * 1.1f;
-						LOGFMTD("adjust robot coin to : %u" , nStandCoin );
+						nStandCoin = nStandCoin + float(nStandCoin) * 0.1f;
+						LOGFMTD("adjust robot coin to : %u , lowLimit = %u , top = %u" , nStandCoin ,nLowLimit,nTopLimit);
 					}
 
 					//auto pMJRoom = dynamic_cast<ISitableRoom*>(pRoomEnter);

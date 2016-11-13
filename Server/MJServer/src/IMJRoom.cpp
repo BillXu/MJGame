@@ -280,7 +280,7 @@ bool IMJRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPo
 		auto pSitp = getMJPlayerByUID(nUID);
 		if (pSitp)
 		{
-			LOGFMTD("uid = %u data svr coin = %u , room sit down coin = %u", nCoin, pSitp->getCoin());
+			LOGFMTD("uid = %u data svr coin = %u , room sit down coin = %u", pSitp->getUID(), nCoin, pSitp->getCoin());
 			nCoin = pSitp->getCoin();
 		}
 		else
@@ -509,7 +509,16 @@ void IMJRoom::startGame()
 			continue;
 		}
 
-		LOGFMTD("distribute card for player idx = %u",pPlayer->getIdx());
+		if (pPlayer->getCoin() < getRoomConfig()->nDeskFee)
+		{
+			LOGFMTE("uid = %u coin = %u, 你的钱太少了，还是别玩了吧，这次就不扣你的台费了",pPlayer->getUID(),pPlayer->getCoin());
+		}
+		else
+		{
+			pPlayer->setCoin(pPlayer->getCoin() - (int32_t)getRoomConfig()->nDeskFee);
+		}
+
+		LOGFMTD("distribute card for player idx = %u and decrease desk fee = %u",pPlayer->getIdx(),getRoomConfig()->nDeskFee );
 		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
 		{
 			auto nCard = pPoker->distributeOneCard();
@@ -670,7 +679,7 @@ uint8_t IMJRoom::getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx)
 	}
 	IMJPlayerCard::VEC_CARD vCard;
 	pPlayer->getPlayerCard()->getHoldCard(vCard);
-	if (vCard.empty() == false)
+	if (vCard.empty())
 	{
 		LOGFMTE("hold card can not be empty");
 		assert(0&&"hold card must no be empty");
