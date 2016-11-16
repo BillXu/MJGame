@@ -23,11 +23,18 @@ public:
 	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;
 	XLFanXingChecker* getFanxingChecker(){ return &m_tFanXingChecker; };
 	bool getHuedCard(VEC_CARD& vhuedCard);
+
+	// fanxing helper
+	void helpGetHoldCardByType(MJPlayerCard::VEC_CARD& vCards, uint8_t nType)override;
+	void helpGetPengedCard(MJPlayerCard::VEC_CARD& vCards)override;
+	void helpGetGangCard(MJPlayerCard::VEC_CARD& vCards)override;
+	bool helpGetIs7PairHu()override;
+	uint8_t helpGetJiang()override;
 protected:
 	uint8_t getGenShu();
 protected:
 	uint8_t m_nQueType;
 	VEC_CARD m_vecAlreadyHu;
 public:
-	static XLFanXingChecker m_tFanXingChecker;
+	static XLFanXing m_tFanXingChecker;
 };

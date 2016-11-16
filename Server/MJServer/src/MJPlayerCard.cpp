@@ -72,7 +72,7 @@ bool MJPlayerCard::stNotShunCard::operator < (const stNotShunCard& v)const
 		{
 			return true;
 		}
-		else
+		else if (self.vCards[nIdx] > nonConstObj.vCards[nIdx] )
 		{
 			return false;
 		}
@@ -429,8 +429,13 @@ bool MJPlayerCard::isTingPai()
 		return true;
 	}
 
+	auto nct = getMiniQueCnt(m_vCards);
 	if ( getMiniQueCnt(m_vCards) <= 1 )
 	{
+		if (0 == nct)
+		{
+			LOGFMTE("this is already hu ? why you check ting ?");
+		}
 		return true;
 	}
 	return false;
@@ -1421,6 +1426,11 @@ uint8_t MJPlayerCard::getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool b
 			nLesetQue = nQuenCnt;
 			nFedJIangResult = nFedJIang;
 			nFedDanResult = nFedDan;
+
+			if ( 0 == nLesetQue )
+			{
+				break;
+			}
 		}
 	}
 

@@ -6,19 +6,25 @@
 class XLFanXingHelper
 {
 public:
-	void helpGetHoldCardByType(MJPlayerCard::VEC_CARD& vCards, uint8_t nType){}
-	void helpGetPengedCard(MJPlayerCard::VEC_CARD& vCards){}
-	void helpGetGangCard(MJPlayerCard::VEC_CARD& vCards){}
-	bool helpGetIs7PairHu(){ return false; };
-	uint8_t helpGetJiang(){ return 0; };
+	virtual void helpGetHoldCardByType(MJPlayerCard::VEC_CARD& vCards, uint8_t nType){}
+	virtual void helpGetPengedCard(MJPlayerCard::VEC_CARD& vCards){}
+	virtual void helpGetGangCard(MJPlayerCard::VEC_CARD& vCards){}
+	virtual bool helpGetIs7PairHu(){ return false; };
+	virtual uint8_t helpGetJiang(){ return 0; };
 };
 
 class XLFanXingChecker
 {
 public:
 	virtual ~XLFanXingChecker(){}
-	virtual bool doCheckFanxing(XLFanXingHelper* pHelper, uint8_t& nBeiShu, uint32_t& nFanXingType){ nBeiShu = 1; nFanXingType = 2;  return true; };
+	virtual bool doCheckFanxing(XLFanXingHelper* pHelper, uint8_t& nBeiShu, uint32_t& nFanXingType)
+	{
+		nBeiShu = getBeishu(); 
+		nFanXingType = eFanxing_PingHu;
+		return true; 
+	};
 	virtual bool doSelfCheck(XLFanXingHelper* pHelper) { return true; };
+	virtual uint8_t getBeishu(){ return 1; };
 };
 
 class XLFanXingQingYiSe
@@ -91,6 +97,8 @@ public:
 		}
 		return true;
 	}
+
+	uint8_t getBeishu()override{ return 4; };
 };
 
 class XLFanXingQiDui
@@ -112,6 +120,8 @@ public:
 	{
 		return pHelper->helpGetIs7PairHu();
 	}
+
+	uint8_t getBeishu()override{ return 4; };
 };
 
 class XLFanXingQingQiDui
@@ -134,6 +144,7 @@ public:
 		return m_tQingYiSe.doSelfCheck(pHelper) && m_tQiDui.doSelfCheck(pHelper);
 	}
 
+	uint8_t getBeishu()override{ return 16; };
 protected:
 	XLFanXingQingYiSe m_tQingYiSe;
 	XLFanXingQiDui m_tQiDui;
@@ -202,6 +213,8 @@ public:
 		return false ;
 	}
 
+	uint8_t getBeishu()override{ return 16; };
+
 };
 
 class XLFanXingQingLongQiDui
@@ -223,6 +236,8 @@ public:
 	{
 		return m_tQingYiSe.doSelfCheck(pHelper) && m_tLongQiDui.doSelfCheck(pHelper);
 	}
+
+	uint8_t getBeishu()override{ return 32; };
 protected:
 	XLFanXingLongQiDui m_tLongQiDui;
 	XLFanXingQingYiSe m_tQingYiSe;
@@ -298,6 +313,8 @@ public:
 		}
 		return true;
 	}
+
+	uint8_t getBeishu()override{ return 2; };
 };
 
 class XLFanXingQingDuiDuiHu
@@ -319,6 +336,8 @@ public:
 	{
 		return m_tQingYiSe.doSelfCheck(pHelper) && m_tDuiDuiHu.doSelfCheck(pHelper);
 	}
+
+	uint8_t getBeishu()override{ return 8; };
 protected:
 	XLFanXingDuiDuiHu m_tDuiDuiHu;
 	XLFanXingQingYiSe m_tQingYiSe;
@@ -368,6 +387,8 @@ public:
 		}
 		return true;
 	}
+
+	uint8_t getBeishu()override{ return 4; };
 };
 
 class XLFanXingQingJinGouDiao
@@ -389,6 +410,8 @@ public:
 	{
 		return m_tQingYiSe.doSelfCheck(pHelper) && m_tJinGouDiao.doSelfCheck(pHelper);
 	}
+
+	uint8_t getBeishu()override{ return 16; };
 protected:
 	XLFanXingJinGouDiao m_tJinGouDiao;
 	XLFanXingQingYiSe m_tQingYiSe;
@@ -424,6 +447,8 @@ public:
 		}
 		return true;
 	}
+
+	uint8_t getBeishu()override{ return 64; };
 protected:
 	XLFanXingJinGouDiao m_tJinGouDiao;
 };
@@ -491,6 +516,8 @@ public:
 
 		return true;
 	}
+
+	uint8_t getBeishu()override{ return 16; };
 protected:
 	XLFanXingJinGouDiao m_tJinGouDiao;
 };
@@ -596,6 +623,8 @@ public:
 
 		return true;
 	}
+
+	uint8_t getBeishu()override{ return 4; };
 };
 
 class XLFanXingQingDaiYaoJiu
@@ -617,18 +646,97 @@ public:
 	{
 		return m_tQingYiSe.doSelfCheck(pHelper) && m_tDaiYaoJiu.doSelfCheck(pHelper);
 	}
+
+	uint8_t getBeishu()override{ return 16; };
 protected:
 	XLFanXingDaiYaoJiu m_tDaiYaoJiu;
 	XLFanXingQingYiSe m_tQingYiSe;
 };
 
-//class CBloodFanxing
-//	:public CSingleton<CBloodFanxing>
-//{
-//public:
-//	bool checkHuPai(CMJPeerCard& peerCard, eFanxingType & eHuType, uint8_t& nFanshu);
-//	bool checkFanXingWantedCards(CMJPeerCard& peerCard, LIST_WANTED_CARD& vWaited);
-//protected:
-//	CBloodFanxingPingHu m_tPingHu;
-//	CBloodFanxingQiDui m_tQiDui;
-//};
+class XLFanXing
+	:public XLFanXingChecker
+{
+public:
+	XLFanXing()
+	{
+		XLFanXingChecker* pChecker = new XLFanXingChecker();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQingYiSe();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQiDui();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQingQiDui();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingLongQiDui();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQingLongQiDui();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingDuiDuiHu();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQingDuiDuiHu();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingJinGouDiao();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQingJinGouDiao();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingShiBaLuoHan();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingJiangJinGouDiao();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingDaiYaoJiu();
+		m_vCheckTypes.push_back(pChecker);
+
+		pChecker = new XLFanXingQingDaiYaoJiu();
+		m_vCheckTypes.push_back(pChecker);
+
+		std::sort(m_vCheckTypes.begin(), m_vCheckTypes.end(), [](XLFanXingChecker* pLeft, XLFanXingChecker* pRight)
+		{
+			if (pLeft->getBeishu() > pRight->getBeishu())
+			{ return true; }
+			return false;
+		}
+		);
+
+	}
+
+	~XLFanXing()
+	{
+		for (auto& ref : m_vCheckTypes)
+		{
+			delete ref;
+			ref = nullptr;
+		}
+		m_vCheckTypes.clear();
+	}
+
+	bool doCheckFanxing(XLFanXingHelper* pHelper, uint8_t& nBeiShu, uint32_t& nFanXingType)override
+	{
+		for (auto& pref : m_vCheckTypes)
+		{
+			if (pref->doCheckFanxing(pHelper, nBeiShu, nFanXingType))
+			{
+				return true;
+			}
+		}
+
+		LOGFMTE("why have no proerty fanxing type ? ");
+		nBeiShu = 1;
+		nFanXingType = eFanxing_PingHu;
+		return true;
+	};
+
+protected:
+	std::vector<XLFanXingChecker*> m_vCheckTypes;
+};

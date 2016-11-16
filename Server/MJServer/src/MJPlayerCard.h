@@ -6,7 +6,6 @@
 #include <set>
 class MJPlayerCard
 	:public IMJPlayerCard
-	,public IMJPlayerCardCheckPaixingHelper
 {
 public:
 	struct stNotShunCard

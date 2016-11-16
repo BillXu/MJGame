@@ -285,30 +285,40 @@ void tempTest()
 	XLMJPlayerCard* pPlayerCard = new XLMJPlayerCard();
 		
 	pPlayerCard->setQueType(eCT_Tiao);
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
 
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
 	
 		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
 		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
-	
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
+
+		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
 		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
-		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
-	
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 7));
-		pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 8));
-		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 1));
-	
-		 
-		
-		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
-		auto p = pPlayerCard->getMaxPossibleBeiShu();
+		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
+
+		//pPlayerCard->onMingGang(CMJCard::makeCardNumber(eCT_Tong, 7), CMJCard::makeCardNumber(eCT_Wan, 1));
+		/*pPlayerCard->onPeng(CMJCard::makeCardNumber(eCT_Tong, 5));
+		pPlayerCard->onPeng(CMJCard::makeCardNumber(eCT_Tong, 2));
+		pPlayerCard->onPeng(CMJCard::makeCardNumber(eCT_Wan, 8));
+		pPlayerCard->onPeng(CMJCard::makeCardNumber(eCT_Wan, 2));*/
+		uint32_t nT;
+		uint8_t nBeiShu;
+		uint8_t nGen;
+		auto p = pPlayerCard->onDoHu(false, CMJCard::makeCardNumber(eCT_Wan, 9), nT, nBeiShu, nGen);
+		auto p2 = pPlayerCard->onDoHu(false, CMJCard::makeCardNumber(eCT_Wan, 9), nT, nBeiShu, nGen);
+		eFanxingType eType = (eFanxingType)nT;
+		if (!p)
+		{
+			printf("bug");
+		}
 		printf("beishu = %u\n",p);
 		if (pPlayerCard->isTingPai())
 		{
@@ -321,7 +331,7 @@ void tempTest()
 #include "Application.h"
 int main()
 {
-	//tempTest();
+	tempTest();
 	CApplication theAplication(CMJServerApp::getInstance());
 	theAplication.startApp();
 	return 0;

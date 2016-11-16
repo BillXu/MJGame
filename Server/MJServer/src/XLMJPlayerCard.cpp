@@ -1,7 +1,7 @@
 #include "XLMJPlayerCard.h"
 #include "log4z.h"
 #include "MJCard.h"
-XLFanXingChecker XLMJPlayerCard::m_tFanXingChecker;
+XLFanXing XLMJPlayerCard::m_tFanXingChecker;
 void XLMJPlayerCard::reset()
 {
 	MJPlayerCard::reset();
@@ -15,27 +15,62 @@ bool XLMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 
 bool XLMJPlayerCard::onDoHu(bool isZiMo, uint8_t nCard, uint32_t& nHuType, uint8_t& nBeiShu, uint8_t& genCnt)
 {
+	// if not zi mo , must add to fo check hu ;
+	if (!isZiMo)
+	{
+		auto type = card_Type(nCard);
+		if (type >= eCT_Max)
+		{
+			LOGFMTE("invalid card type for card = %u",nCard);
+			return false;
+		}
+		addCardToVecAsc(m_vCards[type], nCard);
+	}
+
+	auto funRemoveAddToCard = [this](uint8_t nCard)
+	{
+		auto type = card_Type(nCard);
+		auto iter = std::find(m_vCards[type].begin(), m_vCards[type].end(), nCard);
+		if (iter == m_vCards[type].end())
+		{
+			LOGFMTE("hu this card should already addto hold card , but can not remove  whay card = %u", nCard);
+			return;
+		}
+		m_vCards[type].erase(iter);
+	};
+
+	if (isHoldCardCanHu() == false)
+	{
+		LOGFMTE("do hu act , but can not hu ? why ? bug card = %u ",nCard );
+		debugCardInfo();
+		if (!isZiMo)
+		{
+			funRemoveAddToCard(nCard);
+		}
+		return false;
+	}
+
 	auto ret = getFanxingChecker()->doCheckFanxing(this,nBeiShu,nHuType);
 	if ( ret == false)
 	{
 		LOGFMTE("why no fanxing type matches this card ? must hu here , bug bug !!!!");
+		if (!isZiMo)
+		{
+			funRemoveAddToCard(nCard);
+		}
 		return false;
 	}
+
 	m_vecAlreadyHu.push_back(nCard);
 
 	genCnt = getGenShu();
 	// some hu type must jian shao gen Shu ;
-	if (isZiMo)
+	if (nHuType == eFanxing_LongQiDui || nHuType == eFanxing_QingLongQiDui)
 	{
-		auto type = card_Type(nCard);
-		auto iter = std::find(m_vCards[type].begin(), m_vCards[type].end(),nCard);
-		if (iter == m_vCards[type].end())
-		{
-			LOGFMTE("when zi mo hu , must remove hold card , why no this card ? big bug ? bug ");
-			return false;
-		}
-		m_vCards[type].erase(iter);
+		genCnt -= 1;
 	}
+
+	funRemoveAddToCard(nCard);
 	return true;
 }
 
@@ -182,16 +217,17 @@ bool XLMJPlayerCard::canHuWitCard(uint8_t nCard)
 		return false;
 	}
 
+	if (isHuaZhu())
+	{
+		return false;
+	}
+
 	auto iter = std::find(m_vecAlreadyHu.begin(),m_vecAlreadyHu.end(),nCard );
 	if (iter != m_vecAlreadyHu.end())
 	{
 		return true;
 	}
 
-	if (isHuaZhu())
-	{
-		return false;
-	}
 	return MJPlayerCard::canHuWitCard(nCard);
 }
 
@@ -311,4 +347,41 @@ bool XLMJPlayerCard::getHuedCard(VEC_CARD& vhuedCard)
 {
 	vhuedCard.insert(vhuedCard.begin(), m_vecAlreadyHu.begin(), m_vecAlreadyHu.end());
 	return m_vecAlreadyHu.empty() == false;
+}
+
+// help fanxing
+void XLMJPlayerCard::helpGetHoldCardByType(MJPlayerCard::VEC_CARD& vCards, uint8_t nType)
+{
+	if (nType >= eCT_Max)
+	{
+		LOGFMTE("invalid type for fanxing type get hold card");
+		return;
+	}
+	vCards.insert(vCards.begin(), m_vCards[nType].begin(), m_vCards[nType].end() );
+}
+
+void XLMJPlayerCard::helpGetPengedCard(MJPlayerCard::VEC_CARD& vCards)
+{
+	vCards = m_vPenged;
+}
+
+void XLMJPlayerCard::helpGetGangCard(MJPlayerCard::VEC_CARD& vCards)
+{
+	vCards = m_vGanged;
+}
+
+bool XLMJPlayerCard::helpGetIs7PairHu()
+{
+	return canHoldCard7PairHu();
+}
+
+uint8_t XLMJPlayerCard::helpGetJiang()
+{
+	if ( !m_nJIang)
+	{
+		LOGFMTE("why jiang is 0 , forget invoker canHoldCardHu ? ");
+		debugCardInfo();
+	}
+
+	return m_nJIang;
 }

@@ -227,6 +227,7 @@ void CRobotDispatchStrategy::sendMsgToPlayer(Json::Value& jsContent, unsigned sh
 	if (m_pRoom)
 	{
 		m_pRoom->sendMsgToPlayer(jsContent, nMsgType, nSessionID);
+		return;
 	}
 
 	if (!m_pMJRoom)
@@ -242,6 +243,7 @@ void CRobotDispatchStrategy::sendMsgToPlayer(stMsg* pmsg, uint16_t nLen, uint32_
 	if (m_pRoom)
 	{
 		m_pRoom->sendMsgToPlayer(pmsg, nLen, nSessionID);
+		return;
 	}
 
 	if (!m_pMJRoom)
