@@ -505,7 +505,7 @@ IGameRoom* MJRoomManager::doCreatePublicRoom(uint16_t nConfigID)
 IGameRoom* MJRoomManager::doCreatePrivateRoom(uint16_t nConfigID, Json::Value& jsArg)
 {
 	auto p = new MJPrivateRoom();
-	auto ret = p->init(this, nullptr, generateRoomID(), jsArg);
+	auto ret = p->init(this, nullptr, genPrivateRoomID(), jsArg);
 	if (ret == false)
 	{
 		delete p;
@@ -525,6 +525,18 @@ IGameRoom* MJRoomManager::doCreatePrivateRoom(uint16_t nConfigID, Json::Value& j
 		m_vRooms[p->getRoomID()] = p;
 	}
 	return p;
+}
+
+uint32_t MJRoomManager::genPrivateRoomID()
+{
+	IGameRoom* pCheckRoom = nullptr;
+	uint32_t nRoomID = 0;
+	do
+	{
+		nRoomID = (1 + rand() % 9) * 100000 + rand() % 100000;
+		pCheckRoom = getRoomByID(nRoomID);
+	} while (pCheckRoom);
+	return nRoomID;
 }
 
 uint32_t MJRoomManager::generateRoomID()

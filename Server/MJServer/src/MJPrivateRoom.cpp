@@ -21,13 +21,13 @@ MJPrivateRoom::~MJPrivateRoom()
 
 bool MJPrivateRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
-	m_nLeftCircle = 1; //vJsValue["circle"].asUInt();
+	vJsValue["circle"].asUInt();
 	m_nInitCircle = m_nLeftCircle;
 	m_nInitCoin = vJsValue["initCoin"].asUInt();
 	memset(&m_stConfig, 0, sizeof(m_stConfig));
 	m_stConfig.nConfigID = 0;
 	m_stConfig.nBaseBet = 1;//;vJsValue["baseBet"].asUInt();
-	m_stConfig.nMaxSeat = 2;//vJsValue["seatCnt"].asUInt();
+	m_stConfig.nMaxSeat = vJsValue["seatCnt"].asUInt();
 	m_stConfig.nGameType = vJsValue["roomType"].asUInt();
 	if (m_stConfig.nMaxSeat == 0 || m_stConfig.nBaseBet == 0)
 	{
@@ -70,7 +70,7 @@ bool MJPrivateRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, 
 
 bool MJPrivateRoom::onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)
 {
-	pEnterRoomPlayer->nPlayerType = ePlayer_Robot; // avoid robot dispatch take effect ;
+	//pEnterRoomPlayer->nPlayerType = ePlayer_Robot; // avoid robot dispatch take effect ; temp let robot join vip room ;
 	if (m_pRoom)
 	{
 		auto iter = m_vAllPlayers.find(pEnterRoomPlayer->nUserUID);

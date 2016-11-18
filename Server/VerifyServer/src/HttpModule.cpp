@@ -8,6 +8,7 @@
 #include "json/json.h"
 #include "ISeverApp.h"
 #include "AsyncRequestQuene.h"
+#include "alipaySDK\openapi\openapi_client.h"
 void CHttpModule::init(IServerApp* svrApp)
 {
 	IGlobalModule::init(svrApp);
@@ -35,8 +36,10 @@ void CHttpModule::init(IServerApp* svrApp)
 	std::string strUri = strNotifyUrl.substr(nPos,strNotifyUrl.size() - nPos );
 	registerHttpHandle( strUri, boost::bind(&CHttpModule::onHandleVXPayResult, this, boost::placeholders::_1));
 
+	registerHttpHandle("/alipay.7z", boost::bind(&CHttpModule::onHandleAliPayResult, this, boost::placeholders::_1));
+
 	registerHttpHandle("/playerInfo.yh", boost::bind(&CHttpModule::handleGetPlayerInfo, this, boost::placeholders::_1));
-	registerHttpHandle("/addRoomCard.yh", boost::bind(&CHttpModule::handleAddRoomCard, this, boost::placeholders::_1));
+	registerHttpHandle("/addRoomCard.yh", boost::bind(&CHttpModule::handleAddRoomCard, this, boost::placeholders::_1)); 
 }
 
 void CHttpModule::update(float fDeta)
@@ -183,6 +186,94 @@ bool CHttpModule::onHandleVXPayResult(http::server::connection_ptr ptr)
 	res->setContent(str,"text/xml");
 	ptr->doReply();
 	t.SaveFile("reT.xml");
+	return true;
+}
+
+// process alipay result;
+bool CHttpModule::onHandleAliPayResult(http::server::connection_ptr ptr)
+{
+	auto req = ptr->getReqPtr();
+	auto res = ptr->getReplyPtr();
+	LOGFMTD("recv alipay resp : %s ",req->reqContent.c_str());
+
+	OpenapiClient openapiClient("appid",
+		OpenapiClient::KEY_PRIVATE,
+		OpenapiClient::default_url,
+		OpenapiClient::default_charset,
+		OpenapiClient::KEY_PUBLIC);
+	auto ret = openapiClient.analyzeResponse(req->reqContent);
+	if (ret.empty())
+	{
+		LOGFMTE("recve alipay respone but verify sign failed ?");
+		std::string str = "failed";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+
+	JsonType jsonObj = JsonUtil::stringToObject(ret);
+	auto resultMap = jsonObj.toMap();
+	auto statusIter = resultMap.find("trade_status");
+	if (statusIter == resultMap.end())
+	{
+		LOGFMTE("why do not have trade status key ? ");
+		std::string str = "failed";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+
+	std::string strStatus = statusIter->second.toString();
+	LOGFMTD("respone status: %s",strStatus.c_str());
+	if (strcmp(strStatus.c_str(), "TRADE_SUCCESS")) // not success 
+	{
+		// but we do processed ,do not tell me again ;
+		std::string str = "success";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+
+	auto iterPassBack = resultMap.find("passback_params");
+	if (iterPassBack == resultMap.end())
+	{
+		LOGFMTE("passbac_params is nullptr");
+		std::string str = "success";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+
+	auto iterTradeNo = resultMap.find("trade_no");
+	if (iterTradeNo == resultMap.end())
+	{
+		LOGFMTE("trade_no is nullptr");
+		std::string str = "success";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+	// go on do db verfiy ;
+	// do DB verify ;
+	std::vector<std::string> vOut;
+	boost::split(vOut, iterPassBack->second.toString(), boost::is_any_of("E"));
+	if (vOut.size() < 2)
+	{
+		LOGFMTE("trade out error = %s", iterPassBack->second.toString());
+		LOGFMTE("trade_no is nullptr");
+		std::string str = "success";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+	LOGFMTD("all right go on db verify Zhi fu bao ");
+	auto shopItem = vOut[0];
+	auto userUID = vOut[1];
+	auto pVeirfyModule = ((CVerifyApp*)getSvrApp())->getTaskPoolModule();
+	pVeirfyModule->doDBVerify(atoi(userUID.c_str()), atoi(shopItem.c_str()), ePay_ZhiFuBao, iterTradeNo->second.toString());
+	std::string str = "success";
+	res->setContent(str, "text/xml");
+	ptr->doReply();
 	return true;
 }
 

@@ -12,6 +12,7 @@ public:
 	bool registerHttpHandle(std::string strURI, httpHandle pHandle );
 protected:
 	bool onHandleVXPayResult(http::server::connection_ptr ptr );
+	bool onHandleAliPayResult(http::server::connection_ptr ptr);
 	bool handleGetPlayerInfo(http::server::connection_ptr ptr );
 	bool handleAddRoomCard(http::server::connection_ptr ptr);
 protected:

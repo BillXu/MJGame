@@ -54,6 +54,7 @@ protected:
 	IGameRoom* randRoomToEnterByConfigID( uint32_t nRoomConfigID );
 	IGameRoom* doCreatePublicRoom( uint16_t nConfigID );
 	IGameRoom* doCreatePrivateRoom( uint16_t nConfigID , Json::Value& jsArg);
+	uint32_t genPrivateRoomID();
 protected:
 	MAP_MJROOM m_vRooms;
 	MAP_CONFIG_ROOMID m_vPublicRooms;

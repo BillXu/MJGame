@@ -11,6 +11,7 @@
 #define MAX_LEN_EMAIL 50
 #define MAX_LEN_SPEAK_WORDS 200  
 #define MAX_MSG_BUFFER_LEN 2048*3
+#define MAX_HEAD_URL_LEN 128   // player head photo url ;
 
 #define MAX_ROOM_PEER 5
 #define MAX_TAXAS_HOLD_CARD 5
@@ -32,15 +33,6 @@
 #define MAX_CIRCLE_CONTENT_LEN 700
 
 #define JS_KEY_MSG_TYPE "msgID"
-
-enum ePayChannel
-{
-	ePay_AppStore,
-	ePay_WeChat,
-	ePay_ZhiFuBao,
-	ePay_XiaoMi,
-	ePay_Max,
-};
 
 enum  eVipCardType
 {

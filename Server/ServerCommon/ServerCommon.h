@@ -53,6 +53,7 @@ enum eAsyncReq
 	eAsync_Apns, // { apnsType : 0 , targets : [234,2345,23,4] , content : "hello this is" ,msgID : "fs" ,msgdesc : "shfsg" }  apnsType : 0 , group type . 1 , target persions ;
 	eAsync_SendUpdateCoinToClient, // { sessionID : 234 , coin : 235 , diamond : 234, uid : 3423 , roomID : 234 } 
 	eAsync_ApplyLeaveRoom, // {uid : 234 , roomID : 2345 , reason : 0 } reason : 0 , disconnect , 1 other peer login.  result : { ret : 0 , coin : 2345 } // ret : 0 leave direct, 1 delay leave room , 2 not in room , 3 not find room   ;
+	eAsync_SyncPlayerRoomCoin, // {uid : 235 ,  coin : 2345 };
 	eAsync_Max,
 };
 

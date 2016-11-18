@@ -2,6 +2,8 @@
 #include "MessageIdentifer.h"
 #include "ServerDefine.h"
 #include "log4z.h"
+#include "MJServer.h"
+#include "AsyncRequestQuene.h"
 void MJPlayer::init(stEnterRoomData* pData)
 {
 	setState(eRoomPeer_WaitNextGame);
@@ -77,6 +79,12 @@ void MJPlayer::addOffsetCoin(int32_t nOffset)
 	}
 	m_nOffset += nOffset;
 	m_nCoin = (int32_t)m_nCoin + nOffset;
+
+	// sync coin to data svr ;
+	Json::Value jsReq;
+	jsReq["uid"] = getUID();
+	jsReq["coin"] = getCoin();
+	CMJServerApp::getInstance()->getAsynReqQueue()->pushAsyncRequest(ID_MSG_PORT_DATA, eAsync_SyncPlayerRoomCoin, jsReq);
 }
 
 int32_t MJPlayer::getOffsetCoin()

@@ -10,6 +10,7 @@
 #include "WeChatVerifyTask.h"
 #include "DBVerifyTask.h"
 #include "ApnsTask.h"
+#include "alipaySDK\openapi\openapi_client.h"
 void CTaskPoolModule::init( IServerApp* svrApp )
 {
 	IGlobalModule::init(svrApp) ;
@@ -58,6 +59,24 @@ bool CTaskPoolModule::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 		return  true ;
 	}
 
+	if ( MSG_ALIPAY_DIG_SIGN == nMsgType)
+	{
+		auto str = prealMsg["orgStr"];
+		if (str.isNull() || str.isString() == false)
+		{
+			LOGFMTE("invalied dig sign arg wrong arg : orgStr ");
+			return true;
+		}
+		auto siStr = str.asString();
+		auto signedStr = OpenapiClient::rsaSign(siStr, OpenapiClient::KEY_PRIVATE);
+
+		Json::Value jsBack;
+		jsBack["strID"] = prealMsg["strID"];
+		jsBack["signedStr"] = signedStr;
+		getSvrApp()->sendMsg(nSessionID, jsBack, nMsgType);
+		LOGFMTD("dig sing : org = %s  , signedstr = %s",siStr.c_str(),signedStr.c_str());
+		return true;
+	}
 	return false;
 }
 
@@ -323,6 +342,7 @@ void CTaskPoolModule::sendVerifyResult(std::shared_ptr<stVerifyRequest> & pResul
 	msg.nRet = pResult->eResult ;
 	msg.nBuyerPlayerUserUID = pResult->nFromPlayerUserUID ;
 	msg.nBuyForPlayerUserUID = pResult->nBuyedForPlayerUserUID ;
+	msg.nChannel = pResult->nChannel;
 	getSvrApp()->sendMsg(pResult->nSessionID,(char*)&msg,sizeof(msg));
 	LOGFMTI( "finish verify transfaction shopid = %u ,uid = %d ret = %d",msg.nShopItemID,msg.nBuyerPlayerUserUID,msg.nRet ) ;
 }

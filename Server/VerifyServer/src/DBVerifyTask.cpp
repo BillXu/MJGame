@@ -3,6 +3,7 @@
 #include "ServerConfig.h"
 #include "DBTask.h"
 #include "DBRequest.h"
+#include "log4z.h"
 CDBVerfiyTask::CDBVerfiyTask(uint32_t nTaskID )
 	:IVerifyTask(nTaskID),m_pDBTask(nullptr)
 {
@@ -15,6 +16,14 @@ CDBVerfiyTask::CDBVerfiyTask(uint32_t nTaskID )
 
 uint8_t CDBVerfiyTask::performTask()
 {
+	LOGFMTE("temp omit db verify !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	// temp code 
+	auto pDBResult = m_pDBTask->getDBResult();
+	auto pVerifyResult = IVerifyTask::getVerifyResult();
+	pDBResult->nAffectRow = 1;
+	pDBResult->nRequestUID == 10;
+	return 0;
+	// temp code 
 	return m_pDBTask->performTask();
 }
 

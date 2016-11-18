@@ -22,6 +22,7 @@ void CSelectPlayerDataCacher::playerDataToJsonInfo(stPlayerDetailData* pData, Js
 	jsInfo["sex"] = pData->nSex;
 	jsInfo["diamond"] = pData->nDiamoned;
 	jsInfo["phone"] = (char*)pData->cPhoneNum;
+	jsInfo["headUrl"] = pData->cHeadUrl;
 	Json::Value jsclothe;
 	jsclothe[jsclothe.size()] = pData->vJoinedClubID[jsclothe.size()];
 	jsclothe[jsclothe.size()] = pData->vJoinedClubID[jsclothe.size()];
@@ -332,6 +333,20 @@ bool CPlayerManager::onAsyncRequest(uint16_t nRequestType , const Json::Value& j
 			pGameData->addNewBillIDs(nBillID);
 		}
 		return true ;
+	}
+	else if ( eAsync_SyncPlayerRoomCoin == nRequestType )
+	{
+		uint32_t nUserUID = jsReqContent["uid"].asUInt();
+		uint32_t nCoin = jsReqContent["coin"].asUInt();
+		auto player = GetPlayerByUserUID(nUserUID);
+		if (!player)
+		{
+			LOGFMTE("player uid = %u player is nullptr can not async coin = %u",nUserUID,nCoin);
+			return true;
+		}
+		LOGFMTD("player uid = %u async coin = %u", nUserUID, nCoin);
+		player->GetBaseData()->setCoin(nCoin);
+		return true;
 	}
 	return false ;
 }

@@ -411,29 +411,31 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			msgBack.nRet = 0 ;
 			if ( pRet->nRet == 4 ) // success 
 			{
-				if ( pRet->nShopItemID == 6 )
-				{
-					LOGFMTI("uid = %d buy a vip card week card ",GetPlayer()->GetUserUID()) ;
-					m_stBaseData.nCardEndTime = time(nullptr) + 60 * 60 * 24 * 8;
-					m_stBaseData.nCardType = eCard_Week ;
-					m_bCommonLogicDataDirty = true ;
-				}
-				else
-				{
-					CShopConfigMgr* pMgr = (CShopConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Shop);
-					stShopItem* pItem = pMgr->GetShopItem(pRet->nShopItemID);
-					if ( pItem == nullptr )
-					{
-						msgBack.nRet = 5 ;
-						LOGFMTE("can not find shop id = %d , buyer uid = %d",pRet->nShopItemID,pRet->nBuyerPlayerUserUID) ;
-					}
-					else
-					{
-						AddMoney(pItem->nCount) ;
-						LOGFMTI("add coin with shop id = %d for buyer uid = %d ",pRet->nShopItemID,pRet->nBuyerPlayerUserUID) ;
-					}
-				}
+				//if ( pRet->nShopItemID == 6 )
+				//{
+				//	LOGFMTI("uid = %d buy a vip card week card ",GetPlayer()->GetUserUID()) ;
+				//	m_stBaseData.nCardEndTime = time(nullptr) + 60 * 60 * 24 * 8;
+				//	m_stBaseData.nCardType = eCard_Week ;
+				//	m_bCommonLogicDataDirty = true ;
+				//}
+				//else
+				//{
+				//	CShopConfigMgr* pMgr = (CShopConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Shop);
+				//	stShopItem* pItem = pMgr->GetShopItem(pRet->nShopItemID);
+				//	if ( pItem == nullptr )
+				//	{
+				//		msgBack.nRet = 5 ;
+				//		LOGFMTE("can not find shop id = %d , buyer uid = %d",pRet->nShopItemID,pRet->nBuyerPlayerUserUID) ;
+				//	}
+				//	else
+				//	{
+				//		AddMoney(pItem->nCount) ;
+				//		LOGFMTI("add coin with shop id = %d for buyer uid = %d ",pRet->nShopItemID,pRet->nBuyerPlayerUserUID) ;
+				//	}
+				//}
 
+				LOGFMTE("uid = %u buy diamoned = %u success verify ok ", pRet->nBuyForPlayerUserUID, pRet->nShopItemID);
+				AddMoney(pRet->nShopItemID);
 				// save log 
 				stMsgSaveLog msgLog ;
 				memset(msgLog.vArg,0,sizeof(msgLog.vArg));
@@ -452,7 +454,13 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			}
 
 			msgBack.nFinalyCoin = GetAllCoin() ;
-			SendMsg(&msgBack,sizeof(msgBack)) ;
+			//SendMsg(&msgBack,sizeof(msgBack)) ;
+			Json::Value js;
+			js["ret"] = pRet->nRet == 4 ? 0 : 1;
+			js["eChannel"] = pRet->nChannel;
+			js["finalDiamond"] = GetAllDiamoned();
+			js["added"] = pRet->nShopItemID;
+			SendMsg(js, MSG_PURCHASE_RESULT);
 		}
 		break;
 	case MSG_ON_PLAYER_BIND_ACCOUNT:
@@ -727,6 +735,23 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 		SendMsg(recvValue, nmsgType);
 		LOGFMTI("player modify photo");
 	}
+	break;
+	case MSG_PLAYER_MODIFY_PHOTO_URL:
+	{
+		if (recvValue["photoUrl"].isNull() == false && recvValue["photoUrl"].isString() )
+		{
+			m_stBaseData.nPhotoID = recvValue["photoID"].asUInt();
+			memset(m_stBaseData.cHeadUrl, 0, sizeof(m_stBaseData.cHeadUrl));
+			sprintf(m_stBaseData.cHeadUrl, "%s", recvValue["photoUrl"].asCString());
+			recvValue["ret"] = 0;
+		}
+		else
+		{
+			recvValue["ret"] = 1;
+		}
+		SendMsg(recvValue, nmsgType);
+		LOGFMTI("player modify photo url");
+	};
 	break;
 	case MSG_PLAYER_MODIFY_SEX:
 		{

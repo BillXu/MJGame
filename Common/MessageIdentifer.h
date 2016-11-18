@@ -39,6 +39,18 @@ enum eMJActType
 #if (C_SHARP)  
 public
 #endif
+enum ePayChannel
+{
+	ePay_AppStore,
+	ePay_WeChat,
+	ePay_ZhiFuBao,
+	ePay_XiaoMi,
+	ePay_Max,
+};
+
+#if (C_SHARP)  
+public
+#endif
 enum eFanxingType 
 {
 	eFanxing_PingHu, // 平胡
@@ -317,6 +329,13 @@ enum eMsgType
 	// svr : { ret : 0 }
 	// ret : 0 表示成功，1 表示失败；seesion id 就是会话ID 登录成功以后会服务器返回
 
+	MSG_PLAYER_MODIFY_PHOTO_URL, // 修改玩家头像的url
+	// client : { photoUrl : "http:\\www.7z.com\head.png" }
+	// photoUrl: 新修改的头像url 。
+	// svr : { ret : 0 , photoID : 23 }
+	// ret : 0 表示成功 , 1 参数错误。 photoID : 修改后的头像ID ；
+
+
 	// mj room msg 麻将房间信息。客户端发给svr的信息，必须包含 dstRoomID 的 key 
 	MSG_REQ_ENTER_ROOM = 10115,
 	// client : { type : 0 ， targetID : 23 }
@@ -510,9 +529,10 @@ enum eMsgType
 
 	MSG_REQUEST_PLAYER_BRIF_INFO, // 请求玩家的基本信息；
 	// client : { targetUID : 23456 }
-	// svr : { ret : 0 , nickName : "lucy" , photoID : 2345 , uid : 2345 , ip : "192.168.1.56" ,sex : eSex, diamond : 2345, phone : 18023043245 ,clothe : [2,35,23] }
+	// svr : { ret : 0 , nickName : "lucy" , photoID : 2345 , uid : 2345 , ip : "192.168.1.56" ,sex : eSex, diamond : 2345, phone : 18023043245 ,headUrl : "http:\\222.com\head.png" ,clothe : [2,35,23] }
 	// ret : 0 成功，1 不存在该玩家
 	// nickName : 昵称 ， photoID : 头像ID， uid ： 玩家Id , ip： 玩家的ip地址，只有在线的玩家存在，否则为空。 sex ： 玩家性别， diamond : 玩家的钻石， phone ： 玩家的手机号
+	// headUrl : 玩家头像的url
 
 	MSG_TELL_SELF_IP, // 通知玩家自己的IP 地址
 	// svr : { ip : "192.235.133.23" }
@@ -628,4 +648,17 @@ enum eMsgType
 	// idx : 发送消息的玩家索引；
 
 	MSG_INTERAL_ROOM_SEND_UPDATE_COIN,  // SVR USED ;
+
+	MSG_ALIPAY_DIG_SIGN, // 支付宝，签名；
+	//client : { orgStr:  sdgg , strID : 234 }
+	// svr : { signedStr : "fhg", strID : 234 } 
+	// orgStr : 待签名的字符串， strID： 一个表示这个字符串的ID，签名后会返回。
+	// signedStr : 签名后的数字签名。 strID ： 客户端发过来的字符串ID ；
+
+	MSG_PURCHASE_RESULT , //充值结果
+	// result : { eChannel : ePay_ZhiFuBao, ret : 0 , finalDiamond : 2345 , added : 234 }
+	// eChannel : 充值的渠道 枚举参照  ePayChannel ，
+	// ret： 充值的结果， 0  是成功， 1 是失败。
+	// finalDiamond : 最终的钻石
+	// added： 本次购买新增的钻石 
 };

@@ -612,6 +612,7 @@ struct stMsgFromVerifyServer
 	unsigned int nBuyerPlayerUserUID ; 
 	unsigned int nBuyForPlayerUserUID ;
 	unsigned short nShopItemID ; // for mutilp need to verify ;
+	uint8_t nChannel; 
 	unsigned char nRet ; // 0 apple check error iap free crack ,2 duplicate tansactionid  , 4 Success ;
 };
 

@@ -15,6 +15,7 @@ struct stPlayerBrifData
 	bool bIsOnLine ;
 	uint32_t nCurrentRoomID ;
 	uint32_t nVipRoomCardCnt ;
+	char cHeadUrl[MAX_HEAD_URL_LEN];
 };
 
 
