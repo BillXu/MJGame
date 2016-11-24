@@ -61,20 +61,29 @@ bool CTaskPoolModule::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 
 	if ( MSG_ALIPAY_DIG_SIGN == nMsgType)
 	{
-		auto str = prealMsg["orgStr"];
-		if (str.isNull() || str.isString() == false)
-		{
-			LOGFMTE("invalied dig sign arg wrong arg : orgStr ");
-			return true;
-		}
-		auto siStr = str.asString();
-		auto signedStr = OpenapiClient::rsaSign(siStr, OpenapiClient::KEY_PRIVATE);
+
+		//--------------------
+		ostringstream ss;
+		ss << prealMsg["cnt"].asUInt() << "E"<< prealMsg["playerUID"].asUInt() << "E" << (uint32_t)time(nullptr) << rand() % 1000;
+		JsonMap contentMap;
+		contentMap.insert(JsonMap::value_type(JsonType("out_trade_no"), JsonType(ss.str())));
+		contentMap.insert(JsonMap::value_type(JsonType("total_amount"), JsonType(prealMsg["total_amount"].asCString())));
+		contentMap.insert(JsonMap::value_type(JsonType("subject"), JsonType(prealMsg["subject"].asCString())));
+		contentMap.insert(JsonMap::value_type(JsonType("product_code"), JsonType("QUICK_MSECURITY_PAY")));
+	 
+		OpenapiClient openapiClient(OpenapiClient::default_appID,
+			OpenapiClient::KEY_PRIVATE,
+			OpenapiClient::default_url,
+			OpenapiClient::default_charset,
+			OpenapiClient::KEY_PUBLIC);
+		std::string strMehthod = "alipay.trade.app.pay";
+		auto strFinal = openapiClient.generateFinalString(strMehthod, contentMap);
 
 		Json::Value jsBack;
 		jsBack["strID"] = prealMsg["strID"];
-		jsBack["signedStr"] = signedStr;
+		jsBack["signedStr"] = strFinal;
 		getSvrApp()->sendMsg(nSessionID, jsBack, nMsgType);
-		LOGFMTD("dig sing : org = %s  , signedstr = %s",siStr.c_str(),signedStr.c_str());
+		LOGFMTD("dig sing : signedstr = %s", strFinal.c_str());
 		return true;
 	}
 	return false;

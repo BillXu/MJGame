@@ -41,7 +41,7 @@ bool CLoginApp::init()
 	if ( bRet )
 	{
 		m_pDBThread->Start() ;
-		CLogMgr::SharedLogMgr()->SystemLog("start db thread ok") ;
+		LOGFMTI("start db thread ok") ;
 	}
 	else
 	{	

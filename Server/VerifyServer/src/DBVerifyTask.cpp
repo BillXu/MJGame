@@ -21,7 +21,7 @@ uint8_t CDBVerfiyTask::performTask()
 	auto pDBResult = m_pDBTask->getDBResult();
 	auto pVerifyResult = IVerifyTask::getVerifyResult();
 	pDBResult->nAffectRow = 1;
-	pDBResult->nRequestUID == 10;
+	pDBResult->nRequestUID = 10;
 	return 0;
 	// temp code 
 	return m_pDBTask->performTask();

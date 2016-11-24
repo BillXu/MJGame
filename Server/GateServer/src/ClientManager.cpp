@@ -59,8 +59,8 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 
 		pGateClient->Reset(CGateServer::SharedGateServer()->GenerateSessionID(),pData->_connectID,pIPInfo.c_str()) ;
 		AddClientGate(pGateClient);
-		CLogMgr::SharedLogMgr()->SystemLog("a Client connected ip = %s Session id = %d",pGateClient->strIPAddress.c_str(),pGateClient->nSessionId ) ;
-		CLogMgr::SharedLogMgr()->SystemLog("current online cnt = %d", m_vSessionGateClient.size() - m_vWaitToReconnect.size() ) ;
+		LOGFMTI("a Client connected ip = %s Session id = %d",pGateClient->strIPAddress.c_str(),pGateClient->nSessionId ) ;
+		LOGFMTI("current online cnt = %d", m_vSessionGateClient.size() - m_vWaitToReconnect.size() ) ;
 
 		stMsgControlFlag msgFlag ;
 		msgFlag.nFlag = 0 ;
@@ -133,7 +133,7 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 			
 			if ( bReconnectOk )
 			{
-				CLogMgr::SharedLogMgr()->SystemLog("MSG¡¡reconnected ! session id = %d",nSessionIDRec );
+				LOGFMTI("MSG¡¡reconnected ! session id = %d",nSessionIDRec );
 			}
 			return true ;
 
@@ -176,7 +176,7 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 
 void CGateClientMgr::closeAllClient()
 {
-	CLogMgr::SharedLogMgr()->SystemLog("close all client peers");
+	LOGFMTI("close all client peers");
 	// remove all connecting ;
 	auto iter = m_vSessionGateClient.begin() ;
 	for ( ; iter != m_vSessionGateClient.end() ;  )
@@ -206,7 +206,7 @@ void CGateClientMgr::OnServerMsg( const char* pRealMsgData, uint16_t nDataLen,ui
 
 	if ( pClient->tTimeForRemove )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("client is waiting for reconnected session id = %d, msg = %d",uTargetSessionID,pReal->usMsgType) ;
+		//CLogMgr::SharedLogMgr()->PrintLog("client is waiting for reconnected session id = %d, msg = %d",uTargetSessionID,pReal->usMsgType) ;
 		return ;
 	}
 
@@ -248,7 +248,7 @@ void CGateClientMgr::OnPeerDisconnected(CONNECT_ID nPeerDisconnected, ConnectInf
 
 		if ( IpInfo )
 		{
-			CLogMgr::SharedLogMgr()->SystemLog("client disconnected ip = %s, port = %d, wait for reconnect",IpInfo->strAddress,IpInfo->nPort ) ;
+			LOGFMTI("client disconnected ip = %s, port = %d, wait for reconnect",IpInfo->strAddress,IpInfo->nPort ) ;
 		}
 		return ;
 	}
@@ -384,7 +384,7 @@ void CGateClientMgr::UpdateReconectClientLife()
 		}
 
 		// do remove 
-		CLogMgr::SharedLogMgr()->SystemLog("session id = %d , ip = %s , wait reconnect time out ,do exit game",p->nSessionId,p->strIPAddress.c_str()) ;
+		LOGFMTI("session id = %d , ip = %s , wait reconnect time out ,do exit game",p->nSessionId,p->strIPAddress.c_str()) ;
 		RemoveClientGate(p);
 	}
 	vWillRemove.clear();

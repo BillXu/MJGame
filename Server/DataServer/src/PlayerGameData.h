@@ -41,6 +41,7 @@ public:
 	void addOwnRoom(eRoomType eType , uint32_t nRoomID , uint16_t nConfigID );
 	bool isCreateRoomCntReachLimit(eRoomType eType);
 	bool deleteOwnRoom(eRoomType eType , uint32_t nRoomID );
+	uint32_t getOwnRoomID();
 	/*uint16_t getMyOwnRoomConfig(eRoomType eType ,  uint32_t nRoomID ) ;*/
 	bool isRoomIDMyOwn(eRoomType eType , uint32_t nRoomID);
 	bool isNotInAnyRoom(){ return m_ePlayerGameState == ePlayerGameState_NotIn ; }

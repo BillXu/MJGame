@@ -353,7 +353,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 	case MSG_VERIFY_ITEM_ORDER:
 		{
 			stMsgVerifyItemOrderRet* pRet = (stMsgVerifyItemOrderRet*)pMsg ;
-			stMsgPlayerShopBuyItemOrderRet msgBack ;
+		/*	stMsgPlayerShopBuyItemOrderRet msgBack ;
 			memset(msgBack.cOutTradeNo,0,sizeof(msgBack.cOutTradeNo)) ;
 			memset(msgBack.cPrepayId,0,sizeof(msgBack.cPrepayId)) ;
 			msgBack.nChannel = pRet->nChannel ;
@@ -368,20 +368,25 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 			else
 			{
 				msgBack.nShopItemID = atoi(shopItem.c_str()) ;
-			}
+			}*/
 			
+			Json::Value jsback;
+			jsback["ret"] = 1;
+			jsback["cPrepayId"] = "";
+
 			if ( pRet->nRet )
 			{
-				msgBack.nRet = 3 ;
+			 
 			}
 			else
 			{
-				msgBack.nRet = 0;
-				memcpy(msgBack.cOutTradeNo,pRet->cOutTradeNo,sizeof(pRet->cOutTradeNo));
-				memcpy(msgBack.cPrepayId,pRet->cPrepayId,sizeof(pRet->cPrepayId));
+				jsback["ret"] = 0;
+				jsback["cPrepayId"] = pRet->cPrepayId;
+				jsback["randstr"] = "111111111111111111111111111111";
 			}
-			LOGFMTI("shopitem id = %d shop order ret = %d, uid = %d",msgBack.nShopItemID,pRet->nRet,GetPlayer()->GetUserUID()) ;
-			SendMsg(&msgBack,sizeof(msgBack)) ;
+			LOGFMTI("shopitem id = %s shop order ret = %d, uid = %d", pRet->cOutTradeNo, pRet->nRet, GetPlayer()->GetUserUID());
+			//SendMsg(&msgBack,sizeof(msgBack)) ;
+			SendMsg(jsback, MSG_REQUEST_VX_PAY_ORDER);
 		}
 		break;
 	case MSG_BUY_SHOP_ITEM:
@@ -435,7 +440,7 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 				//}
 
 				LOGFMTE("uid = %u buy diamoned = %u success verify ok ", pRet->nBuyForPlayerUserUID, pRet->nShopItemID);
-				AddMoney(pRet->nShopItemID);
+				AddMoney(pRet->nShopItemID,true);
 				// save log 
 				stMsgSaveLog msgLog ;
 				memset(msgLog.vArg,0,sizeof(msgLog.vArg));
@@ -721,6 +726,42 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 {
 	switch (nmsgType)
 	{
+	case MSG_REQUEST_VX_PAY_ORDER:
+	{	
+		auto strTitle = recvValue["title"].asCString();
+		auto  nPrize = recvValue["priceRMB"].asUInt();
+		auto nDiamondCnt = recvValue["Diamondcnt"].asUInt();
+
+		Json::Value jsback;
+		if (m_strCurIP.empty())
+		{
+			jsback["ret"] = 1;
+			jsback["cPrepayId"] = "";
+			SendMsg(jsback, nmsgType);
+			LOGFMTE("cur rent ip = null , for order uid = %d", GetPlayer()->GetUserUID());
+			break;
+		}
+
+
+		stMsgVerifyItemOrder msgOrder;
+		memset(msgOrder.cShopDesc, 0, sizeof(msgOrder.cShopDesc));
+		sprintf_s(msgOrder.cShopDesc, sizeof(msgOrder.cShopDesc), "%s", strTitle);
+
+		memset(msgOrder.cOutTradeNo, 0, sizeof(msgOrder.cOutTradeNo));
+		sprintf_s(msgOrder.cOutTradeNo, sizeof(msgOrder.cOutTradeNo), "%dE%dE%u", nDiamondCnt, GetPlayer()->GetUserUID(), (uint32_t)time(nullptr));
+		msgOrder.nPrize = nPrize;
+#ifndef _DEBUG
+		msgOrder.nPrize = nPrize * 100;
+#endif 
+		msgOrder.nChannel = ePay_WeChat;
+
+		memset(msgOrder.cTerminalIp, 0, sizeof(msgOrder.cTerminalIp));
+		sprintf_s(msgOrder.cTerminalIp, sizeof(msgOrder.cTerminalIp), "%s", m_strCurIP.c_str());
+
+		SendMsg(&msgOrder, sizeof(msgOrder));
+		LOGFMTI("order shop item to verify shop item = %d , uid = %d", nDiamondCnt, GetPlayer()->GetUserUID());
+	}
+	break;
 	case MSG_PLAYER_MODIFY_PHOTO:
 	{
 		if (recvValue["photoID"].isNull() == false && recvValue["photoID"].isUInt())
@@ -1278,6 +1319,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["vipRoomCard"] = m_stBaseData.nVipRoomCardCnt ;
 		jValue["charity"] = getLeftCharityTimes();
 		jValue["photoID"] = m_stBaseData.nPhotoID;
+		jValue["ownRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getOwnRoomID();
 
 		Json::Value jsclothe ;
 		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];

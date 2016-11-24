@@ -53,9 +53,15 @@
 
 #include <memory>
 #include "./alipaySDK/openapi/openapi_client.h"
+#include "json/json.h"
 void  testFunc()
 {
-	printf("%s", OpenapiClient::KEY_PRIVATE.c_str());
+	Json::Value jsV;
+	jsV["a"] = "fhtles";
+	jsV["b"] = 12;
+	Json::StyledWriter jsw;
+	auto jsstr = jsw.write(jsV);
+	const char* p = "{\"a\" : \"fhtles\",\"b\" : 12 }";
 	return  ;
 }
 

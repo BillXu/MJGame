@@ -87,6 +87,8 @@ public:
                            const ParamsMap &paramsMap,
                            const HeaderMap &headers = HeaderMap());
 
+	string genFinalStr(const ParamsMap &paramsMap);
+
 private:
     CURL *curl;
     static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);

@@ -114,7 +114,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 				break;
 			}
 			
-			CLogMgr::SharedLogMgr()->SystemLog("do real name verify");
+			LOGFMTI("do real name verify");
 			strName = pV["realName"].asString();
 			strID = pV["IDCode"].asString();
 			// asyn real name verify ;
@@ -126,7 +126,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 				auto pdata = (stArgData*)pRequest->pUserData;
 				if (p->isVerifyOk() || 1 )
 				{
-					CLogMgr::SharedLogMgr()->SystemLog("real name verify ok temp let all ok real = %u",p->isVerifyOk());
+					LOGFMTI("real name verify ok temp let all ok real = %u",p->isVerifyOk());
 					CDBRequestQueue::SharedDBRequestQueue()->PushRequest(pRequest);
 				}
 				else
@@ -137,10 +137,10 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 					jValue["ret"] = 2;
 					getSvrApp()->sendMsg(pdata->nSessionID, jValue, MSG_PLAYER_REGISTER);
 
-					CLogMgr::SharedLogMgr()->SystemLog("real name verify failed");
+					LOGFMTI("real name verify failed");
 					m_vReserverArgData.push_back((stArgData*)pRequest->pUserData);
 					CDBRequestQueue::SharedDBRequestQueue()->PushReserveRequest(pRequest);
-					CLogMgr::SharedLogMgr()->SystemLog("do real name verify failed");
+					LOGFMTI("do real name verify failed");
 				}
 				
 			});

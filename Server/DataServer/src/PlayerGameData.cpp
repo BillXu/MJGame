@@ -857,6 +857,22 @@ bool CPlayerGameData::deleteOwnRoom(eRoomType eType , uint32_t nRoomID )
 	return false ;
 }
 
+uint32_t CPlayerGameData::getOwnRoomID()
+{
+	for (auto& vR : m_vMyOwnRooms)
+	{
+		for (auto& r : vR)
+		{
+			if (r.first)
+			{
+				return r.first;
+			}
+		}
+	}
+
+	return 0;
+}
+
 //uint16_t CPlayerGameData::getMyOwnRoomConfig( eRoomType eType , uint32_t nRoomID ) 
 //{
 //	if ( eType >= eRoom_Max )

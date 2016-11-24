@@ -45,6 +45,9 @@
     <Filter Include="Verify\AlipaySDK\json">
       <UniqueIdentifier>{da399fbb-6e08-41af-b54d-22fbb34fc0a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Verify\AlipaySDK\http">
+      <UniqueIdentifier>{87975157-e6b1-426d-b728-9431a4757630}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -190,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="src\alipaySDK\openapi\json\json_util.cpp">
       <Filter>Verify\AlipaySDK\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\alipaySDK\openapi\http\http_client.cpp">
+      <Filter>Verify\AlipaySDK\http</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -351,6 +357,9 @@
     </ClInclude>
     <ClInclude Include="src\alipaySDK\openapi\json\json_util.h">
       <Filter>Verify\AlipaySDK\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\alipaySDK\openapi\http\http_client.h">
+      <Filter>Verify\AlipaySDK\http</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

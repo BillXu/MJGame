@@ -294,10 +294,11 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",photoID : 23, ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, vipRoomCard : 23, clothe : [235,235,234] }
+	// svr : { name: "nickName",photoID : 23, ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345,vipRoomCard : 23, clothe : [235,235,234] }
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 	// charity : 救济金剩余可领次数
 	// photoID : 头像ID ；
+	// ownRoomID : 自己创建的房间ID
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME, // 玩家修改昵称
@@ -650,9 +651,9 @@ enum eMsgType
 	MSG_INTERAL_ROOM_SEND_UPDATE_COIN,  // SVR USED ;
 
 	MSG_ALIPAY_DIG_SIGN, // 支付宝，签名；
-	//client : { orgStr:  sdgg , strID : 234 }
-	// svr : { signedStr : "fhg", strID : 234 } 
-	// orgStr : 待签名的字符串， strID： 一个表示这个字符串的ID，签名后会返回。
+	//client : { subject: "a diamond" ,  total_amount : "23", playerUID : 234 , cnt : 234 , }
+	// svr : { signedStr : "fhg" } 
+	// cnt : 购买钻石的数量，  playerUID 买家的UID
 	// signedStr : 签名后的数字签名。 strID ： 客户端发过来的字符串ID ；
 
 	MSG_PURCHASE_RESULT , //充值结果
@@ -661,4 +662,10 @@ enum eMsgType
 	// ret： 充值的结果， 0  是成功， 1 是失败。
 	// finalDiamond : 最终的钻石
 	// added： 本次购买新增的钻石 
+
+	MSG_REQUEST_VX_PAY_ORDER,  // 微信下单， 消息发送到 ID_MSG_PORT_DATA , 数据服务器
+	// client : { title: "a diamond" ,  priceRMB : 23, Diamondcnt : 234 , }
+	// svr : { ret : 0 , cPrepayId : "heloshgslkghs" }
+	// title : 商品名称， priceRMB 人民币的价格，单位元， Diamondcnt ： 钻石的数量
+	// cPrepayId : 勇气拉起微信支付的预订单号
 };

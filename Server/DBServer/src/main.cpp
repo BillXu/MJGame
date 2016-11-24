@@ -3,12 +3,13 @@
 #include <Dbghelp.h>
 #include <iostream>
 #include "ThreadMod.h"
+#include "log4z.h"
 #pragma comment( lib, "DbgHelp" )
-#ifdef NDEBUG
-#pragma comment(lib,"JsonDll.lib")
+#ifdef _DEBUG
+#pragma comment(lib,"jsoncppD.lib")
 #else
-#pragma comment(lib,"JsonDllD.lib")
-#endif
+#pragma comment(lib,"jsoncpp.lib")
+#endif 
 //#include "mutex.h"
 //#include <my_global.h>
 //#include "mysql.h"
@@ -75,6 +76,7 @@ int main()
 	//SetConsoleCtrlHandler(ConsoleHandler, TRUE); 
 	CGetInput input ;
 	input.Start();
+	zsummer::log4z::ILog4zManager::GetInstance()->Start();
 	bool bok = theApp.init();
 	if ( !bok )
 	{

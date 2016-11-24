@@ -31,6 +31,7 @@ public:
     static const string default_url;
     static const string default_sign_type;
     static const string default_version;
+	static const string default_appID;
 
     static const string KEY_APP_ID;
     static const string KEY_METHOD;
@@ -40,6 +41,8 @@ public:
     static const string KEY_TIMESTAMP;
     static const string KEY_VERSION;
     static const string KEY_BIZ_CONTENT;
+	static const string KEY_NOTIFY_URL;
+
 	static const string KEY_PRIVATE;
 	static const string KEY_PUBLIC;
 private:
@@ -55,7 +58,7 @@ private:
 public:
     string invoke(const string &method, const string &content, const StringMap &extendParamMap = StringMap());
     JsonMap invoke(const string &method, const JsonMap &contentMap, const StringMap &extendParamMap = StringMap());
-
+	string generateFinalString(const string &method, const JsonMap &contentMap);
 
 private:
     /**

@@ -1,10 +1,14 @@
 ﻿#include "openapi_client.h"
 #include "log4z.h"
+#include "http/http_client.h"
 
 const string OpenapiClient::default_charset      = "utf-8";
-const string OpenapiClient::default_url          = "https://openapi.alipay.com/gateway.do";
+const string OpenapiClient::default_url          = "http://abc.paiyouquan.com:6016/alipay.7z";
 const string OpenapiClient::default_sign_type    = "RSA";
-const string OpenapiClient::default_version      = "2.0";
+const string OpenapiClient::default_version      = "1.0";
+const string OpenapiClient::default_appID = "2016111602881028";
+
+
 
 const string OpenapiClient::KEY_APP_ID           = "app_id";
 const string OpenapiClient::KEY_METHOD           = "method";
@@ -14,9 +18,10 @@ const string OpenapiClient::KEY_SIGN             = "sign";
 const string OpenapiClient::KEY_TIMESTAMP        = "timestamp";
 const string OpenapiClient::KEY_VERSION          = "version";
 const string OpenapiClient::KEY_BIZ_CONTENT      = "biz_content";
+const string OpenapiClient::KEY_NOTIFY_URL		 = "notify_url";
 
 
-const string OpenapiClient::KEY_PRIVATE = "---- - BEGIN RSA PRIVATE KEY---- -"
+const string OpenapiClient::KEY_PRIVATE = "-----BEGIN RSA PRIVATE KEY-----\n"
 "MIICWwIBAAKBgQDITRagVyIKYZdwWbWnDFuuq4AygxKG4I28nu6hrKM1BE4O3waZ\n"
 "FAlUsaw4VnItS7wgfAX5Kbnd6SgoP2sAEbIYodx6PKgahNKK9GKPnsMHfoRCA / B6\n"
 "rJ2vHC3nFdqtWdSG8JgDKqwrOXyKQiB0jyHVNy1kWVjxv21gWmiP9AVZZQIDAQAB\n"
@@ -30,15 +35,15 @@ const string OpenapiClient::KEY_PRIVATE = "---- - BEGIN RSA PRIVATE KEY---- -"
 "W40v4jjiashRmzG0oXIeJfZavwLXiMDQdHX9KyclWUtbb + 9kDWqvc + E98tD / U / PC\n"
 "YU2ZGmhxiiMG3ki3AQJAAaU8PY + / uHbRyeV8PruquNKVFlkkArYcMdrQCvVMFmP +\n"
 "U1FfXFvpOnwbZxShIpjmTUQff9MZYDKT7uKM6mtU3A ==\n"
-"---- - END RSA PRIVATE KEY---- -"
+"-----END RSA PRIVATE KEY-----"
 ;
 
-const string OpenapiClient::KEY_PUBLIC = "---- - BEGIN PUBLIC KEY---- -\n"
+const string OpenapiClient::KEY_PUBLIC = "-----BEGIN PUBLIC KEY-----\n"
 "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDITRagVyIKYZdwWbWnDFuuq4Ay\n"
 "gxKG4I28nu6hrKM1BE4O3waZFAlUsaw4VnItS7wgfAX5Kbnd6SgoP2sAEbIYodx6\n"
 "PKgahNKK9GKPnsMHfoRCA / B6rJ2vHC3nFdqtWdSG8JgDKqwrOXyKQiB0jyHVNy1k\n"
 "WVjxv21gWmiP9AVZZQIDAQAB\n"
-"---- - END PUBLIC KEY---- -" 
+"-----END PUBLIC KEY-----" 
 ;
 
 OpenapiClient::OpenapiClient(const string &appId,
@@ -91,13 +96,45 @@ string OpenapiClient::invoke(const string &method, const string &content, const 
     wholeContent = buildContent(requestPairs);
 	LOGFMTE("Request:%s", wholeContent.c_str());
 
-    //HttpClient httpClient;
-	string responseStr = "";//httpClient.sendSyncRequest(url, requestPairs);
+    HttpClient httpClient;
+	string responseStr = httpClient.sendSyncRequest(url, requestPairs);
 
     LOGFMTE("Response:%s", responseStr.c_str());
 
     string responseContent = analyzeResponse(responseStr);
     return responseContent;
+}
+
+string OpenapiClient::generateFinalString(const string &method, const JsonMap &contentMap)
+{
+	string content = JsonUtil::objectToString(JsonType(contentMap));
+	time_t t = time(0);
+	char tmp[64];
+	strftime(tmp, sizeof(tmp), "%Y-%m-%d %X", localtime(&t));
+	StringMap requestPairs;
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_APP_ID, appId));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_BIZ_CONTENT, content));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_CHARSET, charset));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_METHOD, method));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_SIGN_TYPE, signType));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_TIMESTAMP, tmp));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_VERSION, version));
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_NOTIFY_URL, url));
+
+	string wholeContent = buildContent(requestPairs);
+	string sign = OpenapiClient::rsaSign(wholeContent, privateKey);
+	requestPairs.insert(StringMap::value_type(OpenapiClient::KEY_SIGN, sign));
+
+	wholeContent = buildContent(requestPairs);
+	LOGFMTE("Request:%s", wholeContent.c_str());
+
+	HttpClient httpClient;
+	string responseStr = httpClient.genFinalStr(requestPairs);
+
+	LOGFMTE("final:%s", responseStr.c_str());
+
+	//string responseContent = analyzeResponse(responseStr);
+	return responseStr;
 }
 
 /**
@@ -128,22 +165,23 @@ string OpenapiClient::analyzeResponse(const string &responseStr) {
     JsonType responseObj = JsonUtil::stringToObject(responseStr);
     JsonMap responseMap = responseObj.toMap();
     //获取返回报文中的alipay_xxx_xxx_response的内容;
-    int beg = responseStr.find("_response\"");
-    int end = responseStr.rfind("\"sign\"");
-    if (beg < 0 || end < 0) {
-        return string();
-    }
-    beg = responseStr.find('{', beg);
-    end = responseStr.rfind('}', end);
+    //int beg = responseStr.find("_response\"");
+    //int end = responseStr.rfind("\"sign\"");
+    //if (beg < 0 || end < 0) {
+    //    return string(); 
+    //}
+    //beg = responseStr.find('{', beg);
+    //end = responseStr.rfind('}', end);
     //注意此处将map转为json之后的结果需要与支付宝返回报文中原格式与排序一致;
     //排序规则是节点中的各个json节点key首字母做字典排序;
     //Response的Json值内容需要包含首尾的“{”和“}”两个尖括号，双引号也需要参与验签;
     //如果字符串中包含“http://”的正斜杠，需要先将正斜杠做转义，默认打印出来的字符串是已经做过转义的;
     //此处转换之后的json字符串默认为"Compact"模式，即紧凑模式，不要有空格与换行;
-    string responseContent = responseStr.substr(beg, end - beg + 1);
+    //string responseContent = responseStr.substr(beg, end - beg + 1);
 
-    LOGFMTE("ResponseContent:%s", responseContent.c_str());
+    //LOGFMTE("ResponseContent:%s", responseContent.c_str());
 
+	auto responseContent = responseStr; // temp add by bill ;
     //此处为校验支付宝返回报文中的签名;
     //如果支付宝公钥为空，则默认跳过该步骤，不校验签名;
     //如果支付宝公钥不为空，则认为需要校验签名;

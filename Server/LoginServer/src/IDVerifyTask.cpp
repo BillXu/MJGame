@@ -31,7 +31,7 @@ void IDVerifyTask::onHttpCallBack(char* pResultData, size_t nDatalen, void* pUse
 	char pTempBuffer[1024] = { 0 };
 	memset(pTempBuffer, 0, sizeof(pTempBuffer));
 	memcpy(pTempBuffer, pResultData, nDatalen);
-	CLogMgr::SharedLogMgr()->SystemLog("verifyRet: %s",pTempBuffer);
+	LOGFMTI("verifyRet: %s",pTempBuffer);
 	if (reader.parse(pTempBuffer, rootValue))
 	{
 		this->m_isVerifyOk = (rootValue["code"].isNull() == false && rootValue["code"].asInt() == 0);

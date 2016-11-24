@@ -110,6 +110,7 @@
     <ClCompile Include="..\ServerCommon\ThreadMod.cpp" />
     <ClCompile Include="..\ServerCommon\Timer.cpp" />
     <ClCompile Include="..\ServerCommon\WorkThread.cpp" />
+    <ClCompile Include="src\alipaySDK\openapi\http\http_client.cpp" />
     <ClCompile Include="src\alipaySDK\openapi\json\cJSON.c" />
     <ClCompile Include="src\alipaySDK\openapi\json\json_type.cpp" />
     <ClCompile Include="src\alipaySDK\openapi\json\json_util.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="..\ServerCommon\ThreadMod.h" />
     <ClInclude Include="..\ServerCommon\Timer.h" />
     <ClInclude Include="..\ServerCommon\WorkThread.h" />
+    <ClInclude Include="src\alipaySDK\openapi\http\http_client.h" />
     <ClInclude Include="src\alipaySDK\openapi\json\cJSON.h" />
     <ClInclude Include="src\alipaySDK\openapi\json\json_type.h" />
     <ClInclude Include="src\alipaySDK\openapi\json\json_util.h" />

@@ -55,7 +55,7 @@ bool CGameServerApp::init()
 	CServerStringTable::getInstance()->LoadFile("../configFile/stringTable.txt");
 	CRewardConfig::getInstance()->LoadFile("../configFile/rewardConfig.txt");
 
-	m_pConfigManager = new CConfigManager ;
+	m_pConfigManager = new CConfigManager() ;
 	m_pConfigManager->LoadAllConfigFile("../configFile/") ;
 	// init component ;
 

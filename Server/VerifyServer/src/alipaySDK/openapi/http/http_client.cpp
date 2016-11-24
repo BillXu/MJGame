@@ -123,3 +123,35 @@ string HttpClient::sendSyncRequest(const string &url,
     string responseStr = sendSyncRequest(url, requestEntity, headers);
     return responseStr;
 }
+
+string HttpClient::genFinalStr(const ParamsMap &paramsMap)
+{
+	string requestEntity;
+	string item;
+	for (ParamsMap::const_iterator iter = paramsMap.begin(); iter != paramsMap.end(); ++iter) {
+		const char *key = iter->first.c_str();
+		char *encodedKey = curl_easy_escape(curl, key, strlen(key));
+		if (encodedKey) {
+			item = encodedKey;
+		}
+		item += "=";
+		const char *value = iter->second.c_str();
+		char *encodedValue = curl_easy_escape(curl, value, strlen(value));
+		if (encodedValue) {
+			item += encodedValue;
+		}
+		if (!requestEntity.empty()) {
+			requestEntity.push_back('&');
+		}
+		requestEntity.append(item);
+		item.clear();
+		if (encodedKey) {
+			curl_free(encodedKey);
+		}
+		if (encodedValue) {
+			curl_free(encodedValue);
+		}
+	}
+
+	return requestEntity;
+}

@@ -524,6 +524,20 @@ bool CPlayerManager::ProcessPublicMessage( stMsg* prealMsg , eMsgPort eSenderPor
 			}
 		}
 		break;
+	case MSG_VERIFY_TANSACTION:
+		{
+			stMsgFromVerifyServer* pRet = (stMsgFromVerifyServer*)prealMsg;
+			CPlayer* p = GetPlayerByUserUID(pRet->nBuyForPlayerUserUID);
+			if (!p)
+			{
+				LOGFMTE("uid = %u can not find player to tell verfiy result = %u, shopid = %u",pRet->nBuyForPlayerUserUID, pRet->nRet,pRet->nShopItemID);
+			}
+			else
+			{
+				p->OnMessage(prealMsg, eSenderPort);
+			}
+		}
+		break;
 	case MSG_REQUEST_PLAYER_INFO:
 		{
 			stMsgRequestPlayerData* pRet = (stMsgRequestPlayerData*)prealMsg ;
