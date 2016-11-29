@@ -180,6 +180,7 @@ void MJRoomManager::update(float fDeta)
 		iter->second = nullptr;
 		m_vRooms.erase(iter);
 	}
+	m_vWillDeleteRoomIDs.clear();
 }
 
 bool MJRoomManager::onAsyncRequest(uint16_t nRequestType, const Json::Value& jsReqContent, Json::Value& jsResult)

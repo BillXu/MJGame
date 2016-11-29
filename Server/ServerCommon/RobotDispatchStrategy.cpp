@@ -101,6 +101,16 @@ void CRobotDispatchStrategy::onPlayerJoin(uint32_t nSessionID, bool isRobot )
 		m_vPlayingRobot.push_back(pRet) ;
 
 		LOGFMTD("a robot session id = %u join room id = %u",nSessionID,m_nRoomID );
+
+		if (isTargetRoomHaveEmptySeat() == false)
+		{
+			stMsgRequestRobotCanncel msgreq;
+			msgreq.nRoomID = m_nRoomID;
+			msgreq.nRoomType = m_nRoomType;
+			msgreq.nSubRoomIdx = m_nSubRoomIdx;
+			sendMsgToPlayer(&msgreq, sizeof(msgreq), 0);
+			LOGFMTD("room id = %u , req canncel all robot req already full", m_nRoomID);
+		}
 		return ;
 	}
 

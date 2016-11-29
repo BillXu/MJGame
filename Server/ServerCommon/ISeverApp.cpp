@@ -93,7 +93,7 @@ bool IServerApp::OnMessage( Packet* pMsg )
 		if ( !onAsyncRequest(pRet->nReqType,jsReqContent,jsResult) )
 		{
 			LOGFMTE("async request type = %u , not process from port = %u",pRet->nReqType,pData->nSenderPort) ;
-			assert(0 && "must process the req" );
+			//assert(0 && "must process the req" );
 		}
 		
 		stMsgAsyncRequestRet msgBack ;

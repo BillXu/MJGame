@@ -70,7 +70,7 @@ bool MJPrivateRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, 
 
 bool MJPrivateRoom::onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)
 {
-	//pEnterRoomPlayer->nPlayerType = ePlayer_Robot; // avoid robot dispatch take effect ; temp let robot join vip room ;
+	pEnterRoomPlayer->nPlayerType = ePlayer_Robot; // avoid robot dispatch take effect ; temp let robot join vip room ;
 	if (m_pRoom)
 	{
 		auto iter = m_vAllPlayers.find(pEnterRoomPlayer->nUserUID);
@@ -322,12 +322,19 @@ void MJPrivateRoom::sendRoomInfo(uint32_t nSessionID)
 	{
 		m_pRoom->sendRoomInfo(nSessionID);
 	}
+	else
+	{
+		LOGFMTE("private room core is null , can not send detail info");
+		return;
+	}
+
 	LOGFMTD("send vip room info ext to player session id = %u", nSessionID);
 	Json::Value jsMsg;
 	jsMsg["leftCircle"] = m_nLeftCircle;
 	jsMsg["baseBet"] = m_stConfig.nBaseBet;
 	jsMsg["creatorUID"] = m_nOwnerUID;
 	jsMsg["initCoin"] = m_nInitCoin;
+	jsMsg["roomType"] = m_pRoom->getRoomType();
 	sendMsgToPlayer(jsMsg, MSG_VIP_ROOM_INFO_EXT, nSessionID);
 }
 

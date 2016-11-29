@@ -294,7 +294,7 @@ void CPlayer::SendMsgToClient(const char* pBuffer, unsigned short nLen,bool bBro
 	stMsg* pmsg = (stMsg*)pBuffer ;
 	if ( IsState(ePlayerState_Online) || pmsg->cSysIdentifer != ID_MSG_PORT_CLIENT  )
 	{
-		LOGFMTE("should not have this message msg id = %u target = %u",pmsg->usMsgType,pmsg->cSysIdentifer ) ;
+		//LOGFMTE("should not have this message msg id = %u target = %u",pmsg->usMsgType,pmsg->cSysIdentifer ) ;
 		CGameServerApp::SharedGameServerApp()->sendMsg(GetSessionID(),pBuffer,nLen,bBrocat) ;
 		return ;
 	}

@@ -82,8 +82,8 @@ enum eRoomType
 {
 	eRoom_None,
 	eRoom_MJ = eRoom_None,
-	eRoom_MJ_Blood_End = eRoom_None, // 血战到底 
-	eRoom_MJ_Blood_River,// 血流成河
+	eRoom_MJ_Blood_River = eRoom_None,// 血流成河
+	eRoom_MJ_Blood_End , // 血战到底 
 	eRoom_MJ_Two_Bird_God, // 二人雀神
 	eRoom_MJ_MAX,
 	eRoom_NiuNiu = eRoom_MJ_Blood_River, // not used 
@@ -341,7 +341,7 @@ enum eMsgType
 	MSG_REQ_ENTER_ROOM = 10115,
 	// client : { type : 0 ， targetID : 23 }
 	// svr : { ret : 0  }
-	// ret :  0 success , 1 已经在房间里 , 2 房间要求游客不能进入 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 8 房间已经满了。
+	// ret :  0 success , 1 已经在房间里 , 2 房间要求游客不能进入 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 , 7 房间已经满了, 8 已经认输了，且已经离开了，不能再进。
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
@@ -479,8 +479,9 @@ enum eMsgType
 	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, seatCnt : 座位个数。
 
 	MSG_VIP_ROOM_INFO_EXT, // VIP 房间的额外信息；
-	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345 }
+	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345, roomType : 2 }
 	// letCircle : 剩余的圈数， baseBet 基础底注 ，creatorUID 创建者的ID , initCoin 每个人的初始金币
+	// roomType : 游戏类型，参考枚举 eRoomType ；
 
 	MSG_APPLY_DISMISS_VIP_ROOM, // 申请解散vip 房间
 	// client : { dstRoomID : 234 } 
@@ -526,7 +527,7 @@ enum eMsgType
 	MSG_PLAYER_DO_GET_CHARITY, // 领取救济金
 	// client : null 
 	// svr : { ret : 0 , finalCoin : 23455 , recievedCoin : 234 , leftTimes : 23 }
-	// ret : 0 成功， 1 表示达到次数限制，finalCoin 领取后的最终金币数额 ，recievedCoin 领取到的金币， leftTimes 剩余可领取次数;
+	// ret : 0 成功， 1 表示达到次数限制，2, 金币太多，不能领取。finalCoin 领取后的最终金币数额 ，recievedCoin 领取到的金币， leftTimes 剩余可领取次数;
 
 	MSG_REQUEST_PLAYER_BRIF_INFO, // 请求玩家的基本信息；
 	// client : { targetUID : 23456 }

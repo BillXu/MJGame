@@ -5,6 +5,12 @@ XLMJPlayer::XLMJPlayer()
 	m_nFanShu = 0;
 }
 
+void XLMJPlayer::init(stEnterRoomData* pData)
+{
+	MJPlayer::init(pData);
+	setState(eRoomPeer_Ready);
+}
+
 void XLMJPlayer::onWillStartGame()
 {
 	MJPlayer::onWillStartGame();

@@ -15,13 +15,14 @@
 #include "XLRoomStateWaitSupplyCoin.h"
 #include "IGameRoomManager.h"
 #include "RobotDispatchStrategy.h"
+#include "XLRoomStateWaitPlayerAct.h"
 bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	IMJRoom::init(pRoomMgr, pConfig, nRoomID, vJsValue);
 	m_tPoker.initAllCard(eMJ_BloodRiver);
 	// create state and add state ;
 	IMJRoomState* vState[] = {
-		new CMJRoomStateWaitReady(), new MJRoomStateWaitPlayerChu(), new MJRoomStateWaitPlayerAct(), new XLRoomStateStartGame()
+		new CMJRoomStateWaitReady(), new MJRoomStateWaitPlayerChu(), new XLRoomStateWaitPlayerAct(), new XLRoomStateStartGame()
 		, new MJRoomStateGameEnd(), new XLRoomStateDoPlayerAct(), new MJRoomStateAskForPengOrHu(), new XLRoomStateWaitDecideQue(), new XLRoomStateWaitSupplyCoin()
 	};
 	for (uint8_t nIdx = 0; nIdx < sizeof(vState) / sizeof(IMJRoomState*); ++nIdx)
@@ -29,6 +30,9 @@ bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint3
 		addRoomState(vState[nIdx]);
 	}
 	setInitState(vState[0]);
+
+	// init banker
+	m_nBankerIdx = getSeatCnt() - 1;
 	return true;
 }
 
@@ -664,7 +668,9 @@ void XLMJRoom::willStartGame()
 	IMJRoom::willStartGame();
 	clearAllSettle();
 	// rand banker , ervery round ;
-	m_nBankerIdx = rand() % getSeatCnt();
+	//m_nBankerIdx = rand() % getSeatCnt();
+	++m_nBankerIdx;
+	m_nBankerIdx = m_nBankerIdx % getSeatCnt();
 }
 
 void XLMJRoom::onGameEnd()

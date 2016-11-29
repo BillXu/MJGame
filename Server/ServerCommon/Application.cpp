@@ -52,7 +52,7 @@ void CApplication::startApp()
 	{
 		++nRunloop ;
 		runAppLoop();
-		LOGFMTD("try another loop = %u",nRunloop) ;
+		LOGFMTE("try another loop = %u",nRunloop) ;
 		Sleep(800);
 	}
 	zsummer::log4z::ILog4zManager::GetInstance()->Stop();
@@ -66,7 +66,7 @@ void CApplication::runAppLoop()
 	}
 	__except(CatchDumpFile::CDumpCatch::UnhandledExceptionFilterEx(GetExceptionInformation()))
 	{
-		LOGFMTI("try to recover from exception") ;
+		LOGFMTE("try to recover from exception") ;
 	}
 }
 

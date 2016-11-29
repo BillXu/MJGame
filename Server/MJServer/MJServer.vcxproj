@@ -185,6 +185,7 @@
     <ClInclude Include="src\XLRoomStateDoPlayerAct.h" />
     <ClInclude Include="src\XLRoomStateStartGame.h" />
     <ClInclude Include="src\XLRoomStateWaitDecideQue.h" />
+    <ClInclude Include="src\XLRoomStateWaitPlayerAct.h" />
     <ClInclude Include="src\XLRoomStateWaitSupplyCoin.h" />
     <ClInclude Include="src\XZMJRoom.h" />
   </ItemGroup>
