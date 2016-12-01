@@ -30,6 +30,8 @@ public:
 	bool isGameOver()override;
 	bool getWaitSupplyCoinPlayerIdxs(std::vector<uint8_t>& vOutWaitSupplyIdx);
 	void infoPlayerSupplyCoin(std::vector<uint8_t>& vOutWaitSupplyIdx );
+	uint8_t getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)override;
+	uint8_t getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx)override;
 protected:
 	void sendPlayersCardInfo(uint32_t nSessionID)override;
 	void onPlayerZiMo(uint8_t nIdx, uint8_t nCard);

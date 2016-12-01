@@ -298,18 +298,36 @@ void CNewMJRoom::onGameOver()
 		Json::Value info ;
 		info["idx"] = nIdx ;
 		info["coin"] = pPlayer->getCoin() ; 
-		info["huType"] = eFanxing_PingHu;
+		info["huType"] = m_nFanxing;
+		info["offset"] = pPlayer->getGameOffset();
+		info["beiShu"] = m_nFanshu;
 		msgArray[(uint32_t)nIdx] = info ;
 	}
 	msg["players"] = msgArray ;
 	sendRoomMsg(msg,MSG_ROOM_GAME_OVER);
 	LOGFMTD("send game over msg , %u ", MSG_ROOM_GAME_OVER);
 	ISitableRoom::onGameOver() ;
+
+	// all player leave room ;
+	if ( getDelegate() == false ) // not private room , game over all player leave room ;
+	{
+		LOGFMTD("game over all player leave room id = %u",getRoomID());
+		for (uint8_t nIdx = 0; nIdx < getSeatCount(); ++nIdx)
+		{
+			auto pPlayer = (CNewMJRoomPlayer*)getPlayerByIdx(nIdx);
+			if (pPlayer)
+			{
+				onPlayerApplyLeaveRoom(pPlayer->getUserUID()); 
+			}
+		}
+	}
 }
 
 void CNewMJRoom::onGameWillBegin()
 {
 	ISitableRoom::onGameWillBegin();
+	m_nFanxing = 0;
+	m_nFanshu = 0;
 }
 
 void CNewMJRoom::onGameDidEnd()
@@ -318,7 +336,7 @@ void CNewMJRoom::onGameDidEnd()
 	for ( uint8_t nidx = 0 ; nidx < getSeatCount() ; ++nidx )
 	{
 		auto pp = getPlayerByIdx(nidx);
-		if ( pp->isDelayStandUp() == false )
+		if (pp == nullptr || pp->isDelayStandUp() == false)
 		{
 			continue;
 		}
@@ -334,6 +352,8 @@ void CNewMJRoom::onGameDidEnd()
 	{
 		getRobotDispatchStrage()->onPlayerLeave(si.first,si.second) ;
 	}
+	m_nFanxing = 0;
+	m_nFanshu = 0;
 }
 
 uint8_t CNewMJRoom::getBankerIdx()
@@ -683,6 +703,9 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 	msg["actType"] = eMJAct_Hu ;
 	msg["card"] = nTargetCard ;
 	sendRoomMsg(msg,MSG_ROOM_ACT) ;
+
+	m_nFanshu = nFanShu;
+	m_nFanxing = nFanType;
 	return true ;
 }
 
@@ -997,7 +1020,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 	if ( vShowAllCard.size() == 0 && pActor->getIdx() == getBankerIdx() )
 	{
 		LOGFMTI("this is tian hu") ;
-		nFanxing = 1 ;
+		nFanxing = eFanxing_TianHu;
 		nFanshu = 48 ;
 		return true ;
 	}
@@ -1010,7 +1033,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 		if ( v.empty() && pActor->getMJPeerCard()->isBeRobotEmpty() )
 		{
 			LOGFMTI("this is di hu") ;
-			nFanxing = 1 ;
+			nFanxing = eFanxing_DiHu;
 			nFanshu = 32 ;
 			return true ;
 		}
@@ -1024,7 +1047,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 		if ( v.empty() && pActor->getMJPeerCard()->isBeRobotEmpty() )
 		{
 			LOGFMTI("this is ren hu") ;
-			nFanxing = 1 ;
+			nFanxing = eFanxing_RenHu;
 			nFanshu = 24 ;
 			return true ;
 		}
@@ -1043,7 +1066,7 @@ bool CNewMJRoom::getHuFanxing(CNewMJRoomPlayer* pActor, CNewMJRoomPlayer* pInvok
 		if ( pActor->getIdx() != getBankerIdx() && pActor->isTianTing() )
 		{
 			nFanshu = 16 ;
-			nFanxing = 1 ;
+			nFanxing = eFanxing_TianTing;
 			LOGFMTD("this is tian ting ");
 			return true ;
 		}

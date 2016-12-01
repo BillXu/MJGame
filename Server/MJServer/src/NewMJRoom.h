@@ -66,6 +66,9 @@ protected:
 	uint8_t m_nBankerIdx ;
 	uint8_t m_nCurIdx ;
 	CTowBirdGodCheckFanxingInfo m_tCheckInfo ;
+
+	uint16_t m_nFanxing;
+	uint16_t m_nFanshu;
 private:
 	static CTwoBirdFanxingChecker m_tTowBirdFanxingChecker ;
 };

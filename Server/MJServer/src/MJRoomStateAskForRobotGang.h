@@ -20,6 +20,7 @@ public:
 		getRoom()->onAskForRobotGang(m_nInvokeIdx, m_nCard, m_vWaitIdx);
 		assert(m_vWaitIdx.empty() == false && "invalid argument");
 		m_vDoHuIdx.clear();
+		getRoom()->onCheckTrusteeForHuOtherPlayerCard(m_vWaitIdx, m_nCard);
 	}
 
 	void onStateTimeUp()override

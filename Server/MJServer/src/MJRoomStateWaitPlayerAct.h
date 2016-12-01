@@ -5,6 +5,7 @@
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
 #include <cassert>
+#include "MJPlayer.h"
 class MJRoomStateWaitPlayerAct
 	:public IMJRoomState
 {
@@ -18,6 +19,9 @@ public:
 		{
 			m_nIdx = jsTranData["idx"].asUInt();
 			getRoom()->onWaitPlayerAct(m_nIdx, m_isCanPass );
+
+			// check tuo guan 
+			getRoom()->onCheckTrusteeForWaitPlayerAct(m_nIdx, m_isCanPass);
 			return;
 		}
 		assert(0 && "invalid argument");
@@ -38,6 +42,9 @@ public:
 		jsTran["act"] = eMJAct_Chu;
 		jsTran["card"] = nCard;
 		getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
+
+		// go to tuo guan zhuang tai 
+		getRoom()->onPlayerTrusteedStateChange(m_nIdx, true);
 	}
 
 	bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)override

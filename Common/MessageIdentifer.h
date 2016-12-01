@@ -9,8 +9,8 @@ enum eMJGameType
 	eMJ_None,
 	eMJ_BloodRiver = eMJ_None,
 	eMJ_BloodTheEnd,
-	eMJ_COMMON,
 	eMJ_TwoBird,
+	eMJ_COMMON,
 	eMJ_HZ,
 	eMJ_Max,
 };
@@ -72,6 +72,52 @@ enum eFanxingType
 
 	eFanxing_QingLongQiDui, //  清龙七对
 	eFanxing_ShiBaLuoHan, //  十八罗汉
+
+
+	eFanxing_DaSiXi, // // 大四喜 
+	eFanxing_DaSanYuan , // 大三元 
+	eFanxing_JiuLianBaoDeng , // 九莲宝灯 
+	eFanxing_SiGang, // 四杠 
+	eFanxing_LianQiDui , // 连七对 
+	eFanxing_XiaoSiXi, //  小四喜
+	eFanxing_XiaoSanYuan, //  小三元
+	eFanxing_ZiYiSe, //  字一色
+	eFanxing_SiAnKe, //  四暗刻
+	eFanxing_YISeShuangLongHui,// 一色双龙会
+	eFanxing_YiSeSiTongShun, // 一色四同顺 
+	eFanxing_YiSeSiJieGao, // 一色四节高
+	eFanxing_YiSeSiBuGao, // 一色四步高
+	eFanxing_SanGang, // 三杠
+	eFanxing_HunYaoJiu,//混幺九
+	eFanxing_YiSeSanTongShun, //一色三同顺
+	eFanxing_YiSeSanJieGao, //一色三节高
+	eFanxing_QingLong, // 清龙
+	eFanxing_YiSeSanBuGao, //一色三步高
+	eFanxing_SanAnKe, //三暗刻
+	eFanxing_DaYu5 , //大于5
+	eFanxing_XiaoYu5, //小于5
+	eFanxing_SanFengKe, //三风刻
+	eFanxing_MiaoShouHuiChun , // 妙手回春
+	eFanxing_HaiDiLaoYue,// 海底捞月
+	eFanxing_GangShangHua, //杠上花
+	eFanxing_QiangGangHu, //抢杠胡
+	eFanxing_HunYiSe, // 混一色
+	eFanxing_QuanQiuRen,// 全求人
+	eFanxing_ShuangAnGang, // 双暗杠
+	eFanxing_ShuangJianKe, // 双箭刻
+	eFanxing_BuQiuRen, // 不求人
+	eFanxing_ShuangMingGang, // 双明杠
+	eFanxing_HuJueZhang, // 胡绝张
+	eFanxing_JianKe , // 箭刻
+	eFanxing_MengQianQing , // 门前清
+	eFanxing_SiGuiYi, // 四归一
+	eFanxing_ShuangAnKe, // 双暗刻
+	eFanxing_AnGang, // 暗杠
+	eFanxing_DuanYao, // 断幺
+	eFanxing_TianHu, // 天胡
+	eFanxing_DiHu, // 地胡
+	eFanxing_RenHu, //  人胡
+	eFanxing_TianTing, //  天听
 	eFanxing_Max, // 没有胡
 };
 
@@ -345,8 +391,9 @@ enum eMsgType
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
-	// svr : { roomID ： 23 , configID : 23 , waitTimer : 23, roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34 }, {idx : 0 , uid : 233, coin : 2345, state : 34 },{idx : 0 , uid : 233, coin : 2345 , state : 34} , ... ] }
+	// svr : { roomID ： 23 , configID : 23 , waitTimer : 23, roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, isTrusteed : 0  }, {idx : 0 , uid : 233, coin : 2345, state : 34, isTrusteed : 0 },{idx : 0 , uid : 233, coin : 2345 , state : 34,isTrusteed : 0 } , ... ] }
 	// roomState  , 房间状态
+	// isTrusteed : 玩家是否托管
 
 	MSG_ROOM_PLAYER_ENTER, // 有其他玩家进入房间
 	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34 }
@@ -432,9 +479,10 @@ enum eMsgType
 	// players : 需要充值的玩家所以 数组，可能有多个玩家。
 	
 	MSG_ROOM_GAME_OVER, // 游戏结束
-	// svr : { players : [ {idx : 0 , coin : 2345 ,huType : eFanxingType, offset : 23 } ,{idx : 1 , coin : 2345 ,huType : eFanxingType , offset : 23 } ,{idx : 2 , coin : 2345,huType : eFanxingType, offset : 23 },{idx : 3 , coin : 2345,huType : eFanxingType, offset : 23 } ]  } 
+	// svr : { players : [ {idx : 0 , coin : 2345 ,huType : eFanxingType, offset : 23 , beiShu : 20 } ,{idx : 1 , coin : 2345 ,huType : eFanxingType , offset : 23 } ,{idx : 2 , coin : 2345,huType : eFanxingType, offset : 23 },{idx : 3 , coin : 2345,huType : eFanxingType, offset : 23 } ]  } 
 	// eFanxingType 参照枚举值
 	// players: 结束后，每个玩家最终的钱数。
+	// beiShu : 胡牌的倍数， 仅仅 二人雀神用；
 	
 	MSG_PLAYER_DETAIL_BILL_INFOS, // 游戏结束后收到的个人详细账单，每个人只能收到自己的。
 	// svr ： { idx： 23 ， bills：[ { type: 234, offset : -23, huType : 23, beiShu : 234, target : [2, 4] } , .......... ] } 
@@ -669,4 +717,15 @@ enum eMsgType
 	// svr : { ret : 0 , cPrepayId : "heloshgslkghs" }
 	// title : 商品名称， priceRMB 人民币的价格，单位元， Diamondcnt ： 钻石的数量
 	// cPrepayId : 勇气拉起微信支付的预订单号
+
+	MSG_PLAYER_REQUEST_TRUSTEED, // 玩家设置托管，状态，消息发到游戏服务器
+	// client : {dstRoomID : 23 ， isTrusteed ：0 } ;
+	// svr : { ret : 0   }
+	// ret : 0表示成功， 1 状态错误；
+	// isTrusteed 是否托管， 0 不托管，1 托管
+
+	MSG_ROOM_REQUEST_TRUSTEED,  // 玩家托管状态改变
+	// svr ： { idx ： 2 ， isTrusteed ： 0 }
+	// idx : 托管状态改变的玩家索引
+	// isTrusteed 是否托管， 0 不托管，1 托管
 };

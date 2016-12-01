@@ -16,5 +16,7 @@ protected:
 protected:
 	IServerApp* m_pApp ;
 	bool m_isRunning ;
+#ifdef NDEBUG
 	CatchDumpFile::CDumpCatch m_exception_handler;
+#endif
 };

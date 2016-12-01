@@ -193,13 +193,13 @@ uint8_t XLMJPlayerCard::getAutoQueType()
 	{
 		return eCT_Wan;
 	}
-	else if (nTiao <= nWan && nTiao <= nTong)
+	else if (nTong <= nWan && nTong <= nTiao)
 	{
-		return eCT_Tiao;
+		return eCT_Tong;
 	}
 	else
 	{
-		return eCT_Tong;
+		return eCT_Tiao;
 	}
 	return 0;
 }
@@ -347,6 +347,16 @@ bool XLMJPlayerCard::getHuedCard(VEC_CARD& vhuedCard)
 {
 	vhuedCard.insert(vhuedCard.begin(), m_vecAlreadyHu.begin(), m_vecAlreadyHu.end());
 	return m_vecAlreadyHu.empty() == false;
+}
+
+uint8_t XLMJPlayerCard::getQueTypeCardForChu()
+{
+	auto vA = m_vCards[getQueType()];
+	if (vA.empty())
+	{
+		return 0;
+	}
+	return vA.front();
 }
 
 // help fanxing

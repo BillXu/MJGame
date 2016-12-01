@@ -60,6 +60,7 @@ void CApplication::startApp()
 
 void CApplication::runAppLoop()
 {
+#ifdef NDEBUG
 	__try
 	{
 		m_pApp->run() ;
@@ -68,6 +69,9 @@ void CApplication::runAppLoop()
 	{
 		LOGFMTE("try to recover from exception") ;
 	}
+#else
+	m_pApp->run();
+#endif
 }
 
 DWORD WINAPI CApplication::consoleInput(LPVOID lpParam)

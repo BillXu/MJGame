@@ -4,6 +4,11 @@
 #include "log4z.h"
 #include "MJServer.h"
 #include "AsyncRequestQuene.h"
+MJPlayer::~MJPlayer()
+{
+	m_tTrusteedActTimer.canncel();
+}
+
 void MJPlayer::init(stEnterRoomData* pData)
 {
 	setState(eRoomPeer_WaitNextGame);
@@ -13,6 +18,7 @@ void MJPlayer::init(stEnterRoomData* pData)
 	m_nIdx = -1;
 	m_nOffset = 0;
 	m_nPlayerType = pData->nPlayerType;
+	m_isTrusteed = false;
 	clearDecareBuGangFlag();
 }
 
@@ -156,4 +162,32 @@ int32_t MJPlayer::onRecievedSupplyCoin(uint32_t nSupplyCoin)
 bool MJPlayer::isRobot()
 {
 	return ePlayer_Robot == m_nPlayerType;
+}
+
+bool MJPlayer::isTrusteed()
+{
+	return m_isTrusteed;
+}
+
+void MJPlayer::switchTrusteed(bool isTrusted)
+{
+	m_isTrusteed = isTrusted;
+	if (!isTrusteed())
+	{
+		m_tTrusteedActTimer.canncel();
+	}
+}
+
+void MJPlayer::setTrusteeActFunc(CTimer::time_func pFunc)
+{
+	if (isTrusteed() == false)
+	{
+		LOGFMTE("player not trusteed why set trusteed act func uid = %u",getUID());
+		return;
+	}
+
+	m_tTrusteedActTimer.setInterval(1);
+	m_tTrusteedActTimer.setIsAutoRepeat(false);
+	m_tTrusteedActTimer.setCallBack(pFunc);
+	m_tTrusteedActTimer.start();
 }

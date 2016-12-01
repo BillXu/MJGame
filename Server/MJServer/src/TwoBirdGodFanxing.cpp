@@ -39,7 +39,7 @@ bool CTwoBirdFanxingChecker::check( CTowBirdGodCheckFanxingInfo*pInfo, uint8_t& 
 	if ( !isRet )
 	{
 		nFanShu = 1 ;
-		nFanXing = 1 ;
+		nFanXing = eFanxing_PingHu;
 		LOGFMTD(" common hu type ") ;
 	}
 	//LOGFMTE("temp return base fanxing and base fanshu");
@@ -112,7 +112,7 @@ bool CDaSiXiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 	}
 
 	LOGFMTI("this is da si xi ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_DaSiXi;
 	nFanShu = 88 ;
 	return true ;
 }
@@ -147,7 +147,7 @@ bool CDaSanYuanFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& 
 	if ( bFind )
 	{
 		LOGFMTI("this is da san yuan ") ;
-		nFanXing = 1 ;
+		nFanXing = eFanxing_DaSanYuan;
 		nFanShu = 88 ;
 	}
 
@@ -186,7 +186,7 @@ bool CJiuBaoLianDengFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint
 	}
 
 	LOGFMTI("this is jiu bao lian deng ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_JiuLianBaoDeng;
 	nFanShu = 88 ;
 	return true ;
 }
@@ -218,7 +218,7 @@ bool CSiGangFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 		return false ;
 	}
 	LOGFMTI("this is Si Gang ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_SiGang;
 	nFanShu = 88 ;
 	return true ;
 }
@@ -239,7 +239,7 @@ bool CLianQiDuiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& 
 	}
 
 	LOGFMTI("this is lian qi dui ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_LianQiDui;
 	nFanShu = 88 ;
 	return true ;
 }
@@ -294,7 +294,7 @@ bool CXiaoSiXiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 	}
 
 	LOGFMTI("this is xiao si xi ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_XiaoSiXi;
 	nFanShu = 64 ;
 	return true ;
 }
@@ -325,7 +325,7 @@ bool CXiaoSanYuanFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t
 	}
 
 	LOGFMTI("this is xiao san yuan ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_XiaoSanYuan;
 	nFanShu = 64 ;
 	return true ;
 }
@@ -360,7 +360,7 @@ bool CZiYiSeFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 	}
 
 	LOGFMTI("this is zi yi se ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_ZiYiSe;
 	nFanShu = 64 ;
 	return true ;
 }
@@ -376,7 +376,7 @@ bool CSiAnKeFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFa
 	}
 
 	LOGFMTI("this is si an ke") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_SiAnKe;
 	nFanShu = 64 ;
 	return true ;
 }
@@ -447,7 +447,7 @@ bool CYiSeShuangLongHuiFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,u
 	}
 
 	LOGFMTI("yi se shuang long hui") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_YISeShuangLongHui;
 	nFanShu = 64 ;
 	return true ;
 }
@@ -511,7 +511,7 @@ bool CYiSeSiTongShunFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint
 	}
 
 	LOGFMTI("yi si tong shun") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_YiSeSiTongShun;
 	nFanShu = 48 ;
 	return true ;
 }
@@ -542,7 +542,7 @@ bool CYiSeSiJieGaoFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_
 	}
 
 	LOGFMTI("yi se si jie gao") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_YiSeSiJieGao;
 	nFanShu = 48 ;
 	return true ;
 }
@@ -602,7 +602,7 @@ bool CYiSeSiBuGaoFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t
 		return false ;
 	}
 	LOGFMTI(" yi se si bu gao ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_YiSeSiBuGao;
 	nFanShu = 32 ;
 	return true ;
 }
@@ -619,7 +619,7 @@ bool CSanGangFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nF
 	}
 
 	LOGFMTI("san gang ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_SanGang;
 	nFanShu = 32 ;
 	return true ;
 }
@@ -655,7 +655,7 @@ bool CHunYaoJiuFanxing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& 
 	}
 
 	LOGFMTI(" hun yao jiu ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_HunYaoJiu;
 	nFanShu = 32 ;
 	return true ;
 }
@@ -693,7 +693,7 @@ bool CQiDui::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, u
 	}
 
 	LOGFMTI(" qi dui  ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_QiDui;
 	nFanShu = 24 ;
 	return true ;
 }
@@ -723,7 +723,7 @@ bool CQingYiSe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing
 	}
 
 	LOGFMTI(" qing yi se   ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_QingYiSe;
 	nFanShu = 24 ;
 	return true ;
 }
@@ -750,7 +750,7 @@ bool CYiSeTongSanShun::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 		std::sort(vShunFirstCard.begin(),vShunFirstCard.end());
 		if ( vShunFirstCard[0] == vShunFirstCard[2] || vShunFirstCard[vShunFirstCard.size()-1] == vShunFirstCard[vShunFirstCard.size()-3] )
 		{
-			nFanXing = 1 ;
+			nFanXing = eFanxing_YiSeSanTongShun;
 			nFanShu = 24 ;
 			LOGFMTD("yi se san tong shun") ;
 			return true  ;
@@ -762,7 +762,7 @@ bool CYiSeTongSanShun::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 	{
 		if ( ( ptHuInfo->m_vAnKeZi[0] + 2) == ptHuInfo->m_vAnKeZi[2] || ptHuInfo->m_vAnKeZi[ptHuInfo->m_vAnKeZi.size()-1] == ( ptHuInfo->m_vAnKeZi[ptHuInfo->m_vAnKeZi.size()-3] + 2 ) )
 		{
-			nFanXing = 1 ;
+			nFanXing = eFanxing_YiSeSanTongShun;
 			nFanShu = 24 ;
 			LOGFMTD("yi se san tong shun") ;
 			return true  ;
@@ -852,7 +852,7 @@ bool CQingLong::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing
 	}
 
 	LOGFMTI(" qing long ") ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_QingLong;
 	nFanShu = 16 ;
 	return true ;
 }
@@ -904,7 +904,7 @@ bool CYiSeSanBuGao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 		if ( lpFunc(vShunFirstCard) )
 		{
 			LOGFMTI(" yi se san bu gao ") ;
-			nFanXing = 1 ;
+			nFanXing = eFanxing_YiSeSanBuGao;
 			nFanShu = 16 ;
 			return true ;
 		}
@@ -919,7 +919,7 @@ bool CYiSeSanBuGao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 			if ( lpFunc(vCp) )
 			{
 				LOGFMTI(" yi se san bu gao ") ;
-				nFanXing = 1 ;
+				nFanXing = eFanxing_YiSeSanBuGao;
 				nFanShu = 16 ;
 				return true ;
 			}
@@ -940,7 +940,7 @@ bool CSanAnKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 	if ( ptHuInfo->m_vAnKeZi.size() == 3 )
 	{
 		LOGFMTD("san an ke") ;
-		nFanXing = 1 ;
+		nFanXing = eFanxing_SanAnKe;
 		nFanShu = 16 ;
 		return true ;
 	}
@@ -989,7 +989,7 @@ bool CDaYu5::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, u
 		}
 	}
 
-	nFanXing = 1 ;
+	nFanXing = eFanxing_DaYu5;
 	nFanShu = 12 ;
 	LOGFMTD("da yu 5") ;
 	return true ;
@@ -1019,7 +1019,7 @@ bool CXiaoYu5::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 		}
 	}
 
-	nFanXing = 1 ;
+	nFanXing = eFanxing_XiaoYu5;
 	nFanShu = 12 ;
 	LOGFMTD("da yu 5") ;
 	return true ;
@@ -1041,7 +1041,7 @@ bool CSanFengKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXin
 		return false ;
 	}
 
-	nFanXing = 1 ;
+	nFanXing = eFanxing_SanFengKe;
 	nFanShu = 12 ;
 	LOGFMTD("san feng ke") ;
 	return true ;
@@ -1077,7 +1077,7 @@ bool CMiaoShouHuiChun::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& n
 	{
 		return  false ;
 	}
-	nFanXing = 1 ;
+	nFanXing = eFanxing_MiaoShouHuiChun;
 	nFanShu = 8  ;
 	LOGFMTD("miao shou hui chun");
 	return true ;
@@ -1092,7 +1092,7 @@ bool CHaiDiLaoYue::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanX
 	{
 		return  false ;
 	}
-	nFanXing = 1 ;
+	nFanXing = eFanxing_HaiDiLaoYue;
 	nFanShu = 8  ;
 	LOGFMTD("hai di lao yue");
 	return true ;
@@ -1107,7 +1107,7 @@ bool CGangShangHua::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	{
 		return  false ;
 	}
-	nFanXing = 1 ;
+	nFanXing = eFanxing_GangShangHua;
 	nFanShu = 8  ;
 	LOGFMTD("gang shang hua");
 	return true ;
@@ -1122,7 +1122,7 @@ bool QiangGangHu::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	{
 		return  false ;
 	}
-	nFanXing = 1 ;
+	nFanXing = eFanxing_QiangGangHu;
 	nFanShu = 8  ;
 	LOGFMTD("Qiang Gang hu");
 	return true ;
@@ -1170,7 +1170,7 @@ bool CPengPengHu::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	}
 
 	nFanShu = 6 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_DuiDuiHu;
 	LOGFMTD("peng peng hu") ;
 	return true ;
 }
@@ -1202,7 +1202,7 @@ bool CHunYiSe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 		if ( isHaveXu && isHaveZi )
 		{
 			nFanShu = 6 ;
-			nFanXing = 1 ;
+			nFanXing = eFanxing_HunYiSe;
 			LOGFMTD("Hun yi se") ;
 			return true ;
 		}
@@ -1221,7 +1221,7 @@ bool CQuanQiuRen::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	if ( vCards.size() <= 2 )
 	{
 		nFanShu = 6 ;
-		nFanXing = 1 ;
+		nFanXing = eFanxing_QuanQiuRen;
 		LOGFMTD("quan qiu ren") ;
 		return true ;
 	}
@@ -1238,7 +1238,7 @@ bool CShuangAnGang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	if ( vCards.size() == 2 )
 	{
 		nFanShu = 6 ;
-		nFanXing = 1 ;
+		nFanXing = eFanxing_ShuangAnGang;
 		LOGFMTD("shuang an gang") ;
 		return true ;
 	}
@@ -1262,7 +1262,7 @@ bool CShuangJianKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	if ( 2 == nCnt )
 	{
 		nFanShu = 6 ;
-		nFanXing = 1 ;
+		nFanXing = eFanxing_ShuangJianKe;
 		LOGFMTD("shuang jian ke") ;
 		return true ;
 	}
@@ -1360,7 +1360,7 @@ bool CQuanDaiYao::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	}
 
 	nFanShu = 4 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_DaiYaoJiu;
 	LOGFMTD("dai yao jiu") ;
 	return true ;
 }
@@ -1397,7 +1397,7 @@ bool CBuQiuRen::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing
 	}
 
 	nFanShu = 4 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_BuQiuRen;
 	LOGFMTD(" bu qiu ren ") ;
 	return true ;
 }
@@ -1416,7 +1416,7 @@ bool CShuangMingGang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nF
 	}
 
 	nFanShu = 4 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_ShuangMingGang;
 	LOGFMTD(" shuang ming gang ") ;
 	return true ;
 }
@@ -1431,7 +1431,7 @@ bool CHuJueZhang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	}
 
 	nFanShu = 4 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_HuJueZhang;
 	LOGFMTD(" hu jue zhang ") ;
 	return true ;
 }
@@ -1479,7 +1479,7 @@ bool CJianKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, 
 		if ( eCT_Jian == type )
 		{
 			nFanShu = 2 ;
-			nFanXing = 1 ;
+			nFanXing = eFanxing_JianKe;
 			LOGFMTD("this is jian ke ") ;
 			return true ;
 		}
@@ -1514,7 +1514,7 @@ bool CMengQianQing::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFan
 	}
 
 	nFanShu = 2 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_MengQianQing;
 	LOGFMTD("this is meng qian qing ") ;
 	return true ;
 }
@@ -1539,7 +1539,7 @@ bool CPingHu::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, 
 	}
 
 	nFanShu = 2 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_PingHu;
 	LOGFMTD(" ping hu ") ;
 	return true ;
 }
@@ -1562,7 +1562,7 @@ bool CSiGuiYi::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing,
 		if ( iter != vCards.end() )
 		{
 			nFanShu = 2 ;
-			nFanXing = 1 ;
+			nFanXing = eFanxing_SiGuiYi;
 			LOGFMTD(" si gui yi ") ;
 			return true ;
 		}
@@ -1594,7 +1594,7 @@ bool CShuangAnKe::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXi
 	}
 
 	nFanShu = 2 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_ShuangAnKe;
 	LOGFMTD(" shuang an ke ") ;
 	return true ;
 }
@@ -1612,7 +1612,7 @@ bool CAnGang::checkSelfFanxing(ICheckFanxingInfo* pCheckInfo,uint8_t& nFanXing, 
 	}
 
 	nFanShu = 2 ;
-	nFanXing = 1 ;
+	nFanXing = eFanxing_AnGang;
 	LOGFMTD("An Gang") ;
 	return true ;
 }

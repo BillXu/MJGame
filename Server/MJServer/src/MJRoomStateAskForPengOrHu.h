@@ -27,6 +27,7 @@ public:
 		getRoom()->onAskForPengOrHuThisCard(m_nInvokeIdx, m_nCard, m_vWaitHuIdx, m_vWaitPengGangIdx, m_isNeedWaitEat);
 		assert((m_vWaitHuIdx.empty() == false || m_vWaitPengGangIdx.empty() == false) && "invalid argument");
 
+		getRoom()->onCheckTrusteeForHuOtherPlayerCard(m_vWaitHuIdx, m_nCard);
 	}
 
 	void onStateTimeUp()override

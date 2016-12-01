@@ -74,6 +74,8 @@ bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 			LOGFMTE("decide player already sync data uid = %u" , pPlayer->getUID());
 		}
 	}
+
+	onPlayerTrusteedStateChange(pPlayer->getIdx(), true);
 	return true;
 }
 
@@ -1095,4 +1097,42 @@ void XLMJRoom::infoPlayerSupplyCoin(std::vector<uint8_t>& vOutWaitSupplyIdx)
 	}
 	js["players"] = jsArray;
 	sendRoomMsg(js, MSG_ROOM_INFORM_SUPPLY_COIN);
+}
+
+uint8_t XLMJRoom::getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)
+{
+	auto pp = getMJPlayerByIdx(nIdx);
+	if (nullptr == pp)
+	{
+		LOGFMTE("player is null for idx = %u",nIdx);
+		return 0;
+	}
+
+	auto pCard = (XLMJPlayerCard*)pp->getPlayerCard();
+	auto nCard = pCard->getQueTypeCardForChu();
+	if (nCard)
+	{
+		return nCard;
+	}
+
+	return IMJRoom::getAutoChuCardWhenWaitActTimeout(nIdx);
+}
+
+uint8_t XLMJRoom::getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx)
+{
+	auto pp = getMJPlayerByIdx(nIdx);
+	if (nullptr == pp)
+	{
+		LOGFMTE("player is null for idx = %u", nIdx);
+		return 0;
+	}
+
+	auto pCard = (XLMJPlayerCard*)pp->getPlayerCard();
+	auto nCard = pCard->getQueTypeCardForChu();
+	if (nCard)
+	{
+		return nCard;
+	}
+
+	return IMJRoom::getAutoChuCardWhenWaitChuTimeout(nIdx);
 }

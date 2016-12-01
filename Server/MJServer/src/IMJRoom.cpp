@@ -154,6 +154,7 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 		jsPlayer["uid"] = pPlayer->getUID();
 		jsPlayer["coin"] = pPlayer->getCoin();
 		jsPlayer["state"] = pPlayer->getState();
+		jsPlayer["isTrusteed"] = pPlayer->isTrusteed() ? 1 : 0;
 		arrPlayers[pPlayer->getIdx()] = jsPlayer;
 	}
 
@@ -250,6 +251,34 @@ bool IMJRoom::onMessage(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nPlayerS
 
 bool IMJRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)
 {
+	if ( MSG_PLAYER_REQUEST_TRUSTEED == nMsgType)
+	{
+		auto pPlayer = getMJPlayerBySessionID(nSessionID);
+		if (!pPlayer)
+		{
+			Json::Value jsMsg;
+			jsMsg["ret"] = 1;
+			sendMsgToPlayer(jsMsg, nMsgType, nSessionID);
+			return true;
+		}
+
+		if (prealMsg["isTrusteed"].isNull() || prealMsg["isTrusteed"].isInt() == false)
+		{
+			LOGFMTE("player uid = %u set tuo guan  argument error ",pPlayer->getUID());
+			Json::Value jsMsg;
+			jsMsg["ret"] = 1;
+			sendMsgToPlayer(jsMsg, nMsgType, nSessionID);
+			return true;
+		}
+
+		Json::Value jsMsg;
+		jsMsg["ret"] = 0;
+		sendMsgToPlayer(jsMsg, nMsgType, nSessionID);
+
+		onPlayerTrusteedStateChange(pPlayer->getIdx(), prealMsg["isTrusteed"].asUInt() == 1);
+		return true;
+	}
+
 	if ( MSG_PLAYER_LEAVE_ROOM == nMsgType )
 	{
 		//LOGFMTE("sub class must process this msg");
@@ -267,6 +296,7 @@ bool IMJRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPo
 			onPlayerApplyLeave(pPlayer->getUID());
 		}
 		sendMsgToPlayer(jsMsg, nMsgType, nSessionID);
+		LOGFMTI("返回玩家离开房间的消息， sesssioniID = %u", nSessionID);
 		return true;;
 	}
 
@@ -1058,4 +1088,118 @@ void IMJRoom::setInitState(IMJRoomState* pState)
 uint32_t IMJRoom::getCoinNeedToSitDown()
 {
 	return ((stMJRoomConfig*)getRoomConfig())->nEnterLowLimit;
+}
+
+void IMJRoom::onCheckTrusteeForWaitPlayerAct(uint8_t nIdx, bool isMayBeHu)
+{
+	auto pPlayer = getMJPlayerByIdx(nIdx);
+	if (pPlayer == nullptr)
+	{
+		LOGFMTE("waht player act ,but player is nullptr");
+		return;
+	}
+
+	if (pPlayer->isTrusteed() == false)
+	{
+		return;
+	}
+
+	pPlayer->setTrusteeActFunc([this, nIdx, isMayBeHu](CTimer* pT, float ft)
+	{
+		auto pPlayer = getMJPlayerByIdx(nIdx);
+		if (pPlayer == nullptr)
+		{
+			LOGFMTE("setTrusteeActFunc waht player act ,but player is nullptr");
+			return;
+		}
+
+		if (pPlayer->isTrusteed() == false)
+		{
+			LOGFMTD("player cannecled trustee act ");
+			return;
+		}
+
+		auto playerCard = pPlayer->getPlayerCard();
+		Json::Value jsmsg;
+		if (isMayBeHu && playerCard->isHoldCardCanHu())
+		{
+			jsmsg["actType"] = eMJAct_Hu;
+			jsmsg["card"] = playerCard->getNewestFetchedCard();
+		}
+		else
+		{
+			jsmsg["actType"] = eMJAct_Chu;
+			jsmsg["card"] = getAutoChuCardWhenWaitActTimeout(nIdx);;
+		}
+		LOGFMTD("%u player tuo guan do act = %u", pPlayer->getUID(), jsmsg["actType"].asUInt());
+		onMsg(jsmsg, MSG_PLAYER_ACT, ID_MSG_PORT_CLIENT, pPlayer->getSessionID());
+	}
+	);
+}
+
+void IMJRoom::onCheckTrusteeForHuOtherPlayerCard(std::vector<uint8_t> vPlayerIdx, uint8_t nTargetCard)
+{
+	for (auto& nIdx : vPlayerIdx)
+	{
+		auto pPlayer = getMJPlayerByIdx(nIdx);
+		if (pPlayer == nullptr)
+		{
+			LOGFMTE("onCheckTrusteeForHuOtherPlayerCard player act ,but player is nullptr");
+			continue;
+		}
+
+		if (pPlayer->isTrusteed() == false)
+		{
+			continue;
+		}
+
+		pPlayer->setTrusteeActFunc([this, nIdx, nTargetCard](CTimer* pT, float ft)
+		{
+			auto pPlayer = getMJPlayerByIdx(nIdx);
+			if (pPlayer == nullptr)
+			{
+				LOGFMTE("setTrusteeActFunc waht player act ,but player is nullptr");
+				return;
+			}
+
+			if (pPlayer->isTrusteed() == false)
+			{
+				LOGFMTD("player cannecled trustee act ");
+				return;
+			}
+
+			auto playerCard = pPlayer->getPlayerCard();
+			Json::Value jsmsg;
+			if ( playerCard->canHuWitCard(nTargetCard) )
+			{
+				jsmsg["actType"] = eMJAct_Hu;
+				jsmsg["card"] = nTargetCard;
+			}
+			else
+			{
+				jsmsg["actType"] = eMJAct_Pass;
+				jsmsg["card"] = 0;
+			}
+			LOGFMTD("%u player tuo guan do act = %u  about other card", pPlayer->getUID(), jsmsg["actType"].asUInt());
+			onMsg(jsmsg, MSG_PLAYER_ACT, ID_MSG_PORT_CLIENT, pPlayer->getSessionID());
+		}
+		);
+	}
+}
+
+void IMJRoom::onPlayerTrusteedStateChange(uint8_t nPlayerIdx, bool isTrusteed)
+{
+	auto pPlayer = getMJPlayerByIdx(nPlayerIdx);
+	if (!pPlayer)
+	{
+		LOGFMTE("room id = %u , player idx = %u is nulljptr trusteed state change",getRoomID(),nPlayerIdx);
+		return;
+	}
+
+	pPlayer->switchTrusteed(isTrusteed);
+	Json::Value js;
+	js["idx"] = pPlayer->getIdx();
+	js["isTrusteed"] = isTrusteed ? 1 : 0 ;
+	sendRoomMsg(js, MSG_ROOM_REQUEST_TRUSTEED);
+	LOGFMTD("room id = %u , player idx = %u update trusteed state = %u " ,getRoomID(),nPlayerIdx,isTrusteed );
 }

@@ -261,7 +261,11 @@ void ISitableRoom::playerDoStandUp( ISitableRoomPlayer* pPlayer )
 
 	Json::Value jsValue ;
 	jsValue["idx"] = pPlayer->getIdx() ;
-	sendRoomMsg(jsValue,MSG_ROOM_PLAYER_LEAVE) ;
+	if ( eRoomState_GameEnd != getCurRoomState()->getStateID() || getDelegate() )  // private room and not game end state  leave , do tell clients ;
+	{
+		sendRoomMsg(jsValue, MSG_ROOM_PLAYER_LEAVE);
+	}
+	
 	LOGFMTD("player uid = %u do leave room",pPlayer->getUserUID()) ;
 	// remove other player data ;
 	assert(isSeatIdxEmpty(pPlayer->getIdx()) == false && "player not sit down" );

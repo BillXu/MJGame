@@ -150,7 +150,7 @@ bool CMJPeerCardNew::isCardCanHu( uint8_t nCard )
 	if ( this->m_isHuPaiInfoDirty )
 	{
 		ptrHupaiInfo->parseHuPaiInfo(vecHoldCard) ;
-		this->m_isHuPaiInfoDirty = false ;
+		//this->m_isHuPaiInfoDirty = false ;
 	}
 	
 	return ptrHupaiInfo->isHu() ;
