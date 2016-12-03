@@ -91,7 +91,6 @@
     <ClInclude Include="..\..\Common\CommonDefine.h" />
     <ClInclude Include="..\..\Common\ConfigReader.h" />
     <ClInclude Include="..\..\Common\IConfigFile.h" />
-    <ClInclude Include="..\..\Common\LogManager.h" />
     <ClInclude Include="..\..\Common\MessageDefine.h" />
     <ClInclude Include="..\..\Common\MessageIdentifer.h" />
     <ClInclude Include="..\..\Common\NativeTypes.h" />
@@ -105,7 +104,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\Common\ConfigReader.cpp" />
     <ClCompile Include="..\..\Common\IConfigFile.cpp" />
-    <ClCompile Include="..\..\Common\LogManager.cpp" />
     <ClCompile Include="..\..\Common\Utility.cpp" />
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp" />
     <ClCompile Include="src\CenterServer.cpp" />

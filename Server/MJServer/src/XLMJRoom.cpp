@@ -780,7 +780,8 @@ void XLMJRoom::doChaHuaZhu(std::vector<uint8_t>& vHuaZhu)
 		return;
 	}
 	// hua zhu give coin to not hua zhu player ;
-	uint32_t nHuaZhuBaseLose = getBaseBet(); 
+	uint8_t nBeiShu = 64;
+	uint32_t nHuaZhuBaseLose = getBaseBet() * nBeiShu;
 	for (auto& nHuaZhuIdx : vHuaZhu)
 	{
 		auto pHuaZhu = getMJPlayerByIdx(nHuaZhuIdx);
@@ -803,7 +804,7 @@ void XLMJRoom::doChaHuaZhu(std::vector<uint8_t>& vHuaZhu)
 			pHuaZhu->addOffsetCoin((int32_t)nLoseCoin * -1 );
 			pNotHuaZhu->addOffsetCoin(nLoseCoin);
 
-			pSettle->addHuPlayer(notHuZhu, nLoseCoin, 0, 0);
+			pSettle->addHuPlayer(notHuZhu, nLoseCoin, 0, nBeiShu);
 			if (pHuaZhu->getCoin() == 0)
 			{
 				LOGFMTD("huazhu idx = %u lose all room id = %u",nHuaZhuIdx,getRoomID());
@@ -1078,7 +1079,8 @@ bool XLMJRoom::getWaitSupplyCoinPlayerIdxs(std::vector<uint8_t>& vOutWaitSupplyI
 			continue;
 		}
 
-		if (pPlayer->getCoin() < (int32_t)nLowLimit)
+		//if (pPlayer->getCoin() < (int32_t)nLowLimit)
+		if (pPlayer->getCoin() <= 0 )
 		{
 			vOutWaitSupplyIdx.push_back(pPlayer->getIdx());
 		}

@@ -42,9 +42,6 @@
     <ClInclude Include="..\..\Common\IConfigFile.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Common\LogManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Common\MessageDefine.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -72,9 +69,6 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\IConfigFile.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\LogManager.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="src\CenterServer.cpp">

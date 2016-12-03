@@ -1,6 +1,6 @@
 #include "IDVerifyTask.h"
 #include <json/json.h>
-#include "LogManager.h"
+#include "log4z.h"
 IDVerifyTask::IDVerifyTask(uint32_t nTaskID)
 	:ITask(nTaskID)
 	, m_isVerifyOk(false)

@@ -22,9 +22,6 @@
     <ClInclude Include="..\..\Common\ConfigReader.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Common\LogManager.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Common\MessageDefine.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -79,9 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common\ConfigReader.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\LogManager.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common\Utility.cpp">

@@ -2,6 +2,7 @@
 #include "MJCard.h"
 #include <cassert>
 #include <algorithm>
+#include "log4z.h"
 void CMJPeerCardNew::reset()
 {
 	vecHoldCard.clear();
@@ -297,6 +298,7 @@ bool CMJPeerCardNew::onAnGang( uint8_t nCard , uint8_t nGangNewCard )
 		assert( b && "you do not have an gang with this card");
 		if ( !b )
 		{
+			LOGFMTE("you do not have an gang with this card");
 			return false ;
 		}
 	}

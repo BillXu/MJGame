@@ -1,7 +1,7 @@
 #include "ClientManager.h"
 #include "GateClient.h"
 #include "MessageDefine.h"
-#include "LogManager.h"
+#include "log4z.h"
 #include "CommonDefine.h"
 #include "ServerNetwork.h"
 #include "GateServer.h"
@@ -86,7 +86,7 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 			{
 				break;
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("received player reconnect request") ;
+			LOGFMTD("received player reconnect request") ;
 			uint32_t nSessionIDRec = jsValue["nSessionID"].asUInt() ;
 
 			MAP_SESSIONID_GATE_CLIENT::iterator iter = m_vWaitToReconnect.find(nSessionIDRec);
@@ -103,7 +103,7 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 					MAP_SESSIONID_GATE_CLIENT::iterator iterS = m_vSessionGateClient.find(pNew->nSessionId);
 					if ( iterS == m_vSessionGateClient.end() )
 					{
-						CLogMgr::SharedLogMgr()->ErrorLog("why my session id = %d targe is null",pNew->nSessionId );
+						LOGFMTE("why my session id = %d targe is null",pNew->nSessionId );
 					}
 					else
 					{
@@ -145,14 +145,14 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 	stGateClient* pDstClient = GetGateClientByNetWorkID(pData->_connectID) ;
 	if ( pDstClient == NULL )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("can not send message to Center Server , client is NULL or not verified, so close the unknown connect") ;
+		LOGFMTE("can not send message to Center Server , client is NULL or not verified, so close the unknown connect") ;
 		CGateServer::SharedGateServer()->GetNetWorkForClients()->ClosePeerConnection(pData->_connectID) ;
 		return true ;
 	}
 
 	if ( CheckServerStateOk(pDstClient) == false )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("center server is disconnected so can not send msg to it ");
+		LOGFMTE("center server is disconnected so can not send msg to it ");
 		return true ;
 	}
 
@@ -164,7 +164,7 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 	if ( nLne + pData->_len >= MAX_MSG_BUFFER_LEN )
 	{
 		stMsg* pmsg = (stMsg*)pData->_orgdata ;
-		CLogMgr::SharedLogMgr()->ErrorLog("msg from session id = %d , is too big , cannot send , msg id = %d ",pDstClient->nSessionId,pmsg->usMsgType) ;
+		LOGFMTE("msg from session id = %d , is too big , cannot send , msg id = %d ",pDstClient->nSessionId,pmsg->usMsgType) ;
 		return true ;
 	}
 	memcpy(m_pMsgBuffer,&msgTransData,nLne);
@@ -200,13 +200,13 @@ void CGateClientMgr::OnServerMsg( const char* pRealMsgData, uint16_t nDataLen,ui
 	stMsg* pReal = (stMsg*)pRealMsgData ;
 	if ( NULL == pClient )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("big error !!!! can not send msg to session id = %d , client is null , msg = %d",uTargetSessionID,pReal->usMsgType  ) ;
+		LOGFMTE("big error !!!! can not send msg to session id = %d , client is null , msg = %d",uTargetSessionID,pReal->usMsgType  ) ;
 		return  ;
 	}
 
 	if ( pClient->tTimeForRemove )
 	{
-		//CLogMgr::SharedLogMgr()->PrintLog("client is waiting for reconnected session id = %d, msg = %d",uTargetSessionID,pReal->usMsgType) ;
+		//LOGFMTD("client is waiting for reconnected session id = %d, msg = %d",uTargetSessionID,pReal->usMsgType) ;
 		return ;
 	}
 
@@ -217,11 +217,11 @@ void CGateClientMgr::OnNewPeerConnected(CONNECT_ID nNewPeer, ConnectInfo* IpInfo
 {
 	if ( IpInfo )
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("a peer connected ip = %s ,port = %d",IpInfo->strAddress,IpInfo->nPort ) ;
+		LOGFMTD("a peer connected ip = %s ,port = %d",IpInfo->strAddress,IpInfo->nPort ) ;
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("a peer connected ip = NULL" ) ;
+		LOGFMTD("a peer connected ip = NULL" ) ;
 	}
 	
 	//stMsg msg ;
@@ -239,7 +239,7 @@ void CGateClientMgr::OnPeerDisconnected(CONNECT_ID nPeerDisconnected, ConnectInf
 	{
 		if ( pDstClient->tTimeForRemove )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("already wait to reconnected");
+			LOGFMTE("already wait to reconnected");
 			return ;
 		}
 
@@ -255,7 +255,7 @@ void CGateClientMgr::OnPeerDisconnected(CONNECT_ID nPeerDisconnected, ConnectInf
 
 	if ( IpInfo )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("not verify peer disconnected ip = %s, port = %d",IpInfo->strAddress,IpInfo->nPort ) ;
+		LOGFMTE("not verify peer disconnected ip = %s, port = %d",IpInfo->strAddress,IpInfo->nPort ) ;
 	}
 }
 
@@ -263,13 +263,13 @@ void CGateClientMgr::AddClientGate(stGateClient* pGateClient )
 {
 	if ( m_vNetWorkIDGateClientIdx.find(pGateClient->nNetWorkID) != m_vNetWorkIDGateClientIdx.end() )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this pos already have data client") ;
+		LOGFMTE("why this pos already have data client") ;
 		m_vNetWorkIDGateClientIdx.erase(m_vNetWorkIDGateClientIdx.find(pGateClient->nNetWorkID));
 	}
 
 	if ( m_vSessionGateClient.find(pGateClient->nSessionId) != m_vSessionGateClient.end() )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why this pos session id = %d had client data",pGateClient->nSessionId) ;
+		LOGFMTE("why this pos session id = %d had client data",pGateClient->nSessionId) ;
 		m_vSessionGateClient.erase(m_vSessionGateClient.find(pGateClient->nSessionId));
 	}
 
@@ -281,7 +281,7 @@ void CGateClientMgr::RemoveClientGate(stGateClient* pGateClient )
 {
 	if ( pGateClient == NULL )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why remove a null client ") ;
+		LOGFMTE("why remove a null client ") ;
 		return ;
 	}
 
@@ -292,7 +292,7 @@ void CGateClientMgr::RemoveClientGate(stGateClient* pGateClient )
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("can not find net work id = %d to remove",pGateClient->nNetWorkID ) ;
+		LOGFMTE("can not find net work id = %d to remove",pGateClient->nNetWorkID ) ;
 	}
 	
 	MAP_SESSIONID_GATE_CLIENT::iterator iterS = m_vSessionGateClient.find(pGateClient->nSessionId );
@@ -302,7 +302,7 @@ void CGateClientMgr::RemoveClientGate(stGateClient* pGateClient )
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->PrintLog("can not find session id = %d to remove",pGateClient->nSessionId ) ;
+		LOGFMTD("can not find session id = %d to remove",pGateClient->nSessionId ) ;
 	}
 
 	iterS = m_vWaitToReconnect.find(pGateClient->nSessionId) ;
@@ -312,7 +312,7 @@ void CGateClientMgr::RemoveClientGate(stGateClient* pGateClient )
 	}
 	else
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("why can not find session id = %d to remove from vWaiReconecte",pGateClient->nSessionId) ;
+		LOGFMTE("why can not find session id = %d to remove from vWaiReconecte",pGateClient->nSessionId) ;
 	}
 	
 	pGateClient->Reset(0,INVALID_CONNECT_ID,NULL) ;
@@ -352,13 +352,13 @@ void CGateClientMgr::UpdateReconectClientLife()
 	{
 		if ( iter->second == NULL )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("why this null client wait reconnect");
+			LOGFMTE("why this null client wait reconnect");
 			continue;
 		}
 
 		if ( iter->second->tTimeForRemove == 0 )
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("big error , timeForRemove can not be 0 ") ;
+			LOGFMTE("big error , timeForRemove can not be 0 ") ;
 		}
 
 		if ( iter->second->tTimeForRemove <= tNow )

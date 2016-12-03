@@ -1,6 +1,7 @@
 #include "MJCard.h"
 #include <cassert>
 #include "log4z.h"
+#include "json/json.h"
 uint8_t CMJCard::getCard()
 {
 	if ( isEmpty() )
@@ -127,6 +128,19 @@ eMJGameType CMJCard::getGameType()
 bool CMJCard::isEmpty()
 {
 	return getLeftCardCount() <= 0 ;
+}
+
+void CMJCard::debugPokerInfo()
+{
+	Json::Value js;
+	for (auto& ref : m_vAllCards)
+	{
+		js[js.size()] = ref;
+	}
+
+	Json::StyledWriter jswriter;
+	auto strJs = jswriter.write(js);
+	LOGFMTD("poker is : %s",strJs.c_str());
 }
 
 eMJCardType CMJCard::parseCardType(uint8_t nCardNum)

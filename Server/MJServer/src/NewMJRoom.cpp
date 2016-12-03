@@ -220,6 +220,10 @@ void CNewMJRoom::prepareCards()
 
 	uint8_t nDice = rand() % getSeatCount() ;
 	m_tPoker.shuffle();
+	
+	LOGFMTD("room id = %u , dice = %u poker info : ",getRoomID(),nDice );
+	m_tPoker.debugPokerInfo();
+	LOGFMTD("room id = %u poker info end",getRoomID());
 //#define __test 
 #ifndef __test
 	for ( uint8_t nIdx = 0; nIdx < getSeatCount() ; ++nIdx,++nDice )
@@ -695,6 +699,7 @@ bool CNewMJRoom::onPlayerHu( uint8_t nActPlayerIdx, uint8_t nInvokerPlayerIdx , 
 	}
 
 	ppHu->setCoin(ppHu->getCoin() + nPlayerWin) ;
+	ppHu->addGameOffset(nPlayerWin);
 	ppHu->setState(eRoomPeer_AlreadyHu) ;
 	LOGFMTI("playerUID = %u fan shu = %u , winCoin = %u",ppHu->getUserUID(),nFanShu,nHuWinCoin);
 	// send msg 

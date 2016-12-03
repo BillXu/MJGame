@@ -4,6 +4,8 @@
 #include <algorithm>
 bool CMJHuPaiInfo::parseHuPaiInfo( const std::vector<uint8_t>& vHoldCard )
 {
+	clear(); 
+
 	VEC_CARD vCheckCards ;
 	vCheckCards.assign(vHoldCard.begin(),vHoldCard.end()) ;
 	std::sort(vCheckCards.begin(),vCheckCards.end());

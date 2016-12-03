@@ -4,7 +4,7 @@
 //#include "GateServer.h"
 //#include <WinDef.h>
 //#include <Dbghelp.h>
-//#include "LogManager.h"
+//#include "log4.zh"
 //#pragma comment( lib, "DbgHelp" )
 //#ifdef NDEBUG
 //#pragma comment(lib,"JsonDll.lib")

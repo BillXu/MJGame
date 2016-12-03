@@ -937,7 +937,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 					jsmsg["ret"] = 2 ;
 					break;
 				}
-				else if ( 1 == pShopItem->nPrizeType )
+				else if ( 2 == pShopItem->nPrizeType )
 				{
 					if ( pShopItem->nPrize > getCoin() )
 					{
@@ -945,7 +945,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 						break ;
 					}
 				}
-				else if ( 2 == pShopItem->nPrizeType )
+				else if ( 1 == pShopItem->nPrizeType )
 				{
 					if ( pShopItem->nPrize > GetAllDiamoned() )
 					{
@@ -957,7 +957,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 			if ( jsmsg["ret"].asUInt() == 0 )
 			{
-				decressMoney(pShopItem->nPrize,2 == pShopItem->nPrizeType) ;
+				decressMoney(pShopItem->nPrize,1 == pShopItem->nPrizeType) ;
 				switch ( pShopItem->eType )
 				{
 				case eShopItem_Item:

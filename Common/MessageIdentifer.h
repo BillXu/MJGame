@@ -387,7 +387,7 @@ enum eMsgType
 	MSG_REQ_ENTER_ROOM = 10115,
 	// client : { type : 0 ， targetID : 23 }
 	// svr : { ret : 0  }
-	// ret :  0 success , 1 已经在房间里 , 2 房间要求游客不能进入 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 , 7 房间已经满了, 8 已经认输了，且已经离开了，不能再进。
+	// ret :  0 success , 1 已经在房间里 , 2 找不到对应的配置信息 ; 3 金币不足 ; 4 ;  金币太多 ; 5 找不到指定id 的fangjian ,  6 房间类型错误 , 7 房间已经满了, 8 已经认输了，且已经离开了，不能再进。
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息

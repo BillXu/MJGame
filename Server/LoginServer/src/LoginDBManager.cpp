@@ -1,11 +1,11 @@
 #pragma warning(disable:4800)
 #include "LoginDBManager.h"
-#include "LogManager.h"
 #include "DBRequest.h"
 #include "ServerMessageDefine.h"
 #include "LoginApp.h"
 #include "DataBaseThread.h"
 #include "IDVerifyTask.h"
+#include "log4z.h"
 #define PLAYER_BRIF_DATA "playerName,userUID,sex,vipLevel,defaultPhotoID,isUploadPhoto,exp,coin,diamond"
 #define PLAYER_DETAIL_DATA "playerName,userUID,sex,vipLevel,defaultPhotoID,isUploadPhoto,exp,coin,diamond,signature,singleWinMost,winTimes,loseTimes,yesterdayPlayTimes,todayPlayTimes,longitude,latitude,offlineTime"
 #define TASK_VERIFY_REAL_NAME 2
@@ -33,7 +33,7 @@ void CDBManager::init(IServerApp* pApp)
 	IGlobalModule::init(pApp) ;
 	if ( MAX_LEN_ACCOUNT < 20 )
 	{
-		CLogMgr::SharedLogMgr()->ErrorLog("MAX_LEN_ACCOUNT must big than 18 , or guset login will crash ") ;
+		LOGFMTE("MAX_LEN_ACCOUNT must big than 18 , or guset login will crash ") ;
 	}
 	getTaskPool()->init(this, 2);
 }
@@ -91,7 +91,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			pdata->nExtenArg1 = nRegType;
 			if ( strlen(pV["acc"].asCString()) >= MAX_LEN_ACCOUNT || strlen(pV["pwd"].asCString()) >= MAX_LEN_PASSWORD )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("pLoginRegister password or account len is too long ");
+				LOGFMTE("pLoginRegister password or account len is too long ");
 				m_vReserverArgData.push_back(pdata) ;
 				break; 
 			}
@@ -110,7 +110,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			if (pV["realName"].isNull() || pV["IDCode"].isNull())
 			{
 				CDBRequestQueue::SharedDBRequestQueue()->PushRequest(pRequest);
-				CLogMgr::SharedLogMgr()->ErrorLog("old version ? lack of realName verify arg");
+				LOGFMTE("old version ? lack of realName verify arg");
 				break;
 			}
 			
@@ -155,7 +155,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			// must end with \0
 			if ( strlen(pV["acc"].asCString()) >= MAX_LEN_ACCOUNT || strlen(pV["pwd"].asCString()) >= MAX_LEN_PASSWORD )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("password or account len is too long ");
+				LOGFMTE("password or account len is too long ");
 				m_vReserverArgData.push_back(pdata) ;
 				break; 
 			}
@@ -180,7 +180,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			pdata->nExtenArg1 = nUserUID ;
 			if ( strlen(pAccount) >= MAX_LEN_ACCOUNT || strlen(pwd) >= MAX_LEN_PASSWORD )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("MSG_PLAYER_BIND_ACCOUNT password or account len is too long ");
+				LOGFMTE("MSG_PLAYER_BIND_ACCOUNT password or account len is too long ");
 				m_vReserverArgData.push_back(pdata) ;
 				break; 
 			}
@@ -204,7 +204,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			pdata->nExtenArg1 = nUserUID ;
 			if ( strlen(pOldPwd) >= MAX_LEN_PASSWORD || strlen(pwd) >= MAX_LEN_PASSWORD )
 			{
-				CLogMgr::SharedLogMgr()->ErrorLog("MSG_MODIFY_PASSWORD password or account len is too long ");
+				LOGFMTE("MSG_MODIFY_PASSWORD password or account len is too long ");
 				m_vReserverArgData.push_back(pdata) ;
 				break; 
 			}
@@ -224,7 +224,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 	//		pdata->nSessionID = nSessionID ;
 	//		if ( strlen(pMsgRet->cAccount) >= MAX_LEN_ACCOUNT || strlen(pMsgRet->cNewPassword) >= MAX_LEN_PASSWORD )
 	//		{
-	//			CLogMgr::SharedLogMgr()->ErrorLog("MSG_MODIFY_PASSWORD password or account len is too long ");
+	//			LOGFMTE("MSG_MODIFY_PASSWORD password or account len is too long ");
 	//			m_vReserverArgData.push_back(pdata) ;
 	//			break; 
 	//		}
@@ -241,7 +241,7 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 	default:
 		{
 			m_vReserverArgData.push_back(pdata) ;
-			CLogMgr::SharedLogMgr()->ErrorLog("unknown msg type = %d",nMsgType ) ;
+			LOGFMTE("unknown msg type = %d",nMsgType ) ;
 			return false ;
 		}
 	}
@@ -263,7 +263,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			{
 				jValue["ret"] = 1 ;
 				getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
-				CLogMgr::SharedLogMgr()->ErrorLog("why register affect row = 0 ") ;
+				LOGFMTE("why register affect row = 0 ") ;
 				return ;
 			}
 
@@ -272,7 +272,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			 if ( pRow["nOutRet"]->IntValue() != 0 )
 			 {
 				 getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
-				 CLogMgr::SharedLogMgr()->PrintLog("register failed duplicate account = %s",pRow["strAccount"]->CStringValue() );
+				 LOGFMTD("register failed duplicate account = %s",pRow["strAccount"]->CStringValue() );
 				 return ;
 			 }
 
@@ -288,7 +288,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 
 			// tell client the success register result ;
 			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
-			CLogMgr::SharedLogMgr()->PrintLog("register success account = %s",pRow["strAccount"]->CStringValue() );
+			LOGFMTD("register success account = %s",pRow["strAccount"]->CStringValue() );
 
 			stMsgLoginSvrInformGateSaveLog msglog ;
 			msglog.nlogType = eLog_Register ;
@@ -307,12 +307,12 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 				nRet = pRow["nOutRet"]->IntValue() ;
 				nRegType = pRow["nOutRegisterType"]->IntValue() ;
 				nUserUID = pRow["nOutUID"]->IntValue() ;
-				CLogMgr::SharedLogMgr()->PrintLog("check accout = %s  ret = %d",pRow["strAccount"]->CStringValue(),nRet  ) ;
+				LOGFMTD("check accout = %s  ret = %d",pRow["strAccount"]->CStringValue(),nRet  ) ;
 			}
 			else
 			{
 				nRet = 1 ;  // account error ;   
-				CLogMgr::SharedLogMgr()->ErrorLog("check account  why affect row = 0 ? ") ;
+				LOGFMTE("check account  why affect row = 0 ? ") ;
 			}
 
 			Json::Value jValue ;
@@ -344,13 +344,13 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			else
 			{
 				nRet = 3 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("uid = %d ,bind account error db ",pdata->nExtenArg1) ;
+				LOGFMTE("uid = %d ,bind account error db ",pdata->nExtenArg1) ;
 			}
 
 			Json::Value jValue ;
 			jValue["ret"] = nRet ;
 			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
-			CLogMgr::SharedLogMgr()->PrintLog("rebind account ret = %d , userUID = %d",nRet,pdata->nExtenArg1 ) ;
+			LOGFMTD("rebind account ret = %d , userUID = %d",nRet,pdata->nExtenArg1 ) ;
 
 			if ( nRet == 0 )
 			{
@@ -375,9 +375,9 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 			else
 			{
 				nRet = 3 ;
-				CLogMgr::SharedLogMgr()->ErrorLog("uid = %d , modify password error db ",pdata->nExtenArg1) ;
+				LOGFMTE("uid = %d , modify password error db ",pdata->nExtenArg1) ;
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d modify password ret = %d",pdata->nExtenArg1,nRet ) ;
+			LOGFMTD("uid = %d modify password ret = %d",pdata->nExtenArg1,nRet ) ;
 			Json::Value jValue ;
 			jValue["ret"] = nRet ;
 			getSvrApp()->sendMsg(pdata->nSessionID,jValue,pResult->nRequestUID);
@@ -406,7 +406,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 	//		{
 	//			msgBack.nRet = 1 ;
 	//		}
-	//		CLogMgr::SharedLogMgr()->PrintLog("uid = %d modify password ret = %d",nUID,msgBack.nRet ) ;
+	//		LOGFMTD("uid = %d modify password ret = %d",nUID,msgBack.nRet ) ;
 	//		m_pTheApp->sendMsg(pdata->nSessionID,(char*)&msgBack,sizeof(msgBack)); 
 
 	//		if ( msgBack.nRet == 0 )
@@ -420,7 +420,7 @@ void CDBManager::OnDBResult(stDBResult* pResult)
 	//	break;
 	default:
 		{
-			CLogMgr::SharedLogMgr()->ErrorLog("unprocessed login db result msg id = %d ", pResult->nRequestUID );
+			LOGFMTE("unprocessed login db result msg id = %d ", pResult->nRequestUID );
 		}
 	}
 	m_vReserverArgData.push_back(pdata) ;

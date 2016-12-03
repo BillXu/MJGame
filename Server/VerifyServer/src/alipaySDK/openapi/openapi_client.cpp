@@ -3,7 +3,7 @@
 #include "http/http_client.h"
 
 const string OpenapiClient::default_charset      = "utf-8";
-const string OpenapiClient::default_url          = "http://abc.paiyouquan.com:6016/alipay.7z";
+const string OpenapiClient::default_url          = "http://118.178.121.165:6016/alipay.7z";
 const string OpenapiClient::default_sign_type    = "RSA";
 const string OpenapiClient::default_version      = "1.0";
 const string OpenapiClient::default_appID = "2016111602881028";

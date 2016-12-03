@@ -2,11 +2,10 @@
 #include <windows.h>
 #include <stdlib.h>
 #include "CenterServer.h"
-#include "LogManager.h"
 #include <WinDef.h>
 #include <Dbghelp.h>
 #pragma comment( lib, "DbgHelp" )
-
+#include "log4z.h"
 DWORD WINAPI ThreadProc(LPVOID lpParam)
 {
 	bool bRunning = true;
@@ -66,10 +65,10 @@ void RunFunc ( CCenterServerApp* pApp )
 
 int main()
 {
-	//zsummer::log4z::ILog4zManager::GetInstance()->Config("server.cfg");
-	//zsummer::log4z::ILog4zManager::GetInstance()->Start();
+	zsummer::log4z::ILog4zManager::GetInstance()->Config("server.cfg");
+	zsummer::log4z::ILog4zManager::GetInstance()->Start();
 	CCenterServerApp  theApp ;
-	CLogMgr::SharedLogMgr()->SetOutputFile("CenterSvr");
+	LOGFMTI("CenterSvr");
 	theApp.Init() ;
 	CreateThred(&theApp);
 #ifdef NDEBUG
