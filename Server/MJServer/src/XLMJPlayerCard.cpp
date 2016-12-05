@@ -6,6 +6,7 @@ void XLMJPlayerCard::reset()
 {
 	MJPlayerCard::reset();
 	m_nQueType = eCT_Max;
+	m_vecAlreadyHu.clear();
 }
 
 bool XLMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
@@ -135,7 +136,7 @@ uint8_t XLMJPlayerCard::getAutoQueType()
 {
 	auto pfuncGetWeight = [](VEC_CARD& vCards)
 	{
-		uint16_t nWeiht = vCards.size() * 100;
+		uint16_t nWeiht = vCards.size() * 1000;
 		std::vector<uint8_t> vecCards;
 		vecCards.assign(vCards.begin(),vCards.end());
 		std::sort(vecCards.begin(), vecCards.end());

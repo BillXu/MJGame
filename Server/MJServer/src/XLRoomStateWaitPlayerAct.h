@@ -4,6 +4,34 @@ class XLRoomStateWaitPlayerAct
 	:public MJRoomStateWaitPlayerAct
 {
 public:
+	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)override
+	{
+		IMJRoomState::enterState(pmjRoom, jsTranData);
+		setStateDuringTime(pmjRoom->isWaitPlayerActForever() ? 100000000 : eTime_WaitPlayerAct);
+		if (jsTranData["idx"].isNull() == false && jsTranData["idx"].isUInt())
+		{
+			m_nIdx = jsTranData["idx"].asUInt();
+			getRoom()->onWaitPlayerAct(m_nIdx, m_isCanPass);
+
+			auto pp = getRoom()->getMJPlayerByIdx(m_nIdx);
+			if (!pp)
+			{
+				LOGFMTE("wait you act but you are nullptr idx = %u , room id = %u",m_nIdx,getRoom()->getRoomID());
+			}
+			else
+			{
+				if (pmjRoom->isWaitPlayerActForever() && pp->haveState(eRoomPeer_AlreadyHu) )
+				{
+					setStateDuringTime(4);
+				}
+			}
+			// check tuo guan 
+			getRoom()->onCheckTrusteeForWaitPlayerAct(m_nIdx, m_isCanPass);
+			return;
+		}
+		assert(0 && "invalid argument");
+	}
+
 	void onStateTimeUp()override
 	{
 		auto pPlayer = getRoom()->getMJPlayerByIdx(m_nIdx);

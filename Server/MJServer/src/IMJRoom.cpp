@@ -318,10 +318,14 @@ bool IMJRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPo
 			LOGFMTE("update coin error ,you don't int ther room id = %u  , uid = %u", nRoomID, nUID);
 		}
 
-		Json::Value jsmsgBack;
-		jsmsgBack["coin"] = nCoin;
-		jsmsgBack["diamond"] = nDiamond;
-		sendMsgToPlayer(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionIDThis);
+		if (getDelegate() == nullptr)
+		{
+			Json::Value jsmsgBack;
+			jsmsgBack["coin"] = nCoin;
+			jsmsgBack["diamond"] = nDiamond;
+			sendMsgToPlayer(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionIDThis);
+		}
+
 		return true;
 	}
 
@@ -1189,6 +1193,12 @@ void IMJRoom::onCheckTrusteeForHuOtherPlayerCard(std::vector<uint8_t> vPlayerIdx
 
 void IMJRoom::onPlayerTrusteedStateChange(uint8_t nPlayerIdx, bool isTrusteed)
 {
+	if (getDelegate())
+	{
+		LOGFMTD("vip room should not have tuo guan function %u",getRoomID() );
+		return;
+	}
+
 	auto pPlayer = getMJPlayerByIdx(nPlayerIdx);
 	if (!pPlayer)
 	{

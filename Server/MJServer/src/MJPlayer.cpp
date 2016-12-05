@@ -4,6 +4,7 @@
 #include "log4z.h"
 #include "MJServer.h"
 #include "AsyncRequestQuene.h"
+#include "IMJPlayerCard.h"
 MJPlayer::~MJPlayer()
 {
 	m_tTrusteedActTimer.canncel();
@@ -44,6 +45,7 @@ void MJPlayer::onStartGame()
 void MJPlayer::onGameDidEnd()
 {
 	setState(eRoomPeer_WaitNextGame);
+	getPlayerCard()->reset();
 	clearDecareBuGangFlag();
 }
 

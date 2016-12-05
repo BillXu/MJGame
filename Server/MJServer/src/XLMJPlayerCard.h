@@ -38,4 +38,5 @@ protected:
 	VEC_CARD m_vecAlreadyHu;
 public:
 	static XLFanXing m_tFanXingChecker;
+	//XLFanXing m_tFanXingChecker;
 };

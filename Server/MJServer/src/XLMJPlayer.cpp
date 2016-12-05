@@ -8,7 +8,6 @@ XLMJPlayer::XLMJPlayer()
 void XLMJPlayer::init(stEnterRoomData* pData)
 {
 	MJPlayer::init(pData);
-	setState(eRoomPeer_Ready);
 }
 
 void XLMJPlayer::onWillStartGame()

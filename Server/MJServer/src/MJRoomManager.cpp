@@ -504,7 +504,7 @@ IGameRoom* MJRoomManager::doCreatePublicRoom(uint16_t nConfigID)
 }
 
 IGameRoom* MJRoomManager::doCreatePrivateRoom(uint16_t nConfigID, Json::Value& jsArg)
-{
+ {
 	auto p = new MJPrivateRoom();
 	auto ret = p->init(this, nullptr, genPrivateRoomID(), jsArg);
 	if (ret == false)

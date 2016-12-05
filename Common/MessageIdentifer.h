@@ -527,9 +527,13 @@ enum eMsgType
 	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, seatCnt : 座位个数。
 
 	MSG_VIP_ROOM_INFO_EXT, // VIP 房间的额外信息；
-	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345, roomType : 2 }
+	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345, roomType : 2, applyDismissUID : 234, isWaitingDismiss : 0 , agreeIdxs : [2,3,1] ，leftWaitTime ： 234 }
 	// letCircle : 剩余的圈数， baseBet 基础底注 ，creatorUID 创建者的ID , initCoin 每个人的初始金币
 	// roomType : 游戏类型，参考枚举 eRoomType ；
+	// isWaitingDismiss : 是否在等待投票，解散房间。0 是没有在等待， 1 是在等待
+	// agreeIdxs ： 已经投票同意的玩家 索引数组
+	// leftWaitTime : 等待解散房间的剩余时间，单位秒
+	// applyDismissUID : 申请解散房间者的ID
 
 	MSG_APPLY_DISMISS_VIP_ROOM, // 申请解散vip 房间
 	// client : { dstRoomID : 234 } 
@@ -728,4 +732,12 @@ enum eMsgType
 	// svr ： { idx ： 2 ， isTrusteed ： 0 }
 	// idx : 托管状态改变的玩家索引
 	// isTrusteed 是否托管， 0 不托管，1 托管
+
+	MSG_VIP_ROOM_DO_CLOSED, // vip 房间结束通知
+	// svr : { isDismiss : 0 , roomID : 2345 , eType : eroomType }  
+	// isDismiss : 是否是解散结束的房间。1 是解散房间，0 是自然结束。
+
+	MSG_ROOM_REPLY_DISSMISS_VIP_ROOM_APPLY, // 收到有人回复解散房间
+	// svr { idx : 23 , reply : 0 }
+	// reply ： 0 表示同意， 1 表示拒绝。
 };

@@ -335,7 +335,7 @@ void XLMJRoom::onPlayerZiMo(uint8_t nIdx, uint8_t nCard)
 	pZiMoPlayer->updateFanXingAndFanShu(nHuType, nBeiShu);
 	
 	auto pSettle = new stSettleZiMo(nIdx,nHuType,nBeiShu);
-	auto nNeedCoinPerPlayer = getBaseBet() * nBeiShu;
+	auto nNeedCoinPerPlayer = getBaseBet() * ( nBeiShu + 1 ); // zi mo jia di 
 	// do caculate coin 
 	for (auto& pLoser : m_vMJPlayers)
 	{

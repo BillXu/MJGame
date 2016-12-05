@@ -128,7 +128,6 @@ uint8_t MJPlayerCard::stNotShunCard::getLackCardCntForShun()
 // mj player card ;
 void MJPlayerCard::reset()
 {
-	VEC_CARD m_vCards[eCT_Max];
 	for (auto& vC : m_vCards)
 	{
 		vC.clear();
@@ -655,6 +654,7 @@ bool MJPlayerCard::onBuGang(uint8_t nCard, uint8_t nGangGetCard)
 		LOGFMTE("not peng , hao to bu gang ? %u ",nCard); 
 		return false;
 	}
+	m_vPenged.erase(iterPeng);
 
 	// add to gang ;
 	addCardToVecAsc(m_vGanged, nCard);
