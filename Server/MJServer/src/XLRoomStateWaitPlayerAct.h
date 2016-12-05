@@ -23,6 +23,10 @@ public:
 				if (pmjRoom->isWaitPlayerActForever() && pp->haveState(eRoomPeer_AlreadyHu) )
 				{
 					setStateDuringTime(4);
+					if ( m_isCanPass) // have opt , must let player chose 
+					{
+						setStateDuringTime(eTime_WaitPlayerAct); 
+					}
 				}
 			}
 			// check tuo guan 
@@ -61,7 +65,7 @@ public:
 
 	bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)override
 	{
-		if (MSG_PLAYER_ACT != nMsgType)
+		if (MSG_PLAYER_ACT != nMsgType && MSG_REQ_ACT_LIST != nMsgType )
 		{
 			return false;
 		}

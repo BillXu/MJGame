@@ -524,7 +524,8 @@ enum eMsgType
 	MSG_CREATE_VIP_ROOM,  // 创建vip房间 
 	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : eRoomType, seatCnt : 4  }
 	// svr : { ret : 0 , roomID : 2345 }
-	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, seatCnt : 座位个数。
+	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 seatCnt : 座位个数。
+	// ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, 3 ,已经在某个房间里，不能创建房间
 
 	MSG_VIP_ROOM_INFO_EXT, // VIP 房间的额外信息；
 	// svr : { leftCircle : 2 , baseBet : 1 , creatorUID : 2345 , initCoin : 2345, roomType : 2, applyDismissUID : 234, isWaitingDismiss : 0 , agreeIdxs : [2,3,1] ，leftWaitTime ： 234 }
@@ -593,7 +594,7 @@ enum eMsgType
 
 	MSG_REQ_UPDATE_COIN, // 获取玩家最新的金钱
 	// client : null ;
-	// svr : { coin : 2345 , diamond : 2345 };
+	// svr : { coin : 2345 , diamond : 2345, roomCard : 234  };
 
 	// friend module 
 	MSG_REQ_ADD_FRIEND, // 请求添加好友

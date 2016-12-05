@@ -319,6 +319,7 @@ void CDBManager::OnMessage(stMsg* pmsg , eMsgPort eSenderPort , uint32_t nSessio
 		{
 			stMsgSavePlayerCommonLoginData* pRet = (stMsgSavePlayerCommonLoginData*)pmsg ;
 			pRet->dfLongitude = 0;
+			pRet->dfLatidue = 0;
 			pRequest->eType = eRequestType_Update ;
 			std::string strJoinedClub = stMysqlField::UnIntArraryToString(pRet->vJoinedClubID,MAX_JOINED_CLUB_CNT) ;
 			pRequest->nSqlBufferLen = sprintf_s(pRequest->pSqlBuffer,sizeof(pRequest->pSqlBuffer),
@@ -329,7 +330,6 @@ void CDBManager::OnMessage(stMsg* pmsg , eMsgPort eSenderPort , uint32_t nSessio
 				strJoinedClub.c_str(),pRet->nNewPlayerHaloWeight,pRet->nCardType,pRet->nCardEndTime,pRet->nLastTakeCardGiftTime,pRet->nTotalInvitePrizeCoin,pRet->nTakeCharityTimes,pRet->nTotalGameCoinOffset,pRet->nRolledPlateTimes,pRet->tLastRollPlateTime,pRet->nUserUID) ;
 		}
 		break;
-
 	case MSG_GET_MAX_ROOM_ID:
 		{
 			pRequest->eType = eRequestType_Select ;

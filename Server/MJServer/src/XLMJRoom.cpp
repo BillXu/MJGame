@@ -679,22 +679,28 @@ void XLMJRoom::onGameEnd()
 {
 	// cha hua zhu when liu ju (more then two player not hu , include 2 );
 	// check liu ju 
-	uint8_t nNotHuPlayer = 0;
-	for (auto& ref : m_vMJPlayers)
-	{
-		if (ref && (ref->haveState(eRoomPeer_AlreadyHu) == false) && ( ref->haveState(eRoomPeer_DecideLose) == false ) )
-		{
-			++nNotHuPlayer;
-		}
-	}
+	//uint8_t nNotHuPlayer = 0;
+	//for (auto& ref : m_vMJPlayers)
+	//{
+	//	if (ref && (ref->haveState(eRoomPeer_AlreadyHu) == false) && ( ref->haveState(eRoomPeer_DecideLose) == false ) )
+	//	{
+	//		++nNotHuPlayer;
+	//	}
+	//}
 
-	std::vector<uint8_t> vecHuaZhu;
-	if ( nNotHuPlayer >= 2)
-	{
-		doChaHuaZhu(vecHuaZhu);
+	//std::vector<uint8_t> vecHuaZhu;
+	//if ( nNotHuPlayer >= 2)
+	//{
+		// cha hua zhu 
+		//doChaHuaZhu(vecHuaZhu);
 		// cha da jiao ;  // when da jiao  give back , gang win , all type of gang ;
-		doChaDaJiao(vecHuaZhu);
-	}
+		//doChaDaJiao(vecHuaZhu);
+	//}
+	std::vector<uint8_t> vecHuaZhu;
+	// cha hua zhu 
+	doChaHuaZhu(vecHuaZhu);
+	// cha da jiao ;  // when da jiao  give back , gang win , all type of gang ;
+	doChaDaJiao(vecHuaZhu);
 
 	// send game over msg ;
 	LOGFMTI("GAME OVER : ");

@@ -860,11 +860,12 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 	case MSG_REQ_UPDATE_COIN:
 		{
 			auto pPlayerData = (CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData);
-			if (pPlayerData->isNotInAnyRoom())
+			if (pPlayerData->isNotInAnyRoom() || 1 )  // always send from here omit coin , so need not tell mj server 
 			{
 				Json::Value jsmsgBack;
 				jsmsgBack["coin"] = getCoin();
 				jsmsgBack["diamond"] = GetAllDiamoned();
+				jsmsgBack["roomCard"] = getVipRoomCard();
 				SendMsg(jsmsgBack, nmsgType);
 			}
 			else

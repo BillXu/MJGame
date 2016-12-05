@@ -175,6 +175,13 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				return true;
 			}
 
+			if ( isNotInAnyRoom() == false)
+			{
+				jsBack["ret"] = 3;
+				SendMsg(jsBack, nmsgType);
+				return true;
+			}
+
 #ifdef NDEBUG
 
 			if ( m_bIsCreating )
