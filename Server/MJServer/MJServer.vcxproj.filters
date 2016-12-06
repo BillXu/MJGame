@@ -351,6 +351,9 @@
     <ClInclude Include="src\XLRoomStateWaitPlayerAct.h">
       <Filter>src\MJXL\XLState</Filter>
     </ClInclude>
+    <ClInclude Include="src\XLRoomStateAskPengOrHu.h">
+      <Filter>src\MJXL\XLState</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">

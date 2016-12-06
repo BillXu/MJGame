@@ -182,6 +182,7 @@
     <ClInclude Include="src\XLMJPlayerCard.h" />
     <ClInclude Include="src\XLMJRoom.h" />
     <ClInclude Include="src\XLMJSettle.h" />
+    <ClInclude Include="src\XLRoomStateAskPengOrHu.h" />
     <ClInclude Include="src\XLRoomStateDoPlayerAct.h" />
     <ClInclude Include="src\XLRoomStateStartGame.h" />
     <ClInclude Include="src\XLRoomStateWaitDecideQue.h" />

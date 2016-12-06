@@ -119,6 +119,11 @@ bool MJPrivateRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 		jsMsg["idx"] = pp->getIdx();
 		sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_LEAVE); // tell other player leave ;
 	}
+	else
+	{
+		LOGFMTD("you are not in this room i let you go room id = %u",getRoomID());
+		return true;
+	}
 
 	if (eRoomSate_WaitReady == curState && this->m_bComsumedRoomCards == false ) // not start game 
 	{

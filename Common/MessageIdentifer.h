@@ -340,11 +340,12 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",photoID : 23, ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345,vipRoomCard : 23, clothe : [235,235,234] }
+	// svr : { name: "nickName",photoID : 23, ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345, stayInRoomID : 234 , vipRoomCard : 23, clothe : [235,235,234] }
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 	// charity : 救济金剩余可领次数
 	// photoID : 头像ID ；
 	// ownRoomID : 自己创建的房间ID
+	// stayInRoomID： 当前所在房间的ID , 0 表示不在房间里
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME, // 玩家修改昵称

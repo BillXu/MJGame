@@ -176,7 +176,7 @@ void MJPlayer::switchTrusteed(bool isTrusted)
 	m_isTrusteed = isTrusted;
 	if (!isTrusteed())
 	{
-		m_tTrusteedActTimer.canncel();
+		m_tTrusteedActTimer.reset();
 	}
 }
 
@@ -187,7 +187,7 @@ void MJPlayer::setTrusteeActFunc(CTimer::time_func pFunc)
 		LOGFMTE("player not trusteed why set trusteed act func uid = %u",getUID());
 		return;
 	}
-
+	m_tTrusteedActTimer.reset();
 	m_tTrusteedActTimer.setInterval(1);
 	m_tTrusteedActTimer.setIsAutoRepeat(false);
 	m_tTrusteedActTimer.setCallBack(pFunc);

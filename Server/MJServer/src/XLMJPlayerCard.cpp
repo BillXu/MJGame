@@ -261,6 +261,34 @@ bool XLMJPlayerCard::canMingGangWithCard(uint8_t nCard)
 	return MJPlayerCard::canMingGangWithCard(nCard);
 }
 
+bool XLMJPlayerCard::canMingGangWithCardStillTingPai(uint8_t nCard)
+{
+	if (canMingGangWithCard(nCard) == false)
+	{
+		return false;
+	}
+
+	auto type = card_Type(nCard);
+	auto& vCheck = m_vCards[type];
+	// remove 3 card ;
+	auto iter = std::find(vCheck.begin(), vCheck.end(), nCard);
+	vCheck.erase(iter);
+
+	iter = std::find(vCheck.begin(), vCheck.end(), nCard);
+	vCheck.erase(iter);
+
+	iter = std::find(vCheck.begin(), vCheck.end(), nCard);
+	vCheck.erase(iter);
+
+	auto isOk = isTingPai();
+	// add 3 back card ;
+	addCardToVecAsc(vCheck, nCard);
+	addCardToVecAsc(vCheck, nCard);
+	addCardToVecAsc(vCheck, nCard);
+
+	return isOk;
+}
+
 bool XLMJPlayerCard::canPengWithCard(uint8_t nCard)
 {
 	auto type = card_Type(nCard);

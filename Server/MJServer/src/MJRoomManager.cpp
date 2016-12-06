@@ -198,7 +198,7 @@ bool MJRoomManager::onAsyncRequest(uint16_t nRequestType, const Json::Value& jsR
 		}
 
 		auto p = pRoom->onPlayerApplyLeave(nUID);
-		if (false == p)
+		if ( true == p)
 		{
 			jsResult["ret"] = 2;
 			jsResult["coin"] = 0;
@@ -277,7 +277,24 @@ bool MJRoomManager::onAsyncRequest(uint16_t nRequestType, const Json::Value& jsR
 
 void MJRoomManager::onConnectedSvr()
 {
+	IGameRoomManager::onConnectedSvr();
+	auto asyq = getSvrApp()->getAsynReqQueue();
+	Json::Value jsReq;
+	jsReq["sql"] = "SELECT max(billID) as maxBillID FROM viproombills ;";
+	asyq->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Select, jsReq, [](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData){
+		uint32_t nAft = retContent["afctRow"].asUInt();
+		auto jsData = retContent["data"];
+		if (nAft == 0 || jsData.isNull())
+		{
+			LOGFMTE("read max bill id error ");
+			return;
+		}
 
+		auto jsRow = jsData[(uint32_t)0];
+		s_MaxBillID = jsRow["maxBillID"].asUInt();
+		++s_MaxBillID;
+		LOGFMTD("max bill id  = %u", s_MaxBillID);
+	});
 }
 
 bool MJRoomManager::processEnterRoomMsg(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nSessionID)
@@ -602,7 +619,7 @@ void MJRoomManager::addVipRoomBill(std::shared_ptr<stVipRoomBill>& pBill, bool i
 		char pBuffer[500] = { 0 };
 		Json::StyledWriter jsWrite;
 		auto str = jsWrite.write(pBill->jsDetail);
-		sprintf_s(pBuffer, sizeof(pBuffer), "insert into viproombills (billID,roomID,roomType,createUID,billTime,detail,roomInitCoin ,circleCnt ) values( %u,%u,%u,%u,now(),'%s',%u;"
+		sprintf_s(pBuffer, sizeof(pBuffer), "insert into viproombills (billID,roomID,roomType,createUID,billTime,detail,roomInitCoin ,circleCnt ) values( %u,%u,%u,%u,now(),'%s',%u,%u;"
 			, pBill->nBillID, pBill->nRoomID, pBill->nRoomType, pBill->nCreateUID, str.c_str(), pBill->nRoomInitCoin, pBill->nCircleCnt);
 		jsReq["sql"] = pBuffer;
 		asy->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Add, jsReq);

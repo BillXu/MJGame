@@ -18,6 +18,7 @@ public:
 	bool isHoldCardCanHu() override;
 	bool isTingPai() override;
 	bool canMingGangWithCard(uint8_t nCard) override;
+	bool canMingGangWithCardStillTingPai(uint8_t nCard);
 	bool canPengWithCard(uint8_t nCard) override;
 	bool canAnGangWithCard(uint8_t nCard)override;
 	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;

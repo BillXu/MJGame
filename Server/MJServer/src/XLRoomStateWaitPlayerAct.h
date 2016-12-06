@@ -22,7 +22,7 @@ public:
 			{
 				if (pmjRoom->isWaitPlayerActForever() && pp->haveState(eRoomPeer_AlreadyHu) )
 				{
-					setStateDuringTime(4);
+					setStateDuringTime(1);
 					if ( m_isCanPass) // have opt , must let player chose 
 					{
 						setStateDuringTime(eTime_WaitPlayerAct); 

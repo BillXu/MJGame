@@ -1321,6 +1321,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["charity"] = getLeftCharityTimes();
 		jValue["photoID"] = m_stBaseData.nPhotoID;
 		jValue["ownRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getOwnRoomID();
+		jValue["stayInRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getCurRoomID();
 
 		Json::Value jsclothe ;
 		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];

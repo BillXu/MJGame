@@ -1,6 +1,7 @@
 
 #include "DBRequest.h"
 #include "DataBaseThread.h"
+#include "log4z.h"
 #define  MYSQL_PING_TIME (3600*8 + 30)
 //CDataBaseThread* CDataBaseThread::SharedDBThread()
 //{
@@ -26,7 +27,7 @@ bool CDataBaseThread::InitDataBase( const char* pIP,unsigned pPort , const char*
 
 	if (!mysql_set_character_set(m_pMySql, "utf8"))
 	{
-		printf("New client character set: %s\n",
+		LOGFMTD("New client character set: %s\n",
 			mysql_character_set_name(m_pMySql));
 	}
 
@@ -64,7 +65,7 @@ void CDataBaseThread::__run()
 				// reconnected ;
 				if (!mysql_set_character_set(m_pMySql, "utf8"))
 				{
-					printf("Reconnect !!! New client character set: %s\n",
+					LOGFMTD("Reconnect !!! New client character set: %s\n",
 						mysql_character_set_name(m_pMySql));
 				}
 			}
@@ -111,7 +112,7 @@ bool CDataBaseThread::ProcessRequest()
 		pResult->nAffectRow = 0 ;
 		if ( mysql_real_query(m_pMySql,pRequest->pSqlBuffer,pRequest->nSqlBufferLen) )
 		{
-			printf("query DB Error Info , Operate UID = %d : %s . sql: = %s\n", pRequest->nRequestUID, mysql_error(m_pMySql),pRequest->pSqlBuffer);
+			LOGFMTE("query DB Error Info , Operate UID = %d : %s . sql: = %s\n", pRequest->nRequestUID, mysql_error(m_pMySql), pRequest->pSqlBuffer);
 			pResult->nAffectRow = 0 ;
 			continue; 
 		}
@@ -143,7 +144,7 @@ bool CDataBaseThread::ProcessRequest()
 					{
 						if ( msqlResult != NULL )
 						{
-							printf("mysql_store_result Error Info , Operate UID = %d : %s why have more than one result type  result \n", pRequest->nRequestUID, mysql_error(m_pMySql));
+							LOGFMTE("mysql_store_result Error Info , Operate UID = %d : %s why have more than one result type  result \n", pRequest->nRequestUID, mysql_error(m_pMySql));
 						}
 						//pResult->nAffectRow = 0 ;
 						mysql_free_result(msqlResult);
@@ -198,7 +199,7 @@ bool CDataBaseThread::ProcessRequest()
 							default:
 								{
 									bValide = false ;
-									printf("error DB request unsupport field Type : Type = %d : field Name: %s \n",msqlfield->type, pField->strFieldName.c_str()) ;
+									LOGFMTE("error DB request unsupport field Type : Type = %d : field Name: %s \n", msqlfield->type, pField->strFieldName.c_str());
 								}
 							}
 
@@ -211,7 +212,7 @@ bool CDataBaseThread::ProcessRequest()
 							else
 							{
 								delete pField ;
-								printf("not support data type from db") ;
+								LOGFMTE("not support data type from db");
 								assert(0&&"why support type not !");
 								continue; 
 							}
@@ -224,7 +225,7 @@ bool CDataBaseThread::ProcessRequest()
 				break; 
 			default:
 				{
-					printf("error DB request type, DB request UID = %d , Type = %d\n",pRequest->nRequestUID,pRequest->eType) ;
+					LOGFMTE("error DB request type, DB request UID = %d , Type = %d\n", pRequest->nRequestUID, pRequest->eType);
 					continue; ;
 				}
 			}

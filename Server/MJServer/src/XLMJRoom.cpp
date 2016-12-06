@@ -16,6 +16,8 @@
 #include "IGameRoomManager.h"
 #include "RobotDispatchStrategy.h"
 #include "XLRoomStateWaitPlayerAct.h"
+#include "XLRoomStateAskPengOrHu.h"
+#define MAX_BEISHU 32
 bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	IMJRoom::init(pRoomMgr, pConfig, nRoomID, vJsValue);
@@ -23,7 +25,7 @@ bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint3
 	// create state and add state ;
 	IMJRoomState* vState[] = {
 		new CMJRoomStateWaitReady(), new MJRoomStateWaitPlayerChu(), new XLRoomStateWaitPlayerAct(), new XLRoomStateStartGame()
-		, new MJRoomStateGameEnd(), new XLRoomStateDoPlayerAct(), new MJRoomStateAskForPengOrHu(), new XLRoomStateWaitDecideQue(), new XLRoomStateWaitSupplyCoin()
+		, new MJRoomStateGameEnd(), new XLRoomStateDoPlayerAct(), new XLRoomStateAskForPengOrHu(), new XLRoomStateWaitDecideQue(), new XLRoomStateWaitSupplyCoin()
 	};
 	for (uint8_t nIdx = 0; nIdx < sizeof(vState) / sizeof(IMJRoomState*); ++nIdx)
 	{
@@ -178,7 +180,7 @@ void XLMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 	auto pSettle = new stSettleAnGang(nIdx);
 	for (auto& pPlayer : m_vMJPlayers)
 	{
-		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
+		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx /*|| pPlayer->haveState(eRoomPeer_AlreadyHu)*/ || pPlayer->haveState(eRoomPeer_DecideLose))
 		{
 			continue;
 		}
@@ -205,7 +207,7 @@ void XLMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 	auto pSettle = new stSettleBuGang(nIdx);
 	for (auto& pPlayer : m_vMJPlayers)
 	{
-		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
+		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx /*|| pPlayer->haveState(eRoomPeer_AlreadyHu)*/ || pPlayer->haveState(eRoomPeer_DecideLose))
 		{
 			continue;
 		}
@@ -270,6 +272,11 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		{
 			LOGFMTE("hu card return false when hu do hu , idx = %u ,card = %u",nidx,nCard);
 			continue;
+		}
+
+		if (nBeiShu > MAX_BEISHU )
+		{
+			nBeiShu = MAX_BEISHU;
 		}
 
 		// do caculate coin ;
@@ -447,6 +454,15 @@ bool XLMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
 		{
 			return true;
 		}
+		
+		if (ref->haveState(eRoomPeer_AlreadyHu))
+		{
+			auto pXL = (XLMJPlayerCard*)pMJCard;
+			if (pXL->canMingGangWithCardStillTingPai(nCard))
+			{
+				return true;
+			}
+		}
 
 		if (pMJCard->canHuWitCard(nCard))
 		{
@@ -514,6 +530,15 @@ void XLMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::
 			{
 				jsActs[jsActs.size()] = eMJAct_MingGang;
 				// already add in peng ;  vWaitPengGangIdx
+			}
+		}
+		else
+		{
+			auto pXL = (XLMJPlayerCard*)pMJCard;
+			if ( isCanGoOnMoPai() &&  pXL->canMingGangWithCardStillTingPai(nCard))
+			{
+				jsActs[jsActs.size()] = eMJAct_MingGang;
+				vOutWaitPengGangIdx.push_back(ref->getIdx());
 			}
 		}
 
@@ -786,7 +811,7 @@ void XLMJRoom::doChaHuaZhu(std::vector<uint8_t>& vHuaZhu)
 		return;
 	}
 	// hua zhu give coin to not hua zhu player ;
-	uint8_t nBeiShu = 64;
+	uint8_t nBeiShu = MAX_BEISHU;
 	uint32_t nHuaZhuBaseLose = getBaseBet() * nBeiShu;
 	for (auto& nHuaZhuIdx : vHuaZhu)
 	{
