@@ -5,6 +5,8 @@ class XZMJRoom
 {
 public:
 	bool isGameOver()override;
+	void onPlayerAnGang(uint8_t nIdx, uint8_t nCard)override;
+	void onPlayerBuGang(uint8_t nIdx, uint8_t nCard)override;
 	bool isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)override;
 	bool isAnyPlayerRobotGang(uint8_t nInvokeIdx, uint8_t nCard)override;
 	void onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::vector<uint8_t>& vOutWaitHuIdx, std::vector<uint8_t>& vOutWaitPengGangIdx, bool& isNeedWaitEat)override;

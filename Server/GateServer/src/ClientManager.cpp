@@ -11,7 +11,7 @@
 #include "json/json.h"
 #include "AutoBuffer.h"
 #include "log4z.h"
-#define TIME_WAIT_FOR_RECONNECTE 40
+#define TIME_WAIT_FOR_RECONNECTE 7200
 CGateClientMgr::CGateClientMgr()
 {
 	m_vNetWorkIDGateClientIdx.clear();
