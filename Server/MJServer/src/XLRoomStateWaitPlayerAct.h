@@ -54,6 +54,7 @@ public:
 				Json::Value jsTran;
 				jsTran["idx"] = m_nIdx;
 				jsTran["act"] = eMJAct_Hu;
+				jsTran["invokeIdx"] = m_nIdx;
 				jsTran["card"] = pPlayer->getPlayerCard()->getNewestFetchedCard();
 				getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
 				return;

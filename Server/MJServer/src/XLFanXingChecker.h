@@ -425,7 +425,7 @@ public:
 	{
 		if (doSelfCheck(pHelper))
 		{
-			nBeiShu = 64;
+			nBeiShu = 32;
 			nFanXingType = eFanxing_ShiBaLuoHan;
 			return true;
 		}

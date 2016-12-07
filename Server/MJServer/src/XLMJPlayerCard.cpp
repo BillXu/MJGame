@@ -102,7 +102,7 @@ uint32_t XLMJPlayerCard::getMaxPossibleBeiShu()
 		// do check ;
 		uint8_t nBeiShu = 0;
 		auto ret = getFanxingChecker()->doCheckFanxing(this, nBeiShu, nHuType);
-
+		auto genCnt = getGenShu();
 		// remove from hold card after check ;
 		auto iterDel = std::find(refVcards.begin(), refVcards.end(), nCard);
 		refVcards.erase(iterDel);
@@ -111,6 +111,11 @@ uint32_t XLMJPlayerCard::getMaxPossibleBeiShu()
 		{
 			LOGFMTE("get can hu card , but can not check fanxing ? why bug ");
 			continue;
+		}
+
+		for (uint8_t nGenF = 0; nGenF < genCnt; ++nGenF)  // per gen jia yi fan ;
+		{
+			nBeiShu *= 2;
 		}
 
 		if (nBeiShu > nMaxBeiShu)

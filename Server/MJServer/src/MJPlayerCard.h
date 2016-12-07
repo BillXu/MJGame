@@ -64,6 +64,7 @@ protected:
 	virtual uint8_t getMiniQueCnt( VEC_CARD vCards[eCT_Max] );
 	virtual uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max]);
 	uint8_t getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao);
+	uint8_t tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZi );
 public:
 	void debugCardInfo();
 protected:

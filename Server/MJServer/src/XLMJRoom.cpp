@@ -248,7 +248,14 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		pMJCard->onGangCardBeRobot(nCard);
 	}
 
+	if (pDianPaoPlayer == nullptr)
+	{  
+		LOGFMTE("room id = %u why dian pao player is nullptr ? ", getRoomID() );
+		return;
+	}
+
 	auto pSettle = new stSettleDiaoPao(nInvokeIdx, isRobotGang, isGangShangPao);
+	LOGFMTD("room id = %u add dian pao settle uid = %u , hu size = %u",getRoomID(),pDianPaoPlayer->getUID(),vHuIdx.size());
 	for (auto& nidx : vHuIdx)
 	{
 		auto pHuPlayer = (XLMJPlayer*)getMJPlayerByIdx(nidx);
@@ -265,7 +272,6 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		}
 
 		auto pHuCard = (XLMJPlayerCard*)pHuPlayer->getPlayerCard();
-		pHuPlayer->setState(eRoomPeer_AlreadyHu);
 
 		uint32_t nHuType = 0; uint8_t nBeiShu = 0 , nGenCnt = 0 ;
 		if (pHuCard->onDoHu(false,nCard, nHuType, nBeiShu, nGenCnt) == false)
@@ -273,18 +279,23 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 			LOGFMTE("hu card return false when hu do hu , idx = %u ,card = %u",nidx,nCard);
 			continue;
 		}
-
-		if (nBeiShu > MAX_BEISHU )
-		{
-			nBeiShu = MAX_BEISHU;
-		}
+		pHuPlayer->setState(eRoomPeer_AlreadyHu);
 
 		// do caculate coin ;
 		if (isRobotGang || isGangShangPao)  // qiang gang he gang shang pao dou jia yi fan ;
 		{
 			nBeiShu *= 2;  //  yi fan , means * 2 ;
 		}
-		nBeiShu += nGenCnt;  // add gen cnt ;
+	
+		for (uint8_t nGenF = 0; nGenF < nGenCnt; ++nGenF)
+		{
+			nBeiShu *= 2; // add gen cnt fan;
+		}
+
+		if (nBeiShu > MAX_BEISHU)
+		{
+			nBeiShu = MAX_BEISHU;
+		}
 
 		uint32_t nSettleCoin = getBaseBet() * nBeiShu;
 		if ((int32_t)nSettleCoin > pDianPaoPlayer->getCoin())
@@ -309,6 +320,7 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		msg["fanShu"] = nBeiShu;
 		sendRoomMsg(msg, MSG_ROOM_ACT);
 
+		LOGFMTD("room id = %u uid = %u hu dianpao uid = %u  beishu = %u , coin = %u huType = %u gen = %u", getRoomID(), pHuPlayer->getUID(), pDianPaoPlayer->getUID(), nBeiShu, nSettleCoin, nHuType, nGenCnt);
 		// if no coin will not go settle 
 		if (pDianPaoPlayer->getCoin() <= 0)
 		{
@@ -319,9 +331,9 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 	addSettle(pSettle);
 }
 
-void XLMJRoom::onPlayerZiMo(uint8_t nIdx, uint8_t nCard)
+void XLMJRoom::onPlayerZiMo(uint8_t nPlayerIdx, uint8_t nCard)
 {
-	auto pZiMoPlayer = (XLMJPlayer*)getMJPlayerByIdx(nIdx);
+	auto pZiMoPlayer = (XLMJPlayer*)getMJPlayerByIdx(nPlayerIdx);
 	auto pHuCard = (XLMJPlayerCard*)pZiMoPlayer->getPlayerCard();
 	bool isGangShangHua = pZiMoPlayer->haveGangFalg();
 
@@ -329,7 +341,7 @@ void XLMJRoom::onPlayerZiMo(uint8_t nIdx, uint8_t nCard)
 	uint32_t nHuType = 0; uint8_t nBeiShu = 0, nGenCnt = 0;
 	if (pHuCard->onDoHu(true, nCard, nHuType, nBeiShu, nGenCnt) == false)
 	{
-		LOGFMTE("hu card return false when hu do hu , idx = %u ,card = %u", nIdx, nCard);
+		LOGFMTE("hu card return false when hu do hu , idx = %u ,card = %u", nPlayerIdx, nCard);
 		return;
 	}
 	pZiMoPlayer->setState(eRoomPeer_AlreadyHu);
@@ -337,16 +349,28 @@ void XLMJRoom::onPlayerZiMo(uint8_t nIdx, uint8_t nCard)
 	{
 		nBeiShu *= 2; // jia yi fan 
 	}
-	nBeiShu += nGenCnt;
+
+	for (uint8_t nIdx = 0; nIdx < nGenCnt; ++nIdx)
+	{
+		nBeiShu *= 2; // jia yi fan , mei yi ge gen 
+	}
+
+	nBeiShu *= 2; // jia yi fan , yin wei zi mo ;
+	
+	if (nBeiShu > MAX_BEISHU)
+	{
+		nBeiShu = MAX_BEISHU;
+	}
 
 	pZiMoPlayer->updateFanXingAndFanShu(nHuType, nBeiShu);
 	
-	auto pSettle = new stSettleZiMo(nIdx,nHuType,nBeiShu);
-	auto nNeedCoinPerPlayer = getBaseBet() * ( nBeiShu + 1 ); // zi mo jia di 
+	auto pSettle = new stSettleZiMo(nPlayerIdx, nHuType, nBeiShu);
+	auto nNeedCoinPerPlayer = getBaseBet() * nBeiShu ; 
+	LOGFMTD("room id = %u add zi mo settle  uid = %u  bei shu = %u ",getRoomID(),pZiMoPlayer->getUID(),nBeiShu);
 	// do caculate coin 
 	for (auto& pLoser : m_vMJPlayers)
 	{
-		if (pLoser == nullptr || pLoser->getIdx() == nIdx || pLoser->haveState(eRoomPeer_DecideLose))
+		if (pLoser == nullptr || pLoser->getIdx() == nPlayerIdx || pLoser->haveState(eRoomPeer_DecideLose))
 		{
 			continue;
 		}
@@ -357,10 +381,11 @@ void XLMJRoom::onPlayerZiMo(uint8_t nIdx, uint8_t nCard)
 			nSettleCoin = pLoser->getCoin();
 		}
 
-		pZiMoPlayer->addOffsetCoin(nSettleCoin);
+		pZiMoPlayer->addOffsetCoin(nSettleCoin);   
 		pLoser->addOffsetCoin(-1 * (int32_t)nSettleCoin);
 
 		pSettle->addLosePlayer(pLoser->getIdx(), nSettleCoin);
+		LOGFMTD("room id = %u , uid = %u zi mo , win uid = %u , offset = %u" ,getRoomID(),pZiMoPlayer->getUID(),pLoser->getUID(),nSettleCoin);
 	}
 
 	// send hu act msg to client ;
@@ -821,6 +846,7 @@ void XLMJRoom::doChaHuaZhu(std::vector<uint8_t>& vHuaZhu)
 			continue;
 		}
 
+		LOGFMTD("room id = %u cha hua zhu uid = %u ",getRoomID(),pHuaZhu->getUID());
 		auto pSettle = new stSettleHuaZhu(nHuaZhuIdx);
 		// give coin to None HuaZhu player ;
 		for (auto& notHuZhu : vNotHuaZhu)
@@ -836,6 +862,7 @@ void XLMJRoom::doChaHuaZhu(std::vector<uint8_t>& vHuaZhu)
 			pNotHuaZhu->addOffsetCoin(nLoseCoin);
 
 			pSettle->addHuPlayer(notHuZhu, nLoseCoin, 0, nBeiShu);
+			LOGFMTD("room id = %u , huaZhu uid = %u , not huaZhu = %u , coin = %u",getRoomID(),pHuaZhu->getUID(),pNotHuaZhu->getUID(),nLoseCoin);
 			if (pHuaZhu->getCoin() == 0)
 			{
 				LOGFMTD("huazhu idx = %u lose all room id = %u",nHuaZhuIdx,getRoomID());
@@ -902,13 +929,14 @@ void XLMJRoom::doChaDaJiao(std::vector<uint8_t>& vHuaZhu)
 			continue;
 		}
 
+		LOGFMTD("room id = %u cha da jiao = %u ", getRoomID(),pPlayerDaJiao->getUID());
 		auto pSettle = new stSettleDaJiao(nDaJiaoIdx);
 		// give coin to None HuaZhu player ;
 		for (auto& nTingIdx : vTingPai )
 		{
 			auto pTingPaiPlayer = getMJPlayerByIdx(nTingIdx);
 			auto pTingPlayerCard = (XLMJPlayerCard*)pTingPaiPlayer->getPlayerCard();
-			uint32_t nLoseCoin = pTingPlayerCard->getMaxPossibleBeiShu() * getBaseBet();
+			uint32_t nLoseCoin = min(MAX_BEISHU,pTingPlayerCard->getMaxPossibleBeiShu()) * getBaseBet();
 			if (nLoseCoin == 0)
 			{
 				LOGFMTE("why i hu is cha jiao win 0 ? my card is : ");
@@ -923,6 +951,7 @@ void XLMJRoom::doChaDaJiao(std::vector<uint8_t>& vHuaZhu)
 			pTingPaiPlayer->addOffsetCoin(nLoseCoin);
 
 			pSettle->addHuPlayer(nTingIdx, nLoseCoin, 0, 0);
+			LOGFMTD("room id = %u , da jiao uid = %u lose coin = %u to TingPaiPlayer = %u", getRoomID(), pPlayerDaJiao->getUID(),nLoseCoin,pTingPaiPlayer->getUID());
 			if (pPlayerDaJiao->getCoin() == 0)
 			{
 				LOGFMTD("DaJiao idx = %u lose all room id = %u", nDaJiaoIdx, getRoomID());
