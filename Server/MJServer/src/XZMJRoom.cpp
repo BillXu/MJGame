@@ -27,7 +27,7 @@ bool XZMJRoom::isGameOver()
 
 void XZMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 {
-	XLMJRoom::onPlayerAnGang(nIdx, nCard);
+	IMJRoom::onPlayerAnGang(nIdx, nCard);
 	// do settle 
 	auto nSettleCoin = getBaseBet() * 2;
 	auto pGanger = getMJPlayerByIdx(nIdx);
@@ -54,7 +54,7 @@ void XZMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 
 void XZMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 {
-	XLMJRoom::onPlayerBuGang(nIdx, nCard);
+	IMJRoom::onPlayerBuGang(nIdx, nCard);
 	// do settle 
 	auto nSettleCoin = getBaseBet();
 	auto pGanger = getMJPlayerByIdx(nIdx);

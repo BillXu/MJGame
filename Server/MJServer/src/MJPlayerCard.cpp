@@ -768,20 +768,51 @@ void MJPlayerCard::addCardToVecAsc(VEC_CARD& vec, uint8_t nCard)
 
 bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun )
 {
-	auto nCnt = tryBestFindLeastNotShun(vCard, vNotShun, bMustKeZiShun);
-
-	return nCnt == 0;
-
 	/// temp unsed ;
 	if (vCard.empty())
 	{
 		vNotShun.clear();
 		return true;
 	}
-	// ignore ke zi 
-	if (pickNotShunZiOutIgnoreKeZi(vCard, vNotShun))
+
+	SET_NOT_SHUN vMyNotShun;
+	uint8_t nMyCnt = 100;
+
+	auto pCheckShun = [this]( bool bMustKeZi, uint8_t& nMyCnt, SET_NOT_SHUN& vMyNotShun, VEC_CARD& vCheckCard )
 	{
-		vNotShun.clear();
+		SET_NOT_SHUN vTemp;
+		auto nCnt = tryBestFindLeastNotShun(vCheckCard, vTemp, bMustKeZi);
+		if (nCnt == 0)
+		{
+			nMyCnt = 0;
+			vMyNotShun.clear();
+			return true;
+		}
+
+		if (nCnt <= 2 || nCnt <= nMyCnt )
+		{
+			if (nMyCnt > 2)
+			{
+				// just wap ;
+				vMyNotShun.swap(vTemp);
+			}
+			else
+			{
+				vMyNotShun.insert(vTemp.begin(), vTemp.end());
+			}
+
+			if (nCnt < nMyCnt )
+			{
+				nMyCnt = nCnt;
+			}
+		}
+		return false;
+	};
+	
+	VEC_CARD vIgnoreKezi;
+	vIgnoreKezi.assign(vCard.begin(),vCard.end());
+	if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vIgnoreKezi))
+	{
 		return true;
 	}
 
@@ -792,54 +823,45 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 	if (vLeftCard.empty())
 	{
 		vNotShun.clear();
+		vMyNotShun.clear();
+		nMyCnt = 0;
 		return true;
-	}
-
-	if (bMustKeZiShun || vLeftCard.size() < 3 ) // this situation left card  must be  not shun ;
-	{
-		stNotShunCard stNot;
-		stNot.vCards.clear();
-		stNot.vCards = vLeftCard;
-		vNotShun.insert(stNot);
-		//return false;
 	}
 
 	// without kezi ,Left card , that not shun . ignore part ke zi , means some kezi not represent ke zi ;
 	if ( vKeZi.size() > 0 )
 	{
-		if ( pickNotShunZiOutIgnoreKeZi(vLeftCard, vNotShun))
+		// without ke zi situation 
+		if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vLeftCard))
 		{
-			vNotShun.clear();
 			return true;
 		}
 	}
-
 	
 	// take part keZi into construct shun ;
-	if (vKeZi.size() >= 1)
+	if (vKeZi.size() >= 1 )
 	{
 		VEC_CARD vCheck;
 		vCheck.assign(vLeftCard.begin(), vLeftCard.end());
 		vCheck.push_back(vKeZi[0]);
 		vCheck.push_back(vKeZi[0]);
 		vCheck.push_back(vKeZi[0]);
-		if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vCheck))
 		{
-			vNotShun.clear();
 			return true;
 		}
 	}
 
-	if (vKeZi.size() >= 2)
+	if (vKeZi.size() >= 2 )
 	{
 		VEC_CARD vCheck;
 		vCheck.assign(vLeftCard.begin(), vLeftCard.end());
 		vCheck.push_back(vKeZi[1]);
 		vCheck.push_back(vKeZi[1]);
 		vCheck.push_back(vKeZi[1]);
-		if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+
+		if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vCheck))
 		{
-			vNotShun.clear();
 			return true;
 		}
 	}
@@ -851,9 +873,8 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 		 vCheck.push_back(vKeZi[2]);
 		 vCheck.push_back(vKeZi[2]);
 		 vCheck.push_back(vKeZi[2]);
-		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vCheck))
 		 {
-			 vNotShun.clear();
 			 return true;
 		 }
 
@@ -867,9 +888,8 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 		 vCheck.push_back(vKeZi[0]);
 		 vCheck.push_back(vKeZi[0]);
 		 vCheck.push_back(vKeZi[0]);
-		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vCheck))
 		 {
-			 vNotShun.clear();
 			 return true;
 		 }
 
@@ -883,9 +903,8 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 		 vCheck.push_back(vKeZi[1]);
 		 vCheck.push_back(vKeZi[1]);
 		 vCheck.push_back(vKeZi[1]);
-		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vCheck))
 		 {
-			 vNotShun.clear();
 			 return true;
 		 }
 
@@ -898,12 +917,13 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 		 vCheck.push_back(vKeZi[1]);
 		 vCheck.push_back(vKeZi[1]);
 		 vCheck.push_back(vKeZi[1]);
-		 if (pickNotShunZiOutIgnoreKeZi(vCheck, vNotShun))
+		 if (pCheckShun(bMustKeZiShun, nMyCnt, vMyNotShun, vCheck))
 		 {
-			 vNotShun.clear();
 			 return true;
 		 }
 	 }
+
+	vNotShun.insert(vMyNotShun.begin(),vMyNotShun.end());
 	return false;
 }
 
@@ -1589,7 +1609,7 @@ uint8_t MJPlayerCard::tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNo
 	vCheckCard.assign(vCard.begin(), vCard.end());
 	std::sort(vCheckCard.begin(), vCheckCard.end());
 	
-	if (vCheckCard.size() < 3)
+	if (vCheckCard.size() < 3 || bMustKeZi )  // this function not contai ke zi shun ; 
 	{
 		stNotShunCard st;
 		st.vCards.swap(vCheckCard);
@@ -1608,47 +1628,59 @@ uint8_t MJPlayerCard::tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNo
 			break;
 		}
 
-		auto n3thValue = vCheckCard[nIdx + 2];
-		if (n3thValue == vCheckCard[nIdx] || ( (!bMustKeZi) && n3thValue == (vCheckCard[nIdx] + 2) && n3thValue == (vCheckCard[nIdx + 1] + 1) ) )
+		VEC_CARD vSubCheckCard;
+		vSubCheckCard.assign(vCheckCard.begin(), vCheckCard.end());
+
+		auto iter = std::find(vSubCheckCard.begin(),vSubCheckCard.end(),vCheckCard[nIdx] );
+		if (vSubCheckCard.end() == iter)
 		{
-			// remove 3 card for sub check ;
-			VEC_CARD vSubCheckCard;
-			vSubCheckCard.assign(vCheckCard.begin(), vCheckCard.end());
+			continue;
+		}
+		vSubCheckCard.erase(iter);
 
-			for (uint8_t n = 0; n < 3; ++n)
+		iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx] + 1 );
+		if (vSubCheckCard.end() == iter)
+		{
+			continue;
+		}
+		vSubCheckCard.erase(iter);
+
+		iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx] + 2);
+		if (vSubCheckCard.end() == iter)
+		{
+			continue;
+		}
+		vSubCheckCard.erase(iter);
+
+		// do subcheck 
+		SET_NOT_SHUN vTemp;
+		auto nCnt = tryBestFindLeastNotShun(vSubCheckCard, vTemp, bMustKeZi);
+		if (nCnt == 0)
+		{
+			vMyNotShun.clear();
+			return 0;
+		}
+
+		if (nCnt <= 2 || nCnt <= nMyLeastCnt)
+		{
+			if (nMyLeastCnt > 2)
 			{
-				auto iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx + n]);
-				vSubCheckCard.erase(iter);
+				// just wap ;
+				vMyNotShun.swap(vTemp);
+			}
+			else
+			{
+				vMyNotShun.insert(vTemp.begin(), vTemp.end());
 			}
 
-			SET_NOT_SHUN vTemp;
-			auto nCnt = tryBestFindLeastNotShun(vSubCheckCard, vTemp, bMustKeZi);
-			if (nCnt == 0)
+			if (nCnt < nMyLeastCnt)
 			{
-				vMyNotShun.clear();
-				return 0;
-			}
-
-			if ( nCnt <= 2 || nCnt <= nMyLeastCnt)
-			{
-				if (nMyLeastCnt > 2)
-				{
-					// just wap ;
-					vMyNotShun.swap(vTemp);
-				}
-				else
-				{
-					vMyNotShun.insert(vTemp.begin(),vTemp.end());
-				}
-
-				if (nCnt < nMyLeastCnt)
-				{
-					nMyLeastCnt = nCnt;
-				}
+				nMyLeastCnt = nCnt;
 			}
 		}
 	}
 
+	// no shun zi here 
 	if (vMyNotShun.empty())
 	{
 		stNotShunCard st;
@@ -1660,4 +1692,99 @@ uint8_t MJPlayerCard::tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNo
 	vNotShun.insert(vMyNotShun.begin(),vMyNotShun.end());
 	return nMyLeastCnt;
 }
+
+//uint8_t MJPlayerCard::tryBestFindLeastNotShunMustKeZi(VEC_CARD& vCard, SET_NOT_SHUN& vNotShun)
+//{
+//	if (vCard.empty())
+//	{
+//		return 0;
+//	}
+//
+//	VEC_CARD vCheckCard;
+//	vCheckCard.assign(vCard.begin(), vCard.end());
+//	std::sort(vCheckCard.begin(), vCheckCard.end());
+//
+//	if (vCheckCard.size() < 3 ) 
+//	{
+//		stNotShunCard st;
+//		st.vCards.swap(vCheckCard);
+//		vNotShun.insert(st);
+//		return st.getLackCardCntForShun();
+//	}
+//
+//	// find shun from card ;
+//	SET_NOT_SHUN vMyNotShun;
+//	uint8_t nMyLeastCnt;
+//	nMyLeastCnt = 100;
+//	for (uint8_t nIdx = 0; nIdx < vCheckCard.size(); ++nIdx)
+//	{
+//		if (nIdx + 2 >= vCheckCard.size())
+//		{
+//			break;
+//		}
+//
+//		VEC_CARD vSubCheckCard;
+//		vSubCheckCard.assign(vCheckCard.begin(), vCheckCard.end());
+//
+//		auto iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx]);
+//		if (vSubCheckCard.end() == iter)
+//		{
+//			continue;
+//		}
+//		vSubCheckCard.erase(iter);
+//
+//		iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx] + 1);
+//		if (vSubCheckCard.end() == iter)
+//		{
+//			continue;
+//		}
+//		vSubCheckCard.erase(iter);
+//
+//		iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx] + 2);
+//		if (vSubCheckCard.end() == iter)
+//		{
+//			continue;
+//		}
+//		vSubCheckCard.erase(iter);
+//
+//		// do subcheck 
+//		SET_NOT_SHUN vTemp;
+//		auto nCnt = tryBestFindLeastNotShun(vSubCheckCard, vTemp, bMustKeZi);
+//		if (nCnt == 0)
+//		{
+//			vMyNotShun.clear();
+//			return 0;
+//		}
+//
+//		if (nCnt <= 2 || nCnt <= nMyLeastCnt)
+//		{
+//			if (nMyLeastCnt > 2)
+//			{
+//				// just wap ;
+//				vMyNotShun.swap(vTemp);
+//			}
+//			else
+//			{
+//				vMyNotShun.insert(vTemp.begin(), vTemp.end());
+//			}
+//
+//			if (nCnt < nMyLeastCnt)
+//			{
+//				nMyLeastCnt = nCnt;
+//			}
+//		}
+//	}
+//
+//	// no shun zi here 
+//	if (vMyNotShun.empty())
+//	{
+//		stNotShunCard st;
+//		st.vCards.swap(vCheckCard);
+//		vNotShun.insert(st);
+//		return st.getLackCardCntForShun();
+//	}
+//
+//	vNotShun.insert(vMyNotShun.begin(), vMyNotShun.end());
+//	return nMyLeastCnt;
+//}
 

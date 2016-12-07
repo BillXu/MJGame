@@ -480,14 +480,14 @@ bool XLMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
 			return true;
 		}
 		
-		if (ref->haveState(eRoomPeer_AlreadyHu))
-		{
-			auto pXL = (XLMJPlayerCard*)pMJCard;
-			if (pXL->canMingGangWithCardStillTingPai(nCard))
-			{
-				return true;
-			}
-		}
+		//if (ref->haveState(eRoomPeer_AlreadyHu))
+		//{
+		//	auto pXL = (XLMJPlayerCard*)pMJCard;
+		//	if (pXL->canMingGangWithCardStillTingPai(nCard))
+		//	{
+		//		return true;
+		//	}
+		//}
 
 		if (pMJCard->canHuWitCard(nCard))
 		{
@@ -557,15 +557,15 @@ void XLMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::
 				// already add in peng ;  vWaitPengGangIdx
 			}
 		}
-		else
-		{
-			auto pXL = (XLMJPlayerCard*)pMJCard;
-			if ( isCanGoOnMoPai() &&  pXL->canMingGangWithCardStillTingPai(nCard))
-			{
-				jsActs[jsActs.size()] = eMJAct_MingGang;
-				vOutWaitPengGangIdx.push_back(ref->getIdx());
-			}
-		}
+		//else
+		//{
+		//	auto pXL = (XLMJPlayerCard*)pMJCard;
+		//	if ( isCanGoOnMoPai() &&  pXL->canMingGangWithCardStillTingPai(nCard))
+		//	{
+		//		jsActs[jsActs.size()] = eMJAct_MingGang;
+		//		vOutWaitPengGangIdx.push_back(ref->getIdx());
+		//	}
+		//}
 
 		if (jsActs.size() > 0)
 		{
