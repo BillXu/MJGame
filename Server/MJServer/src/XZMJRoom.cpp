@@ -2,6 +2,8 @@
 #include "IMJPlayer.h"
 #include "IMJPlayerCard.h"
 #include "log4z.h"
+#include "XLMJPlayer.h"
+#define MAX_BEISHU 32
 bool XZMJRoom::isGameOver()
 {
 	if (XLMJRoom::isGameOver())
@@ -23,60 +25,6 @@ bool XZMJRoom::isGameOver()
 		}
 	}
 	return true;
-}
-
-void XZMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
-{
-	IMJRoom::onPlayerAnGang(nIdx, nCard);
-	// do settle 
-	auto nSettleCoin = getBaseBet() * 2;
-	auto pGanger = getMJPlayerByIdx(nIdx);
-	auto pSettle = new stSettleAnGang(nIdx);
-	for (auto& pPlayer : m_vMJPlayers)
-	{
-		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
-		{
-			continue;
-		}
-
-		auto nSeCoin = nSettleCoin;
-		if ((int32_t)nSeCoin > pPlayer->getCoin())
-		{
-			nSeCoin = pPlayer->getCoin();
-		}
-		pPlayer->addOffsetCoin(-1 * (int32_t)nSeCoin);
-		pGanger->addOffsetCoin(nSeCoin);
-		pSettle->addLosePlayer(pPlayer->getIdx(), nSeCoin);
-	}
-	addSettle(pSettle);
-	LOGFMTD("room id = %u , idx = %u win coin = %u  final = %u anGang", getRoomID(), nIdx, pSettle->getWinCoin(), pGanger->getCoin());
-}
-
-void XZMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
-{
-	IMJRoom::onPlayerBuGang(nIdx, nCard);
-	// do settle 
-	auto nSettleCoin = getBaseBet();
-	auto pGanger = getMJPlayerByIdx(nIdx);
-	auto pSettle = new stSettleBuGang(nIdx);
-	for (auto& pPlayer : m_vMJPlayers)
-	{
-		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose))
-		{
-			continue;
-		}
-
-		auto nSeCoin = nSettleCoin;
-		if ((int32_t)nSeCoin > pPlayer->getCoin())
-		{
-			nSeCoin = pPlayer->getCoin();
-		}
-		pPlayer->addOffsetCoin(-1 * (int32_t)nSeCoin);
-		pGanger->addOffsetCoin(nSeCoin);
-		pSettle->addLosePlayer(pPlayer->getIdx(), nSeCoin);
-	}
-	addSettle(pSettle);
-	LOGFMTD("room id = %u , idx = %u win coin = %u  final = %u BuGang", getRoomID(), nIdx, pSettle->getWinCoin(), pGanger->getCoin());
 }
 
 bool XZMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
@@ -229,4 +177,14 @@ uint8_t XZMJRoom::getNextActPlayerIdx(uint8_t nCurActIdx)
 
 	LOGFMTE("why can not find a can do act player ? ");
 	return 0;
+}
+
+bool XZMJRoom::canKouPlayerCoin(uint8_t nPlayerIdx)
+{
+	auto pPlayer = getMJPlayerByIdx(nPlayerIdx);
+	if (nullptr == pPlayer  || pPlayer->haveState(eRoomPeer_AlreadyHu) || pPlayer->haveState(eRoomPeer_DecideLose) )
+	{
+		return false;
+	}
+	return true;
 }

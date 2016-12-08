@@ -36,7 +36,7 @@ public:
 	bool canBuGangWithCard(uint8_t nCard)override;
 	bool isTingPai() override;
 	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;
-	bool getHoldCardThatCanBuGang(VEC_CARD& vGangCards)final;
+	bool getHoldCardThatCanBuGang(VEC_CARD& vGangCards)override;
 	bool isHoldCardCanHu() override;
 
 	void onMoCard(uint8_t nMoCard) final;

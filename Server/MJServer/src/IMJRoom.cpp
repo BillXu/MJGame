@@ -532,7 +532,7 @@ void IMJRoom::startGame()
 	Json::Value msg;
 	Json::Value peerCards[4]; // used for sign for msg ;
 
-	uint8_t nDice = rand() % getSeatCnt();
+	uint8_t nDice = 2 + rand() % 11;
 	auto pPoker = getMJPoker();
 	pPoker->shuffle();
 	for (auto& pPlayer : m_vMJPlayers)

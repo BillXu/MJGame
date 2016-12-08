@@ -17,6 +17,7 @@
 #include "RobotDispatchStrategy.h"
 #include "XLRoomStateWaitPlayerAct.h"
 #include "XLRoomStateAskPengOrHu.h"
+#include "XLRoomStateAskForRobotGang.h"
 #define MAX_BEISHU 32
 bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
@@ -25,7 +26,7 @@ bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint3
 	// create state and add state ;
 	IMJRoomState* vState[] = {
 		new CMJRoomStateWaitReady(), new MJRoomStateWaitPlayerChu(), new XLRoomStateWaitPlayerAct(), new XLRoomStateStartGame()
-		, new MJRoomStateGameEnd(), new XLRoomStateDoPlayerAct(), new XLRoomStateAskForPengOrHu(), new XLRoomStateWaitDecideQue(), new XLRoomStateWaitSupplyCoin()
+		, new MJRoomStateGameEnd(), new XLRoomStateDoPlayerAct(), new XLRoomStateAskForPengOrHu(), new XLRoomStateAskForRobotGang(),new XLRoomStateWaitDecideQue(), new XLRoomStateWaitSupplyCoin()
 	};
 	for (uint8_t nIdx = 0; nIdx < sizeof(vState) / sizeof(IMJRoomState*); ++nIdx)
 	{
@@ -97,61 +98,63 @@ uint8_t XLMJRoom::checkPlayerCanEnter(stEnterRoomData* pEnterRoomPlayer)
 	return 0;
 }
 
-void XLMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
-{
-	auto pPlayer = getMJPlayerByIdx(nIdx);
-	if (!pPlayer->haveState(eRoomPeer_AlreadyHu))
-	{
-		IMJRoom::onWaitPlayerAct(nIdx,isCanPass);
-		return;
-	}
-
-	// can only hu , or bu gang ;  when already hu ;
-	auto pMJCard = pPlayer->getPlayerCard();
-	// send msg to tell player do act 
-	Json::Value jsArrayActs;
-
-	if (isCanGoOnMoPai())
-	{
-		// check bu gang .
-		IMJPlayerCard::VEC_CARD vCards;
-		pMJCard->getHoldCardThatCanBuGang(vCards);
-		for (auto& ref : vCards)
-		{
-			if (ref != pMJCard->getNewestFetchedCard())
-			{
-				continue;
-			}
-			Json::Value jsAct;
-			jsAct["act"] = eMJAct_BuGang;
-			jsAct["cardNum"] = ref;
-			jsArrayActs[jsArrayActs.size()] = jsAct;
-		}
-	}
-
-	// check hu .
-	if (pMJCard->isHoldCardCanHu())
-	{
-		Json::Value jsAct;
-		jsAct["act"] = eMJAct_Hu;
-		jsAct["cardNum"] = pMJCard->getNewestFetchedCard();
-		jsArrayActs[jsArrayActs.size()] = jsAct;
-	}
-
-	isCanPass = jsArrayActs.empty() == false;
-
-	// add default alwasy chu , infact need not add , becaust it alwasy in ,but compatable with current client ;
-	Json::Value jsAct;
-	jsAct["act"] = eMJAct_Chu;
-	jsAct["cardNum"] = getAutoChuCardWhenWaitActTimeout(nIdx);
-	jsArrayActs[jsArrayActs.size()] = jsAct;
-
-	Json::Value jsMsg;
-	jsMsg["acts"] = jsArrayActs;
-	sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD, pPlayer->getSessionID());
-
-	LOGFMTD("already hu , tell player idx = %u do act size = %u", nIdx, jsArrayActs.size());
-}
+//void XLMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
+//{
+//	auto pPlayer = getMJPlayerByIdx(nIdx);
+//	if (!pPlayer->haveState(eRoomPeer_AlreadyHu))
+//	{
+//		IMJRoom::onWaitPlayerAct(nIdx,isCanPass);
+//		return;
+//	}
+//
+//	// can only hu , or bu gang ;  when already hu ;
+//	auto pMJCard = pPlayer->getPlayerCard();
+//	// send msg to tell player do act 
+//	Json::Value jsArrayActs;
+//
+//	if (isCanGoOnMoPai())
+//	{
+//		// check bu gang .
+//		IMJPlayerCard::VEC_CARD vCards;
+//		pMJCard->getHoldCardThatCanBuGang(vCards);
+//		for (auto& ref : vCards)
+//		{
+//			if (ref != pMJCard->getNewestFetchedCard())
+//			{
+//				LOGFMTD("room id = %u have bu gang card = %u , but not nest get card = %u", getRoomID(), ref, pMJCard->getNewestFetchedCard());
+//				continue;
+//			}
+//			Json::Value jsAct;
+//			jsAct["act"] = eMJAct_BuGang;
+//			jsAct["cardNum"] = ref;
+//			jsArrayActs[jsArrayActs.size()] = jsAct;
+//			LOGFMTD("room id =%u player already hu , tell client bu gang card = %u ",getRoomID(),ref);
+//		}
+//	}
+//
+//	// check hu .
+//	if (pMJCard->isHoldCardCanHu())
+//	{
+//		Json::Value jsAct;
+//		jsAct["act"] = eMJAct_Hu;
+//		jsAct["cardNum"] = pMJCard->getNewestFetchedCard();
+//		jsArrayActs[jsArrayActs.size()] = jsAct;
+//	}
+//
+//	isCanPass = jsArrayActs.empty() == false;
+//
+//	// add default alwasy chu , infact need not add , becaust it alwasy in ,but compatable with current client ;
+//	Json::Value jsAct;
+//	jsAct["act"] = eMJAct_Chu;
+//	jsAct["cardNum"] = getAutoChuCardWhenWaitActTimeout(nIdx);
+//	jsArrayActs[jsArrayActs.size()] = jsAct;
+//
+//	Json::Value jsMsg;
+//	jsMsg["acts"] = jsArrayActs;
+//	sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD, pPlayer->getSessionID());
+//
+//	LOGFMTD("already hu , tell player idx = %u do act size = %u", nIdx, jsArrayActs.size());
+//}
 
 void XLMJRoom::onPlayerMingGang(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)
 {
@@ -180,7 +183,7 @@ void XLMJRoom::onPlayerAnGang(uint8_t nIdx, uint8_t nCard)
 	auto pSettle = new stSettleAnGang(nIdx);
 	for (auto& pPlayer : m_vMJPlayers)
 	{
-		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx /*|| pPlayer->haveState(eRoomPeer_AlreadyHu)*/ || pPlayer->haveState(eRoomPeer_DecideLose))
+		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || canKouPlayerCoin(pPlayer->getIdx()) == false  )
 		{
 			continue;
 		}
@@ -207,7 +210,7 @@ void XLMJRoom::onPlayerBuGang(uint8_t nIdx, uint8_t nCard)
 	auto pSettle = new stSettleBuGang(nIdx);
 	for (auto& pPlayer : m_vMJPlayers)
 	{
-		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx /*|| pPlayer->haveState(eRoomPeer_AlreadyHu)*/ || pPlayer->haveState(eRoomPeer_DecideLose))
+		if (nullptr == pPlayer || pPlayer->getIdx() == nIdx || canKouPlayerCoin(pPlayer->getIdx()) == false)
 		{
 			continue;
 		}
@@ -276,7 +279,7 @@ void XLMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		uint32_t nHuType = 0; uint8_t nBeiShu = 0 , nGenCnt = 0 ;
 		if (pHuCard->onDoHu(false,nCard, nHuType, nBeiShu, nGenCnt) == false)
 		{
-			LOGFMTE("hu card return false when hu do hu , idx = %u ,card = %u",nidx,nCard);
+			LOGFMTE("room id = %u hu card return false when hu do hu , idx = %u ,card = %u",getRoomID(),nidx,nCard);
 			continue;
 		}
 		pHuPlayer->setState(eRoomPeer_AlreadyHu);
@@ -370,7 +373,7 @@ void XLMJRoom::onPlayerZiMo(uint8_t nPlayerIdx, uint8_t nCard)
 	// do caculate coin 
 	for (auto& pLoser : m_vMJPlayers)
 	{
-		if (pLoser == nullptr || pLoser->getIdx() == nPlayerIdx || pLoser->haveState(eRoomPeer_DecideLose))
+		if (pLoser == nullptr || pLoser->getIdx() == nPlayerIdx || canKouPlayerCoin(pLoser->getIdx()) == false)
 		{
 			continue;
 		}
@@ -480,15 +483,6 @@ bool XLMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
 			return true;
 		}
 		
-		//if (ref->haveState(eRoomPeer_AlreadyHu))
-		//{
-		//	auto pXL = (XLMJPlayerCard*)pMJCard;
-		//	if (pXL->canMingGangWithCardStillTingPai(nCard))
-		//	{
-		//		return true;
-		//	}
-		//}
-
 		if (pMJCard->canHuWitCard(nCard))
 		{
 			return true;
@@ -557,15 +551,6 @@ void XLMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::
 				// already add in peng ;  vWaitPengGangIdx
 			}
 		}
-		//else
-		//{
-		//	auto pXL = (XLMJPlayerCard*)pMJCard;
-		//	if ( isCanGoOnMoPai() &&  pXL->canMingGangWithCardStillTingPai(nCard))
-		//	{
-		//		jsActs[jsActs.size()] = eMJAct_MingGang;
-		//		vOutWaitPengGangIdx.push_back(ref->getIdx());
-		//	}
-		//}
 
 		if (jsActs.size() > 0)
 		{
@@ -1197,4 +1182,14 @@ uint8_t XLMJRoom::getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx)
 	}
 
 	return IMJRoom::getAutoChuCardWhenWaitChuTimeout(nIdx);
+}
+
+bool XLMJRoom::canKouPlayerCoin(uint8_t nPlayerIdx)
+{
+	auto pPlayer = getMJPlayerByIdx(nPlayerIdx);
+	if (nullptr == pPlayer || pPlayer->haveState(eRoomPeer_DecideLose) )
+	{
+		return false;
+	}
+	return true;
 }

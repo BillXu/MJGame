@@ -775,6 +775,17 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 		return true;
 	}
 
+	auto nCnt = tryBestFindLeastNotShun(vCard, vNotShun, bMustKeZiShun );
+	if (nCnt == 0)
+	{
+		return true;
+	}
+
+	return false;
+
+
+
+	// below will not used 
 	SET_NOT_SHUN vMyNotShun;
 	uint8_t nMyCnt = 100;
 
@@ -839,7 +850,7 @@ bool MJPlayerCard::getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMus
 	}
 	
 	// take part keZi into construct shun ;
-	if (vKeZi.size() >= 1 )
+	if (vKeZi.size() > 1 )
 	{
 		VEC_CARD vCheck;
 		vCheck.assign(vLeftCard.begin(), vLeftCard.end());
@@ -1628,56 +1639,106 @@ uint8_t MJPlayerCard::tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNo
 			break;
 		}
 
+		auto pFuncSubCheck = [this](VEC_CARD& vSubCheckCard, bool bMustKeZi, SET_NOT_SHUN& vMyNotShun, uint8_t& nMyLeastCnt )
+		{
+			// remove zero ;
+			auto iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), 0);
+			while (iter != vSubCheckCard.end())
+			{
+				vSubCheckCard.erase(iter);
+				iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), 0);
+			}
+
+			SET_NOT_SHUN vTemp;
+			auto nCnt = tryBestFindLeastNotShun(vSubCheckCard, vTemp, bMustKeZi);
+			if (nCnt == 0)
+			{
+				nMyLeastCnt = 0;
+				vMyNotShun.clear();
+				return true;
+			}
+
+			if (nCnt <= 2 || nCnt <= nMyLeastCnt)
+			{
+				if (nMyLeastCnt > 2)
+				{
+					// just wap ;
+					vMyNotShun.swap(vTemp);
+				}
+				else
+				{
+					vMyNotShun.insert(vTemp.begin(), vTemp.end());
+				}
+
+				if (nCnt < nMyLeastCnt)
+				{
+					nMyLeastCnt = nCnt;
+				}
+			}
+
+			return false;
+		};
+
+		// check ke zi shun zi 
 		VEC_CARD vSubCheckCard;
 		vSubCheckCard.assign(vCheckCard.begin(), vCheckCard.end());
+		if (vSubCheckCard[nIdx] == vSubCheckCard[nIdx + 2])
+		{
+			// do may ke zi ;
+			vSubCheckCard[nIdx] = vSubCheckCard[nIdx + 1] = vSubCheckCard[nIdx + 2] = 0;
+			if (pFuncSubCheck(vSubCheckCard, bMustKeZi, vMyNotShun, nMyLeastCnt))
+			{
+				return 0;
+			}
+		}
 
-		auto iter = std::find(vSubCheckCard.begin(),vSubCheckCard.end(),vCheckCard[nIdx] );
-		if (vSubCheckCard.end() == iter)
+		// pu tong shun zi case ;
+		if (bMustKeZi)
 		{
 			continue;
 		}
-		vSubCheckCard.erase(iter);
+		vSubCheckCard.clear();
+		vSubCheckCard.assign(vCheckCard.begin(), vCheckCard.end());
+ 
+		bool bFindSecond = false , bFind3 = false;
+		for (uint8_t sIdx = nIdx + 1; sIdx < vSubCheckCard.size(); ++sIdx)
+		{
+			if (vSubCheckCard[sIdx] > (vSubCheckCard[nIdx] + 2))
+			{
+				break;
+			}
 
-		iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx] + 1 );
-		if (vSubCheckCard.end() == iter)
+			if (!bFindSecond)
+			{
+				if (vSubCheckCard[sIdx] == (vSubCheckCard[nIdx] + 1))
+				{
+					vSubCheckCard[sIdx] = 0;
+					bFindSecond = true;
+				}
+				continue;
+			}
+
+			// find 3 
+			if (vSubCheckCard[sIdx] == (vSubCheckCard[nIdx] + 2))
+			{
+				vSubCheckCard[sIdx] = 0;
+				bFind3 = true;
+				break;
+			}
+		}
+
+		if (!bFindSecond || !bFind3)
 		{
 			continue;
 		}
-		vSubCheckCard.erase(iter);
+		vSubCheckCard[nIdx] = 0; // clear self value ;
 
-		iter = std::find(vSubCheckCard.begin(), vSubCheckCard.end(), vCheckCard[nIdx] + 2);
-		if (vSubCheckCard.end() == iter)
+		// remove zero ;
+		if (pFuncSubCheck(vSubCheckCard, bMustKeZi, vMyNotShun, nMyLeastCnt))
 		{
-			continue;
-		}
-		vSubCheckCard.erase(iter);
-
-		// do subcheck 
-		SET_NOT_SHUN vTemp;
-		auto nCnt = tryBestFindLeastNotShun(vSubCheckCard, vTemp, bMustKeZi);
-		if (nCnt == 0)
-		{
-			vMyNotShun.clear();
 			return 0;
 		}
 
-		if (nCnt <= 2 || nCnt <= nMyLeastCnt)
-		{
-			if (nMyLeastCnt > 2)
-			{
-				// just wap ;
-				vMyNotShun.swap(vTemp);
-			}
-			else
-			{
-				vMyNotShun.insert(vTemp.begin(), vTemp.end());
-			}
-
-			if (nCnt < nMyLeastCnt)
-			{
-				nMyLeastCnt = nCnt;
-			}
-		}
 	}
 
 	// no shun zi here 

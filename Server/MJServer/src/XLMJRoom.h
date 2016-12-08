@@ -11,7 +11,7 @@ public:
 	bool init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue) override;
 	bool onPlayerApplyLeave(uint32_t nPlayerUID)override;
 	uint8_t checkPlayerCanEnter(stEnterRoomData* pEnterRoomPlayer)override;
-	void onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)override;
+	/*void onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)override;*/
 	void onPlayerMingGang(uint8_t nIdx, uint8_t nCard, uint8_t nInvokeIdx)override;
 	void onPlayerAnGang(uint8_t nIdx, uint8_t nCard)override;
 	void onPlayerBuGang(uint8_t nIdx, uint8_t nCard)override;
@@ -43,6 +43,7 @@ protected:
 	uint32_t getBaseBet();
 	void giveBackGangWin( uint8_t nIdx );
 	void sendPlayerDetailBillInfo(uint8_t nIdx );
+	virtual bool canKouPlayerCoin(uint8_t nPlayerIdx);
 protected:
 	VEC_SETTLE m_vSettleInfos;
 	CMJCard m_tPoker;
