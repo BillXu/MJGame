@@ -619,7 +619,7 @@ void MJRoomManager::addVipRoomBill(std::shared_ptr<stVipRoomBill>& pBill, bool i
 		char pBuffer[500] = { 0 };
 		Json::StyledWriter jsWrite;
 		auto str = jsWrite.write(pBill->jsDetail);
-		sprintf_s(pBuffer, sizeof(pBuffer), "insert into viproombills (billID,roomID,roomType,createUID,billTime,detail,roomInitCoin ,circleCnt ) values( %u,%u,%u,%u,now(),'%s',%u,%u;"
+		sprintf_s(pBuffer, sizeof(pBuffer), "insert into viproombills (billID,roomID,roomType,createUID,billTime,detail,roomInitCoin ,circleCnt ) values( %u,%u,%u,%u,now(),'%s',%u,%u);"
 			, pBill->nBillID, pBill->nRoomID, pBill->nRoomType, pBill->nCreateUID, str.c_str(), pBill->nRoomInitCoin, pBill->nCircleCnt);
 		jsReq["sql"] = pBuffer;
 		asy->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Add, jsReq);

@@ -150,7 +150,7 @@ public:
 
 		if (eMJAct_Pass == actType)
 		{
-			setStateDuringTime(eTime_WaitPlayerAct);
+			setStateDuringTime(getRoom()->isWaitPlayerActForever() ? 100000000 : eTime_WaitPlayerAct);
 			return true;
 		}
 

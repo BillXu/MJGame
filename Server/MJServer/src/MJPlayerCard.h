@@ -49,9 +49,11 @@ public:
 
 	bool getHoldCard(VEC_CARD& vHoldCard) final;
 	bool getChuedCard(VEC_CARD& vChuedCard) final;
+	bool getAnGangedCard(VEC_CARD& vAnGanged)final;
 	bool getGangedCard(VEC_CARD& vGangCard) final;
 	bool getPengedCard(VEC_CARD& vPengedCard) final;
 	bool getEatedCard(VEC_CARD& vEatedCard) final;
+
 	uint32_t getNewestFetchedCard()final;
 	virtual bool canHoldCard7PairHu();
 	bool getCanHuCards(std::set<uint8_t>& vCanHuCards);
@@ -73,6 +75,7 @@ protected:
 	VEC_CARD m_vChuedCard;
 	VEC_CARD m_vPenged;
 	VEC_CARD m_vGanged;
+	VEC_CARD m_vAnGanged;
 	VEC_CARD m_vEated;
 	uint8_t m_nNesetFetchedCard;
 	uint8_t m_nJIang;

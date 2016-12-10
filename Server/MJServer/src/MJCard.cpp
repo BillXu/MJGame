@@ -33,6 +33,7 @@ void CMJCard::shuffle()
 		m_vAllCards[i] = m_vAllCards[i] - m_vAllCards[n] ;
 	}
 	m_nCurCardIdx = 0 ;
+	debugPokerInfo();
 }
 
 void CMJCard::debugCardInfo()

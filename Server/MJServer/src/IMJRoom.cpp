@@ -9,6 +9,7 @@
 #include "IMJPoker.h"
 #include "IGameRoomManager.h"
 #include "RobotDispatchStrategy.h"
+#include "MJCard.h"
 IMJRoom::~IMJRoom()
 {
 	for (auto& ref : m_vMJPlayers)
@@ -165,6 +166,11 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 	}
 
 	jsMsg["players"] = arrPlayers;
+
+	jsMsg["bankerIdx"] = getBankerIdx();
+	jsMsg["curActIdex"] = getCurRoomState()->getCurIdx();
+	jsMsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
+
 	sendMsgToPlayer(jsMsg, MSG_ROOM_INFO, nSessionID);
 	LOGFMTD("send msg room info msg to player session id = %u", nSessionID);
 
@@ -189,14 +195,15 @@ void IMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 
 		auto pCard = pp->getPlayerCard();
 		// svr : { bankerIdx : 2, leftCardCnt : 32 ,playersCard: [ { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
-		// { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] }
+		// { idx : 2,queType: 2, anPai : [2,3,4,34], anGangPai: [2,3,5], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] }
 		Json::Value jsCardInfo;
 		jsCardInfo["idx"] = pp->getIdx();
 		jsCardInfo["queType"] = 0;
 
-		IMJPlayerCard::VEC_CARD vAnPai, vMingPai, vChuPai , temp;
+		IMJPlayerCard::VEC_CARD vAnPai, vMingPai, vChuPai ,vAnGangedCard, temp;
 		pCard->getHoldCard(vAnPai);
 		pCard->getChuedCard(vChuPai);
+		pCard->getAnGangedCard(vAnGangedCard);
 		
 		pCard->getEatedCard(vMingPai);
 		pCard->getPengedCard(temp);
@@ -220,17 +227,20 @@ void IMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 			}
 		};
 
-		Json::Value jsMingPai, jsAnPai, jsChuPai, jaHupai;
-		toJs(vMingPai, jsMingPai); toJs(vAnPai, jsAnPai); toJs(vChuPai,jsChuPai);
+		Json::Value jsMingPai, jsAnPai, jsChuPai, jaHupai, jsAngangedPai;
+		toJs(vMingPai, jsMingPai); toJs(vAnPai, jsAnPai); toJs(vChuPai, jsChuPai); toJs(vAnGangedCard,jsAngangedPai);
 		jsCardInfo["mingPai"] = jsMingPai; jsCardInfo["anPai"] = jsAnPai; jsCardInfo["chuPai"] = jsChuPai; jsCardInfo["huPai"] = jaHupai;
-		vPeerCards[vPeerCards.size()] = jsCardInfo;
+		jsCardInfo["anGangPai"] = jsAngangedPai;
+		//vPeerCards[vPeerCards.size()] = jsCardInfo;
+
+		sendMsgToPlayer(jsCardInfo, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);
 	}
 
-	jsmsg["playersCard"] = vPeerCards;
-	jsmsg["bankerIdx"] = getBankerIdx();
-	jsmsg["curActIdex"] = getCurRoomState()->getCurIdx();
-	jsmsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
-	sendMsgToPlayer(jsmsg, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);
+	//jsmsg["playersCard"] = vPeerCards;
+	//jsmsg["bankerIdx"] = getBankerIdx();
+	//jsmsg["curActIdex"] = getCurRoomState()->getCurIdx();
+	//jsmsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
+	/*sendMsgToPlayer(jsmsg, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);*/
 	LOGFMTD("send player card infos !");
 }
 
@@ -534,7 +544,9 @@ void IMJRoom::startGame()
 
 	uint8_t nDice = 2 + rand() % 11;
 	auto pPoker = getMJPoker();
+	LOGFMTD("room id = %u start game shuffle card , Dice = %u",getRoomID(),nDice);
 	pPoker->shuffle();
+	LOGFMTD("room id = %u shuffle end", getRoomID());
 	for (auto& pPlayer : m_vMJPlayers)
 	{
 		if (!pPlayer)
@@ -553,14 +565,50 @@ void IMJRoom::startGame()
 		}
 
 		LOGFMTD("distribute card for player idx = %u and decrease desk fee = %u",pPlayer->getIdx(),getRoomConfig()->nDeskFee );
+		
 		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
 		{
+			//if (pPlayer->getIdx() == 2 && nIdx < 6)
+			//{
+			//	continue;
+			//}
+
 			auto nCard = pPoker->distributeOneCard();
+			/*auto nCardF = make_Card_Num(eCT_Tiao, 9);
+			auto nCardT = make_Card_Num(eCT_Tong, 7);
+			while ( nCard == nCardF || nCardT == nCard )
+			{
+				nCard = pPoker->distributeOneCard();
+			}*/
+
 			pPlayer->getPlayerCard()->addDistributeCard(nCard);
 
-			peerCards[pPlayer->getIdx()][nIdx] = nCard; // sign for msg ;
-			LOGFMTD("card idx = %u card number = %u", nIdx,nCard);
+			peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+			//LOGFMTD("card idx = %u card number = %u", nIdx,nCard);
 		}
+
+		//if (pPlayer->getIdx() == 2)
+		//{
+		//	auto nCard = make_Card_Num(eCT_Tiao, 9);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//	nCard = make_Card_Num(eCT_Tiao, 9);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//	nCard = make_Card_Num(eCT_Tiao, 9);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+
+		//	nCard = make_Card_Num(eCT_Tong, 7);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//	nCard = make_Card_Num(eCT_Tong, 7);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//	nCard = make_Card_Num(eCT_Tong, 7);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//}
 
 		if (getBankerIdx() == pPlayer->getIdx())
 		{

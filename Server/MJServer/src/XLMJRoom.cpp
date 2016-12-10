@@ -367,7 +367,7 @@ void XLMJRoom::onPlayerZiMo(uint8_t nPlayerIdx, uint8_t nCard)
 
 	pZiMoPlayer->updateFanXingAndFanShu(nHuType, nBeiShu);
 	
-	auto pSettle = new stSettleZiMo(nPlayerIdx, nHuType, nBeiShu);
+	auto pSettle = new stSettleZiMo(nPlayerIdx, nHuType, nBeiShu, isGangShangHua);
 	auto nNeedCoinPerPlayer = getBaseBet() * nBeiShu ; 
 	LOGFMTD("room id = %u add zi mo settle  uid = %u  bei shu = %u ",getRoomID(),pZiMoPlayer->getUID(),nBeiShu);
 	// do caculate coin 
@@ -426,9 +426,10 @@ void XLMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 		jsCardInfo["idx"] = pp->getIdx();
 		jsCardInfo["queType"] = pCard->getQueType();
 
-		IMJPlayerCard::VEC_CARD vAnPai, vMingPai, vChuPai, vHuPai, temp;
+		IMJPlayerCard::VEC_CARD vAnPai, vMingPai, vChuPai, vHuPai, vAnGangedCard, temp;
 		pCard->getHoldCard(vAnPai);
 		pCard->getChuedCard(vChuPai);
+		pCard->getAnGangedCard(vAnGangedCard);
 
 		pCard->getEatedCard(vMingPai);
 		pCard->getPengedCard(temp);
@@ -454,18 +455,14 @@ void XLMJRoom::sendPlayersCardInfo(uint32_t nSessionID)
 			}
 		};
 
-		Json::Value jsMingPai, jsAnPai, jsChuPai, jsHupai;
-		toJs(vMingPai, jsMingPai); toJs(vAnPai, jsAnPai); toJs(vChuPai, jsChuPai);toJs(vHuPai,jsHupai);
+		Json::Value jsMingPai, jsAnPai, jsChuPai, jsHupai, jsAngangedPai;
+		toJs(vMingPai, jsMingPai); toJs(vAnPai, jsAnPai); toJs(vChuPai, jsChuPai); toJs(vHuPai, jsHupai); toJs(vAnGangedCard, jsAngangedPai);
 		jsCardInfo["mingPai"] = jsMingPai; jsCardInfo["anPai"] = jsAnPai; jsCardInfo["chuPai"] = jsChuPai; jsCardInfo["huPai"] = jsHupai;
-		vPeerCards[vPeerCards.size()] = jsCardInfo;
+		jsCardInfo["anGangPai"] = jsAngangedPai;
+		//vPeerCards[vPeerCards.size()] = jsCardInfo;
+		sendMsgToPlayer(jsCardInfo, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);
+		LOGFMTD("send player card infos !");
 	}
-
-	jsmsg["playersCard"] = vPeerCards;
-	jsmsg["bankerIdx"] = getBankerIdx();
-	jsmsg["curActIdex"] = getCurRoomState()->getCurIdx();
-	jsmsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
-	sendMsgToPlayer(jsmsg, MSG_ROOM_PLAYER_CARD_INFO, nSessionID);
-	LOGFMTD("send player card infos !");
 }
 
 bool XLMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)

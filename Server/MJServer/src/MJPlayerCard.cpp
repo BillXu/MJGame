@@ -136,7 +136,7 @@ void MJPlayerCard::reset()
 	m_vPenged.clear();
 	m_vGanged.clear();
 	m_vEated.clear();
-	m_vEated.clear();
+	m_vAnGanged.clear();
 	m_nNesetFetchedCard = 0 ;
 	m_nJIang = 0;
 	m_nDanDiao = 0;
@@ -623,8 +623,8 @@ bool MJPlayerCard::onAnGang(uint8_t nCard, uint8_t nGangGetCard)
 		vCard.erase(iter);
 	}
 
-	addCardToVecAsc(m_vGanged, nCard);
-
+	//addCardToVecAsc(m_vGanged, nCard); 
+	addCardToVecAsc(m_vAnGanged, nCard);
 	// new get card ;
 	auto eGetType = card_Type(nGangGetCard);
 	addCardToVecAsc(m_vCards[eGetType], nGangGetCard);
@@ -727,6 +727,12 @@ bool MJPlayerCard::getChuedCard(VEC_CARD& vChuedCard)
 {
 	vChuedCard.insert(vChuedCard.end(),m_vChuedCard.begin(),m_vChuedCard.end());
 	return vChuedCard.empty() == false;
+}
+
+bool MJPlayerCard::getAnGangedCard(VEC_CARD& vAnGanged)
+{
+	vAnGanged.insert(vAnGanged.end(), m_vAnGanged.begin(), m_vAnGanged.end());
+	return vAnGanged.empty() == false;
 }
 
 bool MJPlayerCard::getGangedCard(VEC_CARD& vGangCard)

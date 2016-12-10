@@ -392,9 +392,12 @@ enum eMsgType
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
-	// svr : { roomID ： 23 , configID : 23 , waitTimer : 23, roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, isTrusteed : 0  }, {idx : 0 , uid : 233, coin : 2345, state : 34, isTrusteed : 0 },{idx : 0 , uid : 233, coin : 2345 , state : 34,isTrusteed : 0 } , ... ] }
+	// svr : { roomID ： 23 , configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, isTrusteed : 0  }, {idx : 0 , uid : 233, coin : 2345, state : 34, isTrusteed : 0 },{idx : 0 , uid : 233, coin : 2345 , state : 34,isTrusteed : 0 } , ... ] }
 	// roomState  , 房间状态
 	// isTrusteed : 玩家是否托管
+	// leftCardCnt : 剩余牌的数量，重新进入已经在玩的房间，或者断线重连，就会收到这个消息，
+	// bankerIdx : 庄家的索引
+	// curActIdx :  当前正在等待操作的玩家
 
 	MSG_ROOM_PLAYER_ENTER, // 有其他玩家进入房间
 	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34 }
@@ -486,13 +489,17 @@ enum eMsgType
 	// beiShu : 胡牌的倍数， 仅仅 二人雀神用；
 	
 	MSG_PLAYER_DETAIL_BILL_INFOS, // 游戏结束后收到的个人详细账单，每个人只能收到自己的。
-	// svr ： { idx： 23 ， bills：[ { type: 234, offset : -23, huType : 23, beiShu : 234, target : [2, 4] } , .......... ] } 
+	// svr ： { idx： 23 ， bills：[ { type: 234, offset : -23, huType : 23, vHuTypes : [ hutype1 , hutype2 ] , isGangShangPao : 0 , isRobotGang : 1 ,isGangShangHua : 0 , beiShu : 234, target : [2, 4] } , .......... ] } 
 	// idx : 玩家的索引。
 	// bills : 玩家的账单数组，直接可以用于显示。 账单有多条。
 	// 账单内解释： type ： 取值参考枚举 eSettleType ， offset ： 这个账单的输赢，负数表示输了， 结合type 得出描述，比如：Type 为点炮，正数就是被点炮，负数就是点炮，
 	// 同理当type 是自摸的时候，如果offset 为负数，那么就是被自摸，整数就是自摸。依次类推其他类型。
 	// huType : 只有当是自摸的时候有效，表示自摸的胡类型，或者被点炮 这个字段也是有效的。beiShu ：就是胡牌的倍数，有效性随同　ｈｕＴｙｐｅ。 
 	// target : 就是自己这个账单 相对的一方， 就是赢了哪些人的钱，或者输给谁了。被谁自摸了，被谁点炮了，点炮了谁。具体到客户端表现，就是最右边那个 上家下家，之类的那一列。
+	//vHuTypes : 当一炮多响的时候，这里存储着每个胡牌者的牌型。注意！！！！只有这种情况存在这个值，其他的情况不存在这个值。
+	// isGangShangPao : 是否是杠上炮， 1 是杠上炮，0 不是； 仅当点炮的时候存在这个参数；
+	// isRobotGang :  是否是抢杠胡， 1 是抢杠胡， 0 不是； 仅当点炮的时候存在这个参数
+	// isGangShangHua :  是否是杠上花，1 是杠上花，0 不是； 仅当自摸的时候，存在这个参数；
 
 	MSG_PLAYER_LEAVE_ROOM, // 玩家离开房间
 	// client : {dstRoomID : 23 } ;
@@ -507,8 +514,9 @@ enum eMsgType
 	// 此消息请求房间详细信息，用来恢复房间的现场，一般用在断线重连成功。
 
 	MSG_ROOM_PLAYER_CARD_INFO,
-	// svr : { bankerIdx : 2, leftCardCnt : 32 ,playersCard: [ { idx : 2,queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34] }, .... ] }
-	// leftCardCnt : 剩余牌的数量，重新进入已经在玩的房间，或者断线重连，就会收到这个消息， anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。 queType : 1,万 2, 筒 3, 条
+	// svr : { idx : 2, queType: 2, anPai : [2,3,4,34], mingPai : [ 23,67,32] , huPai : [1,34], chuPai: [2,34,4] },{ anPai : [2,3,4,34], mingPai : [ 23,67,32], anGangPai : [23,24] , huPai : [1,34] }
+	//  anPai 就是牌，没有展示出来的，mingPai 就是已经展示出来的牌（碰，杠），huPai ： 已经胡了的牌。 queType : 1,万 2, 筒 3, 条
+	// anGangPai : 就是安杠的牌，单张，不是4张。比如 暗杠8万，那么就是一个8万，也不是4个8万。
 
 	MSG_ROOM_REQ_TOTAL_INFO,
 	// client : {dstRoomID : 23 } ;
