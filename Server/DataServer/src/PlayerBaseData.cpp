@@ -1154,7 +1154,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 	return true ;
 }
 
-uint8_t CPlayerBaseData::getLeftCharityTimes()
+uint32_t CPlayerBaseData::getLeftCharityTimes()
 {
 	time_t tNow = time(nullptr);
 	struct tm pTimeCur;

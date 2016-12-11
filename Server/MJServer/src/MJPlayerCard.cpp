@@ -1265,10 +1265,23 @@ bool MJPlayerCard::getCanHuCards(std::set<uint8_t>& vCanHuCards)
 	}
 
 	// copy card for use ;
+	SET_NOT_SHUN vNotShun[eCT_Max];
 	VEC_CARD vCards[eCT_Max];
+	std::vector<uint8_t> vNotEmptyShunIdx;
 	for (uint8_t nIdx = 0; nIdx < eCT_Max; ++nIdx )
 	{
 		vCards[nIdx] = m_vCards[nIdx];
+		getNotShuns(vCards[nIdx], vNotShun[nIdx], eCT_Feng == nIdx || eCT_Jian == nIdx);
+		if (vNotShun[nIdx].empty() == false)
+		{
+			vNotEmptyShunIdx.push_back(nIdx);
+		}
+	}
+
+	if (vNotEmptyShunIdx.size() > 2 || vNotEmptyShunIdx.empty())
+	{
+		LOGFMTE("already ting pai ,why no que card = %u",vNotEmptyShunIdx.size());
+		return false;
 	}
 
 	// already 
@@ -1336,59 +1349,132 @@ bool MJPlayerCard::getCanHuCards(std::set<uint8_t>& vCanHuCards)
 			}
 		}
 	};
-	if ( m_nJIang )
+	if (vNotEmptyShunIdx.size() == 2)
 	{
-		auto type = card_Type(m_nJIang);
-		// remove jiang , then check ;
-		auto iter = std::find(vCards[type].begin(), vCards[type].end(), m_nJIang);
-		vCards[type].erase(iter);
-		iter = std::find(vCards[type].begin(), vCards[type].end(), m_nJIang);
-		vCards[type].erase(iter);
-
-		for (uint8_t nIdx = 0; nIdx < eCT_Max; ++nIdx)
+		// must have jiang 
+		// asume idx 0 have jiang 
+		SET_NOT_SHUN& vFirst = vNotShun[vNotEmptyShunIdx[0]];
+		SET_NOT_SHUN& vSecond = vNotShun[vNotEmptyShunIdx[1]];
+		for (auto& v : vFirst)
 		{
-			pfnGetCanHuCardIgnoreJiang(vCards[nIdx], vCanHuCards);
-			if (vCanHuCards.empty() == false)
+			if (v.getSize() == 2 && v.vCards[0] == v.vCards[1])
 			{
-				return true;
+				// other type shound have hu card ;
+				pfnGetCanHuCardIgnoreJiang(vCards[vNotEmptyShunIdx[1]], vCanHuCards);
+				break;
 			}
 		}
 
-		return false;
+		// asume idx 1 have jiang ;
+		for (auto& v : vSecond)
+		{
+			if (v.getSize() == 2 && v.vCards[0] == v.vCards[1])
+			{
+				// other type shound have hu card ;
+				pfnGetCanHuCardIgnoreJiang(vCards[vNotEmptyShunIdx[0]], vCanHuCards);
+				break;
+			}
+		}
+
+		return vCanHuCards.size() > 0;
 	}
 
-	// if no jiang , so must be dan diao ;
-	if (0 == m_nDanDiao)
+	// only one que type 
+	// check 9 card ;
+	for (uint8_t nValue = 1; nValue <= 9; ++nValue)
 	{
-		LOGFMTE("why is not dan diao , also have no jiang big bug ????? ");
-		return false;
-	}
-	
-	auto type = card_Type(m_nDanDiao);
-	SET_NOT_SHUN vNotShun;
-	getNotShuns(vCards[type], vNotShun, eCT_Feng == type || eCT_Jian == type);
-	// parse dan diao card ;
-	auto iter = vNotShun.begin();
-	for (; iter != vNotShun.end(); ++iter)
-	{
-		if ((*iter).getSize() == 1)
+		uint8_t card = make_Card_Num((eMJCardType)vNotEmptyShunIdx[0], nValue);
+		if (canHuWitCard(card))
 		{
-			vCanHuCards.insert((*iter).vCards.front());
+			vCanHuCards.insert(card);
 		}
 	}
-
-	// although  diandiao  , but also this can have already jiang , because when decide jiang or dandiao , we asume , dan diao first ;
-	if (std::count(vCards[type].begin(), vCards[type].end(), m_nDanDiao) >= 2)
+	return vCanHuCards.size() > 0;
+	// check dan diao 
+	SET_NOT_SHUN& vFirst = vNotShun[vNotEmptyShunIdx[0]];
+	for (auto& v : vFirst)
 	{
-		// remove as jiang 
-		auto iter = std::find(vCards[type].begin(), vCards[type].end(), m_nDanDiao);
-		vCards[type].erase(iter);
-		iter = std::find(vCards[type].begin(), vCards[type].end(), m_nDanDiao);
-		vCards[type].erase(iter);
-		pfnGetCanHuCardIgnoreJiang(vCards[type], vCanHuCards);
-	}
+		if (v.getSize() == 1 )
+		{
+			// other type shound have hu card ;
+			vCanHuCards.insert(v.vCards[0]);
+			continue;
+		}
 
-	return vCanHuCards.empty() == false;
+		if (v.getSize() == 4)
+		{
+			VEC_CARD vTempCard;
+			if (v.vCards[0] == v.vCards[1])
+			{
+				vTempCard.push_back(v.vCards[2]); vTempCard.push_back(v.vCards[3]);
+				pfnGetCanHuCardIgnoreJiang(vTempCard, vCanHuCards);
+			}
+			
+			vTempCard.clear();
+			if (v.vCards[2] == v.vCards[3])
+			{
+				vTempCard.push_back(v.vCards[0]); vTempCard.push_back(v.vCards[1]);
+				pfnGetCanHuCardIgnoreJiang(vTempCard, vCanHuCards);
+			}
+		}
+	}
+	return vCanHuCards.size() > 0;
+	// have jiang 
+	
+	///-----------------------------------------------
+	//if ( m_nJIang )
+	//{
+	//	auto type = card_Type(m_nJIang);
+	//	// remove jiang , then check ;
+	//	auto iter = std::find(vCards[type].begin(), vCards[type].end(), m_nJIang);
+	//	vCards[type].erase(iter);
+	//	iter = std::find(vCards[type].begin(), vCards[type].end(), m_nJIang);
+	//	vCards[type].erase(iter);
+
+	//	for (uint8_t nIdx = 0; nIdx < eCT_Max; ++nIdx)
+	//	{
+	//		pfnGetCanHuCardIgnoreJiang(vCards[nIdx], vCanHuCards);
+	//		if (vCanHuCards.empty() == false)
+	//		{
+	//			return true;
+	//		}
+	//	}
+
+	//	return false;
+	//}
+
+	//// if no jiang , so must be dan diao ;
+	//if (0 == m_nDanDiao)
+	//{
+	//	LOGFMTE("why is not dan diao , also have no jiang big bug ????? ");
+	//	return false;
+	//}
+	//
+	//auto type = card_Type(m_nDanDiao);
+	//SET_NOT_SHUN vNotShun;
+	//getNotShuns(vCards[type], vNotShun, eCT_Feng == type || eCT_Jian == type);
+	//// parse dan diao card ;
+	//auto iter = vNotShun.begin();
+	//for (; iter != vNotShun.end(); ++iter)
+	//{
+	//	if ((*iter).getSize() == 1)
+	//	{
+	//		vCanHuCards.insert((*iter).vCards.front());
+	//	}
+	//}
+
+	//// although  diandiao  , but also this can have already jiang , because when decide jiang or dandiao , we asume , dan diao first ;
+	//if (std::count(vCards[type].begin(), vCards[type].end(), m_nDanDiao) >= 2)
+	//{
+	//	// remove as jiang 
+	//	auto iter = std::find(vCards[type].begin(), vCards[type].end(), m_nDanDiao);
+	//	vCards[type].erase(iter);
+	//	iter = std::find(vCards[type].begin(), vCards[type].end(), m_nDanDiao);
+	//	vCards[type].erase(iter);
+	//	pfnGetCanHuCardIgnoreJiang(vCards[type], vCanHuCards);
+	//}
+
+	//return vCanHuCards.empty() == false;
 }
 
 uint8_t MJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )

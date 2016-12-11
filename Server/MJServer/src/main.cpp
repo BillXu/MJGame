@@ -367,15 +367,15 @@ void tempTest()
 	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
 	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
 
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
 	
 		//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
-
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
 	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
+
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 7));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 8));
 
 		//pPlayerCard->onMingGang(CMJCard::makeCardNumber(eCT_Tong, 7), CMJCard::makeCardNumber(eCT_Wan, 1));
 		/*pPlayerCard->onPeng(CMJCard::makeCardNumber(eCT_Tong, 5));
@@ -387,7 +387,7 @@ void tempTest()
 		uint8_t nGen;
 		std::set<uint8_t> vHu;
 		pPlayerCard->getCanHuCards(vHu);
-		auto p = pPlayerCard->onDoHu(false, CMJCard::makeCardNumber(eCT_Wan, 2), nT, nBeiShu, nGen);
+		auto p = pPlayerCard->onDoHu(false, CMJCard::makeCardNumber(eCT_Wan, 1), nT, nBeiShu, nGen);
 		auto p2 = pPlayerCard->onDoHu(false, CMJCard::makeCardNumber(eCT_Wan, 7), nT, nBeiShu, nGen);
 		pPlayerCard->onMoCard(CMJCard::makeCardNumber(eCT_Wan, 3));
 		IMJPlayerCard::VEC_CARD v;
@@ -409,7 +409,7 @@ void tempTest()
 #include "Application.h"
 int main()
 {
-	tempTest();
+	//tempTest();
 	CApplication theAplication(CMJServerApp::getInstance());
 	theAplication.startApp();
 	return 0;

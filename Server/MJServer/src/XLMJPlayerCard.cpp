@@ -242,17 +242,17 @@ bool XLMJPlayerCard::canHuWitCard(uint8_t nCard)
 		return false;
 	}
 
-	auto iter = std::find(m_vecAlreadyHu.begin(),m_vecAlreadyHu.end(),nCard );
-	if (iter != m_vecAlreadyHu.end())
-	{
-		return true;
-	}
+	//auto iter = std::find(m_vecAlreadyHu.begin(),m_vecAlreadyHu.end(),nCard );
+	//if (iter != m_vecAlreadyHu.end())
+	//{
+	//	return true;
+	//}
 
-	iter = std::find(m_vCanHuCard.begin(), m_vCanHuCard.end(), nCard);
-	if (iter != m_vCanHuCard.end())
-	{
-		return true;
-	}
+	//iter = std::find(m_vCanHuCard.begin(), m_vCanHuCard.end(), nCard);
+	//if (iter != m_vCanHuCard.end())
+	//{
+	//	return true;
+	//}
 
 	return MJPlayerCard::canHuWitCard(nCard);
 }
