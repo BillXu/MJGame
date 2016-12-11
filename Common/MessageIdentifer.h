@@ -148,7 +148,7 @@ enum eTime
 	eTime_DoExchangeCard = 3, //   执行换牌的时间
 	eTime_WaitDecideQue = 10, // 等待玩家定缺
 	eTime_DoDecideQue = 2, // 定缺时间
-	eTime_WaitPlayerAct = 10,  // 等待玩家操作的时间
+	eTime_WaitPlayerAct = 18,  // 等待玩家操作的时间
 	eTime_WaitPlayerChoseAct = eTime_WaitPlayerAct,
 	eTime_DoPlayerMoPai = 1 ,  //  玩家摸牌时间
 	eTime_DoPlayerActChuPai = 2,  // 玩家出牌的时间
@@ -400,7 +400,8 @@ enum eMsgType
 	// curActIdx :  当前正在等待操作的玩家
 
 	MSG_ROOM_PLAYER_ENTER, // 有其他玩家进入房间
-	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34 }
+	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34, isTrusteed : 1  }
+	// isTrusteed 是否是托管，1 是， 0 否；
 
 	MSG_PLAYER_SET_READY,   // 玩家准备
 	// client : { dstRoomID : 2345 } ;

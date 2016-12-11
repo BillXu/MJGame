@@ -20,7 +20,7 @@ public:
 			}
 			else
 			{
-				if (pmjRoom->isWaitPlayerActForever() && pp->haveState(eRoomPeer_AlreadyHu) )
+				if (/*pmjRoom->isWaitPlayerActForever() && */pp->haveState(eRoomPeer_AlreadyHu) )
 				{
 					setStateDuringTime(1);
 				}

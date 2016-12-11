@@ -48,6 +48,10 @@ bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 		return false;
 	}
 
+	Json::Value jsMsg;
+	jsMsg["idx"] = pPlayer->getIdx();
+	sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_LEAVE); // tell other player leave ;
+
 	auto curState = getCurRoomState()->getStateID();
 	if (eRoomSate_WaitReady == curState || eRoomState_GameEnd == curState || pPlayer->haveState(eRoomPeer_DecideLose) )
 	{
@@ -63,6 +67,7 @@ bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 		msgdoLeave.nRoundsPlayed = 1;
 		msgdoLeave.nGameOffset = pPlayer->getOffsetCoin();
 		getRoomMgr()->sendMsg(&msgdoLeave, sizeof(msgdoLeave), pPlayer->getSessionID());
+		LOGFMTD("player uid = %u , leave room id = %u",pPlayer->getUID(),getRoomID());
 
 		if (eRoomSate_WaitReady == curState || eRoomState_GameEnd == curState)  // when game over or not start , delte player in room data ;
 		{
@@ -74,7 +79,7 @@ bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 		else 
 		{
 			pPlayer->setState((pPlayer->getState() | eRoomPeer_LoserLeave));
-			LOGFMTE("decide player already sync data uid = %u" , pPlayer->getUID());
+			LOGFMTE("decide player already sync data uid = %u room id = %u" , pPlayer->getUID(),getRoomID());
 		}
 	}
 

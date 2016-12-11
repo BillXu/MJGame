@@ -767,18 +767,18 @@ void CPlayerGameData::OnPlayerDisconnect()
 void CPlayerGameData::OnOtherWillLogined()
 {
 	IPlayerComponent::OnOtherWillLogined();
-	if ( isNotInAnyRoom() == false )
+	if ( isNotInAnyRoom() == false && 0 ) // other login will not leave room ;
 	{
-		stMsgCrossServerRequest msgEnter ;
-		msgEnter.cSysIdentifer = ID_MSG_PORT_MJ ; //GetPlayer()->getMsgPortByRoomType(m_nStateInRoomType) ;
-		msgEnter.nJsonsLen = 0 ;
+		stMsgCrossServerRequest msgEnter;
+		msgEnter.cSysIdentifer = ID_MSG_PORT_MJ; //GetPlayer()->getMsgPortByRoomType(m_nStateInRoomType) ;
+		msgEnter.nJsonsLen = 0;
 		msgEnter.nReqOrigID = GetPlayer()->GetUserUID();
-		msgEnter.nRequestSubType = eCrossSvrReqSub_Default ;
-		msgEnter.nRequestType = eCrossSvrReq_ApplyLeaveRoom ;
-		msgEnter.nTargetID = m_nStateInRoomID ;
-		msgEnter.vArg[0] = m_nStateInRoomID ;
-		msgEnter.vArg[1] = GetPlayer()->GetSessionID() ;
-		SendMsg(&msgEnter,sizeof(msgEnter)) ;
+		msgEnter.nRequestSubType = eCrossSvrReqSub_Default;
+		msgEnter.nRequestType = eCrossSvrReq_ApplyLeaveRoom;
+		msgEnter.nTargetID = m_nStateInRoomID;
+		msgEnter.vArg[0] = m_nStateInRoomID;
+		msgEnter.vArg[1] = GetPlayer()->GetSessionID();
+		SendMsg(&msgEnter, sizeof(msgEnter));
 
 		doApplyLeaveRoom(1);
 		LOGFMTD("uid = %d other device login , apply to leave room id = %d ",GetPlayer()->GetUserUID(),m_nStateInRoomID) ;

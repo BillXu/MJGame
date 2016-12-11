@@ -11,7 +11,7 @@ public:
 		for (auto& nCheckIdx : m_vWaitIdx)
 		{
 			auto pPlayer = getRoom()->getMJPlayerByIdx(nCheckIdx);
-			if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu))
+			if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu) && pPlayer->isTrusteed() == false )
 			{
 				vAlreadyHuWaitHu.push_back(nCheckIdx);
 			}

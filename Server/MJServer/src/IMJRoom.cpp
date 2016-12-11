@@ -69,6 +69,7 @@ bool IMJRoom::onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)
 		jsMsg["uid"] = player->getUID();
 		jsMsg["coin"] = player->getCoin();
 		jsMsg["state"] = player->getState();
+		jsMsg["isTrusteed"] = player->isTrusteed() ? 1 : 0;
 		sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_ENTER);
 		return true;
 	}
@@ -410,6 +411,7 @@ bool IMJRoom::sitdown(IMJPlayer* pPlayer, uint8_t nIdx)
 	jsMsg["uid"] = pPlayer->getUID();
 	jsMsg["coin"] = pPlayer->getCoin();
 	jsMsg["state"] = pPlayer->getState();
+	jsMsg["isTrusteed"] = pPlayer->isTrusteed() ? 1 : 0;
 	sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_ENTER);
 	return true;
 }
@@ -423,6 +425,7 @@ bool IMJRoom::standup(uint32_t nUID)
 			// msg ;
 			Json::Value jsMsg;
 			jsMsg["idx"] = ref->getIdx();
+			jsMsg["isExit"] = 1;
 			sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_LEAVE);
 
 			delete ref;
@@ -1188,6 +1191,7 @@ void IMJRoom::onCheckTrusteeForWaitPlayerAct(uint8_t nIdx, bool isMayBeHu)
 	}
 	);
 }
+
 
 void IMJRoom::onCheckTrusteeForHuOtherPlayerCard(std::vector<uint8_t> vPlayerIdx, uint8_t nTargetCard)
 {

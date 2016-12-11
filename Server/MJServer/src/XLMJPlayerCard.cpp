@@ -466,6 +466,7 @@ uint8_t XLMJPlayerCard::getGenShu()
 
 	// add gang cnt ;
 	nGenCnt += m_vGanged.size();
+	nGenCnt += m_vAnGanged.size();
 
 	// add not not Bu gang card ;
 	for (auto ref : m_vPenged)

@@ -44,7 +44,11 @@ public:
 		getRoom()->goToState(eRoomState_DoPlayerAct, &jsTran);
 
 		// go to tuo guan zhuang tai 
-		getRoom()->onPlayerTrusteedStateChange(m_nIdx, true);
+		auto pPlayer = getRoom()->getMJPlayerByIdx(m_nIdx);
+		if (!pPlayer || pPlayer->haveState(eRoomPeer_AlreadyHu) == false)
+		{
+			getRoom()->onPlayerTrusteedStateChange(m_nIdx, true);
+		}
 	}
 
 	bool onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPort, uint32_t nSessionID)override

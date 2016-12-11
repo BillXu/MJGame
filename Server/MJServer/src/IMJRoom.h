@@ -88,6 +88,7 @@ public:
 
 	// tuo guan 
 	void onCheckTrusteeForWaitPlayerAct( uint8_t nIdx , bool isMayHu);
+
 	void onCheckTrusteeForHuOtherPlayerCard(std::vector<uint8_t> vPlayerIdx, uint8_t nTargetCard );
 	void onPlayerTrusteedStateChange( uint8_t nPlayerIdx , bool isTrusteed );
 protected:

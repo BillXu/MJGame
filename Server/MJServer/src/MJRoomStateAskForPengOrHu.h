@@ -27,7 +27,16 @@ public:
 		getRoom()->onAskForPengOrHuThisCard(m_nInvokeIdx, m_nCard, m_vWaitHuIdx, m_vWaitPengGangIdx, m_isNeedWaitEat);
 		assert((m_vWaitHuIdx.empty() == false || m_vWaitPengGangIdx.empty() == false) && "invalid argument");
 
-		getRoom()->onCheckTrusteeForHuOtherPlayerCard(m_vWaitHuIdx, m_nCard);
+		// wait truastee;
+		std::vector<uint8_t> vWaitTruste;
+		vWaitTruste = m_vWaitHuIdx;
+		vWaitTruste.insert(vWaitTruste.begin(),m_vWaitPengGangIdx.begin(),m_vWaitPengGangIdx.end());
+		if (m_isNeedWaitEat)
+		{
+			auto neatidx = (m_nInvokeIdx + 1) % getRoom()->getSeatCnt();
+			vWaitTruste.push_back(neatidx);
+		}
+		getRoom()->onCheckTrusteeForHuOtherPlayerCard(vWaitTruste, m_nCard);
 	}
 
 	void onStateTimeUp()override
