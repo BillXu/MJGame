@@ -381,11 +381,21 @@ void IMJRoom::sendRoomMsg(Json::Value& prealMsg, uint16_t nMsgType)
 
 void IMJRoom::sendMsgToPlayer(Json::Value& prealMsg, uint16_t nMsgType, uint32_t nSessionID)
 {
+	auto p = getMJPlayerBySessionID(nSessionID);
+	if (p && p->isTempLeaveRoom())
+	{
+		return;
+	}
 	getRoomMgr()->sendMsg(prealMsg, nMsgType, nSessionID);
 }
 
 void IMJRoom::sendMsgToPlayer(stMsg* pmsg, uint16_t nLen, uint32_t nSessionID)
 {
+	auto p = getMJPlayerBySessionID(nSessionID);
+	if (p && p->isTempLeaveRoom())
+	{
+		return;
+	}
 	getRoomMgr()->sendMsg(pmsg, nLen, nSessionID);
 }
 
@@ -740,7 +750,9 @@ void IMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)
 	jsMsg["acts"] = jsArrayActs;
 	sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_AFTER_RECEIVED_CARD, pPlayer->getSessionID());
 	
-	LOGFMTD("tell player idx = %u do act size = %u",nIdx,jsArrayActs.size());
+	Json::StyledWriter jsw;
+	auto acts = jsw.write(jsArrayActs);
+	LOGFMTD("room id = %u tell player uid = %u do act = %s ", getRoomID(), pPlayer->getUID(), acts.c_str());
 }
 
 uint8_t IMJRoom::getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)

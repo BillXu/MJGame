@@ -17,6 +17,7 @@ public:
 		if (jsTranData["idx"].isNull() == false && jsTranData["idx"].isUInt())
 		{
 			m_nIdx = jsTranData["idx"].asUInt();
+			LOGFMTD("room id = %u WAIT player chu ÅÆ£¬ ÅöÁËÖ®ºó", pmjRoom->getRoomID());
 			return;
 		}
 		assert(0 && "invalid argument");
