@@ -34,7 +34,10 @@ public:
 	bool isTrusteed()final;
 	void switchTrusteed( bool isTrusted )override;
 	void setTrusteeActFunc(CTimer::time_func pFunc)final;
+	bool isTempLeaveRoom()final;
+	bool doTempLeaveRoom()final;
 private:
+	bool m_isTempLeave;
 	uint8_t m_nPlayerType;
 	uint32_t m_eState;
 	uint32_t m_nUserUID;

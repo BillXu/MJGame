@@ -372,7 +372,7 @@ void IMJRoom::sendRoomMsg(Json::Value& prealMsg, uint16_t nMsgType)
 {
 	for (auto& ref : m_vMJPlayers)
 	{
-		if (ref)
+		if (ref && ref->isTempLeaveRoom() == false )
 		{
 			sendMsgToPlayer(prealMsg,nMsgType,ref->getSessionID());
 		}

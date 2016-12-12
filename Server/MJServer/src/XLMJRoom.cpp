@@ -82,7 +82,7 @@ bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 			LOGFMTE("decide player already sync data uid = %u room id = %u" , pPlayer->getUID(),getRoomID());
 		}
 	}
-
+	pPlayer->doTempLeaveRoom();
 	onPlayerTrusteedStateChange(pPlayer->getIdx(), true);
 	return true;
 }

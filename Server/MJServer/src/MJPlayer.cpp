@@ -20,6 +20,7 @@ void MJPlayer::init(stEnterRoomData* pData)
 	m_nOffset = 0;
 	m_nPlayerType = pData->nPlayerType;
 	m_isTrusteed = false;
+	m_isTempLeave = false;
 	clearDecareBuGangFlag();
 }
 
@@ -28,6 +29,7 @@ void MJPlayer::onComeBackRoom(stEnterRoomData* pData)
 	m_nSessioID = pData->nUserSessionID;
 	m_nCoin = pData->nCoin;
 	m_nPlayerType = pData->nPlayerType;
+	m_isTempLeave = false;
 }
 
 void MJPlayer::onWillStartGame()
@@ -169,6 +171,17 @@ bool MJPlayer::isRobot()
 bool MJPlayer::isTrusteed()
 {
 	return m_isTrusteed;
+}
+
+bool MJPlayer::isTempLeaveRoom()
+{
+	return m_isTempLeave;
+}
+
+bool MJPlayer::doTempLeaveRoom()
+{
+	m_isTempLeave = true;
+	return m_isTempLeave;
 }
 
 void MJPlayer::switchTrusteed(bool isTrusted)

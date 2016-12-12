@@ -118,6 +118,7 @@ bool MJPrivateRoom::onPlayerApplyLeave(uint32_t nPlayerUID)
 		Json::Value jsMsg;
 		jsMsg["idx"] = pp->getIdx();
 		sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_LEAVE); // tell other player leave ;
+		pp->doTempLeaveRoom();
 	}
 	else
 	{
