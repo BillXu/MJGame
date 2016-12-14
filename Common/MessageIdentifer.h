@@ -146,7 +146,7 @@ enum eTime
 	eTime_ExeGameStart = 10,			// 执行游戏开始 的时间
 	eTime_WaitChoseExchangeCard = 5, //  等待玩家选择换牌的时间
 	eTime_DoExchangeCard = 3, //   执行换牌的时间
-	eTime_WaitDecideQue = 10, // 等待玩家定缺
+	eTime_WaitDecideQue = 20, // 等待玩家定缺
 	eTime_DoDecideQue = 2, // 定缺时间
 	eTime_WaitPlayerAct = 18,  // 等待玩家操作的时间
 	eTime_WaitPlayerChoseAct = eTime_WaitPlayerAct,

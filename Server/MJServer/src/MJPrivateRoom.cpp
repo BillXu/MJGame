@@ -400,6 +400,26 @@ void MJPrivateRoom::sendRoomInfo(uint32_t nSessionID)
 
 void MJPrivateRoom::onCheckDismissReply(bool bTimerOut)
 {
+	auto pRoom = (IMJRoom*)m_pRoom;
+	bool bNotOpen = (m_bComsumedRoomCards == false) && (pRoom->getCurRoomState()->getStateID() == eRoomSate_WaitReady);
+	if (bNotOpen)
+	{
+		auto iter = m_mapRecievedReply.find(m_nOwnerUID);
+		if (iter != m_mapRecievedReply.end())
+		{
+			if (iter->second == 0)
+			{
+				onRoomGameOver(true);
+				m_mapRecievedReply.clear();
+				m_bWaitDismissReply = false;
+				m_tWaitRepklyTimer.canncel();
+				LOGFMTD("room id = %u room owner dismiss room when not open direct dissmiss ", getRoomID());
+				return;
+			}
+		}
+	}
+
+	// normal tou piao 
 	uint8_t nAgreeCnt = 0;
 	uint8_t nDisAgreeCnt = 0;
 	for (auto& ref : m_mapRecievedReply)
@@ -415,7 +435,6 @@ void MJPrivateRoom::onCheckDismissReply(bool bTimerOut)
 	}
 
 	uint8_t nSeatCnt = ((IMJRoom*)m_pRoom)->getSeatCnt();
-	auto pRoom = (IMJRoom*)m_pRoom;
 	for (uint8_t nIdx = 0; nIdx < nSeatCnt; ++nIdx)
 	{
 		auto pp = pRoom->getMJPlayerByIdx(nIdx);
