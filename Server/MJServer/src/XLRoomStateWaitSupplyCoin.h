@@ -84,15 +84,16 @@ public:
 			}
 
 			// inform room players ;
-			if (pSitPlayer->getCoin() >= (int32_t)getRoom()->getCoinNeedToSitDown())
+			if (pSitPlayer->getCoin() > 0 /*(int32_t)getRoom()->getCoinNeedToSitDown()*/ )
 			{
 				vWaitIdx.erase(pW);
 
 				Json::Value jsmsg;
 				jsmsg["playerIdx"] = pSitPlayer->getIdx();
-				jsmsg["result"] = 1;
+				jsmsg["result"] = 0;
+				jsmsg["curCoin"] = pSitPlayer->getCoin();
 				getRoom()->sendRoomMsg(jsmsg, MSG_ROOM_PLAYER_SUPPLY_COIN_RESULT);
-				LOGFMTD("uid = %u supply coin ok", pSitPlayer->getUID());
+				LOGFMTD("room id = %u uid = %u supply coin ok, cur coin = %u", getRoom()->getRoomID(),pSitPlayer->getUID(), pSitPlayer->getCoin());
 			}
 			else
 			{
@@ -127,6 +128,11 @@ public:
 				continue;
 			}
 			pSitPlayer->setState(eRoomPeer_DecideLose);
+
+			Json::Value jsmsg;
+			jsmsg["playerIdx"] = pSitPlayer->getIdx();
+			jsmsg["result"] = 1;
+			getRoom()->sendRoomMsg(jsmsg, MSG_ROOM_PLAYER_SUPPLY_COIN_RESULT);
 			LOGFMTD("uid = %u auto decide lose", pSitPlayer->getUID());
 		}
 

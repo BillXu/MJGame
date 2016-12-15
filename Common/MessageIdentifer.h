@@ -156,7 +156,7 @@ enum eTime
 	eTime_DoPlayerAct_Hu = 3,  // 玩家胡牌的时间
 	eTime_DoPlayerAct_Peng = 2, // 玩家碰牌时间
 	eTime_GameOver = 1, // 游戏结束状态持续时间
-	eTime_WaitSupplyCoin = 10, // 等待玩家补充金币
+	eTime_WaitSupplyCoin = 25, // 等待玩家补充金币
 };
 
 #if (C_SHARP)  
@@ -508,7 +508,8 @@ enum eMsgType
 	// ret : 0 表示成功， 1 房间号错误,不在该房间里, 2 房间不存在了。
 
 	MSG_ROOM_PLAYER_LEAVE, // 有玩家离开房间;
-	// svr : { idx : 2 }
+	// svr : { idx : 2 ,isExit : 0 }
+	// isExit : 是否是离开，还是真的退出。 1 是真的退出 。一定要判断 isExit 这个值是存在，并且是值为 1 。
 	
 	MSG_PLAYER_REQ_ROOM_INFO,
 	// client : {dstRoomID : 23 } ;
@@ -681,9 +682,10 @@ enum eMsgType
 	// client : { dstRoomID : 356 } ,
 	
 	MSG_ROOM_PLAYER_SUPPLY_COIN_RESULT, // 通知玩家补充金币的结果，房间内所有的玩家都可以收到这条消息
-	// svr : { playerIdx : 2 , result : 0 }
+	// svr : { playerIdx : 2 , result : 0, curCoin : 2000  }
 	// playerIdx 操作的玩家索引
 	// result : 0 补充金币成功，1 放弃补充金币，认输;
+	// curCoin : 当玩家补充金币成功是，这个值才会存在，并且表示玩家当前的金币数字
 
 	MSG_REQ_ACT_LIST,   //玩家重新上线，断线重连 收到roomInfo 后，发送此消息请求玩家操作列表；
 	// client : { dstRoomID : 356 } ,

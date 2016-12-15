@@ -581,18 +581,18 @@ void IMJRoom::startGame()
 		
 		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
 		{
-			//if (pPlayer->getIdx() == 2 && nIdx < 6)
+			//if (pPlayer->getIdx() == 2 && nIdx < 8)
 			//{
 			//	continue;
 			//}
 
 			auto nCard = pPoker->distributeOneCard();
-			/*auto nCardF = make_Card_Num(eCT_Tiao, 9);
-			auto nCardT = make_Card_Num(eCT_Tong, 7);
-			while ( nCard == nCardF || nCardT == nCard )
-			{
-				nCard = pPoker->distributeOneCard();
-			}*/
+			//auto nCardF = make_Card_Num(eCT_Tiao, 9);
+			//auto nCardT = make_Card_Num(eCT_Tong, 7);
+			//while ( nCard == nCardF || nCardT == nCard )
+			//{
+			//	nCard = pPoker->distributeOneCard();
+			//}
 
 			pPlayer->getPlayerCard()->addDistributeCard(nCard);
 
@@ -609,6 +609,14 @@ void IMJRoom::startGame()
 		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
 		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
 		//	nCard = make_Card_Num(eCT_Tiao, 9);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+
+		//	nCard = make_Card_Num(eCT_Tiao, 9);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+
+		//	nCard = make_Card_Num(eCT_Tong, 7);
 		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
 		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
 
