@@ -886,7 +886,11 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 	case MSG_TELL_ROBOT_TYPE:
 		{
 			m_ePlayerType = ePlayer_Robot ;
-			LOGFMTD("uid = %u , tell player type = %u",GetPlayer()->GetUserUID(),m_ePlayerType);
+			if (strlen(m_stBaseData.cHeadUrl) < 15 )
+			{
+				sprintf_s(m_stBaseData.cHeadUrl, sizeof(m_stBaseData.cHeadUrl), "http://abc.paiyouquan.com/7zphoto/%d.png", m_stBaseData.nUserUID % 706 );
+			}
+			LOGFMTD("uid = %u , tell player type = %u , photo url = %s", GetPlayer()->GetUserUID(), m_ePlayerType, m_stBaseData.cHeadUrl);
 		}
 		break;
 	case MSG_CONSUM_VIP_ROOM_CARDS:

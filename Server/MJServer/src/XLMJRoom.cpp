@@ -833,13 +833,19 @@ void XLMJRoom::doChaHuaZhu(std::vector<uint8_t>& vHuaZhu)
 			continue;
 		}
 
+		auto nLoseCoinPerNotHuaZhu = nHuaZhuBaseLose;
+		if (pHuaZhu->getCoin() < nLoseCoinPerNotHuaZhu * vNotHuaZhu.size())
+		{
+			nLoseCoinPerNotHuaZhu = pHuaZhu->getCoin() / vNotHuaZhu.size() + 1;
+		}
+
 		LOGFMTD("room id = %u cha hua zhu uid = %u ",getRoomID(),pHuaZhu->getUID());
 		auto pSettle = new stSettleHuaZhu(nHuaZhuIdx);
 		// give coin to None HuaZhu player ;
 		for (auto& notHuZhu : vNotHuaZhu)
 		{
 			auto pNotHuaZhu = getMJPlayerByIdx(notHuZhu);
-			uint32_t nLoseCoin = nHuaZhuBaseLose;
+			uint32_t nLoseCoin = nLoseCoinPerNotHuaZhu;
 			if ((int32_t)nLoseCoin > pHuaZhu->getCoin())
 			{
 				nLoseCoin = pHuaZhu->getCoin();
