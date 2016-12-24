@@ -1796,4 +1796,23 @@ void CPlayerBaseData::addTodayGameCoinOffset(int32_t nOffset )
 	LOGFMTD("update game coin offset uid = %u , today offset = %I64d, total = %d , offset = %d",GetPlayer()->GetUserUID(),m_stBaseData.nTodayGameCoinOffset,m_stBaseData.nTotalGameCoinOffset,nOffset);
 }
 
+void CPlayerBaseData::addVipRoomCard(int32_t naddOffset)
+{
+	if ( naddOffset == 0 )
+	{ 
+		return;
+	}
+
+	if (naddOffset < 0 && (-1 * naddOffset) > m_stBaseData.nVipRoomCardCnt )
+	{
+		LOGFMTE("uid = %u vip card to zero offset = %d, left = %u", GetPlayer()->GetUserUID(), naddOffset, m_stBaseData.nVipRoomCardCnt );
+		m_stBaseData.nVipRoomCardCnt = 0;
+		m_bMoneyDataDirty = true;
+		return;
+	}
+
+	m_stBaseData.nVipRoomCardCnt += naddOffset; 
+	m_bMoneyDataDirty = true;
+}
+
 

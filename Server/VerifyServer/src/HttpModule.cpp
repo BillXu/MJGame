@@ -299,190 +299,218 @@ bool CHttpModule::onHandleAliPayResult(http::server::connection_ptr ptr)
 
 bool CHttpModule::handleGetPlayerInfo(http::server::connection_ptr ptr)
 {
-	//auto req = ptr->getReqPtr();
-	//auto res = ptr->getReplyPtr();
-	//LOGFMTD("reciveget player info req = %s",req->reqContent.c_str());
+	auto req = ptr->getReqPtr();
+	auto res = ptr->getReplyPtr();
+	LOGFMTD("reciveget player info req = %s",req->reqContent.c_str());
 
-	//Json::Reader jsReader;
-	//Json::Value jsRoot;
-	//auto bRet = jsReader.parse(req->reqContent, jsRoot);
-	//if (!bRet)
-	//{
-	//	LOGFMTE("parse agent get player info argument error");
-	//	return false;
-	//}
+	Json::Reader jsReader;
+	Json::Value jsRoot;
+	auto bRet = jsReader.parse(req->reqContent, jsRoot);
+	if (!bRet)
+	{
+		LOGFMTE("parse agent get player info argument error");
+		return false;
+	}
 
-	//uint32_t nUID = 0;
-	//if (jsRoot["playerUID"].isNull() || jsRoot["playerUID"].isUInt() == false )
-	//{
-	//	LOGFMTD("cant not finn uid argument");
-	//	return false;
-	//}
-	//nUID = jsRoot["playerUID"].asUInt();
+	uint32_t nUID = 0;
+	if (jsRoot["playerUID"].isNull() || jsRoot["playerUID"].isUInt() == false )
+	{
+		LOGFMTD("cant not finn uid argument");
+		return false;
+	}
+	nUID = jsRoot["playerUID"].asUInt();
 
-	//// do async request 
-	//Json::Value jsReq;
-	//jsReq["targetUID"] = nUID;
-	//auto async = getSvrApp()->getAsynReqQueue();
-	//async->pushAsyncRequest(ID_MSG_PORT_DATA, eAsync_AgentGetPlayerInfo, jsReq, [this, ptr, nUID, async](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
-	//{
-	//	// define help function , fetch not process mail card , and do respone
-	//	auto lpfCheckDBMail = [](CAsyncRequestQuene* async, http::server::connection_ptr ptr, uint32_t nUID, Json::Value& jsAgentBack)
-	//	{
-	//		// take not process add card mail in to account 
-	//		Json::Value jsSql;
-	//		char pBuffer[512] = { 0 };
-	//		sprintf(pBuffer, "SELECT * FROM mail WHERE userUID = '%u' and mailType = %u and state = '0' order by postTime desc limit 5 ;", nUID, eMailType::eMail_AddRoomCard);
-	//		jsSql["sql"] = pBuffer;
-	//		async->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Select, jsSql, [ptr, nUID](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
-	//		{
-	//			uint32_t nTotalCnt = 0;
-	//			uint8_t nRow = retContent["afctRow"].asUInt();
-	//			Json::Value jsData = retContent["data"];
-	//			for (uint8_t nIdx = 0; nIdx < jsData.size(); ++nIdx)
-	//			{
-	//				Json::Value jsRow = jsData[nIdx];
+	// do async request 
+	Json::Value jsReq;
+	jsReq["targetUID"] = nUID;
+	auto async = getSvrApp()->getAsynReqQueue();
+	async->pushAsyncRequest(ID_MSG_PORT_DATA, eAsync_AgentGetPlayerInfo, jsReq, [this, ptr, nUID, async](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
+	{
+		// define help function , fetch not process mail card , and do respone
+		auto lpfCheckDBMail = [](CAsyncRequestQuene* async, http::server::connection_ptr ptr, uint32_t nUID, Json::Value& jsAgentBack)
+		{
+			// take not process add card mail in to account 
+			Json::Value jsSql;
+			char pBuffer[512] = { 0 };
+			sprintf(pBuffer, "SELECT * FROM mail WHERE userUID = '%u' and mailType = %u and state = '0' order by postTime desc limit 5 ;", nUID, eMailType::eMail_AddRoomCard);
+			jsSql["sql"] = pBuffer;
+			async->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Select, jsSql, [ptr, nUID](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
+			{
+				int32_t nTotalCnt = 0;
+				int32_t nAddCoin = 0;
+				int32_t nAddDiamond = 0;
+				uint8_t nRow = retContent["afctRow"].asUInt();
+				Json::Value jsData = retContent["data"];
+				for (uint8_t nIdx = 0; nIdx < jsData.size(); ++nIdx)
+				{
+					Json::Value jsRow = jsData[nIdx];
 
-	//				Json::Reader jsReader;
-	//				Json::Value jsC;
-	//				auto bRt = jsReader.parse(jsRow["mailContent"].asString(), jsC);
-	//				if ( !bRt || jsC["addCard"].isNull())
-	//				{
-	//					LOGFMTE("pasre add card mail error id = %u", nUID);
-	//					continue;
-	//				}
-	//				nTotalCnt += jsC["addCard"].asUInt();
-	//			}
-	//			LOGFMTD("uid = %u mail card cnt = %u",nUID,nTotalCnt);
-	//			jsUserData["cardCnt"] = jsUserData["cardCnt"].asUInt() + nTotalCnt;
+					Json::Reader jsReader;
+					Json::Value jsC;
+					auto bRt = jsReader.parse(jsRow["mailContent"].asString(), jsC);
+					if (!bRt || jsC["addCard"].isNull() || jsC["addCoin"].isNull() || jsC["addDiamond"].isNull() )
+					{
+						LOGFMTE("pasre add card mail error id = %u", nUID);
+						continue;
+					}
+					nTotalCnt += jsC["addCard"].asInt();
+					nAddCoin += jsC["addCoin"].asInt();
+					nAddDiamond += jsC["addDiamond"].asInt();
+				}
+				LOGFMTD("uid = %u mail card cnt = %d",nUID,nTotalCnt);
+				jsUserData["cardCnt"] = jsUserData["cardCnt"].asInt() + nTotalCnt;
+				jsUserData["coin"] = jsUserData["coin"].asInt() + nAddCoin;
+				jsUserData["diamond"] = jsUserData["diamond"].asInt() + nAddDiamond;
 
-	//			// build msg to send ;
-	//			auto res = ptr->getReplyPtr();
-	//			Json::StyledWriter jswrite;
-	//			auto str = jswrite.write(jsUserData);
-	//			res->setContent(str, "text/json");
-	//			ptr->doReply();
-	//			LOGFMTD("do get player info cards uid = %u", nUID);
-	//		}, jsAgentBack);
-	//	};
+				// build msg to send ;
+				auto res = ptr->getReplyPtr();
+				Json::StyledWriter jswrite;
+				auto str = jswrite.write(jsUserData);
+				res->setContent(str, "text/json");
+				ptr->doReply();
+				LOGFMTD("do get player info cards uid = %u", nUID);
+			}, jsAgentBack);
+		};
 
-	//	bool isOnline = retContent["isOnline"].asUInt() == 1;
-	//	if (isOnline)
-	//	{
-	//		Json::Value jsAgentBack;
-	//		jsAgentBack["ret"] = 1;
-	//		jsAgentBack["name"] = retContent["name"];
-	//		jsAgentBack["playerUID"] = nUID;
-	//		jsAgentBack["cardCnt"] = retContent["leftCardCnt"];
+		bool isOnline = retContent["isOnline"].asUInt() == 1;
+		if (isOnline)
+		{
+			Json::Value jsAgentBack;
+			jsAgentBack["ret"] = 1;
+			jsAgentBack["name"] = retContent["name"];
+			jsAgentBack["playerUID"] = nUID;
+			jsAgentBack["cardCnt"] = retContent["leftCardCnt"];
+			jsAgentBack["coin"] = retContent["coin"];
+			jsAgentBack["diamond"] = retContent["diamond"];
 
-	//		lpfCheckDBMail(async,ptr,nUID,jsAgentBack);
+			lpfCheckDBMail(async,ptr,nUID,jsAgentBack);
 
-	//		return;
-	//	}
-	//	
-	//	LOGFMTD("uid = %u not online get info from db ",nUID);
-	//	// not online , must get name first ;
-	//	Json::Value jsSql;
-	//	char pBuffer[512] = { 0 };
-	//	sprintf(pBuffer, "SELECT playerName, diamond FROM playerbasedata WHERE userUID = '%u' ;", nUID );
-	//	jsSql["sql"] = pBuffer;
-	//	async->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Select, jsSql, [lpfCheckDBMail,async, ptr, nUID](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
-	//	{
-	//		uint8_t nRow = retContent["afctRow"].asUInt();
+			return;
+		}
+		
+		LOGFMTD("uid = %u not online get info from db ",nUID);
+		// not online , must get name first ;
+		Json::Value jsSql;
+		char pBuffer[512] = { 0 };
+		sprintf(pBuffer, "SELECT playerName, diamond,coin,vipRoomCardCnt FROM playerbasedata WHERE userUID = '%u' ;", nUID );
+		jsSql["sql"] = pBuffer;
+		async->pushAsyncRequest(ID_MSG_PORT_DB, eAsync_DB_Select, jsSql, [lpfCheckDBMail,async, ptr, nUID](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
+		{
+			uint8_t nRow = retContent["afctRow"].asUInt();
 
-	//		Json::Value jsAgentBack;
-	//		jsAgentBack["ret"] = 1;
-	//		jsAgentBack["name"] = "";
-	//		jsAgentBack["playerUID"] = nUID;
-	//		jsAgentBack["cardCnt"] = 0;
+			Json::Value jsAgentBack;
+			jsAgentBack["ret"] = 1;
+			jsAgentBack["name"] = "";
+			jsAgentBack["playerUID"] = nUID;
+			jsAgentBack["cardCnt"] = 0;
 
-	//		if (nRow == 0)
-	//		{
-	//			jsAgentBack["ret"] = 0;
-	//			// build msg to send ;
-	//			auto res = ptr->getReplyPtr();
-	//			Json::StyledWriter jswrite;
-	//			auto str = jswrite.write(jsAgentBack);
-	//			res->setContent(str, "text/json");
-	//			ptr->doReply();
-	//			LOGFMTE("get can find uid = %u info from db",nUID);
-	//			return;
-	//		}
-	//		else
-	//		{
-	//			Json::Value jsData = retContent["data"];
-	//			Json::Value jsRow = jsData[0u];
-	//			jsAgentBack["name"] = jsRow["playerName"];
-	//			jsAgentBack["cardCnt"] = jsRow["diamond"];
-	//			LOGFMTD("uid = %u base data card cnt = %u", nUID, jsRow["diamond"].asUInt());
-	//			lpfCheckDBMail(async, ptr, nUID, jsAgentBack);
+			if (nRow == 0)
+			{
+				jsAgentBack["ret"] = 0;
+				// build msg to send ;
+				auto res = ptr->getReplyPtr();
+				Json::StyledWriter jswrite;
+				auto str = jswrite.write(jsAgentBack);
+				res->setContent(str, "text/json");
+				ptr->doReply();
+				LOGFMTE("get info can not find uid = %u info from db",nUID);
+				return;
+			}
+			else
+			{
+				Json::Value jsData = retContent["data"];
+				Json::Value jsRow = jsData[0u];
+				jsAgentBack["name"] = jsRow["playerName"];
+				jsAgentBack["cardCnt"] = jsRow["vipRoomCardCnt"];
+				jsAgentBack["coin"] = jsRow["coin"];
+				jsAgentBack["diamond"] = jsRow["diamond"];
+				LOGFMTD("uid = %u base data card cnt = %d", nUID, jsRow["diamond"].asInt());
+				lpfCheckDBMail(async, ptr, nUID, jsAgentBack);
 
-	//			return;
-	//		}
-	//	});
-	//});
-	//LOGFMTD("do async agent get player info uid = %u", nUID);
+				return;
+			}
+		});
+	});
+	LOGFMTD("do async agent get player info uid = %u", nUID);
 	return true;
 }
 
 bool CHttpModule::handleAddRoomCard(http::server::connection_ptr ptr)
 {
-	//auto req = ptr->getReqPtr();
-	//auto res = ptr->getReplyPtr();
-	//LOGFMTD("reciveget add room card info req = %s", req->reqContent.c_str());
+	auto req = ptr->getReqPtr();
+	auto res = ptr->getReplyPtr();
+	LOGFMTD("reciveget add room card info req = %s", req->reqContent.c_str());
 
-	//Json::Reader jsReader;
-	//Json::Value jsRoot;
-	//auto bRet = jsReader.parse(req->reqContent, jsRoot);
-	//if (!bRet)
-	//{
-	//	LOGFMTE("parse add room card argument error");
-	//	return false;
-	//}
+	Json::Reader jsReader;
+	Json::Value jsRoot;
+	auto bRet = jsReader.parse(req->reqContent, jsRoot);
+	if (!bRet)
+	{
+		LOGFMTE("parse add room card argument error");
+		return false;
+	}
 
-	//uint32_t nUID = 0;
-	//uint32_t nAddCard;
-	//uint32_t nAddCardNo;
-	//if (jsRoot["playerUID"].isNull() || jsRoot["playerUID"].isUInt() == false )
-	//{
-	//	LOGFMTD("cant not finn uid argument");
-	//	return false;
-	//}
+	uint32_t nUID = 0;
+	int32_t nAddCard = 0;
+	int32_t nAddCoin = 0;
+	int32_t nAddDiamond = 0;
+	uint32_t nAddCardNo = 0 ;
+	if (jsRoot["playerUID"].isNull() || jsRoot["playerUID"].isUInt() == false )
+	{
+		LOGFMTD("cant not finn uid argument");
+		return false;
+	}
 
-	//if (jsRoot["addCard"].isNull() || jsRoot["addCard"].isUInt() == false)
-	//{
-	//	LOGFMTD("cant not finn addCard argument");
-	//	return false;
-	//}
+	if (jsRoot["addCard"].isNull() || jsRoot["addCard"].isInt() == false)
+	{
+		LOGFMTD("cant not finn addCard argument");
+		return false;
+	}
 
-	//if (jsRoot["addCardNo"].isNull() || jsRoot["addCardNo"].isUInt() == false)
-	//{
-	//	LOGFMTD("cant not finn addCardNo argument");
-	//	return false;
-	//}
+	if (jsRoot["addCoin"].isNull() || jsRoot["addCoin"].isInt() == false)
+	{
+		LOGFMTD("cant not finn nAddCoin argument");
+		return false;
+	}
 
-	//nAddCard = jsRoot["addCard"].asUInt();
-	//nUID = jsRoot["playerUID"].asUInt();
-	//nAddCardNo = jsRoot["addCardNo"].asUInt();
+	if (jsRoot["addDiamond"].isNull() || jsRoot["addDiamond"].isInt() == false)
+	{
+		LOGFMTD("cant not finn nAddDiamond argument");
+		return false;
+	}
 
-	//// do async request 
-	//Json::Value jsReq;
-	//jsReq["targetUID"] = nUID;
-	//jsReq["addCard"] = nAddCard;
-	//jsReq["addCardNo"] = nAddCardNo;
-	//auto async =  getSvrApp()->getAsynReqQueue();
-	//async->pushAsyncRequest(ID_MSG_PORT_DATA, eAsync_AgentAddRoomCard, jsReq, [this, ptr, nUID, nAddCardNo](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
-	//{
-	//	auto res = ptr->getReplyPtr();
-	//	// do check 
-	//	jsUserData["ret"] = 1;
-	//	Json::StyledWriter jswrite;
-	//	auto str = jswrite.write(jsUserData);
-	//	res->setContent(str, "text/json");
-	//	ptr->doReply();
-	//	LOGFMTD("do agent add room cards uid = %u, addCardNo = %u ", nUID, nAddCardNo);
-	//}, jsRoot);
-	//LOGFMTD("do async agent add room cards uid = %u cnt = %u,addCardNo = %u", nUID, nAddCard, nAddCardNo);
+	if (jsRoot["addCardNo"].isNull() || jsRoot["addCardNo"].isUInt() == false)
+	{
+		LOGFMTD("cant not finn addCardNo argument");
+		return false;
+	}
+
+	nAddCard = jsRoot["addCard"].asInt();
+	nAddCoin = jsRoot["addCoin"].asInt();
+	nAddDiamond = jsRoot["addDiamond"].asInt();
+	nUID = jsRoot["playerUID"].asUInt();
+	nAddCardNo = jsRoot["addCardNo"].asUInt();
+
+	// do async request 
+	Json::Value jsReq;
+	jsReq["targetUID"] = nUID;
+	jsReq["addCard"] = nAddCard;
+	jsReq["addCoin"] = nAddCoin;
+	jsReq["addDiamond"] = nAddDiamond;
+	jsReq["addCardNo"] = nAddCardNo;
+	auto async =  getSvrApp()->getAsynReqQueue();
+	async->pushAsyncRequest(ID_MSG_PORT_DATA, eAsync_AgentAddRoomCard, jsReq, [this, ptr, nUID, nAddCardNo](uint16_t nReqType, const Json::Value& retContent, Json::Value& jsUserData)
+	{
+		auto res = ptr->getReplyPtr();
+		// do check 
+		jsUserData["ret"] = 1;
+		Json::StyledWriter jswrite;
+		auto str = jswrite.write(jsUserData);
+		res->setContent(str, "text/json");
+		ptr->doReply();
+		LOGFMTD("do agent add room cards uid = %u, addCardNo = %u ", nUID, nAddCardNo);
+	}, jsRoot);
+	LOGFMTD("do async agent add room cards uid = %u cnt = %d,addCardNo = %u", nUID, nAddCard, nAddCardNo);
 	return true;
 }
 

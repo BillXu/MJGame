@@ -348,6 +348,51 @@ bool CPlayerManager::onAsyncRequest(uint16_t nRequestType , const Json::Value& j
 		player->GetBaseData()->setCoin(nCoin);
 		return true;
 	}
+	else if (eAsync_AgentGetPlayerInfo == nRequestType)
+	{
+		uint32_t nUserUID = jsReqContent["targetUID"].asUInt();
+		jsResult["targetUID"] = jsReqContent["targetUID"];
+		auto pPlayer = GetPlayerByUserUID(nUserUID);
+		if (nullptr == pPlayer)
+		{
+			jsResult["isOnline"] = 0;
+		}
+		else
+		{
+			jsResult["isOnline"] = 1;
+			jsResult["name"] = pPlayer->GetBaseData()->GetPlayerName();
+			jsResult["leftCardCnt"] = pPlayer->GetBaseData()->getVipRoomCard();
+			jsResult["coin"] = pPlayer->GetBaseData()->GetAllCoin();
+			jsResult["diamond"] = pPlayer->GetBaseData()->GetAllDiamoned();
+		}
+		return true;
+	}
+	else if ( eAsync_AgentAddRoomCard == nRequestType )
+	{
+		uint32_t nUserUID = jsReqContent["targetUID"].asUInt();
+		int32_t nAddCnt = jsReqContent["addCard"].asInt();
+		int32_t nAddCoin = jsReqContent["addCoin"].asInt();
+		int32_t nAddDiamond = jsReqContent["addDiamond"].asInt();
+		uint32_t nSeailNumber = jsReqContent["addCardNo"].asUInt();
+		auto pPlayer = GetPlayerByUserUID(nUserUID);
+		if (nullptr == pPlayer)
+		{
+			LOGFMTI("player not online agents add card to uid = %u , cnt = %u , addCardNo = %u", nUserUID, nAddCnt, nSeailNumber);
+			Json::StyledWriter jsWrite;
+			auto str = jsWrite.write(jsReqContent);
+			CPlayerMailComponent::PostMailToPlayer(eMailType::eMail_AddRoomCard, str.c_str(), str.size(), nUserUID);
+		}
+		else
+		{
+			LOGFMTI("player agents add card to uid = %u , cnt = %u , addCardNo = %u", nUserUID, nAddCnt, nSeailNumber);
+			pPlayer->GetBaseData()->addVipRoomCard(nAddCnt);
+			pPlayer->GetBaseData()->AddMoney(nAddDiamond, true);
+			pPlayer->GetBaseData()->AddMoney(nAddCoin, false);
+		}
+
+		jsResult = jsReqContent;
+	}
+ 
 	return false ;
 }
 

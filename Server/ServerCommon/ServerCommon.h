@@ -54,6 +54,8 @@ enum eAsyncReq
 	eAsync_SendUpdateCoinToClient, // { sessionID : 234 , coin : 235 , diamond : 234, uid : 3423 , roomID : 234 } 
 	eAsync_ApplyLeaveRoom, // {uid : 234 , roomID : 2345 , reason : 0 } reason : 0 , disconnect , 1 other peer login.  result : { ret : 0 , coin : 2345 } // ret : 0 leave direct, 1 delay leave room , 2 not in room , 3 not find room   ;
 	eAsync_SyncPlayerRoomCoin, // {uid : 235 ,  coin : 2345 };
+	eAsync_AgentAddRoomCard, // { targetUID : 234523 , addCard : 2345 , addCardNo  : 2345, addCoin : 2345 , addDiamond : 2345  }  // ret ; always success ;
+	eAsync_AgentGetPlayerInfo, // { targetUID : 2345 } , // ret { isOnline : 0 , targetUID : 2345 , name : "hello name" , leftCardCnt : 2345, coin : 234 , diamond : 234  }  
 	eAsync_Max,
 };
 
@@ -149,3 +151,13 @@ enum eCrossSvrReqSubType
 	return; \
 	}\
 	}
+
+#if defined(_DEBUG)
+extern bool CustomAssertFunction(bool, char*, int, char*);
+
+#define Assert(exp, description) \
+if( CustomAssertFunction( (int) (exp),description, __LINE__, __FILE__ )) \
+{ _asm { int 3 } } 
+#else
+#define Assert( exp, description)
+#endif

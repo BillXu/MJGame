@@ -84,7 +84,6 @@ enum eNoticeType
 // mail Module 
 #define MAX_KEEP_MAIL_COUNT 50
 
-
 enum eProcessMailAct
 {
 	ePro_Mail_None,

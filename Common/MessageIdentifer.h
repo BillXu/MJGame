@@ -135,6 +135,7 @@ enum eRoomType
 	eRoom_NiuNiu = eRoom_MJ_Blood_River, // not used 
 	eRoom_TexasPoker,   // not used 
 	eRoom_Golden, // not used 
+	eRoom_HZ = 4, // 杭州麻将
 	eRoom_Max = eRoom_MJ_MAX,
 };
 
@@ -278,6 +279,7 @@ enum eMailType
 	eMail_SysOfflineEvent,// { event: concret type , arg:{ arg0: 0 , arg 1 = 3 } }  // processed in svr , will not send to client ;
 	eMail_DlgNotice, // content will be send by , stMsgDlgNotice 
 	eMail_ReadTimeTag,  // use tell time for public mail ;
+	eMail_AddRoomCard, // { addCard : 235 , addCardNo : 23452345, addCoin : 234 , addDiamond : 234 }
 	eMail_Sys_End,
 
 	// 以下为客户端需要识别的邮件类型

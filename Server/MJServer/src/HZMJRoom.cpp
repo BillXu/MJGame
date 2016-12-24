@@ -24,7 +24,7 @@ bool HZMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint3
 		addRoomState(vState[nIdx]);
 	}
 	setInitState(vState[0]);
-	m_tPoker.initAllCard(eMJ_HZ);
+	m_tPoker.initAllCard(eMJ_COMMON);
 	m_nContinueBankes = 0;
 	m_nLeasetLeftCard = 20;
 	memset(m_vCaiPiaoFlag,0,sizeof(m_vCaiPiaoFlag));

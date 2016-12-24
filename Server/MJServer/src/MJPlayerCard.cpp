@@ -184,8 +184,14 @@ bool MJPlayerCard::onCardBeGangPengEat(uint8_t nCardNum)
 
 bool MJPlayerCard::isHaveCard(uint8_t nCardNum)
 {
+	if (nCardNum < 17)
+	{
+		LOGFMTD("invalid card num so do not have this card = %u", nCardNum);
+		return false;
+	}
+
 	auto eType = card_Type(nCardNum);
-	if (eType >= eCT_Max)
+	if (eType >= eCT_Max || eType <= eCT_None )
 	{
 		LOGFMTE("parse card type error so do not have this card = %u",nCardNum);
 		return false;

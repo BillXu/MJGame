@@ -25,7 +25,7 @@ public:
 		m_nInvokeIdx = jsTranData["invokeIdx"].asUInt();
 		m_nCard = jsTranData["card"].asUInt();
 		getRoom()->onAskForPengOrHuThisCard(m_nInvokeIdx, m_nCard, m_vWaitHuIdx, m_vWaitPengGangIdx, m_isNeedWaitEat);
-		assert((m_vWaitHuIdx.empty() == false || m_vWaitPengGangIdx.empty() == false) && "invalid argument");
+		assert((m_vWaitHuIdx.empty() == false || m_vWaitPengGangIdx.empty() == false || m_isNeedWaitEat )&& "invalid argument");
 
 		// wait truastee;
 		std::vector<uint8_t> vWaitTruste;
@@ -161,17 +161,27 @@ public:
 				auto iter = std::find(m_vWaitHuIdx.begin(), m_vWaitHuIdx.end(), pPlayer->getIdx());
 				auto iterPeng = std::find(m_vWaitPengGangIdx.begin(), m_vWaitPengGangIdx.end(), pPlayer->getIdx());
 
-				if (iter == m_vWaitHuIdx.end() && iterPeng == m_vWaitPengGangIdx.end())
+				if (iter == m_vWaitHuIdx.end() && iterPeng == m_vWaitPengGangIdx.end() )
 				{
-					nRet = 1;
-					break;
+					if ( m_isNeedWaitEat )
+					{
+						if (pPlayer->getIdx() != (m_nInvokeIdx + 1) % getRoom()->getSeatCnt())
+						{
+							nRet = 1;
+							break;
+						}
+					}
+					else
+					{
+						nRet = 1;
+						break;
+					}
 				}
 			}
 
-
 			if (eMJAct_Pass == actType)
 			{
-				if ( m_isNeedWaitEat && pPlayer->getIdx() == (m_nInvokeIdx + 1) % getRoom()->getSeatCnt())
+				if (m_isNeedWaitEat && pPlayer->getIdx() == (m_nInvokeIdx + 1) % getRoom()->getSeatCnt())
 				{
 					LOGFMTD("give up eat act");
 					m_isNeedWaitEat = false;
