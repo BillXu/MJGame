@@ -12,6 +12,7 @@ enum eMJGameType
 	eMJ_TwoBird,
 	eMJ_COMMON,
 	eMJ_HZ,
+	eMJ_WZ,
 	eMJ_Max,
 };
 
@@ -45,6 +46,7 @@ enum ePayChannel
 	ePay_WeChat,
 	ePay_ZhiFuBao,
 	ePay_XiaoMi,
+	ePay_LePay,
 	ePay_Max,
 };
 
@@ -119,6 +121,15 @@ enum eFanxingType
 	eFanxing_RenHu, //  人胡
 	eFanxing_TianTing, //  天听
 	eFanxing_Max, // 没有胡
+
+	//----wz mj 
+	eFanxing_RuanPai, // 软牌
+	eFanxing_YingPai, // 赢牌
+	eFangxing_DanDiao, // 单吊
+	eFanxing_YingBaDui, // 硬八对
+	eFanxing_RuanBaDui, // 软八对
+	eFanxing_SanCaiShen, // 三财神
+	eFanxing_CaiShenHui, // 财神会
 };
 
 #if (C_SHARP)  
@@ -136,6 +147,7 @@ enum eRoomType
 	eRoom_TexasPoker,   // not used 
 	eRoom_Golden, // not used 
 	eRoom_HZ = 4, // 杭州麻将
+	eRoom_WZ,
 	eRoom_Max = eRoom_MJ_MAX,
 };
 
@@ -158,6 +170,7 @@ enum eTime
 	eTime_DoPlayerAct_Peng = 2, // 玩家碰牌时间
 	eTime_GameOver = 1, // 游戏结束状态持续时间
 	eTime_WaitSupplyCoin = 25, // 等待玩家补充金币
+	eTime_WaitDecideInviteBuyDi = 10, // 等待当前庄家是否邀请买底
 };
 
 #if (C_SHARP)  
@@ -233,6 +246,7 @@ enum eRoomState  // 玩家的状态
 	eRoomState_WaitSupplyCoin , // 等待玩家补充金币  {nextState: 234 , transData : { ... } }
 	eRoomState_WaitPlayerRecharge = eRoomState_WaitSupplyCoin,  //  等待玩家充值
 	eRoomState_GameEnd, // 游戏结束
+	eRoomState_WaitBankInviteBuyDi, // 等待庄家发起买底 ；
 	eRoomState_Max,
 };
 
@@ -394,12 +408,15 @@ enum eMsgType
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
-	// svr : { roomID ： 23 , configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, isTrusteed : 0  }, {idx : 0 , uid : 233, coin : 2345, state : 34, isTrusteed : 0 },{idx : 0 , uid : 233, coin : 2345 , state : 34,isTrusteed : 0 } , ... ] }
+	// svr : { roomID ： 23 , lasChuedCard : 23,caiShenCard : 23 , caiShenDice : 23 ,configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, isTrusteed : 0  }, {idx : 0 , uid : 233, coin : 2345, state : 34, isTrusteed : 0 },{idx : 0 , uid : 233, coin : 2345 , state : 34,isTrusteed : 0 } , ... ] }
 	// roomState  , 房间状态
 	// isTrusteed : 玩家是否托管
 	// leftCardCnt : 剩余牌的数量，重新进入已经在玩的房间，或者断线重连，就会收到这个消息，
 	// bankerIdx : 庄家的索引
 	// curActIdx :  当前正在等待操作的玩家
+	// caiShenCard : 财神牌，仅仅温州麻将有这个参数；
+	// caiShenDice : 财神骰子点数；仅仅温州麻将有这个参数
+	// lasChuedCard : 上家出的牌，仅仅温州麻将有这个参数；
 
 	MSG_ROOM_PLAYER_ENTER, // 有其他玩家进入房间
 	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34, isTrusteed : 1  }
@@ -412,8 +429,10 @@ enum eMsgType
 	// svr : { idx : 2 }
 
 	MSG_ROOM_START_GAME,  // 开始游戏的消息
-	// svr : { banker: 2 , dice : 3 , peerCards : [ { cards : [1,3,4,5,64,23,64] },{ cards : [1,3,4,5,64,23,64] },{cards : [1,3,4,5,64,23,64] },{ cards : [1,3,4,5,64,23,64] } ] }
+	// svr : { banker: 2 , caishenDice : 23 , caiShenCard : 234 ,dice : 3 , peerCards : [ { cards : [1,3,4,5,64,23,64] },{ cards : [1,3,4,5,64,23,64] },{cards : [1,3,4,5,64,23,64] },{ cards : [1,3,4,5,64,23,64] } ] }
 	// banker 庄家的索引 , dice : 骰子的点数； cards ： 玩家的手牌
+	// caishenDice : c定财神的 骰子点数；仅仅温州麻将有这个字段
+	// caiShenCard : 财神牌， 仅仅温州麻将有这个参数；
 
 	MSG_ROOM_WAIT_CHOSE_EXCHANG,  //  通知玩家选择三张牌 进行交互
 	// svr : null 
@@ -755,4 +774,41 @@ enum eMsgType
 	MSG_ROOM_REPLY_DISSMISS_VIP_ROOM_APPLY, // 收到有人回复解散房间
 	// svr { idx : 23 , reply : 0 }
 	// reply ： 0 表示同意， 1 表示拒绝。
+
+	//-----------------wz mj ------
+
+	MSG_ROOM_WAIT_BANKER_DECIDE_BUY_DI,  //  等待庄家 选择是否邀请 买底。 
+	// svr : { bankIdx : 234 }
+
+	MSG_BANKER_DECIDE_BUY_DI_RESULT,   // 庄家 回复是否邀请买底
+	// client : { dstRoomID : 23 , isInvite : 1 }
+	// svr : { ret : 0 }
+	// isInvite : 1 表示邀请买底， 0 表示不邀请买底；
+	// ret : 0 表示操作成功， 1 你不是庄家，不能进行回复, 2 参数错误。
+
+	MSG_ROOM_BANKER_DECIDE_BUY_DI_RESULT, // 庄家 决定了 是否邀请买底，所有人会收到这个消息；
+	// svr : { isInvite : 1 }
+
+
+	MSG_PLAYER_DING_DI_RESPONE,     // 闲家回复 是否顶底
+	// client : { dstRoomID : 23 , isDingDi : 1 }
+	// svr : { ret : 0 }
+	// isDingDi : 1 表示顶底， 0 表示不顶底。
+	// ret : 0 表示成功， 1 表示你已经回复了，不要重复回复， 2 身份错误，只有闲家才能回复是否顶底, 3 状态错误 , 4 参数错误
+
+	MSG_ROOM_DING_DI_RESPONE,           // 有人回复 是否顶底 所有人能收到这个消息；
+	// svr : { idx : 2, isDingDi : 1 }
+	
+	MSG_ROOM_WZMJ_RESULT, // 温州麻将游戏结果；
+	// svr : { winners : [ {idx : 23 , fanxing : 23 },{idx : 23 , fanxing : 23 } ..   ] , invokerIdx : 2, isGangKai : 1 , lianBankerCnt : 2 , results: [ {uid : 2345 , offset : -23, final : 23} , ....  ]   } 
+	// winners ： 赢的玩家数组{ 玩家的索引，胡牌的翻型 eFanxingType }
+	// isGangKai 是否是杠上花,只有自摸的时候存在这个字段。
+	// invokerIdx : 放冲玩家的索引；
+	// lianBankerCnt : 连庄的次数；
+	// result： 结算的输赢金钱结果，数组； 元素： uid： 玩家的uid，offset 输赢差值， final： 最终的钱数；
+
+	MSG_ROOM_WZMJ_RESULT_LIUJU, // 温州麻将游戏结果 流局；
+	// svr : { lianBankerCnt : 2 , results: [ {uid : 2345 , offset : -23, final : 23， caiShenCnt : 2 } , ....  ]   } 
+	// lianBankerCnt : 连庄的次数；
+	// result： 结算的输赢金钱结果，数组； 元素： uid： 玩家的uid，offset 输赢差值， final： 最终的钱数, caiShenCnt : 财神个数；
 };

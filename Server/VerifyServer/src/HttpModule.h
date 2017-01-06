@@ -15,6 +15,8 @@ protected:
 	bool onHandleAliPayResult(http::server::connection_ptr ptr);
 	bool handleGetPlayerInfo(http::server::connection_ptr ptr );
 	bool handleAddRoomCard(http::server::connection_ptr ptr);
+	bool handleLePayResult(http::server::connection_ptr ptr);
+	static bool url_decode(const std::string& in, std::string& out);
 protected:
 	boost::shared_ptr<http::server::server> mHttpServer;
 	std::map<std::string, httpHandle> vHttphandles;

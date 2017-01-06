@@ -175,6 +175,11 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 	sendMsgToPlayer(jsMsg, MSG_ROOM_INFO, nSessionID);
 	LOGFMTD("send msg room info msg to player session id = %u", nSessionID);
 
+	if (getCurRoomState()->getStateID() == eRoomSate_WaitReady || eRoomState_GameEnd == getCurRoomState()->getStateID())
+	{
+		LOGFMTD("current room not start game , so need not send runtime info msg");
+		return;
+	}
 	sendPlayersCardInfo(nSessionID);
 }
 

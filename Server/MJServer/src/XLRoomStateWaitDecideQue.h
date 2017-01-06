@@ -12,6 +12,7 @@ public:
 	uint32_t getStateID()final{ return eRoomState_WaitDecideQue; }
 	void enterState(IMJRoom* pmjRoom, Json::Value& jsTranData)override
 	{
+		vWaitIdx.clear();
 		m_isDoingDingQue = false;
 		IMJRoomState::enterState(pmjRoom, jsTranData);
 		setStateDuringTime(eTime_WaitDecideQue);
@@ -41,7 +42,7 @@ public:
 			auto pPlayer = getRoom()->getMJPlayerByIdx(nIdx);
 			if (nullptr == pPlayer)
 			{
-				LOGFMTE("wait player decide que but player is null idx = %u",nIdx );
+				LOGFMTE("room id = %u wait player decide que but player is null idx = %u",getRoom()->getRoomID(),nIdx );
 				continue;
 			}
 			auto pCard = (XLMJPlayerCard*)pPlayer->getPlayerCard();

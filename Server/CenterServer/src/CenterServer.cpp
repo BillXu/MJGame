@@ -110,7 +110,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 			}
 
 			m_vTargetServers[eSvrType_APNS] = pData->_connectID;
-			LOGFMTE("apns server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("apns server connected ip = %s",strIP.c_str()) ;
 		}
 		break;
 	case MSG_VERIFY_VERIYF:
@@ -122,7 +122,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 			}
 
 			m_vTargetServers[eSvrType_Verify] = pData->_connectID;
-			LOGFMTE("verify server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("verify server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_LOGIN:
@@ -133,7 +133,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 				m_pNetwork->ClosePeerConnection(m_vTargetServers[eSvrType_Login]);
 			}
 			m_vTargetServers[eSvrType_Login] = pData->_connectID;
-			LOGFMTE("login server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("login server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_LOG:
@@ -145,7 +145,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 			}
 
 			m_vTargetServers[eSvrType_Log] = pData->_connectID;
-			LOGFMTE("log server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("log server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_DB:
@@ -157,7 +157,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 			}
 
 			m_vTargetServers[eSvrType_DB] = pData->_connectID;
-			LOGFMTE("DB server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("DB server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_DATA:
@@ -169,7 +169,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 			}
 
 			m_vTargetServers[eSvrType_Data] = pData->_connectID;
-			LOGFMTE("Data server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("Data server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_GOLDEN:
@@ -180,7 +180,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 				m_pNetwork->ClosePeerConnection(m_vTargetServers[eSvrType_Golden]);
 			}
 			m_vTargetServers[eSvrType_Golden] = pData->_connectID;
-			LOGFMTE("Golden server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("Golden server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_TAXAS:
@@ -191,7 +191,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 				m_pNetwork->ClosePeerConnection(m_vTargetServers[eSvrType_Taxas]);
 			}
 			m_vTargetServers[eSvrType_Taxas] = pData->_connectID;
-			LOGFMTE("Taxas server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("Taxas server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_NIU_NIU:
@@ -202,7 +202,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 				m_pNetwork->ClosePeerConnection(m_vTargetServers[eSvrType_Taxas]);
 			}
 			m_vTargetServers[eSvrType_NiuNiu] = pData->_connectID;
-			LOGFMTE("Niu Niu server connected ip = %s",strIP.c_str()) ;
+			LOGFMTI("Niu Niu server connected ip = %s", strIP.c_str());
 		}
 		break;
 	case MSG_VERIFY_GATE:
@@ -218,7 +218,7 @@ bool  CCenterServerApp::OnMessage( Packet* pData )
 					msg.uIdx = nIdx;
 					m_vGateInfos[nIdx].nIdx = nIdx ;
 					m_vGateInfos[nIdx].nNetworkID = pData->_connectID ; 
-					LOGFMTE("Gate server started idx = %d connected ip = %s",nIdx,strIP.c_str()) ;
+					LOGFMTI("Gate server started idx = %d connected ip = %s", nIdx, strIP.c_str());
 					break;
 				}
 			}
@@ -320,7 +320,7 @@ void  CCenterServerApp::OnNewPeerConnected( CONNECT_ID nNewPeer, ConnectInfo* Ip
 {
 	if ( IpInfo )
 	{
-		LOGFMTE("a peer connected ip = %s , port = %d connect id = %d",IpInfo->strAddress,IpInfo->nPort ,nNewPeer );
+		LOGFMTD("a peer connected ip = %s , port = %d connect id = %d",IpInfo->strAddress,IpInfo->nPort ,nNewPeer );
 	}
 	else
 	{

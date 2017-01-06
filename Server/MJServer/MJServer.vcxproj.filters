@@ -52,6 +52,12 @@
     <Filter Include="src\MJXZ">
       <UniqueIdentifier>{fa1d7aae-da0e-4b47-8b18-0dcd01a8d12f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\MJWZ">
+      <UniqueIdentifier>{87e8b52e-c24a-4166-8375-cee3b0a8b9fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MJWZ\state">
+      <UniqueIdentifier>{f699ca6a-b5d3-453f-b6ec-9de6a11b09c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -357,6 +363,24 @@
     <ClInclude Include="src\XLRoomStateAskForRobotGang.h">
       <Filter>src\MJXL\XLState</Filter>
     </ClInclude>
+    <ClInclude Include="src\WZMJPlayer.h">
+      <Filter>src\MJWZ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WZMJPlayerCard.h">
+      <Filter>src\MJWZ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WZMJRoom.h">
+      <Filter>src\MJWZ</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WZMJWaitBankerInviteBuyDi.h">
+      <Filter>src\MJWZ\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WZMJRoomStateWaitPlayerAct.h">
+      <Filter>src\MJWZ\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WZMJRoomStateStartGame.h">
+      <Filter>src\MJWZ\state</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -550,6 +574,15 @@
     </ClCompile>
     <ClCompile Include="src\XZMJRoom.cpp">
       <Filter>src\MJXZ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WZMJRoom.cpp">
+      <Filter>src\MJWZ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WZMJPlayer.cpp">
+      <Filter>src\MJWZ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WZMJPlayerCard.cpp">
+      <Filter>src\MJWZ</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

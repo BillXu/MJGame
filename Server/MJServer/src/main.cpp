@@ -407,8 +407,51 @@ void tempTest()
 
 #include "MJServer.h"
 #include "Application.h"
+
+
+BOOL DomainToIP(char *pDomain, char *pIPBuff)
+{
+	unsigned long lgIP = inet_addr(pDomain);
+
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(1, 1), &wsaData);
+
+	//ÊäÈëµÄIP×Ö·û´®  
+	if (lgIP != INADDR_NONE)
+	{
+		memcpy(pIPBuff, pDomain, strlen(pDomain));
+		WSACleanup();
+
+		return TRUE;
+	}
+
+	HOSTENT *host_entry;
+	host_entry = gethostbyname(pDomain);
+
+	if (host_entry != 0)
+	{
+		sprintf_s(pIPBuff,40, "%d.%d.%d.%d",
+			(host_entry->h_addr_list[0][0] & 0xff),
+			(host_entry->h_addr_list[0][1] & 0xff),
+			(host_entry->h_addr_list[0][2] & 0xff),
+			(host_entry->h_addr_list[0][3] & 0xff));
+	}
+	else
+	{
+		WSACleanup();
+		return FALSE;
+	}
+
+	WSACleanup();
+	return TRUE;
+}
+
 int main()
 {
+	//char pBuf[40] = { 0 };
+	//DomainToIP("main.bolehd.com", pBuf);
+
+
 	//tempTest();
 	CApplication theAplication(CMJServerApp::getInstance());
 	theAplication.startApp();

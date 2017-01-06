@@ -13,6 +13,7 @@
 #include "XLMJRoom.h"
 #include "XZMJRoom.h"
 #include "HZMJRoom.h"
+#include "WZMJRoom.h"
 #define TIME_WAIT_REPLY_DISMISS 60*5
 MJPrivateRoom::~MJPrivateRoom()
 {
@@ -665,6 +666,12 @@ IGameRoom* MJPrivateRoom::doCreateMJRoom(eRoomType eMJType)
 	{
 		return new HZMJRoom();
 	}
+	break;
+	case eRoom_WZ:
+	{
+		return new WZMJRoom();
+	}
+	break;
 	default:
 		LOGFMTE("unknown mj room type = %u, can not create room for private room ",eMJType);
 		return nullptr;

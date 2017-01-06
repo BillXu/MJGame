@@ -177,6 +177,12 @@
     <ClInclude Include="src\WaitActWithChuedCard.h" />
     <ClInclude Include="src\WaitPlayerActState.h" />
     <ClInclude Include="src\WaitStartState.h" />
+    <ClInclude Include="src\WZMJPlayer.h" />
+    <ClInclude Include="src\WZMJPlayerCard.h" />
+    <ClInclude Include="src\WZMJRoom.h" />
+    <ClInclude Include="src\WZMJRoomStateStartGame.h" />
+    <ClInclude Include="src\WZMJRoomStateWaitPlayerAct.h" />
+    <ClInclude Include="src\WZMJWaitBankerInviteBuyDi.h" />
     <ClInclude Include="src\XLFanXingChecker.h" />
     <ClInclude Include="src\XLMJPlayer.h" />
     <ClInclude Include="src\XLMJPlayerCard.h" />
@@ -252,6 +258,9 @@
     <ClCompile Include="src\WaitActWithChuedCard.cpp" />
     <ClCompile Include="src\WaitPlayerActState.cpp" />
     <ClCompile Include="src\WaitStartState.cpp" />
+    <ClCompile Include="src\WZMJPlayer.cpp" />
+    <ClCompile Include="src\WZMJPlayerCard.cpp" />
+    <ClCompile Include="src\WZMJRoom.cpp" />
     <ClCompile Include="src\XLMJPlayer.cpp" />
     <ClCompile Include="src\XLMJPlayerCard.cpp" />
     <ClCompile Include="src\XLMJRoom.cpp" />

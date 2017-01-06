@@ -145,8 +145,8 @@ bool CGateServer::OnMessage( Packet* pPacket )
 			m_pNetWorkForClients->AddDelegate(m_pGateManager) ;
 		}
 
-		LOGFMTE("setup network for clients to client ok " );
-		LOGFMTE("Gate Server Start ok idx = %d port = %u!",m_nSvrIdx,pGateConfig->nPort ) ;
+		LOGFMTI("setup network for clients to client ok " );
+		LOGFMTI("Gate Server Start ok idx = %d port = %u!",m_nSvrIdx,pGateConfig->nPort ) ;
 	}
 	else
 	{

@@ -70,6 +70,7 @@ private:
     method_start,
     method,
     uri,
+	uri_getParam, // add by bill 
     http_version_h,
     http_version_t_1,
     http_version_t_2,

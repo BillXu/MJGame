@@ -40,6 +40,7 @@ void CHttpModule::init(IServerApp* svrApp)
 
 	registerHttpHandle("/playerInfo.yh", boost::bind(&CHttpModule::handleGetPlayerInfo, this, boost::placeholders::_1));
 	registerHttpHandle("/addRoomCard.yh", boost::bind(&CHttpModule::handleAddRoomCard, this, boost::placeholders::_1)); 
+	registerHttpHandle("/lepay.php", boost::bind(&CHttpModule::handleLePayResult, this, boost::placeholders::_1));
 }
 
 void CHttpModule::update(float fDeta)
@@ -511,6 +512,124 @@ bool CHttpModule::handleAddRoomCard(http::server::connection_ptr ptr)
 		LOGFMTD("do agent add room cards uid = %u, addCardNo = %u ", nUID, nAddCardNo);
 	}, jsRoot);
 	LOGFMTD("do async agent add room cards uid = %u cnt = %d,addCardNo = %u", nUID, nAddCard, nAddCardNo);
+	return true;
+}
+
+bool CHttpModule::handleLePayResult(http::server::connection_ptr ptr)
+{
+	auto req = ptr->getReqPtr();
+	auto res = ptr->getReplyPtr();
+	LOGFMTD("recv lepay resp : %s ", req->reqContent.c_str());
+	std::map<std::string, std::string> strMap;
+	for (uint16_t nIdx = 0; nIdx < req->reqContent.size();)
+	{
+		auto keyPos = req->reqContent.find_first_of("=", nIdx);
+		auto strKey = req->reqContent.substr(nIdx, keyPos - nIdx);
+
+		auto valueStart = keyPos + 1;
+		auto valuePos = req->reqContent.find_first_of("&", valueStart);
+		if (std::string::npos == valuePos)
+		{
+			valuePos = req->reqContent.size();
+		}
+		auto strValue = req->reqContent.substr(valueStart, valuePos - valueStart);
+		strMap[strKey] = strValue;
+
+		nIdx = valuePos + 1;
+	}
+
+	auto& resultMap = strMap;
+
+	auto iterAlipayTradeNo = resultMap.find("pxNumber");
+	if (iterAlipayTradeNo == resultMap.end())
+	{
+		LOGFMTE("lePaypxNumber is nullptr");
+		std::string str = "failed";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+
+	auto iterTradeNo = resultMap.find("params");
+	if (iterTradeNo == resultMap.end())
+	{
+		LOGFMTE("lepay params is nullptr");
+		std::string str = "failed";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+	// go on do db verfiy ;
+	std::string strNum = iterTradeNo->second;
+	// do url decode 
+	auto isValid = url_decode(iterTradeNo->second, strNum);
+	if (isValid == false)
+	{
+		LOGFMTE("le pay params is not valued urlencode : %s", iterTradeNo->second.c_str());
+		std::string str = "failed";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+	LOGFMTD("after urldecode tradeno : %s",strNum.c_str() );
+	// do DB verify ;
+	std::vector<std::string> vOut;
+	boost::split(vOut, strNum, boost::is_any_of("E"));
+	if (vOut.size() < 2)
+	{
+		LOGFMTE("trade out error = %s", strNum.c_str());
+		LOGFMTE("trade_no is nullptr");
+		std::string str = "success";
+		res->setContent(str, "text/xml");
+		ptr->doReply();
+		return true;
+	}
+	LOGFMTD("all right go on db verify Le Pay ");
+	auto shopItem = vOut[0];
+	auto userUID = vOut[1];
+	auto pVeirfyModule = ((CVerifyApp*)getSvrApp())->getTaskPoolModule();
+	pVeirfyModule->doDBVerify(atoi(userUID.c_str()), atoi(shopItem.c_str()), ePay_LePay, iterAlipayTradeNo->second);
+	std::string str = "SUCCESS";
+	res->setContent(str, "text/xml");
+	ptr->doReply();
+}
+
+bool CHttpModule::url_decode(const std::string& in, std::string& out)
+{
+	out.clear();
+	out.reserve(in.size());
+	for (std::size_t i = 0; i < in.size(); ++i)
+	{
+		if (in[i] == '%')
+		{
+			if (i + 3 <= in.size())
+			{
+				int value = 0;
+				std::istringstream is(in.substr(i + 1, 2));
+				if (is >> std::hex >> value)
+				{
+					out += static_cast<char>(value);
+					i += 2;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if (in[i] == '+')
+		{
+			out += ' ';
+		}
+		else
+		{
+			out += in[i];
+		}
+	}
 	return true;
 }
 

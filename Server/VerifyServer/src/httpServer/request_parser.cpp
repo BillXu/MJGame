@@ -60,6 +60,11 @@ request_parser::result_type request_parser::consume(request& req, char input)
       state_ = http_version_h;
       return indeterminate;
     }
+	else if (input == '?')
+	{
+		state_ = uri_getParam;
+		return indeterminate;
+	}
     else if (is_ctl(input))
     {
       return bad;
@@ -69,6 +74,19 @@ request_parser::result_type request_parser::consume(request& req, char input)
       req.uri.push_back(input);
       return indeterminate;
     }
+  case uri_getParam:
+	{
+		if (input == ' ')
+		{
+			state_ = http_version_h;
+			return indeterminate;
+		}
+		else
+		{
+			req.reqContent.push_back(input);
+			return indeterminate;
+		}
+	}
   case http_version_h:
     if (input == 'H')
     {
