@@ -11,6 +11,7 @@
 #include "RoomConfig.h"
 #include "IGameRoomManager.h"
 #include "ServerMessageDefine.h"
+#include "RobotDispatchStrategy.h"
 bool HZMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	IMJRoom::init(pRoomMgr,pConfig,nRoomID,vJsValue);
@@ -93,26 +94,71 @@ void HZMJRoom::willStartGame()
 
 void HZMJRoom::onGameDidEnd()
 {
-	uint8_t nHuIdx = -1;
-	for (auto& pPlayer : m_vMJPlayers)
+	//uint8_t nHuIdx = -1;
+	//for (auto& pPlayer : m_vMJPlayers)
+	//{
+	//	if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu))
+	//	{
+	//		nHuIdx = pPlayer->getIdx();
+	//	}
+	//}
+
+	//if (getBankerIdx() == nHuIdx)
+	//{
+	//	++m_nContinueBankes;
+	//}
+
+	//if (nHuIdx != (uint8_t)-1)
+	//{
+	//	setBankIdx(nHuIdx);
+	//	LOGFMTD("player idx = %u be the new banker room id = %u",nHuIdx,getRoomID());
+	//}
+	IMJRoom::onGameDidEnd();
+
+	if (getDelegate())
 	{
-		if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu))
+		getDelegate()->onDidGameOver(this);
+		return;
+	}
+	// every one leave room  and sync game data ;
+	for (auto& pp : m_vMJPlayers)
+	{
+		if (pp == nullptr || pp->haveState(eRoomPeer_LoserLeave))
 		{
-			nHuIdx = pPlayer->getIdx();
+			if (pp && pp->haveState(eRoomPeer_LoserLeave))
+			{
+				// tell robot dispatch player leave 
+				getRobotDispatchStrage()->onPlayerLeave(pp->getSessionID(), pp->isRobot());
+			}
+			continue;
+		}
+
+		auto pXLPlayer = (HZMJPlayer*)pp;
+		stMsgSvrDoLeaveRoom msgdoLeave;
+		msgdoLeave.nCoin = pp->getCoin();
+		msgdoLeave.nGameType = getRoomType();
+		msgdoLeave.nRoomID = getRoomID();
+		msgdoLeave.nUserUID = pp->getUID();
+		msgdoLeave.nMaxFangXingType = 0;
+		msgdoLeave.nMaxFanShu = 0;
+		msgdoLeave.nRoundsPlayed = 1;
+		msgdoLeave.nGameOffset = pp->getOffsetCoin();
+		getRoomMgr()->sendMsg(&msgdoLeave, sizeof(msgdoLeave), pp->getSessionID());
+		LOGFMTD("game over player uid = %u leave room id = %u", pp->getUID(), getRoomID());
+
+		// tell robot dispatch player leave 
+		getRobotDispatchStrage()->onPlayerLeave(pp->getSessionID(), pp->isRobot());
+	}
+
+	// delete all player object ;
+	for (auto& ref : m_vMJPlayers)
+	{
+		if (ref)
+		{
+			delete ref;
+			ref = nullptr;
 		}
 	}
-
-	if (getBankerIdx() == nHuIdx)
-	{
-		++m_nContinueBankes;
-	}
-
-	if (nHuIdx != (uint8_t)-1)
-	{
-		setBankIdx(nHuIdx);
-		LOGFMTD("player idx = %u be the new banker room id = %u",nHuIdx,getRoomID());
-	}
-	IMJRoom::onGameDidEnd();
 }
 
 void HZMJRoom::onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)

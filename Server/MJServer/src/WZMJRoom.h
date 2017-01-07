@@ -8,6 +8,7 @@ public:
 	bool init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue) override;
 	void willStartGame() override;
 	void startGame()override;
+	void onGameDidEnd()override;
 	void onGameEnd()override;
 	uint8_t getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)override;
 	uint8_t getAutoChuCardWhenWaitChuTimeout(uint8_t nIdx)override;

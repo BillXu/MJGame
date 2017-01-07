@@ -14,6 +14,7 @@
 #include "MJRoomStateDoPlayerAct.h"
 #include "MJRoomStateAskForPengOrHu.h"
 #include "WZMJWaitBankerInviteBuyDi.h"
+#include "RobotDispatchStrategy.h"
 bool WZMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	IMJRoom::init(pRoomMgr,pConfig,nRoomID,vJsValue);
@@ -289,10 +290,59 @@ void WZMJRoom::onGameEnd()
 		LOGFMTD("room id = %u liu ju uid = %u final = %u ,offset = %d , caishen Cnt = %u ", getRoomID(), pp->getUID(), pp->getCoin(), pp->getOffsetCoin(), pcard->getCaiShenCnt());
 	}
 
-	jsResult["results"] = jsResult;
+	jsResult["results"] = jsResultDetail;
 	sendRoomMsg(jsResult, MSG_ROOM_WZMJ_RESULT_LIUJU);
 	LOGFMTI("room id = %u send liu ju info ",getRoomID());
 	IMJRoom::onGameEnd();
+}
+
+void WZMJRoom::onGameDidEnd()
+{
+	IMJRoom::onGameDidEnd();
+	if (getDelegate())
+	{
+		getDelegate()->onDidGameOver(this);
+		return;
+	}
+	// every one leave room  and sync game data ;
+	for (auto& pp : m_vMJPlayers)
+	{
+		if (pp == nullptr || pp->haveState(eRoomPeer_LoserLeave))
+		{
+			if (pp && pp->haveState(eRoomPeer_LoserLeave))
+			{
+				// tell robot dispatch player leave 
+				getRobotDispatchStrage()->onPlayerLeave(pp->getSessionID(), pp->isRobot());
+			}
+			continue;
+		}
+
+		auto pXLPlayer = (WZMJPlayer*)pp;
+		stMsgSvrDoLeaveRoom msgdoLeave;
+		msgdoLeave.nCoin = pp->getCoin();
+		msgdoLeave.nGameType = getRoomType();
+		msgdoLeave.nRoomID = getRoomID();
+		msgdoLeave.nUserUID = pp->getUID();
+		msgdoLeave.nMaxFangXingType = 0;
+		msgdoLeave.nMaxFanShu = 0;
+		msgdoLeave.nRoundsPlayed = 1;
+		msgdoLeave.nGameOffset = pp->getOffsetCoin();
+		getRoomMgr()->sendMsg(&msgdoLeave, sizeof(msgdoLeave), pp->getSessionID());
+		LOGFMTD("game over player uid = %u leave room id = %u", pp->getUID(), getRoomID());
+
+		// tell robot dispatch player leave 
+		getRobotDispatchStrage()->onPlayerLeave(pp->getSessionID(), pp->isRobot());
+	}
+
+	// delete all player object ;
+	for (auto& ref : m_vMJPlayers)
+	{
+		if (ref)
+		{
+			delete ref;
+			ref = nullptr;
+		}
+	}
 }
 
 uint8_t WZMJRoom::getAutoChuCardWhenWaitActTimeout(uint8_t nIdx)
@@ -678,7 +728,7 @@ void WZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		jsResultDetail[jsResultDetail.size()] = jsP;
 	}
 
-	jsResult["results"] = jsResult;
+	jsResult["results"] = jsResultDetail;
 	sendRoomMsg(jsResult, MSG_ROOM_WZMJ_RESULT);
 	LOGFMTD("send game result !");
 }
