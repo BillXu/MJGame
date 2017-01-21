@@ -5,6 +5,7 @@
 #include "ServerStringTable.h"
 #include "RewardConfig.h"
 #include "MJRoomManager.h"
+#include "makeCardConfig.h"
 bool CMJServerApp::init()
 {
 	IServerApp::init();
@@ -22,7 +23,7 @@ bool CMJServerApp::init()
 	m_tMgr.LoadFile("../configFile/RoomConfig.txt") ;
 
 	CServerStringTable::getInstance()->LoadFile("../configFile/stringTable.txt");
-	CRewardConfig::getInstance()->LoadFile("../configFile/rewardConfig.txt");
+	CMakeCardConfig::getInstance()->LoadFile("../configFile/makeCardConfig.txt");
 
 	installModule(eMod_RoomMgr);
 	installModule(eMod_RoomMgrOld);

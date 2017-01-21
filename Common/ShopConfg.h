@@ -8,6 +8,7 @@ enum eShopItemType
 	eShopItem_Coin,
 	eShopItem_RoomCard,
 	eShopItem_Item,
+	eShopItem_PrizePaper, // jiang quan 
 	eShopItem_Max,
 };
 

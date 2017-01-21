@@ -148,7 +148,7 @@ enum eRoomType
 	eRoom_Golden, // not used 
 	eRoom_HZ = 4, // 杭州麻将
 	eRoom_WZ,
-	eRoom_Max = eRoom_MJ_MAX,
+	eRoom_Max ,
 };
 
 #if (C_SHARP)  
@@ -356,11 +356,12 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",photoID : 23, ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345, stayInRoomID : 234 , vipRoomCard : 23, clothe : [235,235,234] }
+	// svr : { name: "nickName",photoID : 23, ticket : 234 ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345, stayInRoomID : 234 , vipRoomCard : 23, clothe : [235,235,234] }
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 	// charity : 救济金剩余可领次数
 	// photoID : 头像ID ；
 	// ownRoomID : 自己创建的房间ID
+	// ticket : 用于兑换的奖券数量
 	// stayInRoomID： 当前所在房间的ID , 0 表示不在房间里
 
 	// modify name and sigure
@@ -584,6 +585,9 @@ enum eMsgType
 	// ret , 0 正常结束， 1 房间被解散。 initCoin 房间的初始金币，bills，是一个数组 放着具体每个玩家的情况，curCoin 表示玩家最终剩余金额, uid 玩家的唯一id 
 
 	// shop module
+	MSG_SHOP_CLIENT_ADD_DIAMOND,  // 客户端请求加钻石 
+	// { uid : 234 }
+
 	MSG_SHOP_BUY_ITEM = 10548,  // 购买商店里的商品
 	// client : { shopItemID : 2345 }
 	// svr : { ret : 0 , shopItemID : 2345 }
@@ -811,4 +815,8 @@ enum eMsgType
 	// svr : { lianBankerCnt : 2 , results: [ {uid : 2345 , offset : -23, final : 23， caiShenCnt : 2 } , ....  ]   } 
 	// lianBankerCnt : 连庄的次数；
 	// result： 结算的输赢金钱结果，数组； 元素： uid： 玩家的uid，offset 输赢差值， final： 最终的钱数, caiShenCnt : 财神个数；
+
+	MSG_ROOM_HZMJ_RESULT_LIUJU,  // 杭州麻将流局
+	// svr ： { bankIdx : 23 } 
+
 };

@@ -18,6 +18,7 @@
 #include "XLRoomStateWaitPlayerAct.h"
 #include "XLRoomStateAskPengOrHu.h"
 #include "XLRoomStateAskForRobotGang.h"
+#include "makeCardConfig.h"
 #define MAX_BEISHU 32
 bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
@@ -37,6 +38,95 @@ bool XLMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint3
 	// init banker
 	m_nBankerIdx = getSeatCnt() - 1;
 	return true;
+}
+
+void XLMJRoom::startGame()
+{
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer)
+		{
+			pPlayer->onStartGame();
+		}
+	}
+
+	// distribute card 
+	Json::Value msg;
+	Json::Value peerCards[4]; // used for sign for msg ;
+
+	uint8_t nDice = 2 + rand() % 11;
+	auto pPoker = getMJPoker();
+	LOGFMTD("room id = %u start game shuffle card , Dice = %u", getRoomID(), nDice);
+	pPoker->shuffle( getDelegate() == nullptr );
+	if ( getDelegate() == nullptr )
+	{
+		for (auto& pPlayer : m_vMJPlayers)
+		{
+			if (pPlayer)
+			{
+				bool bMake = CMakeCardConfig::getInstance()->getMakeCardRate(pPlayer->isRobot()) > rand() % 100;
+				if (bMake)
+				{
+					m_tPoker.makeCardForPlayer(pPlayer->getIdx(), pPlayer->isRobot());
+				}
+			}
+		}
+	}
+
+	m_tPoker.debugPokerInfo();
+	LOGFMTD("room id = %u shuffle end", getRoomID());
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (!pPlayer)
+		{
+			LOGFMTE("why player is null hz mj must all player is not null");
+			continue;
+		}
+
+		if (pPlayer->getCoin() < getRoomConfig()->nDeskFee)
+		{
+			LOGFMTE("uid = %u coin = %u, 你的钱太少了，还是别玩了吧，这次就不扣你的台费了", pPlayer->getUID(), pPlayer->getCoin());
+		}
+		else
+		{
+			pPlayer->setCoin(pPlayer->getCoin() - (int32_t)getRoomConfig()->nDeskFee);
+		}
+
+		LOGFMTD("distribute card for player idx = %u and decrease desk fee = %u", pPlayer->getIdx(), getRoomConfig()->nDeskFee);
+
+		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
+		{
+
+			auto nCard = pPoker->distributeOneCard();
+
+			pPlayer->getPlayerCard()->addDistributeCard(nCard);
+
+			peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		}
+	}
+
+	// banker get card ;
+	auto pBanker = getMJPlayerByIdx(getBankerIdx());
+	if ( pBanker)
+	{
+		auto nCard = pPoker->distributeOneCard();
+		pBanker->getPlayerCard()->onMoCard(nCard);
+		peerCards[pBanker->getIdx()][13u] = nCard;  // sign for msg ;
+	}
+
+	// construct msg ;
+	msg["dice"] = nDice;
+	msg["banker"] = m_nBankerIdx;
+	Json::Value arrPeerCards;
+	for (uint8_t nIdx = 0; nIdx < getSeatCnt(); ++nIdx)
+	{
+		Json::Value peer;
+		peer["cards"] = peerCards[nIdx];
+		arrPeerCards[nIdx] = peer;
+	}
+	msg["peerCards"] = arrPeerCards;
+	sendRoomMsg(msg, MSG_ROOM_START_GAME);
+	LOGFMTI("room id = %u start game !", getRoomID());
 }
 
 bool XLMJRoom::onPlayerApplyLeave(uint32_t nPlayerUID)

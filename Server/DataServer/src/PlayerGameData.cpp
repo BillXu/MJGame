@@ -36,7 +36,7 @@ void CPlayerGameData::Reset()
 		{
 			auto jsRow = jsData[nIdx] ;
 			eRoomType eType = (eRoomType)jsRow["gameType"].asUInt();
-			if ( eType >= eRoom_MJ_MAX )
+			if (eType >= eRoom_Max)
 			{
 				LOGFMTE("invalid game type = %u",eType) ;
 				continue;
@@ -96,7 +96,7 @@ bool CPlayerGameData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 	case MSG_REQ_GAME_DATA:
 		{
 			eRoomType typer = (eRoomType)recvValue["gameType"].asUInt();
-			if ( typer >= eRoom_MJ_MAX )
+			if (typer >= eRoom_Max)
 			{
 				recvValue["ret"] = 1 ;
 				SendMsg(recvValue,nmsgType) ;
@@ -824,6 +824,7 @@ void CPlayerGameData::addOwnRoom(eRoomType eType , uint32_t nRoomID , uint16_t n
 	stMyOwnRoom myroom ;
 	myroom.nRoomID = nRoomID ;
 	m_vMyOwnRooms[eType].insert(MAP_ID_MYROOW::value_type(myroom.nRoomID,myroom));
+	LOGFMTD(" uid = %u , add room type = %u , room id = %u", GetPlayer()->GetUserUID(), eType, nRoomID);
 }
 
 bool CPlayerGameData::isCreateRoomCntReachLimit(eRoomType eType)
@@ -842,6 +843,7 @@ bool CPlayerGameData::isCreateRoomCntReachLimit(eRoomType eType)
 	{
 		if (ref.size() >= 1)
 		{
+			LOGFMTE("uid = %u create room reach max = %u, room id = %u",GetPlayer()->GetUserUID(),ref.size(),ref.begin()->first );
 			return true;
 		}
 	}
@@ -861,6 +863,8 @@ bool CPlayerGameData::deleteOwnRoom(eRoomType eType , uint32_t nRoomID )
 		m_vMyOwnRooms[eType].erase(iter) ;
 		return true ;
 	}
+
+	LOGFMTE("room type = %u , room id = %u  not exsit how to delete ?", eType,nRoomID);
 	return false ;
 }
 

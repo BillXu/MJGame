@@ -708,7 +708,16 @@ bool CPlayerBaseData::OnMessage( stMsg* pMsg , eMsgPort eSenderPort )
 				{
 					//assert(0&&"still in room , why failed to sync coin");
 					LOGFMTD(" game svr can not sync in game coin , so just it to coin uid = %u",GetPlayer()->GetUserUID());
-					m_stBaseData.nCoin += pRet->nAddCoin ;
+					if (pRet->nAddCoin < 0 && (-1 * pRet->nAddCoin) > m_stBaseData.nCoin)
+					{
+						m_stBaseData.nCoin = 0;
+						LOGFMTE("uid = %u coin may to zero ",m_stBaseData.nUserUID);
+					}
+					else
+					{
+						m_stBaseData.nCoin += pRet->nAddCoin;
+					}
+					
 				}
 			}
 		}
@@ -860,7 +869,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 	case MSG_REQ_UPDATE_COIN:
 		{
 			auto pPlayerData = (CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData);
-			if (pPlayerData->isNotInAnyRoom() || 1 )  // always send from here omit coin , so need not tell mj server 
+			if (pPlayerData->isNotInAnyRoom() )  
 			{
 				Json::Value jsmsgBack;
 				jsmsgBack["coin"] = getCoin();
@@ -883,13 +892,26 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 
 		}
 		break ;
+	case MSG_SHOP_CLIENT_ADD_DIAMOND:
+		{
+			AddMoney(66, true);
+
+			Json::Value jsmsgBack;
+			jsmsgBack["coin"] = getCoin();
+			jsmsgBack["diamond"] = GetAllDiamoned();
+			jsmsgBack["roomCard"] = getVipRoomCard();
+			SendMsg(jsmsgBack, nmsgType);
+			LOGFMTD("uid = %u add daimond client ",GetPlayer()->GetUserUID());
+		}
+		break;
 	case MSG_TELL_ROBOT_TYPE:
 		{
 			m_ePlayerType = ePlayer_Robot ;
-			if (strlen(m_stBaseData.cHeadUrl) < 15 )
+			//if (strlen(m_stBaseData.cHeadUrl) < 15 )
 			{
-				sprintf_s(m_stBaseData.cHeadUrl, sizeof(m_stBaseData.cHeadUrl), "http://abc.paiyouquan.com/7zphoto/%d.png", m_stBaseData.nUserUID % 706 );
+				//sprintf_s(m_stBaseData.cHeadUrl, sizeof(m_stBaseData.cHeadUrl), "http://abc.paiyouquan.com/7zphoto/%d.png", m_stBaseData.nUserUID % 706 );
 			}
+			sprintf_s(m_stBaseData.cHeadUrl, sizeof(m_stBaseData.cHeadUrl), "http://abc.paiyouquan.com/7zphoto/%d.png", rand() % 1603);
 			LOGFMTD("uid = %u , tell player type = %u , photo url = %s", GetPlayer()->GetUserUID(), m_ePlayerType, m_stBaseData.cHeadUrl);
 		}
 		break;
@@ -1075,6 +1097,12 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 						m_bMoneyDataDirty = true ;
 					}
 					break;
+				case eShopItem_PrizePaper:
+					{
+						m_stBaseData.nCupCnt += pp->nCount;
+						m_bMoneyDataDirty = true;
+					}
+				break;
 				default:
 					{
 						if ( nCost > 0 )
@@ -1283,8 +1311,9 @@ bool CPlayerBaseData::onCrossServerRequest(stMsgCrossServerRequest* pRequest, eM
 	case eCrossSvrReq_SyncCoin:
 		{
 			m_stBaseData.nCoin = pRequest->vArg[0] ;
-			if ( m_stBaseData.nCoin < 0 )
+			if ( (int32_t)m_stBaseData.nCoin < 0 )
 			{
+				LOGFMTE("a bad coin value uid = %u",m_stBaseData.nUserUID);
 				m_stBaseData.nCoin = 0 ;
 				m_bMoneyDataDirty = true ;
 			}
@@ -1324,6 +1353,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["vipRoomCard"] = m_stBaseData.nVipRoomCardCnt ;
 		jValue["charity"] = getLeftCharityTimes();
 		jValue["photoID"] = m_stBaseData.nPhotoID;
+		jValue["ticket"] = m_stBaseData.nCupCnt;
 		jValue["ownRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getOwnRoomID();
 		jValue["stayInRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getCurRoomID();
 
@@ -1545,7 +1575,15 @@ bool CPlayerBaseData::AddMoney(int32_t nOffset,bool bDiamond  )
 		auto pcom = (CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData) ;
 		if ( pcom->isNotInAnyRoom() )
 		{
-			m_stBaseData.nCoin += nOffset ;
+			if (nOffset < 0 && (-1 * nOffset) > m_stBaseData.nCoin)
+			{
+				LOGFMTE("this may leat do zero uid = %u", m_stBaseData.nUserUID );
+				m_stBaseData.nCoin = 0;
+			}
+			else
+			{
+				m_stBaseData.nCoin += nOffset;
+			}
 		}
 		else
 		{
@@ -1771,6 +1809,12 @@ void CPlayerBaseData::setCoin(int32_t nCoin )
 	if (m_stBaseData.nCoin != nCoin)
 	{
 		m_bMoneyDataDirty =  true;
+	}
+	if (nCoin < 0)
+	{
+		LOGFMTE("set a bag value to coin uid = %u",m_stBaseData.nUserUID);
+		m_stBaseData.nCoin = 0;
+		return;
 	}
 	m_stBaseData.nCoin = nCoin ; 
 }

@@ -9,6 +9,7 @@ public:
 	typedef std::vector<ISettle*> VEC_SETTLE;
 public:
 	bool init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue) override;
+	void startGame()override;
 	bool onPlayerApplyLeave(uint32_t nPlayerUID)override;
 	uint8_t checkPlayerCanEnter(stEnterRoomData* pEnterRoomPlayer)override;
 	/*void onWaitPlayerAct(uint8_t nIdx, bool& isCanPass)override;*/

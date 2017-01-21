@@ -13,7 +13,8 @@ public:
 	uint8_t getCard();
 	uint8_t getLeftCardCount()override;
 	uint8_t distributeOneCard()override { return getCard(); }
-	void shuffle()override;
+	void shuffle( bool bMake = false )override;
+	void makeCardForPlayer( uint8_t nIdx , bool isRobot );
 	void debugCardInfo();
 	void initAllCard( eMJGameType eType );
 	eMJGameType getGameType();

@@ -334,15 +334,16 @@ bool IMJRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSenderPo
 			LOGFMTE("update coin error ,you don't int ther room id = %u  , uid = %u", nRoomID, nUID);
 		}
 
-		if (getDelegate() == nullptr)
+		if (getDelegate() == nullptr) // not private room 
 		{
 			Json::Value jsmsgBack;
 			jsmsgBack["coin"] = nCoin;
 			jsmsgBack["diamond"] = nDiamond;
 			sendMsgToPlayer(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionIDThis);
+			return true;
 		}
 
-		return true;
+		return false; // private msg omit this msg ;
 	}
 
 	if (MSG_PLAYER_CHAT_MSG == nMsgType)

@@ -140,6 +140,7 @@
     <ClInclude Include="src\IMJPoker.h" />
     <ClInclude Include="src\IMJRoom.h" />
     <ClInclude Include="src\IMJRoomState.h" />
+    <ClInclude Include="src\makeCardConfig.h" />
     <ClInclude Include="src\MJHuPaiInfo.h" />
     <ClInclude Include="src\MJNewCheckFanXing.h" />
     <ClInclude Include="src\MJPeerCardNew.h" />
@@ -231,6 +232,7 @@
     <ClCompile Include="src\IGameRoomManager.cpp" />
     <ClCompile Include="src\IMJRoom.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\makeCardConfig.cpp" />
     <ClCompile Include="src\MJBloodFanxing.cpp" />
     <ClCompile Include="src\MJCard.cpp" />
     <ClCompile Include="src\MJExchangeCardState.cpp" />

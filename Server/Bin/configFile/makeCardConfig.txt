@@ -1,0 +1,14 @@
+﻿isRobot	makeCardRate	card9Rate	card8Rate	card7Rate	noneActRate
+0	100	100	0	0	0
+1	100	100	0	0	0
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					

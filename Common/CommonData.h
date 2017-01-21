@@ -46,7 +46,7 @@ struct stPlayerDetailData
 	double dfLongitude;
 	double dfLatidue;
 	uint32_t tOfflineTime ;  // last offline time ;
-	uint32_t nCupCnt ;  // jiang bei ge shu ;
+	uint32_t nCupCnt ;  // jiang quan  ;
 	uint8_t vUploadedPic[MAX_UPLOAD_PIC] ;
 	uint32_t vJoinedClubID[MAX_JOINED_CLUB_CNT] ;
 	uint8_t cPhoneNum[MAX_PHONE_NUM_LEN] ;
@@ -69,6 +69,7 @@ struct stCommonBaseData
 	uint8_t nCardType ;  // eVipCardType 
 	uint32_t nCardEndTime ;
 	uint32_t nTotalInvitePrizeCoin ; 
+	
 };
 
 struct stServerBaseData

@@ -55,6 +55,6 @@ protected:
 	bool m_bIsCreating ;
 
 	std::list<uint32_t> m_vVipBillIDs ;
-	stGameData m_vData[eRoom_MJ_MAX] ;
-	MAP_ID_MYROOW m_vMyOwnRooms[eRoom_MJ_MAX];
+	stGameData m_vData[eRoom_Max];
+	MAP_ID_MYROOW m_vMyOwnRooms[eRoom_Max];
 };

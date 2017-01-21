@@ -28,7 +28,7 @@ bool WZMJRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint3
 
 	// create room state ;
 	IMJRoomState* vState[] = {
-		new CMJRoomStateWaitReady(), new MJRoomStateWaitPlayerChu(), new MJRoomStateWaitPlayerAct(), new WZMJRoomStateStartGame(), new WZMJWaitBankerInviteBuyDi()
+		new CMJRoomStateWaitReady(), new MJRoomStateWaitPlayerChu(), new WZMJRoomStateWaitPlayerAct(), new WZMJRoomStateStartGame(), new WZMJWaitBankerInviteBuyDi()
 		, new MJRoomStateGameEnd(), new MJRoomStateDoPlayerAct(), new MJRoomStateAskForPengOrHu()
 	};
 	for (uint8_t nIdx = 0; nIdx < sizeof(vState) / sizeof(IMJRoomState*); ++nIdx)
@@ -167,6 +167,9 @@ void WZMJRoom::startGame()
 
 	m_nCaiShenDice = 2 + rand() % 11;
 	m_nCaiShenCard = pPoker->distributeOneCard();
+#ifdef _DEBUG
+	m_nCaiShenCard = make_Card_Num(eCT_Jian,1);
+#endif
 	// construct msg ;
 	msg["dice"] = nDice;
 	msg["banker"] = m_nBankerIdx;
@@ -654,8 +657,24 @@ void WZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		bool bIsLoserDingDi = pLoser->isDingDi();
 		bool bIsLoserBanker = pLoser->getIdx() == getBankerIdx();
 		m_nLastHuPlayerIdx = vHuIdx.front();
+		for (uint8_t nHuIdx = pLoser->getIdx(); nHuIdx < 8 ; ++nHuIdx)
+		{
+			auto nridx = nHuIdx % 4;
+			auto iter = std::find(vHuIdx.begin(),vHuIdx.end(),nridx);
+			if (iter != vHuIdx.end())
+			{
+				m_nLastHuPlayerIdx = nridx;
+				break;
+			}
+		}
+
 		for (auto& nWinIdx : vHuIdx)
 		{
+			if ( nWinIdx != m_nLastHuPlayerIdx )  // can only one player hu ;
+			{
+				continue;
+			}
+
 			auto pPlayer = (WZMJPlayer*)getMJPlayerByIdx(nWinIdx);
 			if (!pPlayer)
 			{

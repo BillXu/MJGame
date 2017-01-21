@@ -93,6 +93,12 @@ uint8_t WZMJPlayerCard::getMustChuFisrtCards(VEC_CARD& vCardMustChu)
 
 	pfnc(m_vCards[eCT_Feng], eCT_Feng, vCardMustChu);
 	pfnc(m_vCards[eCT_Jian], eCT_Jian, vCardMustChu);
+
+	auto iter = std::find(vCardMustChu.begin(), vCardMustChu.end(), m_nCaiShenCard);
+	if (iter != vCardMustChu.end())
+	{
+		vCardMustChu.erase(iter);
+	}
 	return vCardMustChu.size();
 }
 

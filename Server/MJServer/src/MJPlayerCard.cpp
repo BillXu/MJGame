@@ -1718,7 +1718,7 @@ uint8_t MJPlayerCard::tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNo
 	vCheckCard.assign(vCard.begin(), vCard.end());
 	std::sort(vCheckCard.begin(), vCheckCard.end());
 	
-	if (vCheckCard.size() < 3 || bMustKeZi )  // this function not contai ke zi shun ; 
+	if (vCheckCard.size() < 3 && bMustKeZi )  // this function not contai ke zi shun ; 
 	{
 		stNotShunCard st;
 		st.vCards.swap(vCheckCard);
@@ -1756,7 +1756,7 @@ uint8_t MJPlayerCard::tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNo
 				return true;
 			}
 
-			if (nCnt <= 2 || nCnt <= nMyLeastCnt)
+			if (nCnt <= 4 || nCnt <= nMyLeastCnt)
 			{
 				if (nMyLeastCnt > 2)
 				{

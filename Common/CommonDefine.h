@@ -1,7 +1,7 @@
 #pragma once
 #include "MessageIdentifer.h"
 #include "NativeTypes.h"
-#define MAX_LEN_ACCOUNT 40   // can not big then unsigned char max = 255
+#define MAX_LEN_ACCOUNT 240   // can not big then unsigned char max = 255
 #define  MAX_LEN_PASSWORD 25 // can not big then unsigned char max = 255
 #define MAX_LEN_CHARACTER_NAME 25 // can not big then unsigned char  max = 255
 #define MAX_LEN_SIGURE 60   // can not big then unsigned char  max = 255

@@ -24,6 +24,9 @@ MJPrivateRoom::~MJPrivateRoom()
 bool MJPrivateRoom::init(IGameRoomManager* pRoomMgr, stBaseRoomConfig* pConfig, uint32_t nRoomID, Json::Value& vJsValue)
 {
 	m_nInitCircle = vJsValue["circle"].asUInt();
+#ifdef _DEBUG
+	m_nInitCircle = 2 ;
+#endif 
 	m_nLeftCircle = m_nInitCircle ;
 	m_nInitCoin = vJsValue["initCoin"].asUInt();
 	memset(&m_stConfig, 0, sizeof(m_stConfig));
@@ -204,7 +207,7 @@ bool MJPrivateRoom::onMessage(stMsg* prealMsg, eMsgPort eSenderPort, uint32_t nP
 		stMsgSyncInGameCoinRet msgback;
 		msgback.nRet = 1;
 		msgback.nAddCoin = pRet->nAddCoin;
-		msgback.nRoomID = pRet->nRoomID;
+		msgback.nRoomID = getRoomID();
 		msgback.nUserUID = pRet->nUserUID;
 		m_pRoomMgr->sendMsg(&msgback, sizeof(msgback), nPlayerSessionID);
 		LOGFMTD("private room should not process this message syn in game coin  uid = %u", msgback.nUserUID);
@@ -632,6 +635,7 @@ void MJPrivateRoom::onRoomGameOver(bool isDismissed)
 	jsClosed["roomID"] = getRoomID();
 	jsClosed["eType"] = getRoomType();
 	m_pRoomMgr->sendMsg(jsClosed, MSG_VIP_ROOM_CLOSED, 0, ID_MSG_PORT_DATA);
+	LOGFMTD("room id = %u send game close info to data svr uid = %u ,type = %u", getRoomID(), m_nOwnerUID, getRoomType());
 
 	// tell client closed room ;
 	Json::Value jsDoClosed;

@@ -53,7 +53,6 @@ void MJPlayer::onGameDidEnd()
 
 void MJPlayer::onGameEnd()
 {
-	setState(eRoomPeer_WaitNextGame);
 	clearGangFlag();
 	clearDecareBuGangFlag();
 }

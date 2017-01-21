@@ -2,6 +2,7 @@
 #include <cassert>
 #include "log4z.h"
 #include "json/json.h"
+#include "makeCardConfig.h"
 uint8_t CMJCard::getCard()
 {
 	if ( isEmpty() )
@@ -22,7 +23,7 @@ uint8_t CMJCard::getLeftCardCount()
 	return m_vAllCards.size() - m_nCurCardIdx ;
 }
 
-void CMJCard::shuffle()
+void CMJCard::shuffle(bool bMake )
 {
 	uint16_t n = 0 ;
 	for ( uint16_t i = 0 ; i < m_vAllCards.size() - 2 ; ++i )
@@ -32,8 +33,172 @@ void CMJCard::shuffle()
 		m_vAllCards[n] = m_vAllCards[i] - m_vAllCards[n] ;
 		m_vAllCards[i] = m_vAllCards[i] - m_vAllCards[n] ;
 	}
+
 	m_nCurCardIdx = 0 ;
-	debugPokerInfo();
+
+	//if ( bMake == false)
+	//{
+	//	debugPokerInfo();
+	//	return;
+	//}
+
+	//if (CMakeCardConfig::getInstance()->getMakeCardRate() < rand() % 100)
+	//{
+	//	return ;
+	//}
+
+	//LOGFMTD("situation make card ");
+	//auto pfuncArraFind = [](VEC_UINT8& vVec, uint8_t nStarIdx , uint8_t nFind)->uint8_t
+	//{
+	//	for (uint8_t nIdx = nStarIdx; nIdx < vVec.size(); ++nIdx )
+	//	{
+	//		auto nt = card_Type(vVec[nIdx]);
+	//		if ( nt == nFind)
+	//		{
+	//			return nIdx;
+	//		}
+	//	}
+	//	return (uint8_t)-1;
+	//};
+
+	//auto pPrePareCard = [this, pfuncArraFind](uint8_t nPlayerIdx)
+	//{
+	//	uint8_t nCardStartIdx = nPlayerIdx * 13;
+	//	uint8_t ntype = rand() % eCT_Tiao + 1 ;
+	//	uint8_t nCardCnt = 0;
+	//	uint8_t nRate = rand() % 100;
+
+	//	uint8_t nRate9 = CMakeCardConfig::getInstance()->get9CardRate();
+	//	uint8_t nRate8 = CMakeCardConfig::getInstance()->get8CardRate();
+	//	uint8_t nRate7 = CMakeCardConfig::getInstance()->get7CardRate();
+	//	int8_t nRateNone = 100 - nRate9 - nRate8 - nRate7;
+	//	if (nRateNone < 0)
+	//	{
+	//		nRateNone = 0;
+	//	}
+
+	//	if ( nRate > (nRate8 + nRate7 + nRateNone) )
+	//	{
+	//		nCardCnt = 9;
+	//	}
+	//	else if (nRate > (nRate7 + nRateNone) )
+	//	{
+	//		nCardCnt = 8;
+	//	}
+	//	else if (nRate > nRateNone )
+	//	{
+	//		nCardCnt = 7;
+	//	}
+
+	//	if (0 == nCardCnt)
+	//	{
+	//		return;
+	//	}
+
+	//	for (uint8_t nCnt = 0; nCnt < nCardCnt;)
+	//	{
+	//		//uint8_t nFindCard = make_Card_Num((eMJCardType)ntype, (rand() % 9 + 1));
+	//		uint8_t curIdx = nCardStartIdx + nCnt;
+	//		auto findIdx = pfuncArraFind(m_vAllCards, curIdx, ntype);
+	//		if ((uint8_t)-1 == findIdx)
+	//		{
+	//			LOGFMTE("can not find proper card , so sorry for system type = %u",ntype);
+	//			continue;
+	//		}
+
+	//		if (findIdx != curIdx) // do switch 
+	//		{
+	//			auto temp = m_vAllCards[findIdx];
+	//			m_vAllCards[findIdx] = m_vAllCards[curIdx];
+	//			m_vAllCards[curIdx] = temp;
+	//		}
+	//		++nCnt;
+	//	}
+
+	if (!bMake)
+	{
+		debugPokerInfo();
+	}
+}
+
+void CMJCard::makeCardForPlayer(uint8_t nPlayerIdx, bool isRobot)
+{
+	LOGFMTD("situation make card player idx = %u , isRobot = %u",nPlayerIdx,isRobot );
+	auto pfuncArraFind = [](VEC_UINT8& vVec, uint8_t nStarIdx, uint8_t nFind)->uint8_t
+	{
+		for (uint8_t nIdx = nStarIdx; nIdx < vVec.size(); ++nIdx)
+		{
+			auto nt = card_Type(vVec[nIdx]);
+			if (nt == nFind)
+			{
+				return nIdx;
+			}
+		}
+		return (uint8_t)-1;
+	};
+
+	uint8_t nCardStartIdx = nPlayerIdx * 13;
+	uint8_t ntype = rand() % eCT_Tiao + 1;
+	uint8_t nCardCnt = 0;
+	uint8_t nRate = rand() % 100;
+
+	uint8_t nRate9 = CMakeCardConfig::getInstance()->get9CardRate(isRobot);
+	uint8_t nRate8 = CMakeCardConfig::getInstance()->get8CardRate(isRobot);
+	uint8_t nRate7 = CMakeCardConfig::getInstance()->get7CardRate(isRobot);
+	int8_t nRateNone = 100 - nRate9 - nRate8 - nRate7;
+	if (nRateNone < 0)
+	{
+		nRateNone = 0;
+	}
+
+	if (nRate >(nRate8 + nRate7 + nRateNone))
+	{
+		nCardCnt = 9;
+	}
+	else if (nRate > (nRate7 + nRateNone))
+	{
+		nCardCnt = 8;
+	}
+	else if (nRate > nRateNone)
+	{
+		nCardCnt = 7;
+	}
+
+	if (0 == nCardCnt)
+	{
+		return;
+	}
+
+	for (uint8_t nCnt = 0; nCnt < nCardCnt;)
+	{
+		//uint8_t nFindCard = make_Card_Num((eMJCardType)ntype, (rand() % 9 + 1));
+		uint8_t curIdx = nCardStartIdx + nCnt;
+		auto findIdx = pfuncArraFind(m_vAllCards, curIdx, ntype);
+		if ((uint8_t)-1 == findIdx)
+		{
+			LOGFMTE("can not find proper card , so sorry for system type = %u", ntype);
+			continue;
+		}
+
+		if (findIdx != curIdx) // do switch 
+		{
+			auto temp = m_vAllCards[findIdx];
+			m_vAllCards[findIdx] = m_vAllCards[curIdx];
+			m_vAllCards[curIdx] = temp;
+		}
+		++nCnt;
+	}
+
+	// shuffle the cards ;
+	uint16_t n = 0, ncurs = 0;
+	for (uint16_t i = 0; i < 11; ++i)
+	{
+		ncurs = nCardStartIdx + i;
+		n = rand() % (13 - i - 1) + ncurs + 1;
+		m_vAllCards[ncurs] = m_vAllCards[n] + m_vAllCards[ncurs];
+		m_vAllCards[n] = m_vAllCards[ncurs] - m_vAllCards[n];
+		m_vAllCards[ncurs] = m_vAllCards[ncurs] - m_vAllCards[n];
+	}
 }
 
 void CMJCard::debugCardInfo()
@@ -73,7 +238,7 @@ void CMJCard::initAllCard( eMJGameType eType )
 			}
 		}
 
-		if ( eMJ_COMMON == m_eMJGameType )
+		if ( eMJ_COMMON == m_eMJGameType || eMJ_WZ == m_eMJGameType )
 		{
 			// add feng , add ke
 			for ( uint8_t nValue = 1 ; nValue <= 4 ; ++nValue )

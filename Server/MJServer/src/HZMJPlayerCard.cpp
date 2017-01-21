@@ -3,7 +3,13 @@
 #include "log4z.h"
 bool HZMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 {
-	if (m_vEated.size() >= 6)
+	uint8_t nMaxEatCnt = 6;
+	if (this->nSelfIdx == nBankeIdx || (( nSelfIdx + 3) % 4 == nBankeIdx))
+	{
+		nMaxEatCnt = 9;
+	}
+
+	if (m_vEated.size() >= nMaxEatCnt)
 	{
 		return false;
 	}
@@ -339,4 +345,10 @@ bool HZMJPlayerCard::isBaoTou()
 {
 	auto caiShen = make_Card_Num(eCT_Jian, 3);
 	return ( caiShen == m_nJIang || caiShen == m_nDanDiao );
+}
+
+void HZMJPlayerCard::setIdxInfo(uint8_t nSelfIdx, uint8_t nBankeIdx)
+{
+	this->nSelfIdx = nSelfIdx;
+	this->nBankeIdx = nBankeIdx;
 }

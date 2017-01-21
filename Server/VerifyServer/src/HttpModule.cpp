@@ -358,6 +358,13 @@ bool CHttpModule::handleGetPlayerInfo(http::server::connection_ptr ptr)
 					nAddCoin += jsC["addCoin"].asInt();
 					nAddDiamond += jsC["addDiamond"].asInt();
 				}
+
+				//{
+				//	auto res = ptr->getReplyPtr();
+				//	Json::StyledWriter jswrite;
+				//	auto str = jswrite.write(jsUserData);
+				//	LOGFMTD("test = %s",str.c_str());
+				//}
 				LOGFMTD("uid = %u mail card cnt = %d",nUID,nTotalCnt);
 				jsUserData["cardCnt"] = jsUserData["cardCnt"].asInt() + nTotalCnt;
 				jsUserData["coin"] = jsUserData["coin"].asInt() + nAddCoin;
@@ -384,6 +391,14 @@ bool CHttpModule::handleGetPlayerInfo(http::server::connection_ptr ptr)
 			jsAgentBack["coin"] = retContent["coin"];
 			jsAgentBack["diamond"] = retContent["diamond"];
 
+			//{
+			//	auto res = ptr->getReplyPtr();
+			//	Json::StyledWriter jswrite;
+			//	auto str = jswrite.write(retContent);
+			//	LOGFMTD("online = %s", str.c_str());
+			//}
+
+			LOGFMTD("uid = %u online coin = %u", nUID, jsAgentBack["coin"].asInt());
 			lpfCheckDBMail(async,ptr,nUID,jsAgentBack);
 
 			return;
@@ -592,6 +607,7 @@ bool CHttpModule::handleLePayResult(http::server::connection_ptr ptr)
 	std::string str = "SUCCESS";
 	res->setContent(str, "text/xml");
 	ptr->doReply();
+	return true;
 }
 
 bool CHttpModule::url_decode(const std::string& in, std::string& out)

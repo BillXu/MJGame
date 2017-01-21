@@ -41,7 +41,11 @@ bool CItemConfigManager::OnPaser(CReaderRow& refReaderRow )
 //	pItem->nPrizeDiamoned = refReaderRow["PrizeDiamoned"]->IntValue() ;
 //	pItem->nValue = refReaderRow["Value"]->IntValue() ;
 	pItem->nType = refReaderRow["Type"]->IntValue() ;
-	assert(pItem->nType < 3 && "why type biger than 3 " );
+	//assert(pItem->nType < 3 && "why type biger than 3 " );
+	if (pItem->nType >= 3)
+	{
+		printf(" pItem->nType < 3 && why type biger than 3 item id = %u \n",pItem->nItemID);
+	}
 	m_vAllItems[pItem->nItemID] = pItem ;
 
 	// read gift 

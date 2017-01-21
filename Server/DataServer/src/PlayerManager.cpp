@@ -362,7 +362,7 @@ bool CPlayerManager::onAsyncRequest(uint16_t nRequestType , const Json::Value& j
 			jsResult["isOnline"] = 1;
 			jsResult["name"] = pPlayer->GetBaseData()->GetPlayerName();
 			jsResult["leftCardCnt"] = pPlayer->GetBaseData()->getVipRoomCard();
-			jsResult["coin"] = pPlayer->GetBaseData()->GetAllCoin();
+			jsResult["coin"] = (int32_t)pPlayer->GetBaseData()->GetAllCoin();
 			jsResult["diamond"] = pPlayer->GetBaseData()->GetAllDiamoned();
 		}
 		return true;

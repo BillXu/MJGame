@@ -71,11 +71,39 @@ void HZMJRoom::startGame()
 {
 	memset(m_vCaiPiaoFlag, 0, sizeof(m_vCaiPiaoFlag));
 	IMJRoom::startGame();
+	for (auto& ref : m_vMJPlayers)
+	{
+		if (ref == nullptr)
+		{
+			continue;
+		}
+
+		auto playerCard = (HZMJPlayerCard*)ref->getPlayerCard();
+		playerCard->setIdxInfo(ref->getIdx(), -1 ); // every one only eat two tan ;
+	}
 }
 
 void HZMJRoom::onGameEnd()
 {
 	// send game result ;
+	uint8_t nHuIdx = -1;
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu))
+		{
+			nHuIdx = pPlayer->getIdx();
+			break;
+		}
+	}
+
+	if ((uint8_t)-1 == nHuIdx)
+	{
+		LOGFMTD("hangzhou mj room id = %u liu  ju bank idx = %u",getRoomID(),getBankerIdx());
+		Json::Value jsMsg;
+		jsMsg["bankIdx"] = getBankerIdx();
+		sendRoomMsg(jsMsg, MSG_ROOM_HZMJ_RESULT_LIUJU);
+	}
+
 	IMJRoom::onGameEnd();
 
 	// if have player delay leave just leave ;
@@ -94,25 +122,28 @@ void HZMJRoom::willStartGame()
 
 void HZMJRoom::onGameDidEnd()
 {
-	//uint8_t nHuIdx = -1;
-	//for (auto& pPlayer : m_vMJPlayers)
-	//{
-	//	if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu))
-	//	{
-	//		nHuIdx = pPlayer->getIdx();
-	//	}
-	//}
+	uint8_t nHuIdx = -1;
+	for (auto& pPlayer : m_vMJPlayers)
+	{
+		if (pPlayer && pPlayer->haveState(eRoomPeer_AlreadyHu))
+		{
+			nHuIdx = pPlayer->getIdx();
+			break;
+		}
+	}
 
-	//if (getBankerIdx() == nHuIdx)
-	//{
-	//	++m_nContinueBankes;
-	//}
+	if (getBankerIdx() == nHuIdx)
+	{
+		++m_nContinueBankes;
+		LOGFMTD( "room id =%u banker continue = %u ",getRoomID(),m_nContinueBankes );
+	}
+	else if (nHuIdx != (uint8_t)-1 )
+	{
+		m_nContinueBankes = 0;
+		setBankIdx(nHuIdx);
+		LOGFMTD("player idx = %u be the new banker room id = %u",nHuIdx,getRoomID());
+	}
 
-	//if (nHuIdx != (uint8_t)-1)
-	//{
-	//	setBankIdx(nHuIdx);
-	//	LOGFMTD("player idx = %u be the new banker room id = %u",nHuIdx,getRoomID());
-	//}
 	IMJRoom::onGameDidEnd();
 
 	if (getDelegate())

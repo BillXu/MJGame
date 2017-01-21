@@ -381,6 +381,9 @@
     <ClInclude Include="src\WZMJRoomStateStartGame.h">
       <Filter>src\MJWZ\state</Filter>
     </ClInclude>
+    <ClInclude Include="src\makeCardConfig.h">
+      <Filter>SvrCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -583,6 +586,9 @@
     </ClCompile>
     <ClCompile Include="src\WZMJPlayerCard.cpp">
       <Filter>src\MJWZ</Filter>
+    </ClCompile>
+    <ClCompile Include="src\makeCardConfig.cpp">
+      <Filter>SvrCommon</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
