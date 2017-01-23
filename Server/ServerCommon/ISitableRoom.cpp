@@ -372,6 +372,8 @@ bool ISitableRoom::onMsg(Json::Value& prealMsg, uint16_t nMsgType, eMsgPort eSen
 		Json::Value jsmsgBack;
 		jsmsgBack["coin"] = nCoin;
 		jsmsgBack["diamond"] = nDiamond;
+		jsmsgBack["ticket"] = prealMsg["ticket"];
+		jsmsgBack["roomCard"] = prealMsg["roomCard"];
 		sendMsgToPlayer(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionIDThis);
 		return true;
 	}

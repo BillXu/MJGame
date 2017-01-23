@@ -240,6 +240,8 @@ bool MJRoomManager::onAsyncRequest(uint16_t nRequestType, const Json::Value& jsR
 				Json::Value jsmsgBack;
 				jsmsgBack["coin"] = nCoin;
 				jsmsgBack["diamond"] = nDiamond;
+				jsmsgBack["roomCard"] = jsReqContent["roomCard"];
+				jsmsgBack["ticket"] = jsReqContent["ticket"];
 				sendMsg(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionID);
 			}
 		}
@@ -249,6 +251,8 @@ bool MJRoomManager::onAsyncRequest(uint16_t nRequestType, const Json::Value& jsR
 			Json::Value jsmsgBack;
 			jsmsgBack["coin"] = nCoin;
 			jsmsgBack["diamond"] = nDiamond;
+			jsmsgBack["roomCard"] = jsReqContent["roomCard"];
+			jsmsgBack["ticket"] = jsReqContent["ticket"];
 			sendMsg(jsmsgBack, MSG_REQ_UPDATE_COIN, nSessionID);
 
 		}

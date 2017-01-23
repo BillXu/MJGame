@@ -32,6 +32,7 @@ public:
 	bool OnPaser(CReaderRow& refReaderRow );
 	stPlateItem* GetPlateItem(unsigned int nConfigID, uint8_t nTimes );
 	stPlateItem* randPlateItem( uint8_t nTimes );
+	uint32_t getCostByRollTimes( uint8_t nTimes );
 protected:
 	void Clear();
 protected:

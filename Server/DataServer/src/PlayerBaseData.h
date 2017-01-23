@@ -31,7 +31,7 @@ public:
 	uint32_t getCoin(){ return m_stBaseData.nCoin ; }
 	uint32_t GetAllDiamoned(){ return m_stBaseData.nDiamoned;}
 	void setCoin(int32_t nCoin );
-	bool AddMoney(int32_t nOffset,bool bDiamond = false );.
+	bool AddMoney(int32_t nOffset,bool bDiamond = false );
 	void addInvitePrize(uint32_t nCoinPrize );
 	bool decressMoney(int64_t nOffset,bool bDiamond = false );
 	bool OnPlayerEvent(stPlayerEvetArg* pArg);
@@ -57,7 +57,7 @@ public:
 	uint32_t getVipRoomCard(){ return m_stBaseData.nVipRoomCardCnt ;}
 	void addVipRoomCard(int32_t naddOffset );
 	uint32_t getLeftCharityTimes();
-	void addInvitePrize(uint32_t nCoinPrize);
+	uint32_t getExchangeTicket();
 protected:
 	bool onPlayerRequestMoney( uint64_t& nWantMoney,uint64_t nAtLeast, bool bDiamoned = false);
 	void onBeInviteBy(uint32_t nInviteUID );

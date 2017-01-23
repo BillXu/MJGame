@@ -84,11 +84,11 @@ uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 	uint8_t nCaishenCnt = getCaiShenCnt();
 	if (nCaishenCnt >= nCnt) // hu le 
 	{
-		if (m_nJIang == 0)
+		if ( m_nJIang == 0 && m_nDanDiao == 0 )
 		{
 			m_nJIang = caiShen;
-			m_nDanDiao = caiShen;
 		}
+
 		nCaishenCnt -= nCnt;
 		if (nCaishenCnt != 0 && nCaishenCnt != 3)
 		{
@@ -226,10 +226,9 @@ uint8_t HZMJPlayerCard::get7PairQueCnt( VEC_CARD vCards[eCT_Max] )
 	uint8_t nCaishenCnt = getCaiShenCnt();
 	if (nCaishenCnt >= nCnt) // hu le 
 	{
-		if (m_nJIang == 0)
+		if (m_nJIang == 0 && m_nDanDiao == 0 )
 		{
 			m_nJIang = caiShen;
-			m_nDanDiao = caiShen;
 		}
 		nCaishenCnt -= nCnt;
 		return nCaishenCnt % 2;
@@ -271,11 +270,6 @@ uint8_t HZMJPlayerCard::get7PairHuHaoHuaCnt()
 		}
 
 		// do check ;
-		if (vCard.size() < 3 )
-		{
-			continue;
-		}
-
 		for (uint8_t nIdx = 0; (uint8_t)(nIdx) < vCard.size(); )
 		{
 			auto thirdValue = 0;
@@ -343,12 +337,118 @@ uint8_t HZMJPlayerCard::get7PairHuHaoHuaCnt()
 
 bool HZMJPlayerCard::isBaoTou()
 {
-	auto caiShen = make_Card_Num(eCT_Jian, 3);
-	return ( caiShen == m_nJIang || caiShen == m_nDanDiao );
+	if (canHoldCard7PairHu())
+	{
+		return is7PairBaoTou();
+	}
+
+	return isCommonBaoTou();
 }
 
 void HZMJPlayerCard::setIdxInfo(uint8_t nSelfIdx, uint8_t nBankeIdx)
 {
 	this->nSelfIdx = nSelfIdx;
 	this->nBankeIdx = nBankeIdx;
+}
+
+bool HZMJPlayerCard::is7PairBaoTou()
+{
+	// remove new fest card ;
+	auto nCart = getNewestFetchedCard();
+	auto neCardType = card_Type(nCart);
+	bool bNeedRollBack = false;
+	auto iterNew = std::find(m_vCards[neCardType].begin(), m_vCards[neCardType].end(), nCart);
+	if (iterNew != m_vCards[neCardType].end())
+	{
+		m_vCards[neCardType].erase(iterNew);
+		bNeedRollBack = true;
+	}
+	else
+	{
+		LOGFMTE("why new get card is null ? = %u", nCart);
+		debugCardInfo();
+	}
+
+	uint8_t nCaishenCnt = getCaiShenCnt();  // keep cai shen cnt ;
+
+	VEC_CARD vBackUpJian;
+	vBackUpJian.assign(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end());
+	auto caiShen = make_Card_Num(eCT_Jian, 3);
+	auto iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), caiShen);
+	while (iter != m_vCards[eCT_Jian].end())
+	{
+		m_vCards[eCT_Jian].erase(iter);
+		iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), caiShen);
+	}
+
+	auto nCnt = MJPlayerCard::get7PairQueCnt(m_vCards);
+	// rollback ;
+	m_vCards[eCT_Jian].swap(vBackUpJian);
+	if ( bNeedRollBack )
+	{
+		addCardToVecAsc(m_vCards[neCardType],nCart);
+	}
+
+	// do work
+	if (nCaishenCnt == nCnt + 1 ) // hu le 
+	{
+		m_nJIang = nCaishenCnt;
+		m_nDanDiao = nCaishenCnt;
+		return true;
+	}
+ 
+	return false;
+}
+
+bool HZMJPlayerCard::isCommonBaoTou()
+{
+	// remove new fest card ;
+	auto nCart = getNewestFetchedCard();
+	auto neCardType = card_Type(nCart);
+	bool bNeedRollBack = false;
+	auto iterNew = std::find(m_vCards[neCardType].begin(), m_vCards[neCardType].end(), nCart);
+	if (iterNew != m_vCards[neCardType].end())
+	{
+		m_vCards[neCardType].erase(iterNew);
+		bNeedRollBack = true;
+	}
+	else
+	{
+		LOGFMTE("why new get card is null ? = %u", nCart);
+		debugCardInfo();
+	}
+
+	uint8_t nCaishenCnt = getCaiShenCnt();  // keep cai shen cnt ;
+
+	VEC_CARD vBackUpJian;
+	vBackUpJian.assign(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end());
+	auto caiShen = make_Card_Num(eCT_Jian, 3);
+	auto iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), caiShen);
+	while (iter != m_vCards[eCT_Jian].end())
+	{
+		m_vCards[eCT_Jian].erase(iter);
+		iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), caiShen);
+	}
+
+	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(m_vCards);
+	// rollback ;
+	m_vCards[eCT_Jian].swap(vBackUpJian);
+	if (bNeedRollBack)
+	{
+		addCardToVecAsc(m_vCards[neCardType], nCart);
+	}
+
+	if (nCaishenCnt == ( nCnt - 2 + 1) && m_nJIang == 0 && m_nDanDiao == 0 )  
+	{
+		m_nJIang = nCaishenCnt;
+		m_nDanDiao = nCaishenCnt;
+		return true;
+	}
+
+	if ( (m_nJIang != 0 || m_nDanDiao != 0) && nCaishenCnt == (nCnt + 2) )
+	{
+		return true;
+	}
+
+	return false;
 }

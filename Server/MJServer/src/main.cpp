@@ -281,6 +281,7 @@
 #include "XLMJPlayerCard.h"
 #include "MJPeerCardNew.h"
 #include "WZMJPlayerCard.h"
+#include "HZMJPlayerCard.h"
 void tempTest()
 {
 	//CMJHuPaiInfo tInfo ;
@@ -355,25 +356,28 @@ void tempTest()
 	//	}
 
 	//	// test new chard ;
-	WZMJPlayerCard* pPlayerCard = new WZMJPlayerCard();
+	auto pPlayerCard = new HZMJPlayerCard();
 		
 	//pPlayerCard->setQueType(eCT_Tong);
 	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+
 	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 4));
-
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
-
 	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
 	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
 
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 2));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 2));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 4));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 5));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 6));
 
-	pPlayerCard->setCaiShenCard(CMJCard::makeCardNumber(eCT_Wan, 7));
-	bool b = pPlayerCard->canHuWitCard(CMJCard::makeCardNumber(eCT_Wan, 5));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+
+	pPlayerCard->onMoCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+	auto b = pPlayerCard->isBaoTou();
 	if (b)
 	{
 		printf("ok \n");

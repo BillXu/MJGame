@@ -438,7 +438,7 @@ void HZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		nHaoHuaCnt = n;
 		while ( n-- > 0 )
 		{
-			nBasetBet *= 4;
+			nBasetBet *= 2;
 		}
 	}
 

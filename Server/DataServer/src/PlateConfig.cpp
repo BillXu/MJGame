@@ -6,7 +6,7 @@ bool CPlateConfigMgr::OnPaser(CReaderRow& refReaderRow )
 	pItem->ePlateItemType = (eShopItemType)refReaderRow["plateType"]->IntValue() ;
 	pItem->nConfigID = refReaderRow["configID"]->IntValue() ;
 
-	uint32_t nPrice = refReaderRow["isCharge"]->IntValue();
+	uint32_t nPrice = refReaderRow["toll"]->IntValue();
 	uint8_t nTimes = refReaderRow["times"]->IntValue();
 
 	pItem->nCount = refReaderRow["count"]->IntValue();

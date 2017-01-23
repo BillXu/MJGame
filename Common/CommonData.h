@@ -46,7 +46,7 @@ struct stPlayerDetailData
 	double dfLongitude;
 	double dfLatidue;
 	uint32_t tOfflineTime ;  // last offline time ;
-	uint32_t nCupCnt ;  // jiang quan  ;
+	uint32_t nCupCnt ;  // jiang quan  ; exchange ticket 
 	uint8_t vUploadedPic[MAX_UPLOAD_PIC] ;
 	uint32_t vJoinedClubID[MAX_JOINED_CLUB_CNT] ;
 	uint8_t cPhoneNum[MAX_PHONE_NUM_LEN] ;

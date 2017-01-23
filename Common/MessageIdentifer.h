@@ -631,7 +631,8 @@ enum eMsgType
 
 	MSG_REQ_UPDATE_COIN, // 获取玩家最新的金钱
 	// client : null ;
-	// svr : { coin : 2345 , diamond : 2345, roomCard : 234  };
+	// svr : { coin : 2345 , diamond : 2345, roomCard : 234 , ticket : 23  };
+	// ticket : 用于兑换的奖券数量
 
 	// friend module 
 	MSG_REQ_ADD_FRIEND, // 请求添加好友

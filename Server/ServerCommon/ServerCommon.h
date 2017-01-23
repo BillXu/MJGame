@@ -51,7 +51,7 @@ enum eAsyncReq
 	eAsync_ReqRoomSerials, // {roomType : 2 }  // result :  { ret : 0 , serials : [0 , 2 ,34,56 ] }  // ret : 0 success , 1 svr is reading from db wait a moment ; 
 	eAsync_SyncVipRoomBillID, // { billID : 2345 , useUIDs : [2345,2345,2345,2345] }
 	eAsync_Apns, // { apnsType : 0 , targets : [234,2345,23,4] , content : "hello this is" ,msgID : "fs" ,msgdesc : "shfsg" }  apnsType : 0 , group type . 1 , target persions ;
-	eAsync_SendUpdateCoinToClient, // { sessionID : 234 , coin : 235 , diamond : 234, uid : 3423 , roomID : 234 } 
+	eAsync_SendUpdateCoinToClient, // { sessionID : 234 , coin : 235 ,roomCard : 23 , diamond : 234, ticket : 23 , uid : 3423 , roomID : 234 } 
 	eAsync_ApplyLeaveRoom, // {uid : 234 , roomID : 2345 , reason : 0 } reason : 0 , disconnect , 1 other peer login.  result : { ret : 0 , coin : 2345 } // ret : 0 leave direct, 1 delay leave room , 2 not in room , 3 not find room   ;
 	eAsync_SyncPlayerRoomCoin, // {uid : 235 ,  coin : 2345 };
 	eAsync_AgentAddRoomCard, // { targetUID : 234523 , addCard : 2345 , addCardNo  : 2345, addCoin : 2345 , addDiamond : 2345  }  // ret ; always success ;

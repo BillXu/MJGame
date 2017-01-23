@@ -17,6 +17,8 @@ protected:
 	uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max])override;
 	uint8_t getCaiShenCnt();
 	uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max])override;
+	bool is7PairBaoTou();
+	bool isCommonBaoTou();
 	//uint8_t getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao );
 protected:
 	uint8_t nSelfIdx;

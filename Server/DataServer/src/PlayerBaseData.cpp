@@ -875,6 +875,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				jsmsgBack["coin"] = getCoin();
 				jsmsgBack["diamond"] = GetAllDiamoned();
 				jsmsgBack["roomCard"] = getVipRoomCard();
+				jsmsgBack["ticket"] = getExchangeTicket();
 				SendMsg(jsmsgBack, nmsgType);
 			}
 			else
@@ -886,7 +887,9 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 				jsReq["uid"] = GetPlayer()->GetUserUID();
 				jsReq["coin"] = getCoin();
 				jsReq["diamond"] = GetAllDiamoned();
+				jsReq["roomCard"] = getVipRoomCard();
 				jsReq["roomID"] = pPlayerData->getCurRoomID();
+				jsReq["ticket"] = getExchangeTicket();
 				pAsyn->pushAsyncRequest(ID_MSG_PORT_MJ, eAsync_SendUpdateCoinToClient, jsReq);
 			}
 
@@ -1755,6 +1758,11 @@ void CPlayerBaseData::addVipRoomCard(int32_t naddOffset)
 
 	m_stBaseData.nVipRoomCardCnt += naddOffset; 
 	m_bMoneyDataDirty = true;
+}
+
+uint32_t CPlayerBaseData::getExchangeTicket()
+{
+	return m_stBaseData.nCupCnt;
 }
 
 void CPlayerBaseData::onProcessRollPlate()
