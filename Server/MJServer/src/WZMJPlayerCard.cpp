@@ -3,7 +3,96 @@
 #include "log4z.h"
 bool WZMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 {
-	return MJPlayerCard::canEatCard(nCard, nWithA, withB);
+	auto eType = card_Type(nCard);
+
+	auto nBlank = make_Card_Num(eCT_Jian,3);
+	if (nCard == nBlank)   // blank replace cai shen 
+	{
+		nCard = m_nCaiShenCard;
+	}
+
+	if (eType >= eCT_Max)
+	{
+		LOGFMTE("canEatCard parse card type error so do not have this card = %u", nCard);
+		return false;
+	}
+
+	if (eType != eCT_Tiao && eCT_Tong != eType && eCT_Wan != eType)
+	{
+		LOGFMTD("only wan , tiao , tong can do eat act");
+		return false;
+	}
+
+	auto lpFunCanEat = [this](uint8_t nA, uint8_t nB, uint8_t nWithA, uint8_t withB)
+	{
+		auto nBlank = make_Card_Num(eCT_Jian, 3);
+		nA = (nA == m_nCaiShenCard) ? nBlank : nA;
+		nB = (nB == m_nCaiShenCard) ? nBlank : nB;
+		if (isHaveCard(nA) && isHaveCard(nB))
+		{
+			if (nWithA != 0 && withB != 0)
+			{
+				if ((nA == nWithA && nB == withB) || (nB == nWithA && nA == withB))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+
+	// ABX ;
+	auto nA = nCard - 2;
+	auto nB = nCard - 1;
+	if (lpFunCanEat(nA, nB, nWithA, withB))
+	{
+		return true;
+	}
+
+	// AXB ;
+	nA = nCard - 1;
+	nB = nCard + 1;
+	if (lpFunCanEat(nA, nB, nWithA, withB))
+	{
+		return true;
+	}
+
+	// XAB
+	nA = nCard + 1;
+	nB = nCard + 2;
+	if (lpFunCanEat(nA, nB, nWithA, withB))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool WZMJPlayerCard::onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB)
+{
+	if (!isHaveCard(nWithA) || !isHaveCard(withB))
+	{
+		LOGFMTE("do not have with card , can not eat a = %u , b = %u, c = %u", nCard, nWithA, withB);
+		return false;
+	}
+
+	auto typeA = card_Type(nWithA);
+	auto typeB = card_Type(withB);
+	auto iter = std::find(m_vCards[typeA].begin(), m_vCards[typeA].end(), nWithA);
+	m_vCards[typeA].erase(iter);
+
+	iter = std::find(m_vCards[typeB].begin(), m_vCards[typeB].end(), withB);
+	m_vCards[typeB].erase(iter);
+
+	// add to eat , should not sort 
+	m_vEated.push_back(nCard);
+	m_vEated.push_back(nWithA);
+	m_vEated.push_back(withB);
+	return true;
 }
 
 bool WZMJPlayerCard::canHuWitCard(uint8_t nCard)
@@ -52,6 +141,18 @@ bool WZMJPlayerCard::isHardHuWithCard( uint8_t ncard )
 		addCardToVecAsc(m_vCards[eType], ncard);
 	}
 
+	// replace cai shen with blank
+	auto nBlankCnt = getBlankCnt();
+	for (uint8_t nIdx = 0; nIdx < nBlankCnt; ++nIdx)
+	{
+		// add card ;
+		auto cType = card_Type(m_nCaiShenCard);
+		addCardToVecAsc(m_vCards[cType], m_nCaiShenCard);
+		// remove blank
+		auto iter = std::find(m_vCards[eCT_Jian].begin(),m_vCards[eCT_Jian].end(),make_Card_Num(eCT_Jian,3));
+		m_vCards[eCT_Jian].erase(iter);
+	}
+
 	bool isHard = false;
 	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty())
 	{
@@ -73,7 +174,26 @@ bool WZMJPlayerCard::isHardHuWithCard( uint8_t ncard )
 		m_vCards[eType].erase(iter);
 	}
 
+	// roll back card 
+	for (uint8_t nIdx = 0; nIdx < nBlankCnt; ++nIdx)
+	{
+		// add blank card back ;
+		addCardToVecAsc(m_vCards[eCT_Jian], make_Card_Num(eCT_Jian, 3));
+
+		// remove cai shen by from blank 
+		auto cType = card_Type(m_nCaiShenCard);
+		auto iter = std::find(m_vCards[cType].begin(), m_vCards[cType].end(), m_nCaiShenCard);
+		m_vCards[cType].erase(iter);
+	}
+
 	return isHard;
+}
+
+uint8_t WZMJPlayerCard::getBlankCnt()
+{
+	auto& vec = m_vCards[eCT_Jian];
+	auto ncnt = std::count(vec.begin(), vec.end(), make_Card_Num(eCT_Jian,3));
+	return ncnt;
 }
 
 uint8_t WZMJPlayerCard::getMustChuFisrtCards(VEC_CARD& vCardMustChu)
@@ -110,15 +230,47 @@ void WZMJPlayerCard::setCaiShenCard(uint8_t nCaiShenCard)
 uint8_t WZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max])
 {
 	uint8_t nCaishenCnt = getCaiShenCnt();
+
+	// replace cai shen with blank
+	auto nBlankCnt = getBlankCnt();
+	for (uint8_t nIdx = 0; nIdx < nBlankCnt; ++nIdx)
+	{
+		// add card ;
+		auto cType = card_Type(m_nCaiShenCard);
+		addCardToVecAsc(m_vCards[cType], m_nCaiShenCard);
+		// remove blank
+		auto iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), make_Card_Num(eCT_Jian, 3));
+		m_vCards[eCT_Jian].erase(iter);
+	}
+
+	auto prooBackCaiFun = [this]( uint8_t nBlankCnt )
+	{
+		// roll back card 
+		for (uint8_t nIdx = 0; nIdx < nBlankCnt; ++nIdx)
+		{
+			// add blank card back ;
+			addCardToVecAsc(m_vCards[eCT_Jian], make_Card_Num(eCT_Jian, 3));
+
+			// remove cai shen by from blank 
+			auto cType = card_Type(m_nCaiShenCard);
+			auto iter = std::find(m_vCards[cType].begin(), m_vCards[cType].end(), m_nCaiShenCard);
+			m_vCards[cType].erase(iter);
+		}
+	
+	};
+
 	if ( nCaishenCnt == 0 )
 	{
-		return MJPlayerCard::getMiniQueCnt(vCards);
+		auto nQueCnt = MJPlayerCard::getMiniQueCnt(vCards);
+		prooBackCaiFun(nBlankCnt);
+		return nQueCnt;
 	}
 
 	uint8_t nCaiShenType = card_Type(m_nCaiShenCard);
 	if (nCaiShenType >= eCT_Max)
 	{
 		LOGFMTE("invalid type = %u from caishen card = %u", nCaiShenType, m_nCaiShenCard);
+		prooBackCaiFun(nBlankCnt);
 		return 100;
 	}
 
@@ -135,6 +287,7 @@ uint8_t WZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max])
 	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(vCards);
 	// rollback ;
 	vCards[nCaiShenType].swap(vBackUpJian);
+	prooBackCaiFun(nBlankCnt);
 
 	if (nCaishenCnt >= nCnt) // hu le 
 	{
@@ -171,15 +324,47 @@ uint8_t WZMJPlayerCard::getCaiShenCnt()
 uint8_t WZMJPlayerCard::get7PairQueCnt(VEC_CARD vCards[eCT_Max])
 {
 	uint8_t nCaishenCnt = getCaiShenCnt();
+
+	// replace cai shen with blank
+	auto nBlankCnt = getBlankCnt();
+	for (uint8_t nIdx = 0; nIdx < nBlankCnt; ++nIdx)
+	{
+		// add card ;
+		auto cType = card_Type(m_nCaiShenCard);
+		addCardToVecAsc(m_vCards[cType], m_nCaiShenCard);
+		// remove blank
+		auto iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), make_Card_Num(eCT_Jian, 3));
+		m_vCards[eCT_Jian].erase(iter);
+	}
+
+	auto prooBackCaiFun = [this](uint8_t nBlankCnt)
+	{
+		// roll back card 
+		for (uint8_t nIdx = 0; nIdx < nBlankCnt; ++nIdx)
+		{
+			// add blank card back ;
+			addCardToVecAsc(m_vCards[eCT_Jian], make_Card_Num(eCT_Jian, 3));
+
+			// remove cai shen by from blank 
+			auto cType = card_Type(m_nCaiShenCard);
+			auto iter = std::find(m_vCards[cType].begin(), m_vCards[cType].end(), m_nCaiShenCard);
+			m_vCards[cType].erase(iter);
+		}
+
+	};
+
 	if (nCaishenCnt == 0)
 	{
-		return MJPlayerCard::get7PairQueCnt(vCards);
+		auto nQueCnt = MJPlayerCard::get7PairQueCnt(vCards);
+		prooBackCaiFun(nBlankCnt);
+		return nQueCnt;
 	}
 
 	uint8_t nCaiShenType = card_Type(m_nCaiShenCard);
 	if (nCaiShenType >= eCT_Max)
 	{
 		LOGFMTE("invalid type = %u from caishen card = %u", nCaiShenType, m_nCaiShenCard);
+		prooBackCaiFun(nBlankCnt);
 		return 100;
 	}
 
@@ -195,6 +380,7 @@ uint8_t WZMJPlayerCard::get7PairQueCnt(VEC_CARD vCards[eCT_Max])
 	auto nCnt = MJPlayerCard::get7PairQueCnt(vCards);
 	// rollback ;
 	vCards[nCaiShenType].swap(vBackUpJian);
+	prooBackCaiFun(nBlankCnt);
 
 	if (nCaishenCnt >= nCnt) // hu le 
 	{

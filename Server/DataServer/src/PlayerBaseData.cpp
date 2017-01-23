@@ -1025,110 +1025,7 @@ bool CPlayerBaseData::OnMessage( Json::Value& recvValue , uint16_t nmsgType, eMs
 		break ;
 	case MSG_START_ROLL_PLATE:
 		{
-			struct tm ptnw ,tlast;
-			time_t nNow = time(nullptr);
-			ptnw = *localtime(&nNow);
-			if ( m_stBaseData.tLastRollPlateTime == 0 )
-			{
-				tlast.tm_mday = 0 ;
-				tlast.tm_mon = 0 ;
-			}
-			else
-			{
-				time_t tLasttt = m_stBaseData.tLastRollPlateTime;
-				tlast = *localtime(&tLasttt) ;
-			}
-
-			if ( tlast.tm_mday != ptnw.tm_mday && tlast.tm_mon != ptnw.tm_mon )
-			{
-				// a new day rest free roll times ;
-				m_stBaseData.nRolledPlateTimes = 0 ;
-			}
-
-			Json::Value jsMsg ;
-			jsMsg["ret"] = 0 ; 
-			jsMsg["isFree"] = 1 ;
-			jsMsg["plateID"] = 0 ;
-			do 
-			{
-				uint32_t nCost = 0 ;
-				if ( m_stBaseData.nRolledPlateTimes > 0 )
-				{
-					jsMsg["isFree"] = 0 ; 
-					nCost = m_stBaseData.nRolledPlateTimes * 20 ;
-					nCost = nCost > 120 ? 120 : nCost ;
-					if ( GetAllDiamoned() < nCost )
-					{
-						LOGFMTE("roll plate diamond is not enought cost = %u ",nCost) ;
-						jsMsg["ret"] = 1 ;
-						break ;
-					}
-					LOGFMTD("roll plate cost = %u , this is time = %u",nCost,m_stBaseData.nRolledPlateTimes) ;
-					decressMoney(nCost,true) ;
-				}
-
-				// do the result ;
-				auto pPlateConfig = (CPlateConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Plate);
-				auto pp = pPlateConfig->randPlateItem(jsMsg["isFree"].asInt() == 1 );
-				jsMsg["plateID"] = pp->nConfigID ;
-				switch ( pp->ePlateItemType )
-				{
-				case eShopItem_Item:
-					{
-						auto itemConfig = (CItemConfigManager*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Item);
-						auto item = itemConfig->GetItemConfigByItemID(pp->nItemID);
-						auto pBag = (CPlayerBag*)GetPlayer()->GetComponent(ePlayerComponet_Bag);
-						pBag->addPlayerItem(pp->nItemID,item->isStack,pp->nCount,true) ;
-					}
-					break;
-				case eShopItem_Coin:
-					{
-						AddMoney(pp->nCount,false) ;
-					}
-					break;
-				case eShopItem_Diamoned:
-					{
-						AddMoney(pp->nCount,true) ;
-					}
-					break ;
-				case eShopItem_RoomCard:
-					{
-						m_stBaseData.nVipRoomCardCnt += pp->nCount ;
-						m_bMoneyDataDirty = true ;
-					}
-					break;
-				case eShopItem_PrizePaper:
-					{
-						m_stBaseData.nCupCnt += pp->nCount;
-						m_bMoneyDataDirty = true;
-					}
-				break;
-				default:
-					{
-						if ( nCost > 0 )
-						{
-							AddMoney(nCost,true) ;
-						}
-						LOGFMTE("unknown item type roll plate item = %u, give back money = %u",pp->nConfigID,nCost) ;
-						jsMsg["ret"] = 2 ; 
-					}
-					break;
-				}
-				
-			} while (0);
-
-			if ( jsMsg["ret"].asUInt() == 0 )
-			{
-				++m_stBaseData.nRolledPlateTimes ;
-			}
-			
-			if ( jsMsg["isFree"].asUInt() )
-			{
-				m_stBaseData.tLastRollPlateTime = (uint32_t)time(nullptr);
-			}
-			m_bCommonLogicDataDirty = true ;
-			SendMsg(jsMsg,nmsgType);
-			LOGFMTD("uid = %u roll plate id = %u, isfee = %u, already times = %u",GetPlayer()->GetUserUID(),jsMsg["plateID"].asUInt(),jsMsg["isFree"].asUInt(),m_stBaseData.nRolledPlateTimes) ;
+			onProcessRollPlate();
 		}
 		break ;
 	case MSG_PLAYER_DO_GET_CHARITY:
@@ -1356,6 +1253,7 @@ void CPlayerBaseData::SendBaseDatToClient()
 		jValue["ticket"] = m_stBaseData.nCupCnt;
 		jValue["ownRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getOwnRoomID();
 		jValue["stayInRoomID"] = ((CPlayerGameData*)GetPlayer()->GetComponent(ePlayerComponent_PlayerGameData))->getCurRoomID();
+		jValue["plateTimes"] = getRollPlateTimes();
 
 		Json::Value jsclothe ;
 		jsclothe[jsclothe.size()] = m_stBaseData.vJoinedClubID[jsclothe.size()];
@@ -1857,6 +1755,117 @@ void CPlayerBaseData::addVipRoomCard(int32_t naddOffset)
 
 	m_stBaseData.nVipRoomCardCnt += naddOffset; 
 	m_bMoneyDataDirty = true;
+}
+
+void CPlayerBaseData::onProcessRollPlate()
+{
+	auto nAlreadyRolledTimes = getRollPlateTimes();
+	Json::Value jsMsg;
+	jsMsg["ret"] = 0;
+	jsMsg["cost"] = 0;
+	jsMsg["plateID"] = 0;
+	do
+	{
+		if (nAlreadyRolledTimes >= 3)
+		{
+			LOGFMTE("uid = %u already rolled 3 times plate can not do more ");
+			jsMsg["ret"] = 3;
+			break;
+		}
+
+		auto pPlateConfig = (CPlateConfigMgr*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Plate);
+		uint32_t nCost = pPlateConfig->getCostByRollTimes(nAlreadyRolledTimes + 1 );
+		if (GetAllDiamoned() < nCost)
+		{
+			LOGFMTE("roll plate diamond is not enought cost = %u ", nCost);
+			jsMsg["ret"] = 1;
+			break;
+		}
+		LOGFMTD("roll plate cost = %u , this is time = %u", nCost, m_stBaseData.nRolledPlateTimes);
+		decressMoney(nCost, true);
+
+		// do the result ;
+		
+		auto pp = pPlateConfig->randPlateItem( nAlreadyRolledTimes + 1);
+		jsMsg["plateID"] = pp->nConfigID;
+		switch (pp->ePlateItemType)
+		{
+		case eShopItem_Item:
+		{
+			auto itemConfig = (CItemConfigManager*)CGameServerApp::SharedGameServerApp()->GetConfigMgr()->GetConfig(CConfigManager::eConfig_Item);
+			auto item = itemConfig->GetItemConfigByItemID(pp->nItemID);
+			auto pBag = (CPlayerBag*)GetPlayer()->GetComponent(ePlayerComponet_Bag);
+			pBag->addPlayerItem(pp->nItemID, item->isStack, pp->nCount, true);
+		}
+		break;
+		case eShopItem_Coin:
+		{
+			AddMoney(pp->nCount, false);
+		}
+		break;
+		case eShopItem_Diamoned:
+		{
+			AddMoney(pp->nCount, true);
+		}
+		break;
+		case eShopItem_RoomCard:
+		{
+			m_stBaseData.nVipRoomCardCnt += pp->nCount;
+			m_bMoneyDataDirty = true;
+		}
+		break;
+		case eShopItem_PrizePaper:
+		{
+			m_stBaseData.nCupCnt += pp->nCount;
+			m_bMoneyDataDirty = true;
+		}
+		break;
+		default:
+		{
+			if (nCost > 0)
+			{
+				AddMoney(nCost, true);
+			}
+			LOGFMTE("unknown item type roll plate item = %u, give back money = %u", pp->nConfigID, nCost);
+			jsMsg["ret"] = 2;
+		}
+		break;
+		}
+
+	} while (0);
+
+	if (jsMsg["ret"].asUInt() == 0)
+	{
+		++m_stBaseData.nRolledPlateTimes;
+	}
+
+	m_stBaseData.tLastRollPlateTime = (uint32_t)time(nullptr);
+
+	m_bCommonLogicDataDirty = true;
+	SendMsg(jsMsg, MSG_START_ROLL_PLATE);
+	LOGFMTD("uid = %u roll plate id = %u, isfee = %u, already times = %u", GetPlayer()->GetUserUID(), jsMsg["plateID"].asUInt(), jsMsg["isFree"].asUInt(), m_stBaseData.nRolledPlateTimes);
+}
+
+uint8_t CPlayerBaseData::getRollPlateTimes()
+{
+	struct tm ptnw, tlast;
+	time_t nNow = time(nullptr);
+	ptnw = *localtime(&nNow);
+	if (m_stBaseData.tLastRollPlateTime == 0 )
+	{
+		m_stBaseData.nRolledPlateTimes = 0;
+		return m_stBaseData.nRolledPlateTimes ;
+	}
+	 
+	time_t tLasttt = m_stBaseData.tLastRollPlateTime;
+	tlast = *localtime(&tLasttt);
+	if (tlast.tm_yday != ptnw.tm_yday )
+	{
+		// a new day rest free roll times ;
+		m_stBaseData.nRolledPlateTimes = 0;
+	}
+
+	return m_stBaseData.nRolledPlateTimes;
 }
 
 

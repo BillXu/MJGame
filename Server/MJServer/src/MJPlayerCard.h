@@ -44,7 +44,7 @@ public:
 	bool onMingGang(uint8_t nCard, uint8_t nGangGetCard) final;
 	bool onAnGang(uint8_t nCard, uint8_t nGangGetCard) final;
 	bool onBuGang(uint8_t nCard, uint8_t nGangGetCard) final;
-	bool onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB) final;
+	bool onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB) override;
 	bool onChuCard(uint8_t nChuCard)final;
 
 	bool getHoldCard(VEC_CARD& vHoldCard) final;

@@ -6,9 +6,14 @@ bool CPlateConfigMgr::OnPaser(CReaderRow& refReaderRow )
 	pItem->ePlateItemType = (eShopItemType)refReaderRow["plateType"]->IntValue() ;
 	pItem->nConfigID = refReaderRow["configID"]->IntValue() ;
 
-	bool isCharge = refReaderRow["isCharge"]->IntValue();
+	uint32_t nPrice = refReaderRow["isCharge"]->IntValue();
+	uint8_t nTimes = refReaderRow["times"]->IntValue();
 
-	if ( GetPlateItem(pItem->nConfigID,!isCharge ) )
+	pItem->nCount = refReaderRow["count"]->IntValue();
+	pItem->nItemID = refReaderRow["itemID"]->IntValue();
+	pItem->nRate = refReaderRow["rate"]->IntValue();
+
+	if (GetPlateItem(pItem->nConfigID, nTimes))
 	{
 		delete pItem ;
 		pItem = NULL ;
@@ -16,24 +21,32 @@ bool CPlateConfigMgr::OnPaser(CReaderRow& refReaderRow )
 		return false;
 	}
 
-	if ( isCharge )
+	auto iter = m_vPlateGroup.find(nTimes);
+	if (iter == m_vPlateGroup.end())
 	{
-		m_vChargePlateItems.push_back(pItem) ;
+		stPlateGroup st;
+		st.nPrice = nPrice;
+		st.nTimes = nTimes;
+		st.vPlateItems.push_back(pItem);
+		m_vPlateGroup[nTimes] = st;
 	}
 	else
 	{
-		m_vFreePlateItems.push_back(pItem) ;
+		iter->second.vPlateItems.push_back(pItem);
 	}
-	
-	pItem->nCount = refReaderRow["count"]->IntValue() ;
-	pItem->nItemID = refReaderRow["itemID"]->IntValue() ;
-	pItem->nRate = refReaderRow["rate"]->IntValue() ;
+
 	return true ;
 }
 
-stPlateItem* CPlateConfigMgr::GetPlateItem(unsigned int nConfigID , bool isFree )
+stPlateItem* CPlateConfigMgr::GetPlateItem(unsigned int nConfigID , uint8_t nTimes )
 {
-	auto vPlateItems = isFree ? m_vFreePlateItems : m_vChargePlateItems ;
+	auto iterGroup = m_vPlateGroup.find(nTimes);
+	if (iterGroup == m_vPlateGroup.end())
+	{
+		return nullptr;
+	}
+
+	auto& vPlateItems = iterGroup->second.vPlateItems;
 	for ( auto pitem : vPlateItems )
 	{
 		if ( pitem->nConfigID == nConfigID )
@@ -44,9 +57,16 @@ stPlateItem* CPlateConfigMgr::GetPlateItem(unsigned int nConfigID , bool isFree 
 	return nullptr ;
 }
 
-stPlateItem* CPlateConfigMgr::randPlateItem( bool isFree )
+stPlateItem* CPlateConfigMgr::randPlateItem( uint8_t nTimes )
 {
-	auto vPlateItems = isFree ? m_vFreePlateItems : m_vChargePlateItems ;
+	auto iterGroup = m_vPlateGroup.find(nTimes);
+	if (iterGroup == m_vPlateGroup.end())
+	{
+		return nullptr;
+	}
+
+	auto& vPlateItems = iterGroup->second.vPlateItems;
+
 	uint32_t nRand = rand() % 10000 + 1 ;
 	uint16_t nCheckRate = 0 ;
 	uint16_t nIdx = rand() % vPlateItems.size() ;
@@ -64,19 +84,28 @@ stPlateItem* CPlateConfigMgr::randPlateItem( bool isFree )
 	return vPlateItems.front() ;
 }
 
+uint32_t CPlateConfigMgr::getCostByRollTimes(uint8_t nTimes)
+{
+	auto iterGroup = m_vPlateGroup.find(nTimes);
+	if (iterGroup == m_vPlateGroup.end())
+	{
+		LOGFMTE("not congfig for times = %u",nTimes);
+		return -1;
+	}
+	
+	return iterGroup->second.nPrice;
+}
+
 void CPlateConfigMgr::Clear()
 {
-	for ( auto pitem : m_vFreePlateItems )
+	for (auto& ref : m_vPlateGroup)
 	{
-		delete pitem ;
-		pitem = nullptr ;
+		for (auto& pp : ref.second.vPlateItems)
+		{
+			delete pp;
+			pp = nullptr;
+		}
+		ref.second.vPlateItems.clear();
 	}
-	m_vFreePlateItems.clear() ;
-
-	for ( auto pitem : m_vChargePlateItems )
-	{
-		delete pitem ;
-		pitem = nullptr ;
-	}
-	m_vChargePlateItems.clear() ;
+	m_vPlateGroup.clear();
 }

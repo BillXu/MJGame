@@ -243,27 +243,49 @@ bool MJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 		return false;
 	}
 
+	auto lpFunCanEat = [this]( uint8_t nA, uint8_t nB, uint8_t nWithA, uint8_t withB )
+	{
+		if (isHaveCard(nA) && isHaveCard(nB))
+		{
+			if (nWithA != 0 && withB != 0)
+			{
+				if ((nA == nWithA && nB == withB) || (nB == nWithA && nA == withB))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+
 	// ABX ;
-	nWithA = nCard - 2;
-	withB = nCard - 1;
-	if (isHaveCard(nWithA) && isHaveCard(withB))
+	auto nA = nCard - 2;
+	auto nB = nCard - 1;
+	if ( lpFunCanEat(nA, nB, nWithA, withB))
 	{
 		return true;
 	}
+ 
 	// AXB ;
-	nWithA = nCard - 1;
-	withB = nCard + 1;
-	if (isHaveCard(nWithA) && isHaveCard(withB))
+	nA = nCard - 1;
+	nB = nCard + 1;
+	if (lpFunCanEat(nA, nB, nWithA, withB))
 	{
 		return true;
 	}
+ 
 	// XAB
-	nWithA = nCard + 1;
-	withB = nCard + 2;
-	if (isHaveCard(nWithA) && isHaveCard(withB))
+	nA = nCard + 1;
+	nB = nCard + 2;
+	if (lpFunCanEat(nA, nB, nWithA, withB))
 	{
 		return true;
 	}
+	 
 	return false;
 }
 

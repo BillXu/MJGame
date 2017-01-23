@@ -263,7 +263,7 @@ bool HZMJRoom::isAnyPlayerPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard)
 			continue;
 		}
 
-		if (isHavePiao() && isPlayerPiao(ref->getIdx()) == false)
+		if (isHavePiao()/* && isPlayerPiao(ref->getIdx()) == false*/)
 		{
 			continue;
 		}
@@ -303,7 +303,7 @@ void HZMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::
 			continue;
 		}
 
-		if (isHavePiao() && isPlayerPiao(ref->getIdx()) == false)
+		if (isHavePiao()/* && isPlayerPiao(ref->getIdx()) == false*/)
 		{
 			continue;
 		}
@@ -476,7 +476,7 @@ void HZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 	/// do caculate per player ;
 	if (getBankerIdx() == vHuIdx.front())
 	{
-		nBasetBet *= 2;
+		nBasetBet *= 8;
 	}
 
 	for (auto& pLoser : m_vMJPlayers)
@@ -486,7 +486,13 @@ void HZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 			continue;
 		}
 
-		uint32_t nCaCoin = pLoser->getIdx() == getBankerIdx() ? (nBasetBet * 2) : nBasetBet;
+		uint32_t nCaCoin = pLoser->getIdx() == getBankerIdx() ? (nBasetBet * 8) : nBasetBet;
+		if ( nCaCoin > pConfig->nBaseBet * 64 )
+		{
+			LOGFMTD("room id = %u uid = %u hu big than 64 = %u",getRoomID(),pPlayer->getUID(),nCaCoin);
+			nCaCoin = pConfig->nBaseBet * 64;
+		}
+
 		if (nCaCoin > (uint32_t)pLoser->getCoin())
 		{
 			nCaCoin = pLoser->getCoin();

@@ -356,13 +356,14 @@ enum eMsgType
 	MSG_PLAYER_OTHER_LOGIN,  // 账号在其他设备登录，当前设备需要退出
 
 	MSG_PLAYER_BASE_DATA, // 玩家的基础信息 ,
-	// svr : { name: "nickName",photoID : 23, ticket : 234 ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345, stayInRoomID : 234 , vipRoomCard : 23, clothe : [235,235,234] }
+	// svr : { name: "nickName",photoID : 23, plateTimes : 0 ,ticket : 234 ,sex : eSex,coin : 235 , diamond: 500, charity : 2, uid : 2345, sessionID : 2345, ownRoomID : 2345, stayInRoomID : 234 , vipRoomCard : 23, clothe : [235,235,234] }
 	// name ： 名字，sex ： 参照枚举eSex， diamond ：钻石。 coin ： 金币； clothe : 玩家穿在身上的衣服或者饰品
 	// charity : 救济金剩余可领次数
 	// photoID : 头像ID ；
 	// ownRoomID : 自己创建的房间ID
 	// ticket : 用于兑换的奖券数量
 	// stayInRoomID： 当前所在房间的ID , 0 表示不在房间里
+	// plateTimes : 今天已经玩了转盘的次数； // 0 表示今天还没玩， 3 表示已经玩了3 次， 此时应该不能再转了。
 
 	// modify name and sigure
 	MSG_PLAYER_MODIFY_NAME, // 玩家修改昵称
@@ -602,10 +603,10 @@ enum eMsgType
 
 	MSG_START_ROLL_PLATE,// 转转盘
 	// client : null 
-	// svr : { ret : 0 , plateID : 234 , isFree : 0  }
-	// ret : 0 成功 , 1 货币不足 , 2 系统错误
+	// svr : { ret : 0 , plateID : 234 , cost : 12  }
+	// ret : 0 成功 , 1 货币不足 , 2 系统错误， 3 今日次数达到上限
 	// plateID :  命中的 配置ID， 根据配置ID 给玩家物品
-	// isFree : 本次转盘 是否免费， 0 是否，1 是 是。
+	// cost : 本次转盘 消耗的钻石数量。
 
 	MSG_PLAYER_DO_EXCHANGE, // 玩家兑换
 	// client : { configID : 235 , info :{ phone : 12345 , addr : "shanghai changNing chian" } }
