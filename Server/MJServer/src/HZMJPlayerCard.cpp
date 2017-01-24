@@ -452,3 +452,50 @@ bool HZMJPlayerCard::isCommonBaoTou()
 
 	return false;
 }
+
+bool HZMJPlayerCard::canAnGangWithCard(uint8_t nCard)
+{
+	auto caiShen = make_Card_Num(eCT_Jian, 3);
+	if (nCard == caiShen)
+	{
+		return false;
+	}
+
+	auto eType = card_Type(nCard);
+	if (eType >= eCT_Max)
+	{
+		LOGFMTE("canAnGangWithCard parse card type error so do not have this card = %u", nCard);
+		return false;
+	}
+	auto& vCard = m_vCards[eType];
+	auto nCnt = std::count(vCard.begin(), vCard.end(), nCard);
+	LOGFMTD("can gang nCnt = %u , card = %u", nCnt,nCard);
+	return nCnt == 4;
+}
+
+bool HZMJPlayerCard::getHoldCardThatCanAnGang(VEC_CARD& vGangCards)
+{
+	auto caiShen = make_Card_Num(eCT_Jian, 3);
+	for (auto& vCard : m_vCards)
+	{
+		if (vCard.size() < 4)
+		{
+			continue;
+		}
+
+		for (uint8_t nIdx = 0; (uint8_t)(nIdx + 3) < vCard.size();)
+		{
+			if ( caiShen != vCard[nIdx] && vCard[nIdx] == vCard[nIdx + 3])
+			{
+				vGangCards.push_back(vCard[nIdx]);
+				nIdx += 4;
+			}
+			else
+			{
+				++nIdx;
+			}
+		}
+	}
+	LOGFMTD("can gang = %u", vGangCards.size());
+	return !vGangCards.empty();
+}

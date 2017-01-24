@@ -19,6 +19,7 @@ public:
 		//eMod_GameRoomCenter,
 		//eMod_QinJia,
 		eMod_PlayerMgr,
+		eMod_Exchange,
 		eMod_Max,
 	};
 public:

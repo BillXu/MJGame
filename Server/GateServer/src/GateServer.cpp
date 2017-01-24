@@ -172,6 +172,7 @@ void CGateServer::OnMsgFromOtherSrvToGate( stMsg* pmsg , uint16_t eSendPort , ui
 		memset(msg.vArg,0,sizeof(msg.vArg));
 		msg.nLogType = preal->nlogType ;
 		msg.nTargetID = preal->nUserUID ;
+		msg.vArg[0] = uTargetSessionID;
 		msg.nJsonExtnerLen = strlen(pClient->strIPAddress.c_str());
 
 		uint16_t nLen = sizeof(stMsgSaveLog) + msg.nJsonExtnerLen ;

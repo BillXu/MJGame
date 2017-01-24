@@ -589,7 +589,7 @@ void IMJRoom::startGame()
 		
 		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
 		{
-			if (pPlayer->getIdx() == 2  )
+			if (pPlayer->getIdx() == 2 )
 			{
 				continue;
 			}

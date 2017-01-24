@@ -13,6 +13,8 @@ public:
 	uint8_t get7PairHuHaoHuaCnt();
 	bool isBaoTou();
 	void setIdxInfo( uint8_t nSelfIdx , uint8_t nBankeIdx );
+	bool canAnGangWithCard(uint8_t nCard)override;
+	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;
 protected:
 	uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max])override;
 	uint8_t getCaiShenCnt();

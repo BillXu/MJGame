@@ -154,6 +154,12 @@
     <ClInclude Include="..\ServerCommon\catch_dump_file.h">
       <Filter>SvrCommon</Filter>
     </ClInclude>
+    <ClInclude Include="..\DataServer\src\ExchangeCenter.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataServer\src\ExchangeConfig.h">
+      <Filter>src\App</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ServerConfig.cpp">
@@ -254,6 +260,12 @@
     </ClCompile>
     <ClCompile Include="..\ServerCommon\catch_dump_file.cpp">
       <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\ExchangeCenter.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataServer\src\ExchangeConfig.cpp">
+      <Filter>src\App</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

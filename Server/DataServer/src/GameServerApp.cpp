@@ -8,6 +8,7 @@
 #include "ServerStringTable.h"
 //#include "ExchangeCenter.h"
 #include "RobotCenter.h"
+#include "ExchangeCenter.h"
 #ifndef USHORT_MAX
 #define USHORT_MAX 65535 
 #endif
@@ -69,7 +70,7 @@ bool CGameServerApp::init()
 	for (uint16_t nModule = eMod_None; nModule < eMod_Max; ++nModule)
 	{
 		auto b = installModule(nModule);
-		assert(b && "install this module failed ");
+		Assert(b , "install this module failed ");
 		if (!b)
 		{
 			LOGFMTE("install module = %u failed", nModule);
@@ -183,6 +184,11 @@ IGlobalModule* CGameServerApp::createModule(uint16_t eModuleType)
 	case eMod_RobotCenter:
 	{
 		pMod = new CRobotCenter();
+	}
+	break;
+	case eMod_Exchange:
+	{
+		pMod = new  CExchangeCenter("../configFile/exchange.txt");
 	}
 	break;
 	/*case eMod_EncryptNumber:

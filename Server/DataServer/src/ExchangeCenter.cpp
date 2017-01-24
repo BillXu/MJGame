@@ -4,7 +4,7 @@
 #include "Player.h"
 #include "PlayerBaseData.h"
 #include "AutoBuffer.h"
-#include "LogManager.h"
+#include "log4z.h"
 CExchangeCenter::CExchangeCenter(const char* pConfigFilePath)
 {
 	pItemsBuffer = nullptr ;
@@ -49,7 +49,7 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 				vExchangeEntrys[pentry->nExchangeID] = pentry ;
 				++pItem ;
 			}
-			CLogMgr::SharedLogMgr()->PrintLog("recived exchange recorders") ;
+			LOGFMTD("recived exchange recorders") ;
 		}
 		break;
 	case MSG_PLAYER_EXCHANGE:
@@ -70,7 +70,7 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 			{
 				msgRet.nRet = 1 ;
 				getSvrApp()->sendMsg(nSessionID,(char*)&msgRet,sizeof(msgRet));
-				CLogMgr::SharedLogMgr()->PrintLog("can not find exchange item uid = %d , exchange id = %d",pPlayer->GetUserUID(),pExchangeItem->nConfigID) ;
+				LOGFMTD("can not find exchange item uid = %d , exchange id = %d", pPlayer->GetUserUID(), pExchangeItem->nConfigID);
 				break ;
 			}
 
@@ -78,7 +78,7 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 			{
 				msgRet.nRet = 2 ;
 				getSvrApp()->sendMsg(nSessionID,(char*)&msgRet,sizeof(msgRet));
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d , you diamond is not enough",pPlayer->GetUserUID()) ;
+				LOGFMTD("uid = %d , you diamond is not enough", pPlayer->GetUserUID());
 				break ;
 			}
 			msgRet.nRet = 0 ;
@@ -105,13 +105,13 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 
 			Json::StyledWriter jWriter ;
 			std::string  strArg = jWriter.write(jValue) ;
-			msgLog.nJsonExtnerLen = strArg.size() ;
+			msgLog.nJsonExtnerLen = strArg.size() ; 
 			 
 			CAutoBuffer auBuffer(sizeof(msgLog) + msgLog.nJsonExtnerLen );
 			auBuffer.addContent(&msgLog,sizeof(msgLog)) ;
 			auBuffer.addContent(strArg.c_str(),msgLog.nJsonExtnerLen) ;
 			getSvrApp()->sendMsg(nSessionID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
-			CLogMgr::SharedLogMgr()->PrintLog("uid = %d do exchange item id = %d, remark = %s",pPlayer->GetUserUID(),pExchangeItem->nConfigID,rootValue["address"].asString()) ;
+			LOGFMTD("uid = %d do exchange item id = %d, remark = %s", pPlayer->GetUserUID(), pExchangeItem->nConfigID, rootValue["address"].asString());
 
 			// update recorder ;
 			auto pRec = vExchangeEntrys.find(pRet->nExchangeID);
@@ -161,7 +161,7 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 			auBuffer.addContent(&msgBack,sizeof(msgBack)) ;
 			auBuffer.addContent(strArg.c_str(),msgBack.nJsonLen) ;
 			getSvrApp()->sendMsg(nSessionID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
-			CLogMgr::SharedLogMgr()->PrintLog("session id = %d get exchange detail",nSessionID) ;
+			LOGFMTD("session id = %d get exchange detail", nSessionID);
 		}
 		break;
 	case MSG_REQUEST_EXCHANGE_LIST:
@@ -205,7 +205,7 @@ bool CExchangeCenter::onMsg(stMsg* pMsg , eMsgPort eSenderPort , uint32_t nSessi
 				getSvrApp()->sendMsg(nSessionID,pItemsBuffer,nItemsBufferLen) ;
 			}
 
-			CLogMgr::SharedLogMgr()->PrintLog("session id = %d get exchange list",nSessionID) ;
+			LOGFMTD("session id = %d get exchange list", nSessionID);
 		}
 		break;
 	default:
@@ -239,19 +239,19 @@ bool CExchangeCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 				if ( !pExchangeItem )
 				{
 					nRet = 1 ;
-					CLogMgr::SharedLogMgr()->PrintLog("can not find exchange item uid = %d , exchange id = %d",pPlayer->GetUserUID(),pExchangeItem->nConfigID) ;
+					LOGFMTD("can not find exchange item uid = %d , exchange id = %d", pPlayer->GetUserUID(), pExchangeItem->nConfigID);
 					break ;
 				}
 
-				if ( pPlayer->GetBaseData()->GetAllDiamoned() < pExchangeItem->nDiamondNeed )
+				if ( pPlayer->GetBaseData()->getExchangeTicket() < pExchangeItem->nDiamondNeed )
 				{
 					nRet = 2 ;
-					CLogMgr::SharedLogMgr()->PrintLog("uid = %d , you diamond is not enough",pPlayer->GetUserUID()) ;
+					LOGFMTD("uid = %d , you diamond is not enough", pPlayer->GetUserUID());
 					break ;
 				}
 
 				// do exchange
-				pPlayer->GetBaseData()->decressMoney(pExchangeItem->nDiamondNeed,true) ;
+				pPlayer->GetBaseData()->decreaseExchangeTicke(pExchangeItem->nDiamondNeed);
 
 				// give order 
 				stMsgSaveLog msgLog ;
@@ -274,7 +274,7 @@ bool CExchangeCenter::onMsg(Json::Value& prealMsg ,uint16_t nMsgType, eMsgPort e
 				auBuffer.addContent(&msgLog,sizeof(msgLog)) ;
 				auBuffer.addContent(strArg.c_str(),msgLog.nJsonExtnerLen) ;
 				getSvrApp()->sendMsg(nSessionID,auBuffer.getBufferPtr(),auBuffer.getContentSize()) ;
-				CLogMgr::SharedLogMgr()->PrintLog("uid = %d do exchange item id = %d, remark = %s",pPlayer->GetUserUID(),pExchangeItem->nConfigID,strArg.c_str()) ;
+				LOGFMTD("uid = %d do exchange item id = %d, remark = %s", pPlayer->GetUserUID(), pExchangeItem->nConfigID, strArg.c_str());
 
 				// update recorder ;
 				auto pRec = vExchangeEntrys.find(nConfigID);

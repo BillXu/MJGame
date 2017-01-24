@@ -1765,6 +1765,18 @@ uint32_t CPlayerBaseData::getExchangeTicket()
 	return m_stBaseData.nCupCnt;
 }
 
+bool CPlayerBaseData::decreaseExchangeTicke(uint16_t nCost)
+{
+	if (nCost > getExchangeTicket())
+	{
+		LOGFMTE("uid = %u not enought ticket  cost = %u  now = %u", m_stBaseData.nUserUID, nCost, getExchangeTicket());
+		m_stBaseData.nCupCnt = 0;
+		return true;
+	}
+	m_stBaseData.nCupCnt -= nCost;
+	return true;
+}
+
 void CPlayerBaseData::onProcessRollPlate()
 {
 	auto nAlreadyRolledTimes = getRollPlateTimes();

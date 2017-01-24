@@ -58,6 +58,7 @@ public:
 	void addVipRoomCard(int32_t naddOffset );
 	uint32_t getLeftCharityTimes();
 	uint32_t getExchangeTicket();
+	bool decreaseExchangeTicke( uint16_t nCost );
 protected:
 	bool onPlayerRequestMoney( uint64_t& nWantMoney,uint64_t nAtLeast, bool bDiamoned = false);
 	void onBeInviteBy(uint32_t nInviteUID );

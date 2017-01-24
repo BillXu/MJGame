@@ -27,6 +27,7 @@ protected:
 	stGateClient* GetReserverGateClient();
 	stGateClient* GetGateClientByNetWorkID(CONNECT_ID& nNetWorkID );
 	bool CheckServerStateOk( stGateClient* pClient);
+	void saveRealTimeOnlineCnt();
 protected:
 	friend struct stGateClient ;
 protected:

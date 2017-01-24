@@ -26,6 +26,9 @@ enum  eLogType
 	eLog_Purchase, // nTargetID = playerUID , var[0] = final Coin ; var[1] = shop item id ;
 	eLog_ExchangeOrder, // nTargetID = playerUID , var[0] exchange configID {playerName : "guest1145", excDesc : "this is fee card", remark : "my phone number is xxxxx" }
 	eLog_RobotAddCoin, // nTargetID = robotUID , var[0] offset coin ; < 0  means save coin to banker, > 0 means add coin to robot ; 
+	eLog_RealTimeOnlineCnt, // nTarget = current online players , 
+	eLog_PlayerOffline,  // nTargetID = session id ;
+	eLog_PlayerOnline ,  // nTargetID = session id ;
 	eLog_Max,
 };
 

@@ -60,7 +60,20 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 		pGateClient->Reset(CGateServer::SharedGateServer()->GenerateSessionID(),pData->_connectID,pIPInfo.c_str()) ;
 		AddClientGate(pGateClient);
 		LOGFMTI("a Client connected ip = %s Session id = %d",pGateClient->strIPAddress.c_str(),pGateClient->nSessionId ) ;
-		LOGFMTI("current online cnt = %d", m_vSessionGateClient.size() - m_vWaitToReconnect.size() ) ;
+
+		auto nOnlineCnt = m_vSessionGateClient.size() - m_vWaitToReconnect.size();
+		LOGFMTI("current online cnt = %d , save to log svr", nOnlineCnt);
+		
+		saveRealTimeOnlineCnt();
+		
+		// save online 
+		stMsgSaveLog msgLog;
+		memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+		msgLog.nJsonExtnerLen = 0;
+		msgLog.nLogType = eLog_PlayerOnline;
+		msgLog.nTargetID = pGateClient->nSessionId;
+		memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+		CGateServer::SharedGateServer()->sendMsg(0, (char*)&msgLog, sizeof(msgLog));
 
 		stMsgControlFlag msgFlag ;
 		msgFlag.nFlag = 0 ;
@@ -112,6 +125,18 @@ bool CGateClientMgr::OnMessage( Packet* pData )
 					pNew->nSessionId = nSessionIDRec;
 					m_vSessionGateClient[pNew->nSessionId] = pNew ;
 				}
+
+				// update current online cnt ;
+				saveRealTimeOnlineCnt();
+
+				// save online 
+				stMsgSaveLog msgLog;
+				memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+				msgLog.nJsonExtnerLen = 0;
+				msgLog.nLogType = eLog_PlayerOnline;
+				msgLog.nTargetID = pNew->nSessionId;
+				memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+				CGateServer::SharedGateServer()->sendMsg(0, (char*)&msgLog, sizeof(msgLog));
 			}
 
 			Json::Value jsMsgBack ;
@@ -245,6 +270,18 @@ void CGateClientMgr::OnPeerDisconnected(CONNECT_ID nPeerDisconnected, ConnectInf
 
 		pDstClient->tTimeForRemove = time(NULL) + TIME_WAIT_FOR_RECONNECTE ;
 		m_vWaitToReconnect[pDstClient->nSessionId] = pDstClient;
+
+		// save real online cnt 
+		saveRealTimeOnlineCnt();
+
+		// save offline 
+		stMsgSaveLog msgLog;
+		memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+		msgLog.nJsonExtnerLen = 0;
+		msgLog.nLogType = eLog_PlayerOffline;
+		msgLog.nTargetID = pDstClient->nSessionId;
+		memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+		CGateServer::SharedGateServer()->sendMsg(0, (char*)&msgLog, sizeof(msgLog));
 
 		if ( IpInfo )
 		{
@@ -409,4 +446,16 @@ bool CGateClientMgr::CheckServerStateOk( stGateClient* pClient)
 	msg.nServerType = eSvrType_Center ;
 	CGateServer::SharedGateServer()->SendMsgToClient((char*)&msg,sizeof(msg),pClient->nNetWorkID ) ;
 	return false ;
+}
+
+void CGateClientMgr::saveRealTimeOnlineCnt()
+{
+	auto nOnlineCnt = m_vSessionGateClient.size() - m_vWaitToReconnect.size();
+	stMsgSaveLog msgLog;
+	memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+	msgLog.nJsonExtnerLen = 0;
+	msgLog.nLogType = eLog_RealTimeOnlineCnt;
+	msgLog.nTargetID = nOnlineCnt;
+	memset(msgLog.vArg, 0, sizeof(msgLog.vArg));
+	CGateServer::SharedGateServer()->sendMsg(0, (char*)&msgLog, sizeof(msgLog));
 }

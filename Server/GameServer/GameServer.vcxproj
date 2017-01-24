@@ -104,6 +104,8 @@
     <ClInclude Include="..\..\Common\Utility.h" />
     <ClInclude Include="..\DataServer\src\EventCenter.h" />
     <ClInclude Include="..\DataServer\src\Events.h" />
+    <ClInclude Include="..\DataServer\src\ExchangeCenter.h" />
+    <ClInclude Include="..\DataServer\src\ExchangeConfig.h" />
     <ClInclude Include="..\DataServer\src\GameServerApp.h" />
     <ClInclude Include="..\DataServer\src\IPlayerComponent.h" />
     <ClInclude Include="..\DataServer\src\main.h" />
@@ -144,6 +146,8 @@
     <ClCompile Include="..\..\Common\ShopConfg.cpp" />
     <ClCompile Include="..\..\Common\Utility.cpp" />
     <ClCompile Include="..\DataServer\src\EventCenter.cpp" />
+    <ClCompile Include="..\DataServer\src\ExchangeCenter.cpp" />
+    <ClCompile Include="..\DataServer\src\ExchangeConfig.cpp" />
     <ClCompile Include="..\DataServer\src\GameServerApp.cpp" />
     <ClCompile Include="..\DataServer\src\IPlayerComponent.cpp" />
     <ClCompile Include="..\DataServer\src\main.cpp" />
