@@ -589,10 +589,10 @@ void IMJRoom::startGame()
 		
 		for (uint8_t nIdx = 0; nIdx < 13; ++nIdx)
 		{
-			if (pPlayer->getIdx() == 2 )
-			{
-				continue;
-			}
+			//if (pPlayer->getIdx() == 2 )
+			//{
+			//	continue;
+			//}
 
 			auto nCard = pPoker->distributeOneCard();
 			//auto nCardF = make_Card_Num(eCT_Tiao, 9);
@@ -608,26 +608,26 @@ void IMJRoom::startGame()
 			//LOGFMTD("card idx = %u card number = %u", nIdx,nCard);
 		}
 
-		if (pPlayer->getIdx() == 2)
-		{
-			for (uint8_t nIdx = 0; nIdx < 4; ++nIdx)
-			{
-				auto nCard = make_Card_Num(eCT_Tiao, 1);
-				pPlayer->getPlayerCard()->addDistributeCard(nCard);
-				peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
-				nCard = make_Card_Num(eCT_Tiao, 2);
-				pPlayer->getPlayerCard()->addDistributeCard(nCard);
-				peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
-				nCard = make_Card_Num(eCT_Tiao, 3);
-				pPlayer->getPlayerCard()->addDistributeCard(nCard);
-				peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
-			}
+		//if (pPlayer->getIdx() == 2)
+		//{
+		//	for (uint8_t nIdx = 0; nIdx < 4; ++nIdx)
+		//	{
+		//		auto nCard = make_Card_Num(eCT_Tiao, 1);
+		//		pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//		peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//		nCard = make_Card_Num(eCT_Tiao, 2);
+		//		pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//		peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//		nCard = make_Card_Num(eCT_Tiao, 3);
+		//		pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//		peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//	}
 
 
-			auto nCard = make_Card_Num(eCT_Jian, 3);
-			pPlayer->getPlayerCard()->addDistributeCard(nCard);
-			peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
-		}
+		//	auto nCard = make_Card_Num(eCT_Jian, 3);
+		//	pPlayer->getPlayerCard()->addDistributeCard(nCard);
+		//	peerCards[pPlayer->getIdx()][peerCards[pPlayer->getIdx()].size()] = nCard; // sign for msg ;
+		//}
 
 		if (getBankerIdx() == pPlayer->getIdx())
 		{
