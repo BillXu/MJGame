@@ -17,9 +17,10 @@ bool CSession::sendData(const char* pData , uint16_t nLen )
 		return false ;
 	}
 	
+	bool bSending = false;
 	WriteLock wLock(m_SendBuffersMutex);
-	bool bSending = m_vWillSendBuffers.empty() == false ;
-	m_vWillSendBuffers.push_back(pBuffer) ;
+	bSending = m_vWillSendBuffers.empty() == false;
+	m_vWillSendBuffers.push_back(pBuffer);
 	if ( bSending == false )
 	{
 		boost::asio::async_write(m_socket,  
@@ -52,7 +53,7 @@ void CSession::start()
 
 void CSession::close()
 {
-	//printf("close close\n") ;
+	LOGFMTD("serssion close close") ;
 	m_socket.close() ;
 	m_tHeatBeat.cancel();
 	m_tWaitFirstMsg.cancel();
@@ -69,7 +70,7 @@ void CSession::handleReadHeader(const boost::system::error_code& error)
 	}  
 	else  
 	{  
-		//printf("handleReadHeader close\n") ;
+		LOGFMTD("handleReadHeader close id = %u",getConnectID());
 		//m_pNetwork->closeSession(getConnectID());
 		m_pNetwork->closePeerConnection(getConnectID(),false);
 	} 
@@ -94,6 +95,7 @@ void CSession::handleReadBody(const boost::system::error_code& error)
 	else  
 	{  
 		//printf("handleReadBody close\n") ;
+		LOGFMTD("handleReadBody close id = %u", getConnectID());
 		//m_pNetwork->closeSession(getConnectID());
 		m_pNetwork->closePeerConnection(getConnectID(),false);
 	}  
@@ -104,7 +106,8 @@ void CSession::handleWrite(const boost::system::error_code& error)
 	if (!error)  
 	{  
 		WriteLock wLock(m_SendBuffersMutex);
-		m_vWillSendBuffers.pop_front();  
+		m_vWillSendBuffers.pop_front();
+
 		if (!m_vWillSendBuffers.empty())  
 		{  
 			boost::asio::async_write(m_socket,  
@@ -117,6 +120,7 @@ void CSession::handleWrite(const boost::system::error_code& error)
 	else  
 	{  
 		//m_pNetwork->closeSession(getConnectID());
+		LOGFMTD("handleWrite close id = %u", getConnectID());
 		m_pNetwork->closePeerConnection(getConnectID(), false);
 	} 
 }
@@ -124,7 +128,7 @@ void CSession::handleWrite(const boost::system::error_code& error)
 void CSession::startWaitFirstMsg()
 {
 	m_tWaitFirstMsg.expires_from_now(boost::posix_time::seconds(TIME_CHECK_FIRST_MSG));
-	m_tWaitFirstMsg.async_wait(boost::bind(&CSession::handleCheckFirstMsg, this,boost::asio::placeholders::error ));
+	m_tWaitFirstMsg.async_wait(boost::bind(&CSession::handleCheckFirstMsg, shared_from_this(), boost::asio::placeholders::error));
 }
 
 void CSession::handleCheckFirstMsg( const boost::system::error_code& ec )
@@ -133,7 +137,7 @@ void CSession::handleCheckFirstMsg( const boost::system::error_code& ec )
 	{
 		if ( !m_bRecivedMsg )
 		{
-			printf("find a dead connect \n");
+			LOGFMTE("find a dead connect id = %u ",getConnectID());
 			//m_pNetwork->closeSession(getConnectID());
 			m_pNetwork->closePeerConnection(getConnectID(), false);
 		}
@@ -143,7 +147,7 @@ void CSession::handleCheckFirstMsg( const boost::system::error_code& ec )
 void CSession::startHeartbeatTimer()
 {
 	m_tHeatBeat.expires_from_now(boost::posix_time::seconds(TIME_HEAT_BET));
-	m_tHeatBeat.async_wait(boost::bind(&CSession::sendHeatBeat, this,boost::asio::placeholders::error));
+	m_tHeatBeat.async_wait(boost::bind(&CSession::sendHeatBeat, shared_from_this(), boost::asio::placeholders::error));
 }
 
 void CSession::handleWriteHeartbeat(const boost::system::error_code& ec)
@@ -154,7 +158,7 @@ void CSession::handleWriteHeartbeat(const boost::system::error_code& ec)
 	}
 	else{
 		// close ;
-		printf("heat beat failed \n");
+		LOGFMTE("heat beat failed id = %u",getConnectID());
 		//m_pNetwork->closeSession(getConnectID());
 		m_pNetwork->closePeerConnection(getConnectID(), false);
 	}
@@ -170,7 +174,7 @@ void CSession::sendHeatBeat( const boost::system::error_code& ec )
 		p[2] = 0 ;
 		p[3] = 0 ;
 		boost::asio::async_write(m_socket, boost::asio::buffer(p, sizeof(p)),
-			boost::bind(&CSession::handleWriteHeartbeat, this,
+			boost::bind(&CSession::handleWriteHeartbeat, shared_from_this(),
 			boost::asio::placeholders::error ));
 	}
 }

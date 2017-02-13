@@ -107,10 +107,10 @@ bool CDBManager::onMsg( Json::Value& pV ,uint16_t nMsgType, eMsgPort eSenderPort
 			
 			std::string strName = "";
 			std::string strID = "";
-			if (pV["realName"].isNull() || pV["IDCode"].isNull())
+			if ( 1 || pV["realName"].isNull() || pV["IDCode"].isNull())
 			{
 				CDBRequestQueue::SharedDBRequestQueue()->PushRequest(pRequest);
-				LOGFMTE("old version ? lack of realName verify arg");
+				LOGFMTE("always skip real name verify old version ? lack of realName verify arg");
 				break;
 			}
 			

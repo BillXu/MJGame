@@ -1,19 +1,19 @@
 #include "ServerNetwork.h"
 #include "SeverNetworkImp.h"
-//void CServerNetworkDelegate::SetPriority(unsigned int nPriority )
-//{
-//	if ( nPriority == m_nPriority )
-//		return ;
-//	m_nPriority = nPriority ;
-//	CServerNetwork::SharedNetwork()->RemoveDelegate(this);
-//	CServerNetwork::SharedNetwork()->AddDelegate(this,nPriority);
-//}
+void CServerNetworkDelegate::SetPriority(unsigned int nPriority )
+{
+	if ( nPriority == m_nPriority )
+		return ;
+	m_nPriority = nPriority ;
+	CServerNetwork::SharedNetwork()->RemoveDelegate(this);
+	CServerNetwork::SharedNetwork()->AddDelegate(this,nPriority);
+}
 
-//CServerNetwork* CServerNetwork::SharedNetwork()
-//{
-//	static CServerNetwork g_sNetwork ;
-//	return &g_sNetwork ;
-//}
+CServerNetwork* CServerNetwork::SharedNetwork()
+{
+	static CServerNetwork g_sNetwork ;
+	return &g_sNetwork ;
+}
 
 CServerNetwork::CServerNetwork()
 {
@@ -37,7 +37,7 @@ bool CServerNetwork::StartupNetwork( unsigned short nPort , int nMaxInComming ,c
 		ShutDown();
 	}
 
-	m_pNetPeer = new CServerNetworkImp;
+	m_pNetPeer = new CServerNetworkImp();
 	if (  !m_pNetPeer->init(nPort))
 	{
 		printf( "Can not Start ServerNetwork \n" );

@@ -219,6 +219,17 @@ uint8_t WZMJPlayerCard::getMustChuFisrtCards(VEC_CARD& vCardMustChu)
 	{
 		vCardMustChu.erase(iter);
 	}
+
+	auto nCaiType = card_Type(m_nCaiShenCard);
+	if ( nCaiType != eCT_Feng && eCT_Jian != nCaiType)
+	{
+		auto iter = std::find(vCardMustChu.begin(), vCardMustChu.end(), make_Card_Num(eCT_Jian,3));
+		if ( iter != vCardMustChu.end() )
+		{
+			vCardMustChu.erase(iter);
+		}
+	}
+
 	return vCardMustChu.size();
 }
 

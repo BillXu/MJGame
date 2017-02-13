@@ -49,7 +49,7 @@ void WZMJRoom::willStartGame()
 	}
 	else if ((uint8_t)-1 == m_nLastHuPlayerIdx || m_nLianZhuangCnt == 5 )
 	{
-		m_nBankerIdx = (m_nBankerIdx + 1) % 4;
+		m_nBankerIdx = (m_nBankerIdx + 1) % getSeatCnt();
 		m_nLianZhuangCnt = 1;
 	}
 	else
@@ -188,7 +188,7 @@ void WZMJRoom::startGame()
 	LOGFMTI("room id = %u start game !", getRoomID());
 
 	// set cai shen card to player card 
-	for (uint8_t nIdx = 0; nIdx < 4; ++nIdx)
+	for (uint8_t nIdx = 0; nIdx < getSeatCnt(); ++nIdx)
 	{
 		auto pPlayer = getMJPlayerByIdx(nIdx);
 		auto pCard = (WZMJPlayerCard*)pPlayer->getPlayerCard();
@@ -500,6 +500,7 @@ void WZMJRoom::sendRoomInfo(uint32_t nSessionID)
 	jsMsg["caiShenCard"] = m_nCaiShenCard;
 	jsMsg["caiShenDice"] = m_nCaiShenDice;
 	jsMsg["lasChuedCard"] = m_nLastChuCard;
+	jsMsg["seatCnt"] = getSeatCnt();
 
 	sendMsgToPlayer(jsMsg, MSG_ROOM_INFO, nSessionID);
 	LOGFMTD("send msg room info msg to player session id = %u", nSessionID);
@@ -657,9 +658,9 @@ void WZMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 		bool bIsLoserDingDi = pLoser->isDingDi();
 		bool bIsLoserBanker = pLoser->getIdx() == getBankerIdx();
 		m_nLastHuPlayerIdx = vHuIdx.front();
-		for (uint8_t nHuIdx = pLoser->getIdx(); nHuIdx < 8 ; ++nHuIdx)
+		for (uint8_t nHuIdx = pLoser->getIdx(); nHuIdx < (getSeatCnt() * 2 ) ; ++nHuIdx)
 		{
-			auto nridx = nHuIdx % 4;
+			auto nridx = nHuIdx % getSeatCnt();
 			auto iter = std::find(vHuIdx.begin(),vHuIdx.end(),nridx);
 			if (iter != vHuIdx.end())
 			{

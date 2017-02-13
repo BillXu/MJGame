@@ -18,6 +18,7 @@ public:
 	{
 		if ( nLen + header_length > max_body_length )
 		{
+			printf("body data too big \n ") ;
 			return false ;
 		}
 		bodyLength(nLen) ;
@@ -69,7 +70,6 @@ public:
 		memcpy(header, data_, header_length);
 		unsigned short* pLen = (unsigned short*)header;
 		body_length_ = (*pLen) - 3;
-		//printf("decode header: %d, %d , %d ,%d \n",header[0],header[1],header[2],header[3]);
 		if ( body_length_ % 16 != header[2] || body_length_ % 6 != header[3] )  // check error ;
 		{
 			printf("decodeHeader error, body len = %d , key = %d , key2 = %d\n",body_length_,header[2],header[3]);
@@ -79,6 +79,7 @@ public:
 		if (body_length_ > max_body_length - header_length )  
 		{  
 			body_length_ = 0;  
+			printf("receive msg too big , so kick out it \n") ;
 			return false;  
 		}  
 		return true;  
