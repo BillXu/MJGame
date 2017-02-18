@@ -65,11 +65,7 @@ bool IMJRoom::onPlayerEnter(stEnterRoomData* pEnterRoomPlayer)
 
 		// msg ;
 		Json::Value jsMsg;
-		jsMsg["idx"] = player->getIdx();
-		jsMsg["uid"] = player->getUID();
-		jsMsg["coin"] = player->getCoin();
-		jsMsg["state"] = player->getState();
-		jsMsg["isTrusteed"] = player->isTrusteed() ? 1 : 0;
+		player->roomInfoVisitor(jsMsg);
 		sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_ENTER);
 		return true;
 	}
@@ -152,11 +148,7 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 			continue;
 		}
 		Json::Value jsPlayer;
-		jsPlayer["idx"] = pPlayer->getIdx();
-		jsPlayer["uid"] = pPlayer->getUID();
-		jsPlayer["coin"] = pPlayer->getCoin();
-		jsPlayer["state"] = pPlayer->getState();
-		jsPlayer["isTrusteed"] = pPlayer->isTrusteed() ? 1 : 0;
+		pPlayer->roomInfoVisitor(jsPlayer);
 		arrPlayers[pPlayer->getIdx()] = jsPlayer;
 	}
 
@@ -171,6 +163,7 @@ void IMJRoom::sendRoomInfo(uint32_t nSessionID)
 	jsMsg["bankerIdx"] = getBankerIdx();
 	jsMsg["curActIdex"] = getCurRoomState()->getCurIdx();
 	jsMsg["leftCardCnt"] = getMJPoker()->getLeftCardCount();
+	jsMsg["dice"] = m_nDicePoint;
 
 	sendMsgToPlayer(jsMsg, MSG_ROOM_INFO, nSessionID);
 	LOGFMTD("send msg room info msg to player session id = %u", nSessionID);
@@ -425,11 +418,7 @@ bool IMJRoom::sitdown(IMJPlayer* pPlayer, uint8_t nIdx)
 
 	// msg ;
 	Json::Value jsMsg;
-	jsMsg["idx"] = nIdx;
-	jsMsg["uid"] = pPlayer->getUID();
-	jsMsg["coin"] = pPlayer->getCoin();
-	jsMsg["state"] = pPlayer->getState();
-	jsMsg["isTrusteed"] = pPlayer->isTrusteed() ? 1 : 0;
+	pPlayer->roomInfoVisitor(jsMsg);
 	sendRoomMsg(jsMsg, MSG_ROOM_PLAYER_ENTER);
 	return true;
 }
@@ -564,6 +553,7 @@ void IMJRoom::startGame()
 	Json::Value peerCards[4]; // used for sign for msg ;
 
 	uint8_t nDice = 2 + rand() % 11;
+	m_nDicePoint = nDice;
 	auto pPoker = getMJPoker();
 	LOGFMTD("room id = %u start game shuffle card , Dice = %u",getRoomID(),nDice);
 	pPoker->shuffle();
@@ -654,6 +644,7 @@ void IMJRoom::startGame()
 
 void IMJRoom::willStartGame()
 {
+	m_nDicePoint = 0;
 	for (auto& pPlayer : m_vMJPlayers)
 	{
 		if (pPlayer)

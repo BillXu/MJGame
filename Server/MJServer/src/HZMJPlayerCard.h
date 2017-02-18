@@ -16,7 +16,7 @@ public:
 	bool canAnGangWithCard(uint8_t nCard)override;
 	bool getHoldCardThatCanAnGang(VEC_CARD& vGangCards)override;
 protected:
-	uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max])override;
+	uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max], bool isZiPaiMustKe)override;
 	uint8_t getCaiShenCnt();
 	uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max])override;
 	bool is7PairBaoTou();

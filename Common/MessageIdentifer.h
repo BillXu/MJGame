@@ -13,6 +13,7 @@ enum eMJGameType
 	eMJ_COMMON,
 	eMJ_HZ,
 	eMJ_WZ,
+	eMJ_DC,
 	eMJ_Max,
 };
 
@@ -120,7 +121,6 @@ enum eFanxingType
 	eFanxing_DiHu, // 地胡
 	eFanxing_RenHu, //  人胡
 	eFanxing_TianTing, //  天听
-	eFanxing_Max, // 没有胡
 
 	//----wz mj 
 	eFanxing_RuanPai, // 软牌
@@ -130,6 +130,16 @@ enum eFanxingType
 	eFanxing_RuanBaDui, // 软八对
 	eFanxing_SanCaiShen, // 三财神
 	eFanxing_CaiShenHui, // 财神会
+
+	//-----DC mj 
+	eFanxing_DC_PingHu,  // 平胡
+	eFanxing_DC_QiDui,    // 七对
+	eFanxing_DC_DuiDuiHu, // 对对胡
+	eFanxing_DC_DuiDuiHu_DanDiao,  // 对对胡 单吊将牌
+	eFanxing_DC_YaoHu,  // 幺胡
+	eFanxing_DC_NanHu, // 难胡
+	eFanxing_DC_NanHu_7ZiQuan, // 7字全的难胡
+	eFanxing_Max, // 没有胡
 };
 
 #if (C_SHARP)  
@@ -148,6 +158,7 @@ enum eRoomType
 	eRoom_Golden, // not used 
 	eRoom_HZ = 4, // 杭州麻将
 	eRoom_WZ,
+	eRoom_DC,
 	eRoom_Max ,
 };
 
@@ -163,7 +174,7 @@ enum eTime
 	eTime_DoDecideQue = 2, // 定缺时间
 	eTime_WaitPlayerAct = 18,  // 等待玩家操作的时间
 	eTime_WaitPlayerChoseAct = eTime_WaitPlayerAct,
-	eTime_DoPlayerMoPai = 1 ,  //  玩家摸牌时间
+	eTime_DoPlayerMoPai = 1,  //  玩家摸牌时间
 	eTime_DoPlayerActChuPai = 2,  // 玩家出牌的时间
 	eTime_DoPlayerAct_Gang = 2, // 玩家杠牌时间
 	eTime_DoPlayerAct_Hu = 3,  // 玩家胡牌的时间
@@ -171,6 +182,7 @@ enum eTime
 	eTime_GameOver = 1, // 游戏结束状态持续时间
 	eTime_WaitSupplyCoin = 25, // 等待玩家补充金币
 	eTime_WaitDecideInviteBuyDi = 10, // 等待当前庄家是否邀请买底
+	eTime_WaitPlayerBuyCode = 10, // 等待玩家选择买码 
 };
 
 #if (C_SHARP)  
@@ -247,6 +259,7 @@ enum eRoomState  // 玩家的状态
 	eRoomState_WaitPlayerRecharge = eRoomState_WaitSupplyCoin,  //  等待玩家充值
 	eRoomState_GameEnd, // 游戏结束
 	eRoomState_WaitBankInviteBuyDi, // 等待庄家发起买底 ；
+	eRoomState_DC_WaitPlayerBuyCode, // 都昌麻将等待玩家买码
 	eRoomState_Max,
 };
 
@@ -410,19 +423,22 @@ enum eMsgType
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
-	// svr : { roomID ： 23 , lasChuedCard : 23,caiShenCard : 23 , caiShenDice : 23 ,configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, isTrusteed : 0  }, {idx : 0 , uid : 233, coin : 2345, state : 34, isTrusteed : 0 },{idx : 0 , uid : 233, coin : 2345 , state : 34,isTrusteed : 0 } , ... ] }
+	// svr : { roomID ： 23 ,isEableYao : 0 , isEnableBuycode : 2, lasChuedCard : 23,caiShenCard : 23 , caiShenDice : 23 ,configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, buyCode : 0  }, ... ] }
 	// roomState  , 房间状态
 	// isTrusteed : 玩家是否托管
 	// leftCardCnt : 剩余牌的数量，重新进入已经在玩的房间，或者断线重连，就会收到这个消息，
+	// isEableYao : 是否开启幺牌胡， // 仅仅都昌麻将有
+	// isEnableBuycode : 是否开启可以买码。
 	// bankerIdx : 庄家的索引
 	// curActIdx :  当前正在等待操作的玩家
+	// buyCode : 玩家买码数量， 0 表示没有买： 仅仅都昌麻将有这个参数；
 	// caiShenCard : 财神牌，仅仅温州麻将有这个参数；
 	// caiShenDice : 财神骰子点数；仅仅温州麻将有这个参数
 	// lasChuedCard : 上家出的牌，仅仅温州麻将有这个参数；
 
 	MSG_ROOM_PLAYER_ENTER, // 有其他玩家进入房间
-	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34, isTrusteed : 1  }
-	// isTrusteed 是否是托管，1 是， 0 否；
+	// svr : {idx : 0 , uid : 233, coin : 2345,state : 34, buyCode : 1  }
+	// buyCode 玩家买码数量，0 表示没买， 仅仅都昌麻将有这个参数；
 
 	MSG_PLAYER_SET_READY,   // 玩家准备
 	// client : { dstRoomID : 2345 } ;
@@ -556,9 +572,10 @@ enum eMsgType
 
 	// vip 房间消息
 	MSG_CREATE_VIP_ROOM,  // 创建vip房间 
-	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : eRoomType, seatCnt : 4  }
+	// client : { circle : 2 , baseBet : 1, initCoin : 2345 , roomType : eRoomType, seatCnt : 4 , isEableYao : 0 , isEnableBuycode : 2  }
 	// svr : { ret : 0 , roomID : 2345 }
 	// circle 表示创建房间的圈数，baseBet 基础底注 ，initCoin 每个人的初始金币， roomType 房间类型， 0 是血流，1 是血战。 seatCnt : 座位个数。
+	// isEableYao : 是否可以幺牌胡，isEnableBuycode 是否可以买码。
 	// ret ： 0 表示成功，1 表示房卡不够， 2 ，表示不能创建更多房间, 3 ,已经在某个房间里，不能创建房间
 
 	MSG_VIP_ROOM_INFO_EXT, // VIP 房间的额外信息；
@@ -821,4 +838,26 @@ enum eMsgType
 	MSG_ROOM_HZMJ_RESULT_LIUJU,  // 杭州麻将流局
 	// svr ： { bankIdx : 23 } 
 
+	// －－－－－－－－－dc mj －－－－－－－－－－－－－－－－－－－－－
+
+	MSG_DC_ROOM_WAIT_PLAYER_BUY_CODE, // 通知房间里的玩家 买码 ；
+	// svr : null 
+	MSG_DC_PLAYER_BUY_CODE, // 玩家选择买点码
+	// client { dstRoomID : 23 , code : 2 }
+	// svr : { ret :　0 }
+	// code : 表示买码的倍数，目前有， 0 ， 1 ，2，5 可以选。 0 表示不买。
+	//  ret: 0 表示购买成功了， 1 表示你已经购买了，2 你不在房间里，不能买, 3 参数错误。
+
+	MSG_DC_ROOM_PLAYER_BUY_CODE , // 有玩家买码了。
+	// svr: { idx : 2 , code : 0 }
+	// idx : 此次买码的玩家索引。code ：买码的结果　解释同上。
+
+	MSG_DC_ROOM_RESULT , // 都昌麻将结果
+	// svr : { isLiuJu : 0 , bankerIdx : 0 , winDetail : { fanxing : 2 , isUsedBao : 0 ,nGangCnt : 0 }, result : [ { idx : 0 , offset : -1 , codeOffset : 23 },..... ]  } 
+	// isLiuJu : 是否流局， 1 是，0 否；
+	// bankerIdx : 庄的索引
+	// winDetail : 胡牌的详细信息，fanxing，胡牌的牌型，参考 eFanxingType， isUsedBao : 是否是摸宝，nGangCnt 连杠的个数；
+	// result:  每个人输的输赢结果数组， idx 玩家的索引，offset  不包含买码的输赢，codeOffset 买码的输赢。玩家最终的输赢是两个加起来。
+	// dc 麻将永远都只有一个赢家，赢的人也会赢 码
+	// 注意！！！！ 流局的时候，消息里没有 winDetail 和 result 字段。 
 };

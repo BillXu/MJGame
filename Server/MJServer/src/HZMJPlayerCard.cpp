@@ -65,7 +65,7 @@ bool HZMJPlayerCard::canEatCard(uint8_t nCard, uint8_t& nWithA, uint8_t& withB)
 //	return false;
 //}
 
-uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
+uint8_t HZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max], bool isZiPaiMustKe)
 {
 	VEC_CARD vBackUpJian;
 	vBackUpJian.assign(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end());
@@ -77,7 +77,7 @@ uint8_t HZMJPlayerCard::getMiniQueCnt( VEC_CARD vCards[eCT_Max] )
 		iter = std::find(vCards[eCT_Jian].begin(), vCards[eCT_Jian].end(), caiShen);
 	}
 
-	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(vCards);
+	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(vCards,true);
 	// rollback ;
 	vCards[eCT_Jian].swap(vBackUpJian);
 

@@ -36,6 +36,8 @@ public:
 	void setTrusteeActFunc(CTimer::time_func pFunc)final;
 	bool isTempLeaveRoom()final;
 	bool doTempLeaveRoom()final;
+	int32_t getTotalOffset()final;
+	void roomInfoVisitor(Json::Value& jsInfo)override;
 private:
 	bool m_isTempLeave;
 	uint8_t m_nPlayerType;
@@ -44,6 +46,7 @@ private:
 	uint32_t m_nSessioID;
 	uint8_t m_nIdx;
 	int32_t m_nOffset;
+	int32_t m_nTotalOffset;
 	uint32_t m_nCoin;
 	bool m_isHaveGang;
 	bool m_isDeclareBuGang;

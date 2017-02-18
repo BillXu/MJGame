@@ -156,7 +156,7 @@ bool WZMJPlayerCard::isHardHuWithCard( uint8_t ncard )
 	bool isHard = false;
 	if (m_vPenged.empty() == false || false == m_vGanged.empty() || false == m_vEated.empty())
 	{
-		isHard = MJPlayerCard::getMiniQueCnt(m_vCards) == 0;
+		isHard = MJPlayerCard::getMiniQueCnt(m_vCards,true) == 0;
 	}
 	else if (MJPlayerCard::get7PairQueCnt(m_vCards) == 0)
 	{
@@ -164,7 +164,7 @@ bool WZMJPlayerCard::isHardHuWithCard( uint8_t ncard )
 	}
 	else
 	{
-		isHard = MJPlayerCard::getMiniQueCnt(m_vCards) == 0;
+		isHard = MJPlayerCard::getMiniQueCnt(m_vCards,true) == 0;
 	}
 
 	if (ncard)
@@ -238,7 +238,7 @@ void WZMJPlayerCard::setCaiShenCard(uint8_t nCaiShenCard)
 	m_nCaiShenCard = nCaiShenCard;
 }
 
-uint8_t WZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max])
+uint8_t WZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max], bool isZiPaiMustKe )
 {
 	uint8_t nCaishenCnt = getCaiShenCnt();
 
@@ -272,7 +272,7 @@ uint8_t WZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max])
 
 	if ( nCaishenCnt == 0 )
 	{
-		auto nQueCnt = MJPlayerCard::getMiniQueCnt(vCards);
+		auto nQueCnt = MJPlayerCard::getMiniQueCnt(vCards,true);
 		prooBackCaiFun(nBlankCnt);
 		return nQueCnt;
 	}
@@ -295,7 +295,7 @@ uint8_t WZMJPlayerCard::getMiniQueCnt(VEC_CARD vCards[eCT_Max])
 		iter = std::find(vCards[nCaiShenType].begin(), vCards[nCaiShenType].end(), caiShen);
 	}
 
-	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(vCards);
+	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(vCards,true);
 	// rollback ;
 	vCards[nCaiShenType].swap(vBackUpJian);
 	prooBackCaiFun(nBlankCnt);

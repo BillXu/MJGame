@@ -16,7 +16,7 @@ protected:
 	bool isHardHuWithCard(uint8_t ncard = 0);  // zero means self mo
 	uint8_t getBlankCnt();
 	bool getFanxing(uint8_t& eFanxing, uint8_t& beiShu);
-	uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max])override;
+	uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max], bool isZiPaiMustKe)override;
 	uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max])override;
 protected:
 	uint8_t m_nCaiShenCard;

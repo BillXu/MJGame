@@ -21,6 +21,7 @@ void MJPlayer::init(stEnterRoomData* pData)
 	m_nPlayerType = pData->nPlayerType;
 	m_isTrusteed = false;
 	m_isTempLeave = false;
+	m_nTotalOffset = 0;
 	clearDecareBuGangFlag();
 }
 
@@ -87,6 +88,7 @@ void MJPlayer::addOffsetCoin(int32_t nOffset)
 		return;
 	}
 	m_nOffset += nOffset;
+	m_nTotalOffset += nOffset;
 	m_nCoin = (int32_t)m_nCoin + nOffset;
 
 	// sync coin to data svr ;
@@ -204,4 +206,17 @@ void MJPlayer::setTrusteeActFunc(CTimer::time_func pFunc)
 	m_tTrusteedActTimer.setIsAutoRepeat(false);
 	m_tTrusteedActTimer.setCallBack(pFunc);
 	m_tTrusteedActTimer.start();
+}
+
+int32_t MJPlayer::getTotalOffset()
+{
+	return m_nTotalOffset;
+}
+
+void MJPlayer::roomInfoVisitor(Json::Value& jsPlayer)
+{
+	jsPlayer["idx"] = getIdx();
+	jsPlayer["uid"] = getUID();
+	jsPlayer["coin"] = getTotalOffset();
+	jsPlayer["state"] = getState();
 }

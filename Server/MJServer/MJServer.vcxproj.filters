@@ -58,6 +58,12 @@
     <Filter Include="src\MJWZ\state">
       <UniqueIdentifier>{f699ca6a-b5d3-453f-b6ec-9de6a11b09c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\MJDC">
+      <UniqueIdentifier>{8dbc4b6c-104f-41d5-836d-fe4c904cf431}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MJDC\state">
+      <UniqueIdentifier>{402dd2af-415e-4ca1-9f80-35cd4d438d9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerCommon\AutoBuffer.h">
@@ -384,6 +390,21 @@
     <ClInclude Include="src\makeCardConfig.h">
       <Filter>SvrCommon</Filter>
     </ClInclude>
+    <ClInclude Include="src\DCMJPlayer.h">
+      <Filter>src\MJDC</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DCMJPlayerCard.h">
+      <Filter>src\MJDC</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DCMJRoom.h">
+      <Filter>src\MJDC</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DCMJRoomStateWaitPlayerReady.h">
+      <Filter>src\MJDC\state</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DCMJRoomStateWaitPlayerBuyCode.h">
+      <Filter>src\MJDC\state</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">
@@ -589,6 +610,15 @@
     </ClCompile>
     <ClCompile Include="src\makeCardConfig.cpp">
       <Filter>SvrCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DCMJPlayer.cpp">
+      <Filter>src\MJDC</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DCMJPlayerCard.cpp">
+      <Filter>src\MJDC</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DCMJRoom.cpp">
+      <Filter>src\MJDC</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

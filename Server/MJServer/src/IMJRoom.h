@@ -102,6 +102,7 @@ protected:
 	stBaseRoomConfig* m_pRoomConfig;
 	uint32_t m_nRoomID;
 	uint8_t m_nBankerIdx;
+	uint8_t m_nDicePoint;
 	IMJRoomDelegate* m_pDelegate;
 
 	CRobotDispatchStrategy* m_pRobotDispatchStrage;

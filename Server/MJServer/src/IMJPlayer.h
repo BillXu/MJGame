@@ -1,6 +1,7 @@
 #pragma once 
 #include "NativeTypes.h"
 #include "timer.h"
+#include "json/json.h"
 class IMJPlayerCard;
 struct stEnterRoomData;
 class IMJPlayer
@@ -20,6 +21,8 @@ public:
 	virtual int32_t onRecievedSupplyCoin( uint32_t nSupplyCoin ) = 0;
 	virtual void addOffsetCoin( int32_t nOffset ) = 0 ;
 	virtual int32_t getOffsetCoin() = 0;
+	virtual int32_t getTotalOffset() = 0;
+	virtual void roomInfoVisitor(Json::Value& jsInfo) = 0;
 	virtual IMJPlayerCard* getPlayerCard() = 0;
 	virtual void setState( uint32_t eState ) = 0;
 	virtual bool haveState( uint32_t eState ) = 0;

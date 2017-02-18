@@ -16,7 +16,7 @@ public:
 		bool operator != (const stNotShunCard& v);
 		stNotShunCard& operator = (const stNotShunCard& v);
 		bool operator == (const stNotShunCard& v);
-		uint8_t getLackCardCntForShun();
+		uint8_t getLackCardCntForShun( bool isZiPaiMustKe );
 		uint8_t getSize()const{ return vCards.size(); }
 		bool operator < (const stNotShunCard& v)const;
 	};
@@ -41,11 +41,11 @@ public:
 
 	void onMoCard(uint8_t nMoCard) final;
 	bool onPeng(uint8_t nCard) final;
-	bool onMingGang(uint8_t nCard, uint8_t nGangGetCard) final;
-	bool onAnGang(uint8_t nCard, uint8_t nGangGetCard) final;
-	bool onBuGang(uint8_t nCard, uint8_t nGangGetCard) final;
+	bool onMingGang(uint8_t nCard, uint8_t nGangGetCard) override;
+	bool onAnGang(uint8_t nCard, uint8_t nGangGetCard) override;
+	bool onBuGang(uint8_t nCard, uint8_t nGangGetCard) override;
 	bool onEat(uint8_t nCard, uint8_t nWithA, uint8_t withB) override;
-	bool onChuCard(uint8_t nChuCard)final;
+	bool onChuCard(uint8_t nChuCard)override;
 
 	bool getHoldCard(VEC_CARD& vHoldCard) final;
 	bool getChuedCard(VEC_CARD& vChuedCard) final;
@@ -56,18 +56,17 @@ public:
 
 	uint32_t getNewestFetchedCard()final;
 	virtual bool canHoldCard7PairHu();
-	bool getCanHuCards(std::set<uint8_t>& vCanHuCards);
+	bool getCanHuCards(std::set<uint8_t>& vCanHuCards, bool isZiPaiMustKe = true );
 protected:
 	void addCardToVecAsc(VEC_CARD& vec, uint8_t nCard );
 	bool getNotShuns(VEC_CARD vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZiShun );
 	bool pickKeZiOut(VEC_CARD vCard, VEC_CARD& vKeZi , VEC_CARD& vLeftCard );
 	bool pickNotShunZiOutIgnoreKeZi(VEC_CARD vCardIgnorKeZi, SET_NOT_SHUN& vNotShun);
 	virtual bool is7PairTing();
-	virtual uint8_t getMiniQueCnt( VEC_CARD vCards[eCT_Max] );
+	virtual uint8_t getMiniQueCnt(VEC_CARD vCards[eCT_Max], bool isZiPaiMustKe );
 	virtual uint8_t get7PairQueCnt(VEC_CARD vCards[eCT_Max]);
-	uint8_t getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao);
+	uint8_t getLestQue(SET_NOT_SHUN& vNotShun, bool bFindJiang, bool bFindDanDiao, uint8_t& nFiandJiang, uint8_t& nFindDanDiao, bool isZiPaiMustKeZi );
 	uint8_t tryBestFindLeastNotShun(VEC_CARD& vCard, SET_NOT_SHUN& vNotShun, bool bMustKeZi );
-	//uint8_t tryBestFindLeastNotShunMustKeZi(VEC_CARD& vCard, SET_NOT_SHUN& vNotShun );
 public:
 	void debugCardInfo();
 protected:
