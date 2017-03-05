@@ -5,7 +5,7 @@
 struct stServerConfig
 {
 	unsigned char nSvrType ;
-	char strIPAddress[16] ;
+	char strIPAddress[216] ;
 	unsigned short nPort ;
 	char strAccount[30];
 	char strPassword[30];

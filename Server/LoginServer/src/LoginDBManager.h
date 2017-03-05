@@ -33,6 +33,7 @@ public:
 	CTaskPool* getTaskPool(){ return &m_tPool; }
 	ITask::ITaskPrt createTask(uint32_t nTaskID);
 	void update(float fDeta);
+	std::string checkString(const char* pstr);
 protected:
 	LIST_ARG_DATA m_vReserverArgData ;
 	CTaskPool m_tPool;

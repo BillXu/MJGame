@@ -405,6 +405,9 @@
     <ClInclude Include="src\DCMJRoomStateWaitPlayerBuyCode.h">
       <Filter>src\MJDC\state</Filter>
     </ClInclude>
+    <ClInclude Include="src\DCMJRoomStateDoPlayerAct.h">
+      <Filter>src\MJDC\state</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerCommon\ISeverApp.cpp">

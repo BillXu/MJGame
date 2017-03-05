@@ -5,7 +5,7 @@
 #include "MJRoomStateWaitPlayerAct.h"
 #include "MJRoomStateStartGame.h"
 #include "MJRoomStateGameEnd.h"
-#include "MJRoomStateDoPlayerAct.h"
+#include "DCMJRoomStateDoPlayerAct.h"
 #include "MJRoomStateAskForPengOrHu.h"
 #include "DCMJRoomStateWaitPlayerBuyCode.h"
 #include "IGameRoomManager.h"
@@ -221,6 +221,7 @@ void DCMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 	jsWinDetial["fanxing"] = eType;
 	jsWinDetial["isUsedBao"] = isUsedBao ? 1 : 0;
 	jsWinDetial["nGangCnt"] = nGangCnt;
+	jsWinDetial["idx"] = nInvokeIdx;
 
 	Json::Value jsMsg;
 	jsMsg["isLiuJu"] = 0;

@@ -1,8 +1,0 @@
-System: [Wed Oct 26 10:39:20 2016] start center server ! 
-System: [Wed Oct 26 10:39:22 2016] a peer connected ip = 127.0.0.1 , port = 0 connect id = 2 
-System: [Wed Oct 26 10:39:22 2016] Data server connected ip = 127.0.0.1 
-Error: [Wed Oct 26 11:01:50 2016] eSvrType_Data disconnected 
-System: [Wed Oct 26 11:08:15 2016] a peer connected ip = 127.0.0.1 , port = 0 connect id = 3 
-System: [Wed Oct 26 11:08:15 2016] Data server connected ip = 127.0.0.1 
-Error: [Wed Oct 26 11:08:15 2016] eSvrType_DB is not connecting,so can not transfer msg to it  
-Error: [Wed Oct 26 11:08:21 2016] eSvrType_Data disconnected 

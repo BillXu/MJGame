@@ -423,9 +423,11 @@ enum eMsgType
 	// type = 0 , 就是随机匹配房间，targetID 的值对应的是configID的值， type = 1 ， 的时候表示进入指定的某个房间，targetID 此时表示的是 RoomID 。
 
 	MSG_ROOM_INFO,  // 房间的基本信息
-	// svr : { roomID ： 23 ,isEableYao : 0 , isEnableBuycode : 2, lasChuedCard : 23,caiShenCard : 23 , caiShenDice : 23 ,configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, buyCode : 0  }, ... ] }
+	// svr : { roomID ： 23 ,isEableYao : 0 , isEnableBuycode : 2, dice : 2 , gangCnt :23 ,lasChuedCard : 23,caiShenCard : 23 , caiShenDice : 23 ,configID : 23 , waitTimer : 23, bankerIdx : 0 , curActIdex : 2 , leftCardCnt : 23 , roomState :  23 , players : [ {idx : 0 , uid : 233, coin : 2345 , state : 34, buyCode : 0  }, ... ] }
 	// roomState  , 房间状态
 	// isTrusteed : 玩家是否托管
+	// dice : 发牌时的骰子点数
+	// gangCnt :  牌墙上被杠掉的牌数量
 	// leftCardCnt : 剩余牌的数量，重新进入已经在玩的房间，或者断线重连，就会收到这个消息，
 	// isEableYao : 是否开启幺牌胡， // 仅仅都昌麻将有
 	// isEnableBuycode : 是否开启可以买码。
@@ -853,10 +855,10 @@ enum eMsgType
 	// idx : 此次买码的玩家索引。code ：买码的结果　解释同上。
 
 	MSG_DC_ROOM_RESULT , // 都昌麻将结果
-	// svr : { isLiuJu : 0 , bankerIdx : 0 , winDetail : { fanxing : 2 , isUsedBao : 0 ,nGangCnt : 0 }, result : [ { idx : 0 , offset : -1 , codeOffset : 23 },..... ]  } 
+	// svr : { isLiuJu : 0 , bankerIdx : 0 , winDetail : { idx : 2, fanxing : 2 , isUsedBao : 0 ,nGangCnt : 0 }, result : [ { idx : 0 , offset : -1 , codeOffset : 23 },..... ]  } 
 	// isLiuJu : 是否流局， 1 是，0 否；
 	// bankerIdx : 庄的索引
-	// winDetail : 胡牌的详细信息，fanxing，胡牌的牌型，参考 eFanxingType， isUsedBao : 是否是摸宝，nGangCnt 连杠的个数；
+	// winDetail : 胡牌的详细信息，idx : 赢家的索引 ， fanxing，胡牌的牌型，参考 eFanxingType， isUsedBao : 是否是摸宝，nGangCnt 连杠的个数；
 	// result:  每个人输的输赢结果数组， idx 玩家的索引，offset  不包含买码的输赢，codeOffset 买码的输赢。玩家最终的输赢是两个加起来。
 	// dc 麻将永远都只有一个赢家，赢的人也会赢 码
 	// 注意！！！！ 流局的时候，消息里没有 winDetail 和 result 字段。 

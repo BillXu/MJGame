@@ -1047,6 +1047,10 @@ void IMJRoom::onAskForPengOrHuThisCard(uint8_t nInvokeIdx, uint8_t nCard, std::v
 		{
 			jsActs[jsActs.size()] = eMJAct_Pass;
 		}
+		else
+		{
+			continue;
+		}
 
 		jsMsg["acts"] = jsActs;
 		sendMsgToPlayer(jsMsg, MSG_PLAYER_WAIT_ACT_ABOUT_OTHER_CARD, ref->getSessionID());

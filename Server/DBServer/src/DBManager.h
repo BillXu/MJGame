@@ -34,6 +34,7 @@ public:
 	unsigned int GenerateUserUID(){ return ++nCurUserUID ;}
 	void GetPlayerDetailData(stPlayerDetailData* pData, CMysqlRow&prow);
 	void GetPlayerBrifData(stPlayerBrifData*pData,CMysqlRow&prow);
+	std::string checkString(const char* pstr);
 protected:
 	LIST_ARG_DATA m_vReserverArgData ;
 	CDBServerApp* m_pTheApp ;

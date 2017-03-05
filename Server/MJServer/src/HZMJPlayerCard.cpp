@@ -430,7 +430,7 @@ bool HZMJPlayerCard::isCommonBaoTou()
 		iter = std::find(m_vCards[eCT_Jian].begin(), m_vCards[eCT_Jian].end(), caiShen);
 	}
 
-	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(m_vCards);
+	uint8_t nCnt = MJPlayerCard::getMiniQueCnt(m_vCards,true);
 	// rollback ;
 	m_vCards[eCT_Jian].swap(vBackUpJian);
 	if (bNeedRollBack)

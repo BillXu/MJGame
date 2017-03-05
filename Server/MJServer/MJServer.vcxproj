@@ -131,6 +131,7 @@
     <ClInclude Include="src\DCMJPlayer.h" />
     <ClInclude Include="src\DCMJPlayerCard.h" />
     <ClInclude Include="src\DCMJRoom.h" />
+    <ClInclude Include="src\DCMJRoomStateDoPlayerAct.h" />
     <ClInclude Include="src\DCMJRoomStateWaitPlayerBuyCode.h" />
     <ClInclude Include="src\DCMJRoomStateWaitPlayerReady.h" />
     <ClInclude Include="src\GameOverState.h" />

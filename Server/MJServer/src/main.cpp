@@ -282,6 +282,7 @@
 #include "MJPeerCardNew.h"
 #include "WZMJPlayerCard.h"
 #include "HZMJPlayerCard.h"
+#include "DCMJPlayerCard.h"
 void tempTest()
 {
 	//CMJHuPaiInfo tInfo ;
@@ -356,28 +357,29 @@ void tempTest()
 	//	}
 
 	//	// test new chard ;
-	auto pPlayerCard = new HZMJPlayerCard();
+	auto pPlayerCard = new DCMJPlayerCard();
 		
 	//pPlayerCard->setQueType(eCT_Tong);
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 2));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
-
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 4));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
 	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 5));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 6));
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 1));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 9));
 
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 4));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 5));
-	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 6));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tiao, 8));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tiao, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tiao, 1));
 
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
-	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Wan, 3));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Feng, 1));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Feng, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tong, 9));
 
-	pPlayerCard->onMoCard(CMJCard::makeCardNumber(eCT_Jian, 3));
-	auto b = pPlayerCard->isBaoTou();
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Feng, 3));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 1));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 2));
+	pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Jian, 3));
+	//pPlayerCard->addDistributeCard(CMJCard::makeCardNumber(eCT_Tiao, 3));
+
+	pPlayerCard->onMoCard(CMJCard::makeCardNumber(eCT_Feng, 4));
+	auto b = pPlayerCard->isHoldCardCanHu();
 	if (b)
 	{
 		printf("ok \n");
@@ -467,7 +469,7 @@ int main()
 	//DomainToIP("main.bolehd.com", pBuf);
 
 
-	//tempTest();
+	tempTest();
 	CApplication theAplication(CMJServerApp::getInstance());
 	theAplication.startApp();
 	return 0;

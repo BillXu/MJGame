@@ -11,24 +11,6 @@
 void CMJRoomManager::init(IServerApp* svrApp)
 {
 	IRoomManager::init(svrApp);
-	auto iter = m_pConfigMgr->GetBeginIter() ;
-	for ( ; iter != m_pConfigMgr->GetEndIter(); ++iter )
-	{
-		auto p = *iter;
-		if (p->nGameType != eRoom_MJ_Two_Bird_God)
-		{
-			continue;
-		}
-
-		uint8_t nCreaeCnt = 1 ;
-		while ( nCreaeCnt-- )
-		{
-			Json::Value vDefault ;
-			IRoomInterface* pRoom = doCreateInitedRoomObject(++m_nMaxRoomID,false,(*iter)->nConfigID,(eRoomType)(*iter)->nGameType,vDefault);
-			addRoomToSystem(pRoom) ;
-		}
-		LOGFMTD("system crate five room config id = %u , roomType = %u",(*iter)->nConfigID,(*iter)->nGameType ) ;
-	}
 }
 
 IRoomInterface* CMJRoomManager::doCreateInitedRoomObject(uint32_t nRoomID,bool isPrivateRoom , uint16_t nRoomConfigID ,eRoomType reqSubRoomType, Json::Value& vJsValue ) 

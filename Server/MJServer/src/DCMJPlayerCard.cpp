@@ -311,7 +311,7 @@ bool DCMJPlayerCard::isNanHu(bool isHaveBao, bool& isUsedBao, bool& isQiZiQuan)
 		isQiZiQuan = true;
 	} while (0);
 
-	if (isHaveBao == false)
+	if ( isQiZiQuan )
 	{
 		isHaveBao = true;
 	}
