@@ -206,8 +206,8 @@ void DCMJRoom::onPlayerHu(std::vector<uint8_t>& vHuIdx, uint8_t nCard, uint8_t n
 
 		Json::Value jsItem;
 		jsItem["idx"] = pLose->getIdx();
-		jsItem["offset"] = nBeiShu * (isLoseBanker ? 2 : 1);
-		jsItem["codeOffset"] = (nWinerBuyCode + nLoseBuyCode);
+		jsItem["offset"] = nBeiShu * (isLoseBanker ? 2 : 1) * -1;
+		jsItem["codeOffset"] = (nWinerBuyCode + nLoseBuyCode) * -1 ;
 		jsResult[jsResult.size()] = jsItem;
 	}
 	pWiner->addOffsetCoin(nWinCoin + nCodeWin);

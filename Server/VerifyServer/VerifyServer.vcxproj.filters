@@ -39,15 +39,6 @@
     <Filter Include="Verify\Task">
       <UniqueIdentifier>{671166ce-54d1-4ccf-a811-0ac69aa63e46}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Verify\AlipaySDK">
-      <UniqueIdentifier>{dbc1491e-a9ee-4eec-92cd-819670d5e90f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Verify\AlipaySDK\json">
-      <UniqueIdentifier>{da399fbb-6e08-41af-b54d-22fbb34fc0a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Verify\AlipaySDK\http">
-      <UniqueIdentifier>{87975157-e6b1-426d-b728-9431a4757630}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -181,21 +172,6 @@
     </ClCompile>
     <ClCompile Include="..\DBServer\src\MySqlData.cpp">
       <Filter>SvrCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="src\alipaySDK\openapi\openapi_client.cpp">
-      <Filter>Verify\AlipaySDK</Filter>
-    </ClCompile>
-    <ClCompile Include="src\alipaySDK\openapi\json\cJSON.c">
-      <Filter>Verify\AlipaySDK\json</Filter>
-    </ClCompile>
-    <ClCompile Include="src\alipaySDK\openapi\json\json_type.cpp">
-      <Filter>Verify\AlipaySDK\json</Filter>
-    </ClCompile>
-    <ClCompile Include="src\alipaySDK\openapi\json\json_util.cpp">
-      <Filter>Verify\AlipaySDK\json</Filter>
-    </ClCompile>
-    <ClCompile Include="src\alipaySDK\openapi\http\http_client.cpp">
-      <Filter>Verify\AlipaySDK\http</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -345,21 +321,6 @@
     </ClInclude>
     <ClInclude Include="..\DBServer\src\MySqlData.h">
       <Filter>SvrCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="src\alipaySDK\openapi\openapi_client.h">
-      <Filter>Verify\AlipaySDK</Filter>
-    </ClInclude>
-    <ClInclude Include="src\alipaySDK\openapi\json\cJSON.h">
-      <Filter>Verify\AlipaySDK\json</Filter>
-    </ClInclude>
-    <ClInclude Include="src\alipaySDK\openapi\json\json_type.h">
-      <Filter>Verify\AlipaySDK\json</Filter>
-    </ClInclude>
-    <ClInclude Include="src\alipaySDK\openapi\json\json_util.h">
-      <Filter>Verify\AlipaySDK\json</Filter>
-    </ClInclude>
-    <ClInclude Include="src\alipaySDK\openapi\http\http_client.h">
-      <Filter>Verify\AlipaySDK\http</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

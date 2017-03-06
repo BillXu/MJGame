@@ -198,103 +198,103 @@ bool CHttpModule::onHandleAliPayResult(http::server::connection_ptr ptr)
 	LOGFMTD("recv alipay resp : %s ",req->reqContent.c_str());
 	//req->reqContent = "total_amount=0.10&buyer_id=2088412132415960&trade_no=2016112121001004960273347388&notify_time=2016-11-21+19%3A35%3A37&subject=%E9%92%BB%E7%9F%B3&sign_type=RSA&buyer_logon_id=182****4594&auth_app_id=2016111602881028&charset=utf-8&notify_type=trade_status_sync&invoice_amount=0.10&out_trade_no=80E183E147972812841&trade_status=TRADE_SUCCESS&gmt_payment=2016-11-21+19%3A35%3A37&version=1.0&point_amount=0.00&sign=SpUGImVPXhvNUNQ4cSwIpQfbQFu4vgOlJrzYjq8Ifm2ArgNlvvtRvpFxzK%2BHmcCu72T8bDU0%2Fw%2FKbazMY4YV6B7QNCQoGVcYm8K9iG6vwr92bIvogcYoqNIJrKgwhtQaLAoeKu9ymrRjDoxz0%2FsmdKLxhI7eDrHe99M24rHoFNM%3D&gmt_create=2016-11-21+19%3A35%3A37&buyer_pay_amount=0.10&receipt_amount=0.10&fund_bill_list=%5B%7B%22amount%22%3A%220.10%22%2C%22fundChannel%22%3A%22ALIPAYACCOUNT%22%7D%5D&app_id=2016111602881028&seller_id=2088521286957872&notify_id=cece49855c34a839a401c3ecc0cd1e4neq&seller_email=hyzfb%407zplay.com ";
 	
-	std::map<std::string, std::string> strMap;
-	for (uint16_t nIdx = 0; nIdx < req->reqContent.size();)
-	{
-		auto keyPos = req->reqContent.find_first_of("=",nIdx);
-		auto strKey = req->reqContent.substr(nIdx,keyPos - nIdx );
-
-		auto valueStart = keyPos + 1;
-		auto valuePos = req->reqContent.find_first_of("&", valueStart );
-		if (std::string::npos == valuePos)
-		{
-			valuePos = req->reqContent.size();
-		}
-		auto strValue = req->reqContent.substr(valueStart, valuePos - valueStart);
-		strMap[strKey] = strValue;
-
-		nIdx = valuePos + 1;
-	}
-	
-	
-	//OpenapiClient openapiClient(OpenapiClient::default_appID,
-	//	OpenapiClient::KEY_PRIVATE,
-	//	OpenapiClient::default_url,
-	//	OpenapiClient::default_charset,
-	//	OpenapiClient::KEY_PUBLIC);
-	//auto ret = openapiClient.analyzeResponse(req->reqContent);
-	//if (ret.empty())
+	//std::map<std::string, std::string> strMap;
+	//for (uint16_t nIdx = 0; nIdx < req->reqContent.size();)
 	//{
-	//	LOGFMTE("recve alipay respone but verify sign failed ?");
+	//	auto keyPos = req->reqContent.find_first_of("=",nIdx);
+	//	auto strKey = req->reqContent.substr(nIdx,keyPos - nIdx );
+
+	//	auto valueStart = keyPos + 1;
+	//	auto valuePos = req->reqContent.find_first_of("&", valueStart );
+	//	if (std::string::npos == valuePos)
+	//	{
+	//		valuePos = req->reqContent.size();
+	//	}
+	//	auto strValue = req->reqContent.substr(valueStart, valuePos - valueStart);
+	//	strMap[strKey] = strValue;
+
+	//	nIdx = valuePos + 1;
+	//}
+	//
+	//
+	////OpenapiClient openapiClient(OpenapiClient::default_appID,
+	////	OpenapiClient::KEY_PRIVATE,
+	////	OpenapiClient::default_url,
+	////	OpenapiClient::default_charset,
+	////	OpenapiClient::KEY_PUBLIC);
+	////auto ret = openapiClient.analyzeResponse(req->reqContent);
+	////if (ret.empty())
+	////{
+	////	LOGFMTE("recve alipay respone but verify sign failed ?");
+	////	std::string str = "failed";
+	////	res->setContent(str, "text/xml");
+	////	ptr->doReply();
+	////	return true;
+	////}
+
+	////JsonType jsonObj = JsonUtil::stringToObject(ret);
+	//auto resultMap = strMap;
+	//auto statusIter = resultMap.find("trade_status");
+	//if (statusIter == resultMap.end())
+	//{
+	//	LOGFMTE("why do not have trade status key ? ");
 	//	std::string str = "failed";
 	//	res->setContent(str, "text/xml");
 	//	ptr->doReply();
 	//	return true;
 	//}
 
-	//JsonType jsonObj = JsonUtil::stringToObject(ret);
-	auto resultMap = strMap;
-	auto statusIter = resultMap.find("trade_status");
-	if (statusIter == resultMap.end())
-	{
-		LOGFMTE("why do not have trade status key ? ");
-		std::string str = "failed";
-		res->setContent(str, "text/xml");
-		ptr->doReply();
-		return true;
-	}
+	//std::string strStatus = statusIter->second;
+	//LOGFMTD("respone status: %s",strStatus.c_str());
+	//if (strcmp(strStatus.c_str(), "TRADE_SUCCESS")) // not success 
+	//{
+	//	// but we do processed ,do not tell me again ;
+	//	std::string str = "success";
+	//	res->setContent(str, "text/xml");
+	//	ptr->doReply();
+	//	return true;
+	//}
 
-	std::string strStatus = statusIter->second;
-	LOGFMTD("respone status: %s",strStatus.c_str());
-	if (strcmp(strStatus.c_str(), "TRADE_SUCCESS")) // not success 
-	{
-		// but we do processed ,do not tell me again ;
-		std::string str = "success";
-		res->setContent(str, "text/xml");
-		ptr->doReply();
-		return true;
-	}
+	//auto iterAlipayTradeNo = resultMap.find("trade_no");
+	//if (iterAlipayTradeNo == resultMap.end())
+	//{
+	//	LOGFMTE("alipay out trade_no is nullptr");
+	//	std::string str = "success";
+	//	res->setContent(str, "text/xml");
+	//	ptr->doReply();
+	//	return true;
+	//}
 
-	auto iterAlipayTradeNo = resultMap.find("trade_no");
-	if (iterAlipayTradeNo == resultMap.end())
-	{
-		LOGFMTE("alipay out trade_no is nullptr");
-		std::string str = "success";
-		res->setContent(str, "text/xml");
-		ptr->doReply();
-		return true;
-	}
-
-	auto iterTradeNo = resultMap.find("out_trade_no");
-	if (iterTradeNo == resultMap.end())
-	{
-		LOGFMTE("out trade_no is nullptr");
-		std::string str = "success";
-		res->setContent(str, "text/xml");
-		ptr->doReply();
-		return true;
-	}
-	// go on do db verfiy ;
-	// do DB verify ;
-	std::vector<std::string> vOut;
-	boost::split(vOut, iterTradeNo->second, boost::is_any_of("E"));
-	if (vOut.size() < 2)
-	{
-		LOGFMTE("trade out error = %s", iterTradeNo->second.c_str());
-		LOGFMTE("trade_no is nullptr");
-		std::string str = "success";
-		res->setContent(str, "text/xml");
-		ptr->doReply();
-		return true;
-	}
-	LOGFMTD("all right go on db verify Zhi fu bao ");
-	auto shopItem = vOut[0];
-	auto userUID = vOut[1];
-	auto pVeirfyModule = ((CVerifyApp*)getSvrApp())->getTaskPoolModule();
-	pVeirfyModule->doDBVerify(atoi(userUID.c_str()), atoi(shopItem.c_str()), ePay_ZhiFuBao, iterAlipayTradeNo->second);
-	std::string str = "success";
-	res->setContent(str, "text/xml");
-	ptr->doReply();
+	//auto iterTradeNo = resultMap.find("out_trade_no");
+	//if (iterTradeNo == resultMap.end())
+	//{
+	//	LOGFMTE("out trade_no is nullptr");
+	//	std::string str = "success";
+	//	res->setContent(str, "text/xml");
+	//	ptr->doReply();
+	//	return true;
+	//}
+	//// go on do db verfiy ;
+	//// do DB verify ;
+	//std::vector<std::string> vOut;
+	//boost::split(vOut, iterTradeNo->second, boost::is_any_of("E"));
+	//if (vOut.size() < 2)
+	//{
+	//	LOGFMTE("trade out error = %s", iterTradeNo->second.c_str());
+	//	LOGFMTE("trade_no is nullptr");
+	//	std::string str = "success";
+	//	res->setContent(str, "text/xml");
+	//	ptr->doReply();
+	//	return true;
+	//}
+	//LOGFMTD("all right go on db verify Zhi fu bao ");
+	//auto shopItem = vOut[0];
+	//auto userUID = vOut[1];
+	//auto pVeirfyModule = ((CVerifyApp*)getSvrApp())->getTaskPoolModule();
+	//pVeirfyModule->doDBVerify(atoi(userUID.c_str()), atoi(shopItem.c_str()), ePay_ZhiFuBao, iterAlipayTradeNo->second);
+	//std::string str = "success";
+	//res->setContent(str, "text/xml");
+	//ptr->doReply();
 	return true;
 }
 

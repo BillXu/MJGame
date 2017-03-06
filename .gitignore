@@ -81,3 +81,6 @@ Server/jacksnail.rar
 *.dmp
 *.dmp
 Server/VerifyServer/src/lib_json/
+*.ipdb
+*.iobj
+*.db
